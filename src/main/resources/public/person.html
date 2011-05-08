@@ -1,0 +1,71 @@
+<html>
+<head>
+    <title>Test Page</title>
+    <script src="/sjs/_sjs/jquery.js" type="text/javascript"></script>
+    <script src="/sjs/_sjs/sjs.js" type="text/javascript"></script>
+    <script src="/sjs/_sjs/form2object.js" type="text/javascript"></script>
+    <script src="/sjs/_sjs/knockout.js" type="text/javascript"></script>
+
+    <script src="/sjs/person_browser.js" type="text/javascript"></script>
+
+    <script src="/sjs/_sjs/module.js" type="text/javascript"></script>
+</head>
+<body>
+
+<script type="text/javascript">
+    var ViewModel = function() {
+        this.firstName = ko.observable(""),
+        this.lastName = ko.observable(""),
+        this.address = {
+            zipcode: ko.observable("73728"),
+            city: ko.observable("Esslingen")
+        },
+        this.fullName = ko.dependentObservable(function() {
+            return this.firstName() + " " + this.lastName();
+        }, this);
+        this.savePerson = function() {
+            savePerson(ko.toJS(this), function(result) {
+                console.log("result->" + result);
+            });
+        }
+    };
+    $(function() { ko.applyBindings(new ViewModel()) });
+</script>
+
+Person:
+
+<form action="#" id="person_form">
+    <table>
+        <tr>
+            <td>Firstname</td>
+            <td>
+                <input type="text" data-bind="value: firstName" />
+            </td>
+        </tr>
+        <tr>
+            <td>Lastname</td>
+            <td>
+                <input type="text" data-bind="value: lastName" />
+            </td>
+        </tr>
+        <tr>
+            <td>Fullname</td>
+            <td>
+                <span data-bind="text: fullName"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>Address</td>
+            <td>
+                <input type="text" data-bind="value: address.zipcode" />
+                <input type="text" data-bind="value: address.city" />
+            </td>
+        </tr>
+        <tr>
+            <td></td><td><a href="#" data-bind="click: savePerson">Send</a></td>
+        </tr>
+    </table>
+</form>
+
+</body>
+</html>

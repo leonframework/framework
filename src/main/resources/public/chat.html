@@ -1,0 +1,39 @@
+<html>
+<head>
+    <title>Test Page</title>
+    <script src="/sjs/_sjs/jquery.js" type="text/javascript"></script>
+    <script src="/sjs/_sjs/jquery.atmosphere.js" type="text/javascript"></script>
+    <script src="/sjs/_sjs/sjs.js" type="text/javascript"></script>
+    <script src="/sjs/_sjs/form2object.js" type="text/javascript"></script>
+
+    <script src="/sjs/person_browser.js" type="text/javascript"></script>
+</head>
+<body>
+
+<script type="text/javascript">
+
+    //receive("", function() {});
+
+    var addMe = function() {
+        $.atmosphere.subscribe(
+        "/atmosphere/queue/" + "?action=add",
+        function(a) { console.log("ATMO_ADD"+ a.responseBody) },
+        $.atmosphere.request = {transport: "autodetect"});
+    }
+
+    var removeMe = function() {
+        $.atmosphere.subscribe(
+        "/atmosphere/queue/" + "?action=remove",
+        function(a) { console.log("ATMO_REMOVE"+ a.responseBody) },
+        $.atmosphere.request = {transport: "autodetect"});
+    }
+
+</script>
+
+<div id="content"></div>
+
+<a href="#" onclick="addMe()">Add</a> <br/>
+<a href="#" onclick="removeMe()">Remove</a> <br/>
+
+</body>
+</html>

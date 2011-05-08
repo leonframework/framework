@@ -1,0 +1,9 @@
+
+<atmosphere-handlers>
+
+    <atmosphere-handler context-root="/atmosphere/queue/" class-name="com.ww.sjs.SJSAtmosphereQueueHandler" />
+
+</atmosphere-handlers>
+
+
+
