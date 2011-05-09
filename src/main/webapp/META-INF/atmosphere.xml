@@ -1,7 +1,7 @@
 
 <atmosphere-handlers>
 
-    <atmosphere-handler context-root="/atmosphere/queue/" class-name="com.ww.sjs.SJSAtmosphereQueueHandler" />
+    <atmosphere-handler context-root="/atmosphere/page/" class-name="com.ww.sjs.SJSAtmosphereQueueHandler" />
 
 </atmosphere-handlers>
 

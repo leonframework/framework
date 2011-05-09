@@ -22,22 +22,13 @@ abstract class SJSConfig extends AbstractModule {
 
   initScriptEngine()
 
-  def configure() {
-  }
-
   def initScriptEngine() {
     loadJsFile("internal/server/json2.js")
     loadJsFile("internal/server/sjs.js")
     engine.put("config", this)
   }
 
-  def loadJsFile(fileName: String) {
-    val jsFile = getClass.getClassLoader.getResourceAsStream(fileName)
-    engine.eval(new InputStreamReader(jsFile))
-  }
-
-  def getJavaScriptFunction(name: String): JavaScriptFunction = {
-    exposedFunctions(name)
+  def configure() {
   }
 
   private def createJavaScriptFunctionDeclaration(fnName: String): String = {
@@ -55,12 +46,23 @@ abstract class SJSConfig extends AbstractModule {
     """.format(fnName, fnName)
   }
 
-  def getJavaScriptInclude: String = {
-    (exposedFunctions.keys map createJavaScriptFunctionDeclaration).mkString("\n")
+  def createApplicationJavaScript(): String = {
+    (exposedFunctions.keys map createJavaScriptFunctionDeclaration) mkString "\n"
   }
 
-  def expose(publicName: String, internalName: String) {
-    exposedFunctions(publicName) = new JavaScriptFunction(engine, internalName)
+  def loadJsFile(fileName: String) {
+    val jsFile = getClass.getClassLoader.getResourceAsStream(fileName)
+    engine.eval(new InputStreamReader(jsFile))
+  }
+
+  def expose(internalName: String) = new {
+    def as(publicName: String) {
+      exposedFunctions(publicName) = new JavaScriptFunction(engine, internalName)
+    }
+  }
+
+  def getJavaScriptFunction(name: String): JavaScriptFunction = {
+    exposedFunctions(name)
   }
 
 }

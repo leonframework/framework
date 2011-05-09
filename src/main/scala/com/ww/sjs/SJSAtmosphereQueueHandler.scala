@@ -10,75 +10,80 @@ package com.ww.sjs
 import org.atmosphere.util.XSSHtmlFilter
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import org.atmosphere.cpr.{AtmosphereResource, AtmosphereHandler, AtmosphereResourceEvent}
-import java.util.concurrent.TimeUnit
 
+
+object SJSAtmosphereQueueHandler {
+  var INSTANCE: SJSAtmosphereQueueHandler = _
+
+  def test() {
+    INSTANCE.listener foreach { l =>
+      println("sending test message to %s" format l.hashCode)
+      l.getBroadcaster.broadcast("test message\n")
+
+    }
+  }
+}
 
 class SJSAtmosphereQueueHandler extends AtmosphereHandler[HttpServletRequest, HttpServletResponse] {
 
-  private val listener = new scala.collection.mutable.HashSet[AtmosphereResource[HttpServletRequest, HttpServletResponse]]
+  SJSAtmosphereQueueHandler.INSTANCE = this
+
+  val listener = new scala.collection.mutable.HashSet[AtmosphereResource[HttpServletRequest, HttpServletResponse]]
 
   def onRequest(event: AtmosphereResource[HttpServletRequest, HttpServletResponse]) {
     val req = event.getRequest
     val res = event.getResponse
     val sessionId = req.getSession.getId
-    val action = req.getParameter("action")
-    println("### ACTION: " + action)
+    val page = req.getParameter("page")
+
+    
     res.setContentType("multipart/x-mixed-replace")
 
-    println("#### EVENT:" + event)
+    listener.add(event)
 
-    println("#### Listener: " + listener)
-
-    if (action.equalsIgnoreCase("add")) {
-      listener += event
-      event.suspend()
-      println("### suspending connection: " + event.hashCode)
-      val bc = event.getBroadcaster
-      bc.getBroadcasterConfig.addFilter(new XSSHtmlFilter)
-
-      bc.broadcast("new client: " + sessionId + "\n")
-      bc.scheduleFixedBroadcast("client " + sessionId + " still listening & öäü <div></div>  \n", 5, TimeUnit.SECONDS)
-
-      res.getWriter.write("success")
-      res.getWriter.flush()
-    } else if (action.equalsIgnoreCase("remove")) {
-
-    } else {
-      println("'!#!#!# Unkown action !!!")
+    println("# Listeners:" + listener.size)
+    listener foreach { l =>
+      println("Listener: " + l.hashCode)
     }
+
+    
+    event.suspend()
+
+    println("### suspending connection: " + event.hashCode)
+
+    event.getBroadcaster.getBroadcasterConfig.addFilter(new XSSHtmlFilter)
+
+    res.getWriter.write("Server: registered page, event: %s".format(event.hashCode))
+    res.getWriter.flush()
   }
 
   def onStateChange(event: AtmosphereResourceEvent[HttpServletRequest, HttpServletResponse]) {
-    import scala.collection.JavaConversions
-    println("####### STATE CHANGE: " + event)
-    val resources = JavaConversions.asScalaIterable(event.getResource.getBroadcaster.getAtmosphereResources)
-    println("#### res length: " + resources.size)
-    resources foreach { r =>
-      println("### res hash: " + r.hashCode)
-    }
-
     val req = event.getResource.getRequest
     val res = event.getResource.getResponse
+
     try {
       if (event.getMessage == null) {
+        println("onStateChange: getMessage == null")
         return
       }
+
       if (event.isCancelled) {
-        println("####################CANCELED!!!!!!!!" + event)
-        println("####################CANCELED!!!!!!!!" + event)
-        println("####################CANCELED!!!!!!!!" + event)
-        println("####################CANCELED!!!!!!!!" + event)
-        event.getResource.getBroadcaster.broadcast(req.getRemoteAddr + " has left")
+        listener.remove(event.getResource)
+        println("onStateChange: isCancelled")
+        event.getResource.getBroadcaster.broadcast("onStateChange: isCancelled")
       }
       else if (event.isResuming || event.isResumedOnTimeout) {
-        res.getWriter.write("isResuming || isResumedOnTimeout") // TODO: Connect im browser wiederherstellen
-      }
-      else {
+        listener.remove(event.getResource)
+        println("onStateChange: isResuming")
+        event.getResource.getBroadcaster.broadcast("onStateChange: isResuming")
+      } else {
+        println("onStateChange: writing message: " + event.getMessage.toString)
         res.getWriter.write(event.getMessage.toString)
       }
       res.getWriter.flush()
+
     } catch {
-      case _ => // catch broken pipe etc.
+      case e => throw e
     }
   }
 

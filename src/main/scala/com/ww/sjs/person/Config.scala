@@ -13,6 +13,6 @@ class Config extends SJSConfig {
 
   loadJsFile("public/person_server.js")
 
-  expose("savePerson", "savePerson")
+  expose("savePerson") as "savePerson"
 
 }

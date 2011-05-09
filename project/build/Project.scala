@@ -16,6 +16,8 @@ class SJSProject(info: ProjectInfo) extends DefaultWebProject(info) {
 
   lazy val guiceMaven2RepoModuleConfig = ModuleConfiguration("com.google.inject", repo2MavenRepo)
 
+  lazy val guiceExtMaven2RepoModuleConfig = ModuleConfiguration("com.google.inject.extensions", repo2MavenRepo)
+
 
   val servletApi = "org.mortbay.jetty" % "servlet-api" % "2.5-20081211" % "provided"
 
@@ -24,13 +26,15 @@ class SJSProject(info: ProjectInfo) extends DefaultWebProject(info) {
   val sjson = "net.debasishg" % "sjson_2.8.1" % "0.9.1" withSources()
 
   val atmosphere_runtime = "org.atmosphere" % "atmosphere-runtime" % "0.7.1" withSources()
-  val atmosphere_runtimejq = "org.atmosphere" % "atmosphere-jquery" % "0.7.1" 
+  val atmosphere_runtimejq = "org.atmosphere" % "atmosphere-jquery" % "0.7.1"
 
   val logback_classic = "ch.qos.logback" % "logback-classic" % "0.9.24"
 
   val logback_core = "ch.qos.logback" % "logback-core" % "0.9.24"
 
   val guice = "com.google.inject" % "guice" % "3.0" withSources()
+
+  val guiceServlet = "com.google.inject.extensions" % "guice-servlet" % "3.0" withSources()
 
 }
 

@@ -13,13 +13,3 @@ function invoke(fnName, args, callback) {
         callback);
 }
 
-function receive(queueName, callback) {
-    $.atmosphere.subscribe(
-        "/atmosphere/queue/" + queueName + "?name=Roman",
-        function(a) { console.log("ATMO"+ a.responseBody) },
-        $.atmosphere.request = {transport: "autodetect"});
-}
-
-
-
-

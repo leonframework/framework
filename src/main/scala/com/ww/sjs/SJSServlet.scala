@@ -10,25 +10,19 @@ package com.ww.sjs
 import javax.servlet._
 import http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import java.io._
-import person.Config
-import com.google.inject.{Guice, Injector}
+import com.google.inject.Inject
 
 class SJSServlet extends HttpServlet {
 
-  private val classLoader = Thread.currentThread.getContextClassLoader
-
   private val FILE_SEP = File.separator
 
-  private var config: Config = _
+  @Inject
+  private var config: SJSConfig = _
 
-  private var injector: Injector = _
-
-  override def init(servletConfig: ServletConfig) {
-    super.init(servletConfig)
-    val moduleName = servletConfig.getInitParameter("module")
-    val moduleClass = classLoader.loadClass(moduleName)
-    config = moduleClass.newInstance.asInstanceOf[Config]
-    injector = Guice.createInjector(config)
+  override def init(config: ServletConfig) {
+    super.init(config)
+    //val injector = config.getServletContext.getAttribute(classOf[Injector].getName).asInstanceOf[Injector]
+    //injector.injectMembers(this)
   }
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
@@ -50,16 +44,13 @@ class SJSServlet extends HttpServlet {
       case "sjs" :: "_sjs" :: "form2object.js" :: Nil =>
         doResource(req, res, "internal" + FILE_SEP + "browser" + FILE_SEP + "form2object.js")
 
-      case "sjs" :: "_sjs" :: "module.js" :: Nil =>
-        doString(req, res, config.getJavaScriptInclude)
+      case "sjs" :: "_sjs" :: "application.js" :: Nil =>
+        doString(req, res, config.createApplicationJavaScript())
 
 
 
       case "sjs" :: "_sjs" :: "fc" :: Nil =>
         doFunctionCall(req, res)
-
-      case "sjs" :: "_sjs" :: "queue" :: Nil =>
-        doQueue(req, res)
 
       case Nil =>
         doString(req, res, "root index")
@@ -90,10 +81,6 @@ class SJSServlet extends HttpServlet {
     val out = new BufferedOutputStream(res.getOutputStream)
     out.write(result.getBytes)
     out.close()
-  }
-
-  private def doQueue(req: HttpServletRequest, res: HttpServletResponse) {
-    
   }
 
   private def doString(req: HttpServletRequest, res: HttpServletResponse, string: String) {

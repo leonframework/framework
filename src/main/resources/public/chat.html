@@ -6,34 +6,33 @@
     <script src="/sjs/_sjs/sjs.js" type="text/javascript"></script>
     <script src="/sjs/_sjs/form2object.js" type="text/javascript"></script>
 
-    <script src="/sjs/person_browser.js" type="text/javascript"></script>
+    <script src="/sjs/_sjs/application.js" type="text/javascript"></script>
 </head>
 <body>
 
 <script type="text/javascript">
-
-    //receive("", function() {});
-
-    var addMe = function() {
-        $.atmosphere.subscribe(
-        "/atmosphere/queue/" + "?action=add",
-        function(a) { console.log("ATMO_ADD"+ a.responseBody) },
-        $.atmosphere.request = {transport: "autodetect"});
+    var log = function(msg) {
+        console.log(msg);
     }
 
-    var removeMe = function() {
+    var registerPage = function() {
+        console.log("calling subscribe");
+
         $.atmosphere.subscribe(
-        "/atmosphere/queue/" + "?action=remove",
-        function(a) { console.log("ATMO_REMOVE"+ a.responseBody) },
-        $.atmosphere.request = {transport: "autodetect"});
+            "/atmosphere/page/" + "?page=" + window.location,
+            function(a) {
+                log(a.responseBody);
+            },
+            $.atmosphere.request = {transport: "autodetect"});
+
+        console.log("subscribe done");
     }
 
 </script>
 
-<div id="content"></div>
+<a href="#" onclick="registerPage()">Register Page</a> <br/>
 
-<a href="#" onclick="addMe()">Add</a> <br/>
-<a href="#" onclick="removeMe()">Remove</a> <br/>
+<div id="content"></div>
 
 </body>
 </html>
