@@ -7,10 +7,12 @@
  */
 package com.ww.sjs
 
+import comet.CometWebModule
 import java.io.InputStreamReader
 import javax.script.ScriptEngineManager
 import scala.collection.mutable
 import com.google.inject.AbstractModule
+
 
 abstract class SJSConfig extends AbstractModule {
 
@@ -22,6 +24,8 @@ abstract class SJSConfig extends AbstractModule {
 
   initScriptEngine()
 
+  def config()
+
   def initScriptEngine() {
     loadJsFile("internal/server/json2.js")
     loadJsFile("internal/server/sjs.js")
@@ -29,6 +33,10 @@ abstract class SJSConfig extends AbstractModule {
   }
 
   def configure() {
+    install(new MainServletWebModule)
+    install(new CometWebModule)
+    bind(classOf[SJSConfig]).toInstance(this)
+    config()
   }
 
   private def createJavaScriptFunctionDeclaration(fnName: String): String = {

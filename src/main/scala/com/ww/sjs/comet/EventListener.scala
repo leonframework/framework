@@ -19,7 +19,7 @@ import org.atmosphere.cpr.{AtmosphereResourceEvent, AtmosphereResourceEventListe
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import java.util.logging.Logger
 
-class EventsLogger extends AtmosphereResourceEventListener {
+class EventListener extends AtmosphereResourceEventListener {
 
   private val logger = Logger.getLogger(getClass.getName)
 

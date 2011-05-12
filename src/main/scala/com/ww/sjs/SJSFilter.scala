@@ -16,8 +16,7 @@ package com.ww.sjs
  * limitations under the License.
  */
 import com.google.inject.{Module, Guice}
-import com.google.inject.servlet.{GuiceFilter, ServletModule}
-import comet.CometWebModule
+import com.google.inject.servlet.GuiceFilter
 import javax.servlet.FilterConfig
 
 
@@ -30,21 +29,7 @@ class SJSFilter extends GuiceFilter {
   override def init(filterConfig: FilterConfig) {
     val moduleName = filterConfig.getInitParameter("module")
     val moduleClass = classLoader.loadClass(moduleName).asInstanceOf[Class[SJSConfig]]
-
-    Guice.createInjector(new ServletModule {
-      override def configureServlets() {
-        bind(classOf[SJSConfig]).to(moduleClass)
-
-        bind(classOf[SJSServlet]).asEagerSingleton()
-
-        install(new CometWebModule)
-
-        serve("/sjs/*").`with`(classOf[SJSServlet])
-
-      }
-      
-    })
-
+    Guice.createInjector(moduleClass.newInstance())
     super.init(filterConfig)
   }
 

@@ -15,4 +15,7 @@ class Config extends SJSConfig {
 
   expose("savePerson") as "savePerson"
 
+  def config {
+  }
+
 }

@@ -10,10 +10,25 @@ package com.ww.sjs
 import javax.servlet._
 import http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import java.io._
-import com.google.inject.Inject
 import java.util.logging.Logger
+import com.google.inject.{AbstractModule, Inject}
+import com.google.inject.servlet.ServletModule
 
-class SJSServlet extends HttpServlet {
+
+class MainServletWebModule extends ServletModule {
+  override def configureServlets() {
+    install(new MainServletModule)
+    serve("/sjs/*").`with`(classOf[MainServlet])
+  }
+}
+
+class MainServletModule extends AbstractModule {
+  def configure() {
+    bind(classOf[MainServlet]).asEagerSingleton()
+  }
+}
+
+class MainServlet extends HttpServlet {
 
   private val FILE_SEP = File.separator
 
