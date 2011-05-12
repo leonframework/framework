@@ -9,46 +9,29 @@ package com.ww.sjs
 
 import org.atmosphere.util.XSSHtmlFilter
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
-import org.atmosphere.cpr.{AtmosphereResource, AtmosphereHandler, AtmosphereResourceEvent}
+import org.atmosphere.cpr.{Broadcaster, AtmosphereResource, AtmosphereHandler, AtmosphereResourceEvent}
+import collection.JavaConversions
 
-
-object SJSAtmosphereQueueHandler {
-  var INSTANCE: SJSAtmosphereQueueHandler = _
-
-  def test() {
-    INSTANCE.listener foreach { l =>
-      println("sending test message to %s" format l.hashCode)
-      l.getBroadcaster.broadcast("test message\n")
-
-    }
-  }
-}
 
 class SJSAtmosphereQueueHandler extends AtmosphereHandler[HttpServletRequest, HttpServletResponse] {
 
-  SJSAtmosphereQueueHandler.INSTANCE = this
-
-  val listener = new scala.collection.mutable.HashSet[AtmosphereResource[HttpServletRequest, HttpServletResponse]]
-
   def onRequest(event: AtmosphereResource[HttpServletRequest, HttpServletResponse]) {
+    event.getRequest.getMethod match {
+      case "GET" => handleSubscribe(event)
+      case "POST" => handleMessage(event)
+    }
+  }
+
+  def handleSubscribe(event: AtmosphereResource[HttpServletRequest, HttpServletResponse]) {
     val req = event.getRequest
     val res = event.getResponse
-    val sessionId = req.getSession.getId
-    val page = req.getParameter("page")
 
-    
     res.setContentType("multipart/x-mixed-replace")
 
-    listener.add(event)
-
-    println("# Listeners:" + listener.size)
-    listener foreach { l =>
-      println("Listener: " + l.hashCode)
-    }
-
-    
     event.suspend()
+    
 
+    println("### Broadcaster = " + event.getBroadcaster)
     println("### suspending connection: " + event.hashCode)
 
     event.getBroadcaster.getBroadcasterConfig.addFilter(new XSSHtmlFilter)
@@ -57,8 +40,16 @@ class SJSAtmosphereQueueHandler extends AtmosphereHandler[HttpServletRequest, Ht
     res.getWriter.flush()
   }
 
+  def handleMessage(event: AtmosphereResource[HttpServletRequest, HttpServletResponse]) {
+    val req = event.getRequest
+    val res = event.getResponse
+    val message = req.getParameter("message")
+    println("### sending message: " + message)
+    event.getBroadcaster.broadcast(message)
+  }
+
   def onStateChange(event: AtmosphereResourceEvent[HttpServletRequest, HttpServletResponse]) {
-    val req = event.getResource.getRequest
+    //val req = event.getResource.getRequest
     val res = event.getResource.getResponse
 
     try {
@@ -68,20 +59,21 @@ class SJSAtmosphereQueueHandler extends AtmosphereHandler[HttpServletRequest, Ht
       }
 
       if (event.isCancelled) {
-        listener.remove(event.getResource)
         println("onStateChange: isCancelled")
         event.getResource.getBroadcaster.broadcast("onStateChange: isCancelled")
       }
       else if (event.isResuming || event.isResumedOnTimeout) {
-        listener.remove(event.getResource)
         println("onStateChange: isResuming")
         event.getResource.getBroadcaster.broadcast("onStateChange: isResuming")
       } else {
         println("onStateChange: writing message: " + event.getMessage.toString)
-        res.getWriter.write(event.getMessage.toString)
+        try {
+          res.getWriter.write(event.getMessage.toString)
+        } catch {
+          case e => println("Error writing message: " + e.getMessage)
+        }
       }
       res.getWriter.flush()
-
     } catch {
       case e => throw e
     }

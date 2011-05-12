@@ -17,8 +17,8 @@ package com.ww.sjs
  */
 import com.google.inject.{Module, Guice}
 import com.google.inject.servlet.{GuiceFilter, ServletModule}
+import comet.CometWebModule
 import javax.servlet.FilterConfig
-import org.atmosphere.cpr.AtmosphereServlet
 
 
 class SJSFilter extends GuiceFilter {
@@ -34,12 +34,15 @@ class SJSFilter extends GuiceFilter {
     Guice.createInjector(new ServletModule {
       override def configureServlets() {
         bind(classOf[SJSConfig]).to(moduleClass)
+
         bind(classOf[SJSServlet]).asEagerSingleton()
-        bind(classOf[AtmosphereServlet]).asEagerSingleton()
+
+        install(new CometWebModule)
 
         serve("/sjs/*").`with`(classOf[SJSServlet])
-        serve("/atmosphere/*").`with`(classOf[AtmosphereServlet])
+
       }
+      
     })
 
     super.init(filterConfig)

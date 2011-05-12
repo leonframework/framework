@@ -11,6 +11,7 @@ import javax.servlet._
 import http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import java.io._
 import com.google.inject.Inject
+import java.util.logging.Logger
 
 class SJSServlet extends HttpServlet {
 
@@ -26,7 +27,13 @@ class SJSServlet extends HttpServlet {
   }
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
-    val url = req.getRequestURI.split('/').toList.dropWhile(_ == "")
+    val logger = Logger.getLogger(getClass.getName)
+
+    val contextPath = req.getContextPath
+    val requestUri = req.getRequestURI
+
+    val url = requestUri.substring(contextPath.size).split('/').toList.dropWhile(_ == "")
+    logger.info("URL = " + url)
 
     url match {
       case "sjs" :: "_sjs" :: "jquery.js" :: Nil =>
