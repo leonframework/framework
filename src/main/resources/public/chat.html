@@ -1,38 +1,42 @@
 <html>
 <head>
     <title>Test Page</title>
-    <script src="/sjs/_sjs/jquery.js" type="text/javascript"></script>
-    <script src="/sjs/_sjs/jquery.atmosphere.js" type="text/javascript"></script>
-    <script src="/sjs/_sjs/sjs.js" type="text/javascript"></script>
-    <script src="/sjs/_sjs/form2object.js" type="text/javascript"></script>
+    <script src="/_internal_/jquery.js" type="text/javascript"></script>
+    <script src="/_internal_/jquery.atmosphere.js" type="text/javascript"></script>
+    <script src="/_internal_/leon.js" type="text/javascript"></script>
+    <script src="/_internal_/form2object.js" type="text/javascript"></script>
 
-    <script src="/sjs/_sjs/application.js" type="text/javascript"></script>
+    <script src="/_internal_/application.js" type="text/javascript"></script>
 </head>
 <body>
 
 <script type="text/javascript">
     var log = function(msg) {
-        console.log(msg);
-    }
+        //console.log(msg);
+        $("#content").prepend("AA" + msg + "BB<br/>");
+    };
 
     var registerPage = function() {
-        console.log("calling subscribe");
+        log("calling subscribe");
 
         $.atmosphere.subscribe(
-            "/atmosphere/page/" + "?page=" + window.location,
+            "/comet" + "?pageId=1&uplink=true",
             function(a) {
-                log(a.responseBody);
+                log("Comet Response via " + a.transport + " : " + a.responseBody);
             },
-            $.atmosphere.request = {transport: "autodetect"});
+            $.atmosphere.request = {transport: "streaming"}
+        );
 
-        console.log("subscribe done");
-    }
-
+        log("subscribe done");
+    };
 </script>
 
 <a href="#" onclick="registerPage()">Register Page</a> <br/>
 
-<div id="content"></div>
+<div>
+    <ul id="content">
+    </ul>
+</div>
 
 </body>
 </html>

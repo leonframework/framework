@@ -5,7 +5,7 @@ jQuery.fn.toObject = function() {
 
 function invoke(fnName, args, callback) {
     jQuery.post(
-        "/sjs/_sjs/fc",
+        "/_internal_/fc",
         {
             fnName: fnName,
             args: JSON.stringify(args)

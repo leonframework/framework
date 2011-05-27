@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ww.sjs.comet
+package io.leon.comet
 
 import org.atmosphere.util.XSSHtmlFilter
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
@@ -28,10 +28,19 @@ import com.google.inject.servlet.ServletModule
 
 
 class CometWebModule extends ServletModule {
+
   override def configureServlets() {
     install(new CometModule)
-    val meteorParams = JavaConversions.asJavaMap(Map(
-      "org.atmosphere.servlet" -> classOf[CometHandler].getName))
+    val meteorParams = JavaConversions.mapAsJavaMap(Map(
+      "org.atmosphere.servlet" -> classOf[CometHandler].getName
+      //,
+      //AtmosphereServlet.WEBSOCKET_SUPPORT -> "true"
+      ))
+
+//         &lt;param-name&gt;org.atmosphere.useNative&lt;/param-name&gt;
+// *      &lt;param-value&gt;true&lt;/param-value&gt;
+
+
     serve("/comet*").`with`(classOf[CometServlet], meteorParams)
   }
 }
@@ -65,7 +74,7 @@ class CometRegistry {
           Thread.sleep(1000)
           val now = System.currentTimeMillis
           clients foreach { case (id, cc) =>
-            if ((now - cc.lastPing) > 5000) {
+            if ((now - cc.lastPing) > (1000 * 5)) {
               logger.info("Last ping for client [" + id + "] too old. Removing client.")
               clients.remove(id)
               cc.meteor.resume()
@@ -78,14 +87,12 @@ class CometRegistry {
 
   def stop() {
     shouldStop = true
-    clients.values foreach { cc =>
-      cc.meteor.resume()
-    }
+    clients.values foreach { _.meteor.resume() }
   }
 
   def addClient(sessionId: String, pageId: String, req: HttpServletRequest) {
-    val meteor = Meteor.build(req, JavaConversions.asJavaList(filter), null)
-    //meteor.addListener(new EventsLogger())
+    val meteor = Meteor.build(req, JavaConversions.seqAsJavaList(filter), null)
+    meteor.addListener(new EventListener())
     //val id = sessionId + pageId // TODO
     val id = pageId
     logger.info("Adding Client uplink: " + id)
@@ -111,6 +118,8 @@ class CometRegistry {
 
 class CometHandler @Inject()(registry: CometRegistry) extends HttpServlet {
 
+  private val logger = Logger.getLogger(getClass.getName)
+
   override def init(config: ServletConfig) {
     registry.start()
   }
@@ -120,6 +129,7 @@ class CometHandler @Inject()(registry: CometRegistry) extends HttpServlet {
   }
 
   override def doGet(req: HttpServletRequest, res: HttpServletResponse) {
+    logger.info("Handling Comet GET request")
     val sessionId = req.getSession.getId
     val pageId = req.getParameter("pageId")
     val uplink = req.getParameter("uplink")
@@ -131,12 +141,10 @@ class CometHandler @Inject()(registry: CometRegistry) extends HttpServlet {
   }
 
   override def doPost(req: HttpServletRequest, res: HttpServletResponse) {
+    logger.info("Handling Comet POST request")
     val meteor = Meteor.build(req)
-    val writer = res.getWriter
-    res.setCharacterEncoding("UTF-8")
     val message = req.getParameter("message")
     meteor.broadcast("MSG:" + message)
-    writer.flush()
   }
 
 }
@@ -154,5 +162,3 @@ class CometServlet @Inject()(cometHandler: CometHandler) extends AtmosphereServl
     cometHandler.destroy()
   }
 }
-
-

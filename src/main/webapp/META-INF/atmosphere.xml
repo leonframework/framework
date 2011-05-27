@@ -1,0 +1,9 @@
+
+<atmosphere-handlers>
+
+    <atmosphere-handler context-root="/atmosphere" class-name="io.leon.comet.SJSAtmosphereQueueHandler" />
+
+</atmosphere-handlers>
+
+
+

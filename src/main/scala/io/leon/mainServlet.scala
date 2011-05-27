@@ -5,7 +5,8 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.ww.sjs
+
+package io.leon
 
 import javax.servlet._
 import http.{HttpServletResponse, HttpServletRequest, HttpServlet}
@@ -18,7 +19,7 @@ import com.google.inject.servlet.ServletModule
 class MainServletWebModule extends ServletModule {
   override def configureServlets() {
     install(new MainServletModule)
-    serve("/sjs/*").`with`(classOf[MainServlet])
+    serve("/*").`with`(classOf[MainServlet])
   }
 }
 
@@ -48,36 +49,32 @@ class MainServlet extends HttpServlet {
     val requestUri = req.getRequestURI
 
     val url = requestUri.substring(contextPath.size).split('/').toList.dropWhile(_ == "")
-    logger.info("URL = " + url)
-
     url match {
-      case "sjs" :: "_sjs" :: "jquery.js" :: Nil =>
+      case "_internal_" :: "jquery.js" :: Nil =>
         doResource(req, res, "internal" + FILE_SEP + "browser" + FILE_SEP + "jquery-1.5.1.min.js")
 
-      case "sjs" :: "_sjs" :: "jquery.atmosphere.js" :: Nil =>
+      case "_internal_" :: "jquery.atmosphere.js" :: Nil =>
         doResource(req, res, "internal" + FILE_SEP + "browser" + FILE_SEP + "jquery.atmosphere.js")
 
-      case "sjs" :: "_sjs" :: "knockout.js" :: Nil =>
+      case "_internal_" :: "knockout.js" :: Nil =>
         doResource(req, res, "internal" + FILE_SEP + "browser" + FILE_SEP + "knockout-1.2.0.debug.js")
 
-      case "sjs" :: "_sjs" :: "sjs.js" :: Nil =>
-        doResource(req, res, "internal" + FILE_SEP + "browser" + FILE_SEP + "sjs.js")
+      case "_internal_" :: "leon.js" :: Nil =>
+        doResource(req, res, "internal" + FILE_SEP + "browser" + FILE_SEP + "leon.js")
 
-      case "sjs" :: "_sjs" :: "form2object.js" :: Nil =>
+      case "_internal_" :: "form2object.js" :: Nil =>
         doResource(req, res, "internal" + FILE_SEP + "browser" + FILE_SEP + "form2object.js")
 
-      case "sjs" :: "_sjs" :: "application.js" :: Nil =>
+      case "_internal_" :: "application.js" :: Nil =>
         doString(req, res, config.createApplicationJavaScript())
 
-
-
-      case "sjs" :: "_sjs" :: "fc" :: Nil =>
+      case "_internal_" :: "fc" :: Nil =>
         doFunctionCall(req, res)
 
       case Nil =>
         doString(req, res, "root index")
 
-      case "sjs" :: xs =>
+      case xs =>
         doResource(req, res, "public" + FILE_SEP + xs.mkString(FILE_SEP))
     }
   }

@@ -5,7 +5,8 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.ww.sjs
+
+package io.leon
 
 import comet.CometWebModule
 import java.io.InputStreamReader
@@ -28,13 +29,13 @@ abstract class SJSConfig extends AbstractModule {
 
   def initScriptEngine() {
     loadJsFile("internal/server/json2.js")
-    loadJsFile("internal/server/sjs.js")
+    loadJsFile("internal/server/leon.js")
     engine.put("config", this)
   }
 
   def configure() {
-    install(new MainServletWebModule)
     install(new CometWebModule)
+    install(new MainServletWebModule)
     bind(classOf[SJSConfig]).toInstance(this)
     config()
   }
@@ -53,7 +54,7 @@ abstract class SJSConfig extends AbstractModule {
     }
     """.format(fnName, fnName)
   }
-
+  
   def createApplicationJavaScript(): String = {
     (exposedFunctions.keys map createJavaScriptFunctionDeclaration) mkString "\n"
   }

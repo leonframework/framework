@@ -1,5 +1,3 @@
-package com.ww.sjs.comet
-
 /*
  * Copyright 2011 Weigle Wilczek GmbH
  *
@@ -15,6 +13,8 @@ package com.ww.sjs.comet
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.leon.comet
+
 import org.atmosphere.cpr.{AtmosphereResourceEvent, AtmosphereResourceEventListener}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
 import java.util.logging.Logger

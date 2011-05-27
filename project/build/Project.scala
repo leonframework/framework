@@ -2,7 +2,7 @@
 import sbt._
 
 
-class SJSProject(info: ProjectInfo) extends DefaultWebProject(info) {
+class LeonProject(info: ProjectInfo) extends DefaultWebProject(info) {
 
   lazy val ossSonatypeRepo = MavenRepository("Sonatype OSS Repo", "http://oss.sonatype.org/content/repositories/releases")
 

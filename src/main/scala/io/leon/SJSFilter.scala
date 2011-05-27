@@ -1,5 +1,3 @@
-package com.ww.sjs
-
 /*
  * Copyright 2011 Weigle Wilczek GmbH
  *
@@ -15,10 +13,12 @@ package com.ww.sjs
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package io.leon
+
 import com.google.inject.{Module, Guice}
 import com.google.inject.servlet.GuiceFilter
 import javax.servlet.FilterConfig
-
 
 class SJSFilter extends GuiceFilter {
 

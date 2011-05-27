@@ -5,9 +5,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.ww.sjs.person
+package io.leon.person
 
-import com.ww.sjs.SJSConfig
+import io.leon.SJSConfig
 
 class Config extends SJSConfig {
 

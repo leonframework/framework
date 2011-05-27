@@ -5,7 +5,8 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package com.ww.sjs
+
+package io.leon
 
 import javax.script.{Invocable, ScriptEngine}
 
