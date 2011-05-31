@@ -1,18 +1,18 @@
 <html>
 <head>
     <title>Test Page</title>
-    <script src="/_internal_/jquery.js" type="text/javascript"></script>
-    <script src="/_internal_/jquery.atmosphere.js" type="text/javascript"></script>
-    <script src="/_internal_/leon.js" type="text/javascript"></script>
-    <script src="/_internal_/form2object.js" type="text/javascript"></script>
+    <script src="/leon/browser/jquery.js" type="text/javascript"></script>
+    <script src="/leon/browser/jquery.atmosphere.js" type="text/javascript"></script>
+    <script src="/leon/browser/leon.js" type="text/javascript"></script>
+    <script src="/leon/browser/form2object.js" type="text/javascript"></script>
 
-    <script src="/_internal_/application.js" type="text/javascript"></script>
+    <script src="/leon/browser/application.js" type="text/javascript"></script>
 </head>
 <body>
 
 <script type="text/javascript">
     var log = function(msg) {
-        //console.log(msg);
+        console.log(msg);
         $("#content").prepend("AA" + msg + "BB<br/>");
     };
 
@@ -22,9 +22,11 @@
         $.atmosphere.subscribe(
             "/comet" + "?pageId=1&uplink=true",
             function(a) {
+                log(a);
                 log("Comet Response via " + a.transport + " : " + a.responseBody);
+                a.responseBody = "";
             },
-            $.atmosphere.request = {transport: "streaming"}
+            $.atmosphere.request = {transport: "autodetect"}
         );
 
         log("subscribe done");

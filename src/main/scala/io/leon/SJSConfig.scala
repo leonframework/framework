@@ -13,9 +13,12 @@ import java.io.InputStreamReader
 import javax.script.ScriptEngineManager
 import scala.collection.mutable
 import com.google.inject.AbstractModule
+import java.util.logging.Logger
 
 
 abstract class SJSConfig extends AbstractModule {
+
+  private val logger = Logger.getLogger(getClass.getName)
 
   private val factory = new ScriptEngineManager
 
@@ -28,8 +31,8 @@ abstract class SJSConfig extends AbstractModule {
   def config()
 
   def initScriptEngine() {
-    loadJsFile("internal/server/json2.js")
-    loadJsFile("internal/server/leon.js")
+    loadJsFile("/leon/server/json2.js")
+    loadJsFile("/leon/server/leon.js")
     engine.put("config", this)
   }
 
@@ -60,6 +63,7 @@ abstract class SJSConfig extends AbstractModule {
   }
 
   def loadJsFile(fileName: String) {
+    logger.info("Loading JS file " + fileName)
     val jsFile = getClass.getClassLoader.getResourceAsStream(fileName)
     engine.eval(new InputStreamReader(jsFile))
   }

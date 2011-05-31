@@ -11,11 +11,11 @@ import io.leon.SJSConfig
 
 class Config extends SJSConfig {
 
-  loadJsFile("public/person_server.js")
+  loadJsFile("person_server.js")
 
   expose("savePerson") as "savePerson"
 
-  def config {
+  def config() {
   }
 
 }

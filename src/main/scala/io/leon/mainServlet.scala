@@ -31,55 +31,37 @@ class MainServletModule extends AbstractModule {
 
 class MainServlet extends HttpServlet {
 
-  private val FILE_SEP = File.separator
+  val logger = Logger.getLogger(getClass.getName)
 
   @Inject
   private var config: SJSConfig = _
 
-  override def init(config: ServletConfig) {
-    super.init(config)
-    //val injector = config.getServletContext.getAttribute(classOf[Injector].getName).asInstanceOf[Injector]
-    //injector.injectMembers(this)
-  }
-
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
-    val logger = Logger.getLogger(getClass.getName)
-
     val contextPath = req.getContextPath
     val requestUri = req.getRequestURI
-
-    val url = requestUri.substring(contextPath.size).split('/').toList.dropWhile(_ == "")
+    val url = requestUri.substring(contextPath.size).split('/').toList dropWhile { _ == "" }
+    logger.info("Processing request " + url)
+    
     url match {
-      case "_internal_" :: "jquery.js" :: Nil =>
-        doResource(req, res, "internal" + FILE_SEP + "browser" + FILE_SEP + "jquery-1.5.1.min.js")
+      case "leon" :: "browser" :: "jquery.js" :: Nil =>
+        doResource(req, res, "/leon/browser/jquery-1.5.1.min.js")
 
-      case "_internal_" :: "jquery.atmosphere.js" :: Nil =>
-        doResource(req, res, "internal" + FILE_SEP + "browser" + FILE_SEP + "jquery.atmosphere.js")
+      case "leon" :: "browser" :: "knockout.js" :: Nil =>
+        doResource(req, res, "/leon/browser/knockout-1.2.0.debug.js")
 
-      case "_internal_" :: "knockout.js" :: Nil =>
-        doResource(req, res, "internal" + FILE_SEP + "browser" + FILE_SEP + "knockout-1.2.0.debug.js")
-
-      case "_internal_" :: "leon.js" :: Nil =>
-        doResource(req, res, "internal" + FILE_SEP + "browser" + FILE_SEP + "leon.js")
-
-      case "_internal_" :: "form2object.js" :: Nil =>
-        doResource(req, res, "internal" + FILE_SEP + "browser" + FILE_SEP + "form2object.js")
-
-      case "_internal_" :: "application.js" :: Nil =>
+      case "leon" :: "browser" :: "application.js" :: Nil =>
         doString(req, res, config.createApplicationJavaScript())
 
-      case "_internal_" :: "fc" :: Nil =>
+      case "leon" :: "fc" :: Nil =>
         doFunctionCall(req, res)
 
-      case Nil =>
-        doString(req, res, "root index")
-
       case xs =>
-        doResource(req, res, "public" + FILE_SEP + xs.mkString(FILE_SEP))
+        doResource(req, res, "/" + xs.mkString("/"))
     }
   }
 
   private def doResource(req: HttpServletRequest, res: HttpServletResponse, path: String) {
+    logger.info("Loading resource: " + path)
     val in = getClass.getClassLoader.getResourceAsStream(path)
     val out = res.getOutputStream
     val buffer = new Array[Byte](1024)
