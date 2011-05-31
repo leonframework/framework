@@ -5,13 +5,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.person
+package io.leon.dummyapp.person
 
-import io.leon.SJSConfig
+import io.leon.LeonConfig
 
-class Config extends SJSConfig {
+class Config extends LeonConfig {
 
-  loadJsFile("person_server.js")
+  loadJsFile("server/person/person.js")
 
   expose("savePerson") as "savePerson"
 

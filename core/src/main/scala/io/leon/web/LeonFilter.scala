@@ -1,3 +1,5 @@
+package io.leon.web
+
 /*
  * Copyright 2011 Weigle Wilczek GmbH
  *
@@ -14,19 +16,18 @@
  * limitations under the License.
  */
 
-package io.leon
-
 import com.google.inject.Guice
 import com.google.inject.servlet.GuiceFilter
 import javax.servlet.FilterConfig
+import io.leon.LeonConfig
 
-class SJSFilter extends GuiceFilter {
+class LeonFilter extends GuiceFilter {
 
   private val classLoader = Thread.currentThread.getContextClassLoader
 
   override def init(filterConfig: FilterConfig) {
     val moduleName = filterConfig.getInitParameter("module")
-    val moduleClass = classLoader.loadClass(moduleName).asInstanceOf[Class[SJSConfig]]
+    val moduleClass = classLoader.loadClass(moduleName).asInstanceOf[Class[LeonConfig]]
     Guice.createInjector(moduleClass.newInstance())
     super.init(filterConfig)
   }

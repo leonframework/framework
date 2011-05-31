@@ -5,8 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
-package io.leon
+package io.leon.web
 
 import javax.servlet._
 import http.{HttpServletResponse, HttpServletRequest, HttpServlet}
@@ -14,6 +13,7 @@ import java.io._
 import java.util.logging.Logger
 import com.google.inject.{AbstractModule, Inject}
 import com.google.inject.servlet.ServletModule
+import io.leon.LeonConfig
 
 
 class MainServletWebModule extends ServletModule {
@@ -34,7 +34,7 @@ class MainServlet extends HttpServlet {
   val logger = Logger.getLogger(getClass.getName)
 
   @Inject
-  private var config: SJSConfig = _
+  private var config: LeonConfig = _
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
     val contextPath = req.getContextPath

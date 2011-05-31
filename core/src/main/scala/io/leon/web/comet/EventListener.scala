@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.leon.comet
+package io.leon.web.comet
 
 import org.atmosphere.cpr.{AtmosphereResourceEvent, AtmosphereResourceEventListener}
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest}

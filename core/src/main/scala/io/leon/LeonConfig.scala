@@ -5,18 +5,19 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package io.leon
 
-import comet.CometWebModule
+import web.comet.CometWebModule
 import java.io.InputStreamReader
 import javax.script.ScriptEngineManager
 import scala.collection.mutable
 import com.google.inject.AbstractModule
 import java.util.logging.Logger
+import java.lang.RuntimeException
+import web.MainServletWebModule
 
 
-abstract class SJSConfig extends AbstractModule {
+abstract class LeonConfig extends AbstractModule {
 
   private val logger = Logger.getLogger(getClass.getName)
 
@@ -39,7 +40,7 @@ abstract class SJSConfig extends AbstractModule {
   def configure() {
     install(new CometWebModule)
     install(new MainServletWebModule)
-    bind(classOf[SJSConfig]).toInstance(this)
+    bind(classOf[LeonConfig]).toInstance(this)
     config()
   }
 
@@ -64,8 +65,12 @@ abstract class SJSConfig extends AbstractModule {
 
   def loadJsFile(fileName: String) {
     logger.info("Loading JS file " + fileName)
-    val jsFile = getClass.getClassLoader.getResourceAsStream(fileName)
-    engine.eval(new InputStreamReader(jsFile))
+    try {
+      val jsFile = getClass.getClassLoader.getResourceAsStream(fileName)
+      engine.eval(new InputStreamReader(jsFile))
+    } catch {
+      case e: Throwable => throw new RuntimeException("Can not load JavaScript file [" + fileName + "]")
+    }
   }
 
   def expose(internalName: String) = new {
