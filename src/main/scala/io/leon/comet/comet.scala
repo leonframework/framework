@@ -17,29 +17,25 @@ package io.leon.comet
 
 import org.atmosphere.util.XSSHtmlFilter
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
-import scala.collection.JavaConversions
 import scala.collection.mutable
 import java.util.logging.Logger
-import org.atmosphere.cpr.{AtmosphereServlet, Meteor, BroadcastFilter}
 import org.atmosphere.handler.ReflectorServletProcessor
 import javax.servlet.ServletConfig
 import com.google.inject.{AbstractModule, Inject}
 import com.google.inject.servlet.ServletModule
-
+import org.atmosphere.cpr._
 
 class CometWebModule extends ServletModule {
 
   override def configureServlets() {
+    import scala.collection.JavaConverters._
     install(new CometModule)
-    val meteorParams = JavaConversions.mapAsJavaMap(Map(
-      "org.atmosphere.servlet" -> classOf[CometHandler].getName
-      //,
-      //AtmosphereServlet.WEBSOCKET_SUPPORT -> "true"
-      ))
 
-//         &lt;param-name&gt;org.atmosphere.useNative&lt;/param-name&gt;
-// *      &lt;param-value&gt;true&lt;/param-value&gt;
-
+    val meteorParams = Map(
+      "org.atmosphere.servlet" -> classOf[CometHandler].getName,
+      AtmosphereServlet.WEBSOCKET_SUPPORT -> "true",
+      AtmosphereServlet.PROPERTY_NATIVE_COMETSUPPORT -> "true"
+      ).asJava
 
     serve("/comet*").`with`(classOf[CometServlet], meteorParams)
   }
@@ -53,31 +49,115 @@ class CometModule extends AbstractModule {
   }
 }
 
-case class ClientConnection(meteor: Meteor, var lastPing: Long)
+class ClientConnection(val pageId: String, private var _uplink: Meteor, var lastPing: Long) {
+
+  private val lock = new Object
+
+  private val logger = Logger.getLogger(getClass.getName)
+
+  private val queue = new mutable.ArrayBuffer[String] with mutable.SynchronizedBuffer[String]
+
+  def uplink = _uplink
+
+  def uplink_=(meteor: Meteor) {
+    lock.synchronized {
+      _uplink.resume()
+      _uplink = meteor
+      flushQueue()
+    }
+  }
+
+  def send(msg: String) {
+    lock.synchronized {
+      queue.append(msg)
+      flushQueue()
+    }
+  }
+
+  private def flushQueue() {
+    while (queue.size > 0) {
+      val success = sendPackage(queue(0))
+      if (success) {
+        queue.remove(0)
+        logger.info("Successfully send message to page: " + pageId)
+      } else {
+        logger.info("Error while sending message to page: " + pageId)
+        return
+      }
+    }
+  }
+
+  private def sendPackage(msg: String): Boolean = {
+    try {
+      val res = uplink.getAtmosphereResource.getResponse
+      val writer = res.getWriter
+
+      // send message
+      writer.write(msg.toString)
+      res.flushBuffer()
+
+      // make sure connection was/is open
+      writer.write(new Array[Char](1))
+      res.flushBuffer()
+      true
+    } catch {
+      case _ => false
+    }
+  }
+
+}
+
+class Clients {
+
+  private val all = new mutable.ArrayBuffer[ClientConnection]
+    with mutable.SynchronizedBuffer[ClientConnection]
+
+  private val byPageId = new mutable.HashMap[String, ClientConnection]
+    with mutable.SynchronizedMap[String, ClientConnection]
+
+  def allClients = all.toList
+
+  def clientByPageId(id: String) = byPageId.get(id)
+
+  def add(client: ClientConnection) {
+    all.append(client)
+    byPageId(client.pageId) = client
+  }
+
+  def remove(client: ClientConnection) {
+    all.remove(all.indexOf(client))
+    byPageId.remove(client.pageId)
+  }
+
+}
 
 class CometRegistry {
+
+  private val logger = Logger.getLogger(getClass.getName)
+
+  private val checkClientsInterval = 1000 * 1
+
+  private val clientsTimeout = 1000 * 100
 
   private val filter: List[BroadcastFilter] = List(new XSSHtmlFilter)
 
   private var shouldStop = false
 
-  private val logger = Logger.getLogger(getClass.getName)
-
-  val clients = new mutable.HashMap[String, ClientConnection] with mutable.SynchronizedMap[String, ClientConnection]
+  private val clients = new Clients
 
   def start() {
     shouldStop = false
     new Thread(new Runnable {
       def run() {
-        logger.info("Checking for dead client connections every 10 seconds")
+        logger.info("Checking for dead client connections every " + checkClientsInterval + "ms")
         while (!shouldStop) {
-          Thread.sleep(1000)
+          Thread.sleep(checkClientsInterval)
           val now = System.currentTimeMillis
-          clients foreach { case (id, cc) =>
-            if ((now - cc.lastPing) > (1000 * 5)) {
-              logger.info("Last ping for client [" + id + "] too old. Removing client.")
-              clients.remove(id)
-              cc.meteor.resume()
+          clients.allClients foreach { client =>
+            if ((now - client.lastPing) > clientsTimeout) {
+              logger.info("Last ping for client [" + client.pageId + "] too old. Removing client.")
+              clients.remove(client)
+              client.uplink.resume()
             }
           }
         }
@@ -87,23 +167,25 @@ class CometRegistry {
 
   def stop() {
     shouldStop = true
-    clients.values foreach { _.meteor.resume() }
+    clients.allClients foreach { _.uplink.resume() }
   }
 
-  def addClient(sessionId: String, pageId: String, req: HttpServletRequest) {
-    val meteor = Meteor.build(req, JavaConversions.seqAsJavaList(filter), null)
-    meteor.addListener(new EventListener())
+  def registerUplink(sessionId: String, pageId: String, req: HttpServletRequest) {
+    val meteor = createMeteor(req)
     //val id = sessionId + pageId // TODO
     val id = pageId
     logger.info("Adding Client uplink: " + id)
-    clients += (id -> ClientConnection(meteor, System.currentTimeMillis))
+    clients.clientByPageId(id) match {
+      case None => clients.add(new ClientConnection(id, meteor, System.currentTimeMillis))
+      case Some(cc) => cc.uplink = meteor
+    }
     meteor.suspend(-1, true)
   }
 
   def processClientHeartbeat(sessionId: String, pageId: String) {
     //val id = sessionId + pageId // TODO
     val id = pageId
-    clients.get(id) match {
+    clients.clientByPageId(id) match {
       case Some(cc) => {
         logger.info("Updating heartbeat for: " + id)
         cc.lastPing = System.currentTimeMillis
@@ -112,6 +194,19 @@ class CometRegistry {
         logger.info("Got heartbeat, but no client uplink yet.")
       }
     } 
+  }
+
+  def broadcast(msg: String) {
+    clients.allClients foreach { cc =>
+      cc.send(msg)
+    }
+  }
+
+  private def createMeteor(req: HttpServletRequest): Meteor = {
+    import scala.collection.JavaConverters._
+    val meteor = Meteor.build(req, filter.asJava, null)
+    meteor.addListener(new EventListener())
+    meteor
   }
 
 }
@@ -129,22 +224,26 @@ class CometHandler @Inject()(registry: CometRegistry) extends HttpServlet {
   }
 
   override def doGet(req: HttpServletRequest, res: HttpServletResponse) {
-    logger.info("Handling Comet GET request")
     val sessionId = req.getSession.getId
     val pageId = req.getParameter("pageId")
     val uplink = req.getParameter("uplink")
 
     uplink match {
-      case "true" => registry.addClient(sessionId, pageId, req)
-      case _ => registry.processClientHeartbeat(sessionId, pageId)
+      case "true" => {
+        logger.info("Registering uplink for client: " + sessionId + "-" + pageId)
+        registry.registerUplink(sessionId, pageId, req)
+      }
+      case _ => {
+        logger.info("Received heartbeat from client: " + sessionId + "-" + pageId)
+        registry.processClientHeartbeat(sessionId, pageId)
+      }
     }
   }
 
   override def doPost(req: HttpServletRequest, res: HttpServletResponse) {
     logger.info("Handling Comet POST request")
-    val meteor = Meteor.build(req)
     val message = req.getParameter("message")
-    meteor.broadcast("MSG:" + message)
+    registry.broadcast("MSG:" + message)
   }
 
 }
