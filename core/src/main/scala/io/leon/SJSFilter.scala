@@ -16,15 +16,13 @@
 
 package io.leon
 
-import com.google.inject.{Module, Guice}
+import com.google.inject.Guice
 import com.google.inject.servlet.GuiceFilter
 import javax.servlet.FilterConfig
 
 class SJSFilter extends GuiceFilter {
 
   private val classLoader = Thread.currentThread.getContextClassLoader
-
-  private var appModule: Module = _
 
   override def init(filterConfig: FilterConfig) {
     val moduleName = filterConfig.getInitParameter("module")

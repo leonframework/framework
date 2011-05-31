@@ -109,24 +109,28 @@ class ClientConnection(val pageId: String, private var _uplink: Meteor, var last
 
 class Clients {
 
+  private val lock = new Object
+
   private val all = new mutable.ArrayBuffer[ClientConnection]
-    with mutable.SynchronizedBuffer[ClientConnection]
 
   private val byPageId = new mutable.HashMap[String, ClientConnection]
-    with mutable.SynchronizedMap[String, ClientConnection]
 
   def allClients = all.toList
 
   def clientByPageId(id: String) = byPageId.get(id)
 
   def add(client: ClientConnection) {
-    all.append(client)
-    byPageId(client.pageId) = client
+    lock.synchronized {
+      all.append(client)
+      byPageId(client.pageId) = client
+    }
   }
 
   def remove(client: ClientConnection) {
-    all.remove(all.indexOf(client))
-    byPageId.remove(client.pageId)
+    lock.synchronized {
+      all.remove(all.indexOf(client))
+      byPageId.remove(client.pageId)
+    }
   }
 
 }
@@ -141,9 +145,9 @@ class CometRegistry {
 
   private val filter: List[BroadcastFilter] = List(new XSSHtmlFilter)
 
-  private var shouldStop = false
-
   private val clients = new Clients
+
+  private var shouldStop = false
 
   def start() {
     shouldStop = false
@@ -260,4 +264,5 @@ class CometServlet @Inject()(cometHandler: CometHandler) extends AtmosphereServl
     super.destroy()
     cometHandler.destroy()
   }
+
 }
