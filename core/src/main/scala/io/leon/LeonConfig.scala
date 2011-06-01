@@ -7,8 +7,8 @@
  */
 package io.leon
 
-import javascript.{JavaScriptObjectProvider, JavaScriptObject}
-import web.ajax.AjaxWebModule
+import javascript.JavaScriptAjaxHandlerProvider
+import web.ajax.{AjaxHandler, AjaxWebModule}
 import web.comet.CometWebModule
 import java.io.InputStreamReader
 import java.util.logging.Logger
@@ -64,8 +64,8 @@ abstract class LeonConfig extends AbstractModule {
 
   def expose(javaScriptObjectName: String) = new {
     def as(publicName: String) {
-      bind(classOf[JavaScriptObject]).annotatedWith(Names.named(publicName)).toProvider(
-        new JavaScriptObjectProvider(javaScriptObjectName)).asEagerSingleton()
+      bind(classOf[AjaxHandler]).annotatedWith(Names.named(publicName)).toProvider(
+        new JavaScriptAjaxHandlerProvider(javaScriptObjectName)).asEagerSingleton()
     }
   }
 

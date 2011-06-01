@@ -9,6 +9,7 @@ package io.leon.javascript
 
 import javax.script.{Invocable, ScriptEngine}
 import com.google.inject.{Inject, Provider}
+import io.leon.web.ajax.AjaxHandler
 
 object RhinoUtils {
 
@@ -26,12 +27,18 @@ object RhinoUtils {
 
 }
 
-class JavaScriptObjectProvider(objName: String) extends Provider[JavaScriptObject] {
+class JavaScriptAjaxHandlerProvider(objName: String) extends Provider[AjaxHandler] {
 
   @Inject
   private var engine: ScriptEngine = _
 
-  def get() = new JavaScriptObject(engine, objName)
+  private lazy val jsObject = new JavaScriptObject(engine, objName)
+
+  private lazy val handler = new AjaxHandler {
+    def jsonApply(members: List[String], args: String) = jsObject.jsonApply(members, args)
+  }
+
+  def get() = handler
 
 }
 

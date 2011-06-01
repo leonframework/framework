@@ -8,7 +8,6 @@
  */
 package io.leon.web.ajax
 
-import io.leon.javascript.JavaScriptObject
 import com.google.inject.name.Names
 import java.io.BufferedOutputStream
 import com.google.inject.{AbstractModule, Key, Injector, Inject}
@@ -28,6 +27,10 @@ class AjaxModule extends AbstractModule {
   }
 }
 
+trait AjaxHandler {
+  def jsonApply(members: List[String], args: String): String
+}
+
 class AjaxProcessor @Inject()(injector: Injector) extends HttpServlet {
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
@@ -35,8 +38,8 @@ class AjaxProcessor @Inject()(injector: Injector) extends HttpServlet {
     val args = req.getParameter("args")
 
     val obj :: members = target.split('.').toList
-    val jsObj = injector.getInstance(Key.get(classOf[JavaScriptObject], Names.named(obj)))
-    val result = jsObj.jsonApply(members, args)
+    val handler = injector.getInstance(Key.get(classOf[AjaxHandler], Names.named(obj)))
+    val result = handler.jsonApply(members, args)
 
     val out = new BufferedOutputStream(res.getOutputStream)
     out.write(result.getBytes)
