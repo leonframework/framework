@@ -11,10 +11,11 @@ import javax.servlet._
 import http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import java.io._
 import java.util.logging.Logger
-import com.google.inject.{AbstractModule, Inject}
 import com.google.inject.servlet.ServletModule
 import io.leon.LeonConfig
-
+import com.google.inject.{Key, Injector, AbstractModule, Inject}
+import io.leon.javascript.JavaScriptObject
+import com.google.inject.name.Names
 
 class MainServletWebModule extends ServletModule {
   override def configureServlets() {
@@ -29,12 +30,9 @@ class MainServletModule extends AbstractModule {
   }
 }
 
-class MainServlet extends HttpServlet {
+class MainServlet @Inject()(injector: Injector, config: LeonConfig) extends HttpServlet {
 
   val logger = Logger.getLogger(getClass.getName)
-
-  @Inject
-  private var config: LeonConfig = _
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
     val contextPath = req.getContextPath
@@ -53,7 +51,7 @@ class MainServlet extends HttpServlet {
         doString(req, res, config.createApplicationJavaScript())
 
       case "leon" :: "fc" :: Nil =>
-        doFunctionCall(req, res)
+        doAjax(req, res)
 
       case xs =>
         doResource(req, res, "/" + xs.mkString("/"))
@@ -73,12 +71,14 @@ class MainServlet extends HttpServlet {
     out.close()
   }
   
-  private def doFunctionCall(req: HttpServletRequest, res: HttpServletResponse) {
-    val fnName = req.getParameter("fnName")
+  private def doAjax(req: HttpServletRequest, res: HttpServletResponse) {
+    val target = req.getParameter("target")
     val args = req.getParameter("args")
 
-    val fn = config.getJavaScriptFunction(fnName)
-    val result = fn(args)
+    val obj :: members = target.split('.').toList
+    val jsObj = injector.getInstance(Key.get(classOf[JavaScriptObject], Names.named(obj)))
+    val result = jsObj.jsonApply(members, args)
+
     val out = new BufferedOutputStream(res.getOutputStream)
     out.write(result.getBytes)
     out.close()

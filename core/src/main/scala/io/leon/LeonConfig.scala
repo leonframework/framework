@@ -7,43 +7,72 @@
  */
 package io.leon
 
+import javascript.{JavaScriptObjectProvider, JavaScriptObject}
 import web.comet.CometWebModule
 import java.io.InputStreamReader
-import javax.script.ScriptEngineManager
-import scala.collection.mutable
-import com.google.inject.AbstractModule
 import java.util.logging.Logger
 import java.lang.RuntimeException
 import web.MainServletWebModule
-
+import com.google.inject.name.Names
+import javax.script.{ScriptEngineManager, ScriptEngine}
+import com.google.inject.{Module, Inject, Injector, AbstractModule}
+import scala.collection.mutable
 
 abstract class LeonConfig extends AbstractModule {
 
   private val logger = Logger.getLogger(getClass.getName)
 
-  private val factory = new ScriptEngineManager
+  val scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript")
 
-  private val engine = factory.getEngineByName("JavaScript")
+  val modules = mutable.ArrayBuffer(new CometWebModule, new MainServletWebModule)
 
-  private val exposedFunctions = new mutable.HashMap[String, JavaScriptFunction]
-
-  initScriptEngine()
+  val javaScriptFiles = mutable.ArrayBuffer("/leon/server/json2.js", "/leon/server/leon.js")
 
   def config()
 
-  def initScriptEngine() {
-    loadJsFile("/leon/server/json2.js")
-    loadJsFile("/leon/server/leon.js")
-    engine.put("config", this)
-  }
-
   def configure() {
-    install(new CometWebModule)
-    install(new MainServletWebModule)
+    javaScriptFiles foreach loadJsFile
+    modules foreach install
+
     bind(classOf[LeonConfig]).toInstance(this)
+    bind(classOf[ScriptEngine]).toInstance(scriptEngine)
+
     config()
+
+    requestInjection(new Object {
+      @Inject def init(injector: Injector, engine: ScriptEngine) {
+        engine.put("injector", injector)
+
+        javaScriptFiles foreach { f =>
+          logger.info("Loading JS file " + f)
+          try {
+            val jsFile = getClass.getClassLoader.getResourceAsStream(f)
+            engine.eval(new InputStreamReader(jsFile))
+          } catch {
+            case e: Throwable => throw new RuntimeException("Can not load JavaScript file [" + f + "]")
+          }
+        }
+      }
+    })
   }
 
+  def loadJsFile(fileName: String) {
+    javaScriptFiles.append(fileName)
+  }
+
+  def expose(javaScriptObjectName: String) = new {
+    def as(publicName: String) {
+      bind(classOf[JavaScriptObject]).annotatedWith(Names.named(publicName)).toProvider(
+        new JavaScriptObjectProvider(javaScriptObjectName)).asEagerSingleton()
+    }
+  }
+
+  def createApplicationJavaScript(): String = {
+    //(exposedFunctions.keys map createJavaScriptFunctionDeclaration) mkString "\n"
+    ""
+  }
+
+  /*
   private def createJavaScriptFunctionDeclaration(fnName: String): String = {
     """
     var %s = function () {
@@ -58,29 +87,6 @@ abstract class LeonConfig extends AbstractModule {
     }
     """.format(fnName, fnName)
   }
-  
-  def createApplicationJavaScript(): String = {
-    (exposedFunctions.keys map createJavaScriptFunctionDeclaration) mkString "\n"
-  }
-
-  def loadJsFile(fileName: String) {
-    logger.info("Loading JS file " + fileName)
-    try {
-      val jsFile = getClass.getClassLoader.getResourceAsStream(fileName)
-      engine.eval(new InputStreamReader(jsFile))
-    } catch {
-      case e: Throwable => throw new RuntimeException("Can not load JavaScript file [" + fileName + "]")
-    }
-  }
-
-  def expose(internalName: String) = new {
-    def as(publicName: String) {
-      exposedFunctions(publicName) = new JavaScriptFunction(engine, internalName)
-    }
-  }
-
-  def getJavaScriptFunction(name: String): JavaScriptFunction = {
-    exposedFunctions(name)
-  }
+  */
 
 }

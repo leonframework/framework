@@ -8,14 +8,18 @@
 package io.leon.dummyapp.person
 
 import io.leon.LeonConfig
+import com.google.inject.name.Names
 
 class Config extends LeonConfig {
 
-  loadJsFile("server/person/person.js")
-
-  expose("savePerson") as "savePerson"
-
   def config() {
+
+    loadJsFile("server/person/person.js")
+
+    expose("person") as "person"
+
+    bind(classOf[String]).annotatedWith(Names.named("foo")).toInstance(("Foo!!"))
+
   }
 
 }

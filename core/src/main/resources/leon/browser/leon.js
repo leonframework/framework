@@ -3,11 +3,11 @@ jQuery.fn.toObject = function() {
     return form2object(this.attr("id"));
 };
 
-function invoke(fnName, args, callback) {
+function invoke(target, args, callback) {
     jQuery.post(
         "/leon/fc",
         {
-            fnName: fnName,
+            target: target,
             args: JSON.stringify(args)
         },
         callback);

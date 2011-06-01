@@ -6,8 +6,6 @@
     <script src="/leon/browser/form2object.js" type="text/javascript"></script>
     <script src="/leon/browser/knockout.js" type="text/javascript"></script>
 
-    <script src="/person_browser.js" type="text/javascript"></script>
-
     <script src="/leon/browser/application.js" type="text/javascript"></script>
 </head>
 <body>
@@ -24,7 +22,7 @@
             return this.firstName() + " " + this.lastName();
         }, this);
         this.savePerson = function() {
-            savePerson(ko.toJS(this), function(result) {
+            invoke("person.save", [ko.toJS(this)], function(result) {
                 console.log("result->" + result);
             });
         }

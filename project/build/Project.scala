@@ -32,8 +32,10 @@ class LeonProject(info: ProjectInfo) extends ParentProject(info) with Unpublishe
 
   def sjson = "net.debasishg" % "sjson_2.8.1" % "0.9.1" withSources()
 
-  def atmosphere_runtime = "org.atmosphere" % "atmosphere-runtime" % "0.7.1" withSources()
-  def atmosphere_runtimejq = "org.atmosphere" % "atmosphere-jquery" % "0.7.1"
+  def atmosphere_version = "0.7.1"
+
+  def atmosphere_runtime = "org.atmosphere" % "atmosphere-runtime" % atmosphere_version withSources()
+  def atmosphere_runtimejq = "org.atmosphere" % "atmosphere-jquery" % atmosphere_version
 
   def logback_classic = "ch.qos.logback" % "logback-classic" % "0.9.24"
 
@@ -46,6 +48,8 @@ class LeonProject(info: ProjectInfo) extends ParentProject(info) with Unpublishe
   def guice = "com.google.inject" % "guice" % "3.0" withSources()
 
   def guiceServlet = "com.google.inject.extensions" % "guice-servlet" % "3.0" withSources()
+
+  def mysql = "mysql" % "mysql-connector-java" % "5.1.16"
 
   // ===================================================================================================================
   // Publishing
@@ -69,8 +73,6 @@ class LeonProject(info: ProjectInfo) extends ParentProject(info) with Unpublishe
     override def libraryDependencies =
       Set(logback_classic, logback_core, servletApi, atmosphere_runtime, atmosphere_runtimejq, guice, guiceServlet, sjson)
 
-    override def defaultExcludes = super.defaultExcludes || "*-sources.jar"
-
     override def packageSrcJar = defaultJarPath("-sources.jar")
     lazy val sourceArtifact = sources(artifactID) // lazy is important here!
     override def packageToPublishActions = super.packageToPublishActions ++ Seq(packageSrc)
@@ -86,7 +88,10 @@ class LeonProject(info: ProjectInfo) extends ParentProject(info) with Unpublishe
 
   class DummyAppProject(info: ProjectInfo) extends DefaultWebProject(info) with UnpublishedProject {
 
-    override def libraryDependencies = Set(logback_classic, logback_core, jetty7)
+    override def libraryDependencies = Set(logback_classic, logback_core, jetty7, mysql)
+
+    override def defaultExcludes =
+      super.defaultExcludes || "*-sources.jar" || "atmosphere-ping-" + atmosphere_version + ".jar"
 
   }
 }
