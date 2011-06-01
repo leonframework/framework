@@ -8,15 +8,16 @@
 package io.leon
 
 import javascript.{JavaScriptObjectProvider, JavaScriptObject}
+import web.ajax.AjaxWebModule
 import web.comet.CometWebModule
 import java.io.InputStreamReader
 import java.util.logging.Logger
 import java.lang.RuntimeException
-import web.MainServletWebModule
 import com.google.inject.name.Names
-import javax.script.{ScriptEngineManager, ScriptEngine}
-import com.google.inject.{Module, Inject, Injector, AbstractModule}
+import com.google.inject.{Inject, Injector, AbstractModule}
 import scala.collection.mutable
+import javax.script.{ScriptEngineManager, ScriptEngine}
+import web.resources.ResourcesWebModule
 
 abstract class LeonConfig extends AbstractModule {
 
@@ -24,7 +25,8 @@ abstract class LeonConfig extends AbstractModule {
 
   val scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript")
 
-  val modules = mutable.ArrayBuffer(new CometWebModule, new MainServletWebModule)
+  val modules = mutable.ArrayBuffer(
+    new AjaxWebModule, new CometWebModule, new ResourcesWebModule)
 
   val javaScriptFiles = mutable.ArrayBuffer("/leon/server/json2.js", "/leon/server/leon.js")
 
@@ -49,7 +51,7 @@ abstract class LeonConfig extends AbstractModule {
             val jsFile = getClass.getClassLoader.getResourceAsStream(f)
             engine.eval(new InputStreamReader(jsFile))
           } catch {
-            case e: Throwable => throw new RuntimeException("Can not load JavaScript file [" + f + "]")
+            case e: Throwable => throw new RuntimeException("Can not load JavaScript file [" + f + "]", e)
           }
         }
       }
