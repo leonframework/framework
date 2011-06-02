@@ -5,15 +5,10 @@ var person = (function() {
 
     return {
         save: function(person) {
-            println("JS server: " + person);
-
-            var zc = person.address.zipcode;
-
-            uplinkAlert("person.js", "hello2", 123456);
-
+            uplinkAlert("person server code", "Got person [" + person.firstName + "]");
             return {
-                a: 1,
-                b: zc * 3
+                firstName: person.firstName,
+                lastName: person.lastName
             };
         }
     };

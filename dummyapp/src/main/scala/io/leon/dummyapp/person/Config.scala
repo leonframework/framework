@@ -8,8 +8,6 @@
 package io.leon.dummyapp.person
 
 import io.leon.LeonConfig
-import com.google.inject.name.Names
-import io.leon.web.comet.{UplinkFunctionProvider, UplinkFunction}
 
 class Config extends LeonConfig {
 
@@ -19,8 +17,8 @@ class Config extends LeonConfig {
 
     expose("person") via "person"
 
-    bind(classOf[UplinkFunction]).annotatedWith(Names.named("uplinkAlert")).toProvider(
-      new UplinkFunctionProvider("leon.alert")).asEagerSingleton()
+    uplink("leon.alert") via "uplinkAlert"
+
   }
 
 }

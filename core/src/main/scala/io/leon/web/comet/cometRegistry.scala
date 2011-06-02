@@ -111,9 +111,9 @@ class CometRegistry {
 
   private val logger = Logger.getLogger(getClass.getName)
 
-  private val checkClientsInterval = 1000 * 1
+  private val checkClientsInterval = 1000 * 10 // 10 seconds
 
-  private val clientsTimeout = 1000 * 60
+  private val clientsTimeout = 1000 * 60 // 1 minute
 
   private val filter: List[BroadcastFilter] = List(new XSSHtmlFilter)
 
