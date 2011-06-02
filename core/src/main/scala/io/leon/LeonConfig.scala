@@ -9,7 +9,6 @@ package io.leon
 
 import javascript.JavaScriptAjaxHandlerProvider
 import web.ajax.{AjaxHandler, AjaxWebModule}
-import web.comet.CometWebModule
 import java.io.InputStreamReader
 import java.util.logging.Logger
 import java.lang.RuntimeException
@@ -17,6 +16,7 @@ import com.google.inject.name.Names
 import com.google.inject.{Inject, Injector, AbstractModule}
 import scala.collection.mutable
 import javax.script.{ScriptEngineManager, ScriptEngine}
+import web.comet.{UplinkFunctionProvider, UplinkFunction, CometWebModule}
 import web.resources.{ResourcesServlet, ResourcesWebModule}
 
 abstract class LeonConfig extends AbstractModule {
@@ -80,6 +80,13 @@ abstract class LeonConfig extends AbstractModule {
     def via(publicName: String) {
       bind(classOf[AjaxHandler]).annotatedWith(Names.named(publicName)).toProvider(
         new JavaScriptAjaxHandlerProvider(javaScriptObjectName)).asEagerSingleton()
+    }
+  }
+
+  def uplink(clientFunction: String) = new {
+    def via(localName: String) {
+      bind(classOf[UplinkFunction]).annotatedWith(Names.named(localName)).toProvider(
+        new UplinkFunctionProvider(clientFunction)).asEagerSingleton()
     }
   }
 
