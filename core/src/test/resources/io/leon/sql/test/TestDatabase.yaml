@@ -1,0 +1,24 @@
+
+# Person
+##################################################
+table :person:
+    sqlName: PERSON
+    primaryKey: :id
+    #foreignKeys:
+    #    :addressZipCode: :city:zipCode
+
+    :id: int not null
+    :firstName: char(50) not null
+    :lastName: char(50) not null
+    #:addressZipCode: int not null
+
+# City
+##################################################
+table :city:
+    primaryKey: :zipCode
+
+    :zipCode: int not null
+    :name: char(100) not null
+    
+
+

@@ -26,6 +26,8 @@ class LeonProject(info: ProjectInfo) extends ParentProject(info) with Unpublishe
   // Dependencies for subprojects: Intentionally defs!
   // ===================================================================================================================
 
+  val specs2 = "org.specs2" %% "specs2" % "1.3" % "test" withSources()
+
   def servletApi = "org.mortbay.jetty" % "servlet-api" % "2.5-20081211" % "provided"
 
   def jetty7 = "org.eclipse.jetty" % "jetty-webapp" % "7.0.2.v20100331" % "test" withSources()
@@ -51,6 +53,11 @@ class LeonProject(info: ProjectInfo) extends ParentProject(info) with Unpublishe
 
   def mysql = "mysql" % "mysql-connector-java" % "5.1.16"
 
+  def h2database = "com.h2database" % "h2" % "1.3.155" % "test" withSources()
+
+  def snakeYaml = "org.yaml" % "snakeyaml" % "1.8" withSources()
+
+
   // ===================================================================================================================
   // Publishing
   // ===================================================================================================================
@@ -70,8 +77,13 @@ class LeonProject(info: ProjectInfo) extends ParentProject(info) with Unpublishe
 
   class CoreProject(info: ProjectInfo) extends DefaultProject(info) {
 
+    def specs2Framework = new TestFramework("org.specs2.runner.SpecsFramework")
+
+    override def testFrameworks = super.testFrameworks ++ Seq(specs2Framework)
+
     override def libraryDependencies =
-      Set(logback_classic, logback_core, servletApi, atmosphere_runtime, atmosphere_runtimejq, guice, guiceServlet, sjson)
+      Set(specs2, logback_classic, logback_core, servletApi, atmosphere_runtime, atmosphere_runtimejq,
+        guice, guiceServlet, sjson, snakeYaml, h2database)
 
     override def packageSrcJar = defaultJarPath("-sources.jar")
     lazy val sourceArtifact = sources(artifactID) // lazy is important here!
