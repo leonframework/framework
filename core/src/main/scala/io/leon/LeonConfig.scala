@@ -17,7 +17,7 @@ import com.google.inject.name.Names
 import com.google.inject.{Inject, Injector, AbstractModule}
 import scala.collection.mutable
 import javax.script.{ScriptEngineManager, ScriptEngine}
-import web.resources.ResourcesWebModule
+import web.resources.{ResourcesServlet, ResourcesWebModule}
 
 abstract class LeonConfig extends AbstractModule {
 
@@ -28,11 +28,15 @@ abstract class LeonConfig extends AbstractModule {
   val modules = mutable.ArrayBuffer(
     new AjaxWebModule, new CometWebModule, new ResourcesWebModule)
 
-  val javaScriptFiles = mutable.ArrayBuffer("/leon/server/json2.js", "/leon/server/leon.js")
+  val javaScriptFiles = mutable.ArrayBuffer("/io/leon/json2.js", "/io/leon/leon.js")
+
+  val internalPaths = new mutable.ArrayBuffer[String]
 
   def config()
 
   def configure() {
+    addInternalPath(classOf[LeonConfig])
+
     javaScriptFiles foreach loadJsFile
     modules foreach install
 
@@ -42,7 +46,7 @@ abstract class LeonConfig extends AbstractModule {
     config()
 
     requestInjection(new Object {
-      @Inject def init(injector: Injector, engine: ScriptEngine) {
+      @Inject def init(injector: Injector, engine: ScriptEngine, resourcesServlet: ResourcesServlet) {
         engine.put("injector", injector)
 
         javaScriptFiles foreach { f =>
@@ -54,8 +58,18 @@ abstract class LeonConfig extends AbstractModule {
             case e: Throwable => throw new RuntimeException("Can not load JavaScript file [" + f + "]", e)
           }
         }
+
+        resourcesServlet.internalPaths = internalPaths
       }
     })
+  }
+
+  def addInternalPath(path: String) {
+    internalPaths.append(path)
+  }
+
+  def addInternalPath(clazz: Class[_]) {
+    addInternalPath("/" + clazz.getPackage.getName.replace('.', '/'))
   }
 
   def loadJsFile(fileName: String) {
@@ -63,7 +77,7 @@ abstract class LeonConfig extends AbstractModule {
   }
 
   def expose(javaScriptObjectName: String) = new {
-    def as(publicName: String) {
+    def via(publicName: String) {
       bind(classOf[AjaxHandler]).annotatedWith(Names.named(publicName)).toProvider(
         new JavaScriptAjaxHandlerProvider(javaScriptObjectName)).asEagerSingleton()
     }

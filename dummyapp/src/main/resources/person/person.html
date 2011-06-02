@@ -1,12 +1,12 @@
 <html>
 <head>
     <title>Test Page</title>
-    <script src="/leon/browser/jquery.js" type="text/javascript"></script>
-    <script src="/leon/browser/leon.js" type="text/javascript"></script>
-    <script src="/leon/browser/form2object.js" type="text/javascript"></script>
-    <script src="/leon/browser/knockout.js" type="text/javascript"></script>
+    <script src="/leon/jquery.js" type="text/javascript"></script>
+    <script src="/leon/leon.js" type="text/javascript"></script>
+    <script src="/leon/form2object.js" type="text/javascript"></script>
+    <script src="/leon/knockout.js" type="text/javascript"></script>
 
-    <script src="/leon/browser/application.js" type="text/javascript"></script>
+    <script src="/leon/application.js" type="text/javascript"></script>
 </head>
 <body>
 
@@ -22,7 +22,7 @@
             return this.firstName() + " " + this.lastName();
         }, this);
         this.savePerson = function() {
-            invoke("person.save", [ko.toJS(this)], function(result) {
+            leon.call("person.save", [ko.toJS(this)], function(result) {
                 console.log("result->" + result);
             });
         }

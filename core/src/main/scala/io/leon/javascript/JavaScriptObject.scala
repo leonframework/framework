@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2010 WeigleWilczek and others.
+ * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,7 +31,7 @@ object RhinoUtils {
 class JavaScriptAjaxHandlerProvider(objName: String) extends Provider[AjaxHandler] {
 
   @Inject
-  private var engine: ScriptEngine = _
+  var engine: ScriptEngine = _
 
   private lazy val jsObject = new JavaScriptObject(engine, objName)
 
