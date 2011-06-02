@@ -29,20 +29,14 @@ class UplinkFunction(cometRegistry: CometRegistry, target: String) {
   private val logger = Logger.getLogger(getClass.getName)
 
   def jsonApply(jsonArgs: String) {
+    logger.info("Calling uplink function [%s]" format target)
     val message = """ { "type": "uplinkFunction", "target": "%s", "args": %s } """.format(target, jsonArgs)
-
-    //val serialized = JsValue.toJson(JsValue.apply(message))
-
     cometRegistry.broadcast(message)
   }
 
   def apply(args: Any*) {
     val out = JsValue.toJson(JsValue.apply(args))
     jsonApply(out)
-
-    println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    println(JsValue.toJson(JsValue.apply(Map("a" -> 1, "b" -> 2))))
-    println(JsValue.toJson(JsValue.apply(Person("ro", "roe"))))
   }
 
 }

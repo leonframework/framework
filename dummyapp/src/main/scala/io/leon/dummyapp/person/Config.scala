@@ -19,8 +19,6 @@ class Config extends LeonConfig {
 
     expose("person") via "person"
 
-    bind(classOf[TestService]).annotatedWith(Names.named("testService")).to(classOf[TestService])
-
     bind(classOf[UplinkFunction]).annotatedWith(Names.named("uplinkAlert")).toProvider(
       new UplinkFunctionProvider("leon.alert")).asEagerSingleton()
   }

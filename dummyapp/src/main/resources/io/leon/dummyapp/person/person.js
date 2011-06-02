@@ -1,8 +1,7 @@
 
 var person = (function() {
 
-    var uplinkAlert = leon.inject(Packages.io.leon.web.comet.UplinkFunction, "uplinkAlert");
-    var testService = leon.inject(Packages.io.leon.dummyapp.person.TestService, "testService");
+    var uplinkAlert = leon.uplink("uplinkAlert");
 
     return {
         save: function(person) {
@@ -10,8 +9,7 @@ var person = (function() {
 
             var zc = person.address.zipcode;
 
-            //uplinkAlert.jsonApply('["person.js", "hello"]');
-            testService.callUplinkAlert();
+            uplinkAlert("person.js", "hello2", 123456);
 
             return {
                 a: 1,
