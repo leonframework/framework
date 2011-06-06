@@ -1,6 +1,11 @@
 
-# Person
-##################################################
+# --- Global Database Settings ----------------------------
+
+schema: LeonSqlTestDatabase
+
+
+# --- Tables ----------------------------------------------
+
 table :person:
     sqlName: PERSON
     primaryKey: :id
@@ -12,13 +17,10 @@ table :person:
     :lastName: char(50) not null
     #:addressZipCode: int not null
 
-# City
-##################################################
 table :city:
     primaryKey: :zipCode
 
     :zipCode: int not null
     :name: char(100) not null
     
-
 
