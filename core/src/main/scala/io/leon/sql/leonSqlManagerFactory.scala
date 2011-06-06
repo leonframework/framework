@@ -50,13 +50,13 @@ class LeonSqlManagerFactory(config: LeonSqlConfig) extends Provider[LeonSqlManag
     val columns = config filterKeys { _.startsWith(":") } map { case (k, v) => extractColumn(name, k, v) }
     val primaryKey = config("primaryKey").asInstanceOf[String].substring(1)
 
-    name -> TableDef(name, schemaName, sqlName, primaryKey, columns.toList)
+    name -> TableDef(name, schemaName, sqlName, primaryKey, columns.toMap)
   }
 
-  private def extractColumn(tableName: String, nameRaw: String, configRaw: Any): ColumnDef = {
+  private def extractColumn(tableName: String, nameRaw: String, configRaw: Any): (String, ColumnDef) = {
     val name = nameRaw.substring(1)
     configRaw match {
-      case ddl: String => ColumnDef(tableName, name, name.toUpperCase, ddl)
+      case ddl: String => name -> ColumnDef(tableName, name, name.toUpperCase, ddl)
     }
   }
 

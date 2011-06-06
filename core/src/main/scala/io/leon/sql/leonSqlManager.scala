@@ -11,45 +11,50 @@ case class TableDef(name: String,
                     schema: Option[String],
                     sqlName: String,
                     primaryKey: String,
-                    columns: List[ColumnDef]) {
+                    columns: Map[String, ColumnDef]) {
 
   lazy val sqlFullName = schema match {
     case None => sqlName
     case Some(s) => s + "." + sqlName
   }
 
-}
-
-class Table(val manager: LeonSqlManager, val tableDef: TableDef) {
-
   lazy val createTableDdl: String = {
-    val start = "CREATE TABLE %s (".format(tableDef.sqlFullName)
-    val bodyColumns = tableDef.columns map { c => "%s %s".format(c.sqlName, c.ddl) }
-    val bodyPKey = "PRIMARY KEY (%s)".format(tableDef.primaryKey) :: Nil
-    val body = (bodyColumns ::: bodyPKey).mkString(",")
+    val start = "CREATE TABLE %s (".format(sqlFullName)
+    val bodyColumns = columns.values map { c => "%s %s".format(c.sqlName, c.ddl) }
+    val bodyPKey = "PRIMARY KEY (%s)".format(primaryKey) :: Nil
+    val body = (bodyColumns.toList ::: bodyPKey).mkString(",")
     val end = ");"
     start + body + end
   }
 
   lazy val dropTableDdl: String = {
-    "DROP TABLE %s;".format(tableDef.sqlFullName)
+    "DROP TABLE %s;".format(sqlFullName)
   }
+
+  def createInsertIntoString(columns: List[String], values: List[Any]): String = {
+    "INSERT INTO %s (%s) VALUES (%s)".format(
+      sqlFullName,
+      columns.mkString(","),
+      "'" + values.mkString("','") + "'"
+    )
+  }
+
+}
+
+class Table(val manager: LeonSqlManager, val tableDef: TableDef) {
+
+  private val logger = Logger.getLogger(getClass.getName)
 
   def insert(data: Map[String, Any]*): List[Int] = {
     val stmt = manager.connection.createStatement()
     data foreach { d =>
-      val withSqlNames = tableDef.columns filter { c =>
-        d.contains(c.name)
-      } map { c =>
-        (c.sqlName, d(c.name))
+      val withSqlNames = d map { case (k, v) =>
+        tableDef.columns(k).sqlName -> v
       }
-      val (columnSqlNames, values) = withSqlNames.unzip
 
-      val sql = "INSERT INTO %s (%s) VALUES (%s)".format(
-        tableDef.sqlFullName,
-        columnSqlNames.mkString(","),
-        "'" + values.mkString("','") + "'"
-      )
+      val (columns, values) = withSqlNames.unzip
+      val sql = tableDef.createInsertIntoString(columns.toList, values.toList)
+      logger.info("Adding BATCH SQL: " + sql)
       stmt.addBatch(sql)
     }
     stmt.executeBatch().toList
@@ -63,7 +68,6 @@ class Table(val manager: LeonSqlManager, val tableDef: TableDef) {
       }
       case _ => throw new IllegalStateException
     }
-
   }
 
 }
@@ -104,7 +108,7 @@ class LeonSqlManager(val connection: Connection,
 
   def executeDropDdl() {
     tables.values foreach { t =>
-      executeSql(t.dropTableDdl)
+      executeSql(t.tableDef.dropTableDdl)
     }
   }
 
@@ -114,7 +118,7 @@ class LeonSqlManager(val connection: Connection,
 
   def executeCreateDdl() {
     tables.values foreach { t =>
-      executeSql(t.createTableDdl)
+      executeSql(t.tableDef.createTableDdl)
     }
   }
 
