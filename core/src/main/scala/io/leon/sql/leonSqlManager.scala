@@ -1,62 +1,88 @@
 
 package io.leon.sql
 
-import java.sql.Connection
 import java.util.logging.Logger
+import java.sql.{ResultSet, Connection}
+import java.lang.IllegalStateException
 
-case class Column(tableName: String, name: String, sqlName: String, ddl: String)
+case class ColumnDef(tableName: String, name: String, sqlName: String, ddl: String)
 
-case class Table(manager: LeonSqlManager, name: String, _sqlName: String, primaryKey: String, columns: List[Column]) {
+case class TableDef(name: String,
+                    schema: Option[String],
+                    sqlName: String,
+                    primaryKey: String,
+                    columns: List[ColumnDef]) {
 
-  private val logger = Logger.getLogger(getClass.getName)
-
-  private lazy val sqlName = manager.schemaName match {
-    case None => _sqlName
-    case Some(s) => s + "." + _sqlName
+  lazy val sqlFullName = schema match {
+    case None => sqlName
+    case Some(s) => s + "." + sqlName
   }
 
+}
+
+class Table(val manager: LeonSqlManager, val tableDef: TableDef) {
+
   lazy val createTableDdl: String = {
-    val start = "CREATE TABLE %s (".format(sqlName)
-    val bodyColumns = columns map { c => "%s %s".format(c.sqlName, c.ddl) }
-    val bodyPKey = "PRIMARY KEY (%s)".format(primaryKey) :: Nil
+    val start = "CREATE TABLE %s (".format(tableDef.sqlFullName)
+    val bodyColumns = tableDef.columns map { c => "%s %s".format(c.sqlName, c.ddl) }
+    val bodyPKey = "PRIMARY KEY (%s)".format(tableDef.primaryKey) :: Nil
     val body = (bodyColumns ::: bodyPKey).mkString(",")
     val end = ");"
     start + body + end
   }
 
   lazy val dropTableDdl: String = {
-    "DROP TABLE %s;".format(sqlName)
+    "DROP TABLE %s;".format(tableDef.sqlFullName)
   }
 
-  def insert(data: Map[String, Any]*) {
+  def insert(data: Map[String, Any]*): List[Int] = {
+    val stmt = manager.connection.createStatement()
     data foreach { d =>
-      val withSqlNames = columns filter { c =>
+      val withSqlNames = tableDef.columns filter { c =>
         d.contains(c.name)
       } map { c =>
         (c.sqlName, d(c.name))
       }
       val (columnSqlNames, values) = withSqlNames.unzip
 
-      println(columnSqlNames)
-      println(values)
-
       val sql = "INSERT INTO %s (%s) VALUES (%s)".format(
-        sqlName,
+        tableDef.sqlFullName,
         columnSqlNames.mkString(","),
         "'" + values.mkString("','") + "'"
       )
-      manager.executeRawSql(sql)
+      stmt.addBatch(sql)
     }
+    stmt.executeBatch().toList
+  }
+
+  def size: Int = {
+    manager.executeSql("SELECT count(*) FROM %s;".format(tableDef.sqlFullName)) match {
+      case ResultSetResult(rs) => {
+        rs.next()
+        rs.getInt(1)
+      }
+      case _ => throw new IllegalStateException
+    }
+
   }
 
 }
 
-class LeonSqlManager(connection: Connection,
-                     val schemaName: Option[String]) {
+
+sealed class StatementResult
+case class ResultSetResult(resultSet: ResultSet) extends StatementResult
+case class CountResult(count: Int) extends StatementResult
+case object NoResult extends  StatementResult
+
+class LeonSqlManager(val connection: Connection,
+                     schemaName: Option[String],
+                     tableDefs: Map[String, TableDef]) {
 
   private val logger = Logger.getLogger(getClass.getName)
 
-  var tables: Map[String, Table] = _
+  private lazy val tables = tableDefs map { case (name, tableDef) =>
+    name -> new Table(this, tableDef)
+  }
 
   def table(name: String) = tables(name)
 
@@ -73,34 +99,35 @@ class LeonSqlManager(connection: Connection,
   }
 
   def executeDropSchema() {
-    schemaName foreach { s => executeRawSql("DROP SCHEMA %s;".format(s)) }
+    schemaName foreach { s => executeSql("DROP SCHEMA %s;".format(s)) }
   }
 
   def executeDropDdl() {
     tables.values foreach { t =>
-      executeRawSql(t.dropTableDdl)
+      executeSql(t.dropTableDdl)
     }
   }
 
   def executeCreateSchema() {
-    schemaName foreach { s => executeRawSql("CREATE SCHEMA %s;".format(s)) }
+    schemaName foreach { s => executeSql("CREATE SCHEMA %s;".format(s)) }
   }
 
   def executeCreateDdl() {
     tables.values foreach { t =>
-      executeRawSql(t.createTableDdl)
+      executeSql(t.createTableDdl)
     }
   }
 
-  def executeDropCreateDdl() {
-    executeDropDdl()
-    executeCreateDdl()
-  }
-
-  def executeRawSql(sql: String): Boolean = {
+  def executeSql(sql: String): StatementResult = {
     logger.info("Executing SQL: " + sql)
     val stmt = connection.createStatement()
-    stmt.execute(sql)
+    stmt.execute(sql) match {
+      case true => ResultSetResult(stmt.getResultSet)
+      case false => stmt.getUpdateCount match {
+        case -1 => NoResult
+        case i => CountResult(i)
+      }
+    }
   }
 
 }
