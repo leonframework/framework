@@ -8,10 +8,11 @@ var leon = (function() {
 
         call: function(target, args, callback) {
             jQuery.post(
-                "/leon/fc",
+                "/leon/ajax",
                 {
                     target: target,
-                    args: JSON.stringify(args)
+                    args: JSON.stringify(args),
+                    dataType: "json"
                 },
                 callback);
         },

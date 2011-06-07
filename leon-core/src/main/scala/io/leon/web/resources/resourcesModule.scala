@@ -9,7 +9,6 @@ package io.leon.web.resources
  */
 import javax.servlet._
 import http.{HttpServletResponse, HttpServletRequest, HttpServlet}
-import java.io._
 import java.util.logging.Logger
 import com.google.inject.servlet.ServletModule
 import io.leon.AbstractLeonModule
@@ -54,9 +53,6 @@ class ResourcesServlet @Inject()(config: AbstractLeonModule,
       case "leon" :: "knockout.js" :: Nil =>
         doResource(req, res, "/leon/knockout-1.2.0.debug.js")
 
-      case "leon" :: "application.js" :: Nil =>
-        doString(req, res, config.createApplicationJavaScript())
-
       case xs =>
         doResource(req, res, "/" + xs.mkString("/"))
     }
@@ -79,10 +75,4 @@ class ResourcesServlet @Inject()(config: AbstractLeonModule,
     out.close()
   }
   
-  private def doString(req: HttpServletRequest, res: HttpServletResponse, string: String) {
-    val out = new PrintWriter(new BufferedOutputStream(res.getOutputStream))
-    out.write(string)
-    out.close()
-  }
-
 }

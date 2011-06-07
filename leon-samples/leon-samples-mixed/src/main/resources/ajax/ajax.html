@@ -5,26 +5,34 @@
     <script src="/leon/jquery.atmosphere.js" type="text/javascript"></script>
     <script src="/leon/leon.js" type="text/javascript"></script>
     <script src="/leon/knockout.js" type="text/javascript"></script>
-    <script src="/leon/application.js" type="text/javascript"></script>
+    <script src="/leon/browser.js" type="text/javascript"></script>
 </head>
 <body>
 
 <script type="text/javascript">
+    var ar;
     var ViewModel = function() {
-        this.firstName = ko.observable(""),
-        this.lastName = ko.observable(""),
+
+        this.firstName = ko.observable("John"),
+
+        this.lastName = ko.observable("Doe"),
+
         this.address = {
             zipcode: ko.observable("73728"),
             city: ko.observable("Esslingen")
         },
+
         this.fullName = ko.dependentObservable(function() {
             return this.firstName() + " " + this.lastName();
         }, this);
+
         this.savePerson = function() {
-            leon.call("person.save", [ko.toJS(this)], function(result) {
-                console.log("result->" + result);
+            person("save")(ko.toJS(this), function(result) {
+                ar = result;
+                console.log("ajax call result firstname: " + result.firstName);
             });
         }
+
     };
     $(function() { ko.applyBindings(new ViewModel()) });
 </script>

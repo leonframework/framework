@@ -15,7 +15,7 @@ import java.util.logging.Logger
 import java.lang.RuntimeException
 import javax.script.{ScriptEngineManager, ScriptEngine}
 import web.comet.{BrowserObjectProvider, BrowserObject, CometWebModule}
-import web.resources.{ResourcesServlet, ResourcesWebModule}
+import web.resources.ResourcesWebModule
 import collection.{JavaConversions, mutable}
 import com.google.inject._
 import name.{Named, Names}
@@ -87,28 +87,6 @@ abstract class AbstractLeonModule extends AbstractModule {
       case e: Throwable => throw new RuntimeException("Can not load JavaScript file [" + fileName + "]", e)
     }
   }
-
-  def createApplicationJavaScript(): String = {
-    //(exposedFunctions.keys map createJavaScriptFunctionDeclaration) mkString "\n"
-    ""
-  }
-
-  /*
-  private def createJavaScriptFunctionDeclaration(fnName: String): String = {
-    """
-    var %s = function () {
-      var argLength = arguments.length - 1;
-      var args = Array(argLength);
-      for (var i = 0; i < argLength; i++) {
-        args[i] = arguments[i];
-      }
-      var callback = arguments[arguments.length - 1];
-
-      invoke("%s", args, callback);
-    }
-    """.format(fnName, fnName)
-  }
-  */
 
   // --- Internal URL methods -----------------------------
 
