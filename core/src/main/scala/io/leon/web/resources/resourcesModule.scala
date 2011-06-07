@@ -12,7 +12,7 @@ import http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import java.io._
 import java.util.logging.Logger
 import com.google.inject.servlet.ServletModule
-import io.leon.LeonConfig
+import io.leon.AbstractLeonModule
 import com.google.inject.{AbstractModule, Inject}
 import collection.mutable
 
@@ -29,7 +29,7 @@ class ResourcesModule extends AbstractModule {
   }
 }
 
-class ResourcesServlet @Inject()(config: LeonConfig) extends HttpServlet {
+class ResourcesServlet @Inject()(config: AbstractLeonModule) extends HttpServlet {
 
   private val logger = Logger.getLogger(getClass.getName)
 

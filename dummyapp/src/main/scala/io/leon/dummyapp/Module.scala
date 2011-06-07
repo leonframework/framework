@@ -1,3 +1,5 @@
+package io.leon.dummyapp
+
 /*
  * Copyright (c) 2010 WeigleWilczek and others.
  * All rights reserved. This program and the accompanying materials
@@ -5,19 +7,17 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.dummyapp.person
+import io.leon.AbstractLeonModule
 
-import io.leon.LeonConfig
-
-class Config extends LeonConfig {
+class Module extends AbstractLeonModule {
 
   def config() {
 
-    loadJsFile("io/leon/dummyapp/person/person.js")
+    loadJsFile("io/leon/dummyapp/person.js")
 
-    expose("person") via "person"
+    browser("person").linksToServer("person")
 
-    uplink("leon.alert") via "uplinkAlert"
+    server("browserLeon").linksToBrowser("leon")
 
   }
 

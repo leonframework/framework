@@ -19,7 +19,7 @@ package io.leon.web
 import com.google.inject.Guice
 import com.google.inject.servlet.GuiceFilter
 import javax.servlet.FilterConfig
-import io.leon.LeonConfig
+import io.leon.AbstractLeonModule
 
 class LeonFilter extends GuiceFilter {
 
@@ -27,7 +27,7 @@ class LeonFilter extends GuiceFilter {
 
   override def init(filterConfig: FilterConfig) {
     val moduleName = filterConfig.getInitParameter("module")
-    val moduleClass = classLoader.loadClass(moduleName).asInstanceOf[Class[LeonConfig]]
+    val moduleClass = classLoader.loadClass(moduleName).asInstanceOf[Class[AbstractLeonModule]]
     Guice.createInjector(moduleClass.newInstance())
     super.init(filterConfig)
   }

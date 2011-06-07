@@ -16,10 +16,10 @@ import com.google.inject.name.Names
 import com.google.inject.{Inject, Injector, AbstractModule}
 import scala.collection.mutable
 import javax.script.{ScriptEngineManager, ScriptEngine}
-import web.comet.{UplinkFunctionProvider, UplinkFunction, CometWebModule}
+import web.comet.{BrowserObjectProvider, BrowserObject, CometWebModule}
 import web.resources.{ResourcesServlet, ResourcesWebModule}
 
-abstract class LeonConfig extends AbstractModule {
+abstract class AbstractLeonModule extends AbstractModule {
 
   private val logger = Logger.getLogger(getClass.getName)
 
@@ -35,15 +35,15 @@ abstract class LeonConfig extends AbstractModule {
   def config()
 
   def configure() {
-    addInternalPath(classOf[LeonConfig])
+    config()
+
+    addInternalPath(classOf[AbstractLeonModule])
 
     javaScriptFiles foreach loadJsFile
     modules foreach install
 
-    bind(classOf[LeonConfig]).toInstance(this)
+    bind(classOf[AbstractLeonModule]).toInstance(this)
     bind(classOf[ScriptEngine]).toInstance(scriptEngine)
-
-    config()
 
     requestInjection(new Object {
       @Inject def init(injector: Injector, engine: ScriptEngine, resourcesServlet: ResourcesServlet) {
@@ -76,20 +76,6 @@ abstract class LeonConfig extends AbstractModule {
     javaScriptFiles.append(fileName)
   }
 
-  def expose(javaScriptObjectName: String) = new {
-    def via(publicName: String) {
-      bind(classOf[AjaxHandler]).annotatedWith(Names.named(publicName)).toProvider(
-        new JavaScriptAjaxHandlerProvider(javaScriptObjectName)).asEagerSingleton()
-    }
-  }
-
-  def uplink(clientFunction: String) = new {
-    def via(localName: String) {
-      bind(classOf[UplinkFunction]).annotatedWith(Names.named(localName)).toProvider(
-        new UplinkFunctionProvider(clientFunction)).asEagerSingleton()
-    }
-  }
-
   def createApplicationJavaScript(): String = {
     //(exposedFunctions.keys map createJavaScriptFunctionDeclaration) mkString "\n"
     ""
@@ -111,5 +97,21 @@ abstract class LeonConfig extends AbstractModule {
     """.format(fnName, fnName)
   }
   */
+
+  // --- Ajax/Comet DSL -----------------------------------
+
+  def browser(browserName: String) = new {
+    def linksToServer(serverName: String) {
+      bind(classOf[AjaxHandler]).annotatedWith(Names.named(browserName)).toProvider(
+        new JavaScriptAjaxHandlerProvider(serverName)).asEagerSingleton()
+    }
+  }
+
+  def server(serverName: String) = new {
+    def linksToBrowser(browserName: String) {
+      bind(classOf[BrowserObject]).annotatedWith(Names.named(serverName)).toProvider(
+        new BrowserObjectProvider(browserName)).asEagerSingleton()
+    }
+  }
 
 }
