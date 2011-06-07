@@ -2,8 +2,8 @@
 package io.leon.sql
 
 import java.util.logging.Logger
-import java.sql.{ResultSet, Connection}
 import java.lang.IllegalStateException
+import java.sql.{SQLException, ResultSet, Connection}
 
 case class ColumnDef(tableName: String, name: String, sqlName: String, ddl: String)
 
@@ -31,12 +31,16 @@ case class TableDef(name: String,
     "DROP TABLE %s;".format(sqlFullName)
   }
 
-  def createInsertIntoString(columns: List[String], values: List[Any]): String = {
+  def insertInto(columns: List[String], values: List[Any]): String = {
     "INSERT INTO %s (%s) VALUES (%s)".format(
       sqlFullName,
       columns.mkString(","),
       "'" + values.mkString("','") + "'"
     )
+  }
+
+  def count: String = {
+    "SELECT count(*) FROM %s;".format(sqlFullName)
   }
 
 }
@@ -53,15 +57,17 @@ class Table(val manager: LeonSqlManager, val tableDef: TableDef) {
       }
 
       val (columns, values) = withSqlNames.unzip
-      val sql = tableDef.createInsertIntoString(columns.toList, values.toList)
+      val sql = tableDef.insertInto(columns.toList, values.toList)
       logger.info("Adding BATCH SQL: " + sql)
       stmt.addBatch(sql)
     }
     stmt.executeBatch().toList
   }
 
+  def insert(data: List[Map[String, Any]]): List[Int] = insert(data: _*)
+
   def size: Int = {
-    manager.executeSql("SELECT count(*) FROM %s;".format(tableDef.sqlFullName)) match {
+    manager.executeSql(tableDef.count) match {
       case ResultSetResult(rs) => {
         rs.next()
         rs.getInt(1)
@@ -124,13 +130,17 @@ class LeonSqlManager(val connection: Connection,
 
   def executeSql(sql: String): StatementResult = {
     logger.info("Executing SQL: " + sql)
-    val stmt = connection.createStatement()
-    stmt.execute(sql) match {
-      case true => ResultSetResult(stmt.getResultSet)
-      case false => stmt.getUpdateCount match {
-        case -1 => NoResult
-        case i => CountResult(i)
+    try {
+      val stmt = connection.createStatement()
+      stmt.execute(sql) match {
+        case true => ResultSetResult(stmt.getResultSet)
+        case false => stmt.getUpdateCount match {
+          case -1 => NoResult
+          case i => CountResult(i)
+        }
       }
+    } catch {
+      case e: SQLException => throw e  // TODO log error
     }
   }
 

@@ -63,7 +63,7 @@ class LeonSqlManagerSpec extends Specification {
     "insert data" in {
       val m = createManager()
       val p = m.table("person")
-      val counts = p.insert(personTestData: _*)
+      val counts = p.insert(personTestData)
       counts must have size (3)
     }
 
@@ -71,11 +71,9 @@ class LeonSqlManagerSpec extends Specification {
       val m = createManager()
       val p = m.table("person")
       p.size must_== 0
-      p.insert(personTestData: _*)
+      p.insert(personTestData)
       p.size must_== 3
     }
-
-
 
   }
 
