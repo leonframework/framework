@@ -73,9 +73,9 @@ class LeonProject(info: ProjectInfo) extends ParentProject(info) with Unpublishe
   // core subproject
   // ===================================================================================================================
 
-  val coreProject = project("core", "core", new CoreProject(_))
+  val leon_core = project("leon-core", "leon-core", new LeonCoreProject(_))
 
-  class CoreProject(info: ProjectInfo) extends DefaultProject(info) {
+  class LeonCoreProject(info: ProjectInfo) extends DefaultProject(info) {
 
     def specs2Framework = new TestFramework("org.specs2.runner.SpecsFramework")
 
@@ -93,12 +93,16 @@ class LeonProject(info: ProjectInfo) extends ParentProject(info) with Unpublishe
   }
 
   // ===================================================================================================================
-  // dummyapp subproject
+  // Sample subprojects
   // ===================================================================================================================
 
-  val dummyAppProject = project("dummyapp", "dummyapp", new DummyAppProject(_), coreProject)
+  val leon_samples_project = project("leon-samples", "leon-samples", new LeonSamplesProject(_))
 
-  class DummyAppProject(info: ProjectInfo) extends DefaultWebProject(info) with UnpublishedProject {
+  class LeonSamplesProject(info: ProjectInfo) extends ParentProject(info) {
+    val leon_samples_mixed_project = project("leon-samples-mixed", "leon-samples-mixed", new LeonSamplesMixedProject(_), leon_core)
+  }
+
+  class LeonSamplesMixedProject(info: ProjectInfo) extends DefaultWebProject(info) with UnpublishedProject {
 
     override def libraryDependencies = Set(logback_classic, logback_core, jetty7, mysql)
 
