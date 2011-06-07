@@ -20,13 +20,21 @@ var leon = (function() {
             alert(source + ": " + msg);
         },
 
-        registerUplink: function(pageId) {
+        handleBrowserObjectMethodCall: function(objectName, methodName, args) {
+            var obj = eval(objectName);
+            var method = obj[methodName];
+            method.apply(method, args);
+        },
+
+        registerPage: function(pageId) {
+            var handle = this.handleBrowserObjectMethodCall;
             $.atmosphere.subscribe(
-                "/leon/comet" + "?pageId=" + pageId + "&uplink=true",
+                "/leon/registerPage" + "?pageId=" + pageId + "&uplink=true",
                 function(data) {
                     var message = JSON.parse(data.responseBody);
-                    var target = eval(message.target);
-                    target.apply(target, message.args);
+                    if (message.type === "browserObjectMethodCall") {
+                        handle(message.object, message.method, message.args);
+                    }
                 },
                 $.atmosphere.request = {transport: "websocket"}
             );

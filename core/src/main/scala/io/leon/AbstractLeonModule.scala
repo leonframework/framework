@@ -12,12 +12,12 @@ import web.ajax.{AjaxHandler, AjaxWebModule}
 import java.io.InputStreamReader
 import java.util.logging.Logger
 import java.lang.RuntimeException
-import com.google.inject.name.Names
-import com.google.inject.{Inject, Injector, AbstractModule}
-import scala.collection.mutable
 import javax.script.{ScriptEngineManager, ScriptEngine}
 import web.comet.{BrowserObjectProvider, BrowserObject, CometWebModule}
 import web.resources.{ResourcesServlet, ResourcesWebModule}
+import collection.{JavaConversions, mutable}
+import com.google.inject._
+import name.{Named, Names}
 
 abstract class AbstractLeonModule extends AbstractModule {
 
@@ -28,7 +28,9 @@ abstract class AbstractLeonModule extends AbstractModule {
   val modules = mutable.ArrayBuffer(
     new AjaxWebModule, new CometWebModule, new ResourcesWebModule)
 
-  val javaScriptFiles = mutable.ArrayBuffer("/io/leon/json2.js", "/io/leon/leon.js")
+  val leonJavaScriptFiles = "/io/leon/json2.js" :: "/io/leon/leon.js" :: Nil
+
+  val userJavaScriptFiles = mutable.ArrayBuffer[String]()
 
   val internalPaths = new mutable.ArrayBuffer[String]
 
@@ -39,7 +41,7 @@ abstract class AbstractLeonModule extends AbstractModule {
 
     addInternalPath(classOf[AbstractLeonModule])
 
-    javaScriptFiles foreach loadJsFile
+    userJavaScriptFiles foreach loadJsFile
     modules foreach install
 
     bind(classOf[AbstractLeonModule]).toInstance(this)
@@ -49,31 +51,33 @@ abstract class AbstractLeonModule extends AbstractModule {
       @Inject def init(injector: Injector, engine: ScriptEngine, resourcesServlet: ResourcesServlet) {
         engine.put("injector", injector)
 
-        javaScriptFiles foreach { f =>
-          logger.info("Loading JS file " + f)
-          try {
-            val jsFile = getClass.getClassLoader.getResourceAsStream(f)
-            engine.eval(new InputStreamReader(jsFile))
-          } catch {
-            case e: Throwable => throw new RuntimeException("Can not load JavaScript file [" + f + "]", e)
-          }
+        // Loading Leon JavaScript files
+        leonJavaScriptFiles foreach { f => evalJavaScriptFile(engine, f) }
+
+        // Binding server->browser objects
+        val browserObjects = injector.findBindingsByType(new TypeLiteral[BrowserObject]() {})
+        JavaConversions.asScalaBuffer(browserObjects) foreach { b =>
+          // TODO support '.' in names
+          val serverName = b.getKey.getAnnotation.asInstanceOf[Named].value()
+          engine.eval("var %s = leon.getBrowserObject(\"%s\");".format(serverName, serverName))
         }
+
+        // Loading User JavaScript files
+        userJavaScriptFiles foreach { f => evalJavaScriptFile(engine, f) }
 
         resourcesServlet.internalPaths = internalPaths
       }
     })
   }
 
-  def addInternalPath(path: String) {
-    internalPaths.append(path)
-  }
-
-  def addInternalPath(clazz: Class[_]) {
-    addInternalPath("/" + clazz.getPackage.getName.replace('.', '/'))
-  }
-
-  def loadJsFile(fileName: String) {
-    javaScriptFiles.append(fileName)
+  private def evalJavaScriptFile(engine: ScriptEngine, fileName: String) {
+    logger.info("Loading JS file " + fileName)
+    try {
+      val jsFile = getClass.getClassLoader.getResourceAsStream(fileName)
+      engine.eval(new InputStreamReader(jsFile))
+    } catch {
+      case e: Throwable => throw new RuntimeException("Can not load JavaScript file [" + fileName + "]", e)
+    }
   }
 
   def createApplicationJavaScript(): String = {
@@ -97,6 +101,22 @@ abstract class AbstractLeonModule extends AbstractModule {
     """.format(fnName, fnName)
   }
   */
+
+  // --- Internal URL methods -----------------------------
+
+  def addInternalPath(path: String) {
+    internalPaths.append(path)
+  }
+
+  def addInternalPath(clazz: Class[_]) {
+    addInternalPath("/" + clazz.getPackage.getName.replace('.', '/'))
+  }
+
+  // --- JavaScript methods -------------------------------
+
+  def loadJsFile(fileName: String) {
+    userJavaScriptFiles.append(fileName)
+  }
 
   // --- Ajax/Comet DSL -----------------------------------
 

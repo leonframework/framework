@@ -41,7 +41,7 @@ class CometHandler @Inject()(registry: CometRegistry) extends HttpServlet {
 
     uplink match {
       case "true" => {
-        logger.info("Registering uplink for client: " + sessionId + "-" + pageId)
+        logger.info("Registering connection for client: " + sessionId + "-" + pageId)
         registry.registerUplink(sessionId, pageId, req)
       }
       case _ => {

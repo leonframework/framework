@@ -150,7 +150,7 @@ class CometRegistry {
     val meteor = createMeteor(req)
     //val id = sessionId + pageId // TODO
     val id = pageId
-    logger.info("Adding Client uplink: " + id)
+    logger.info("Adding Client comet connection: " + id)
     clients.clientByPageId(id) match {
       case None => clients.add(new ClientConnection(id, meteor, System.currentTimeMillis))
       case Some(cc) => cc.uplink = meteor
@@ -167,7 +167,7 @@ class CometRegistry {
         cc.lastPing = System.currentTimeMillis
       }
       case None => {
-        logger.info("Got heartbeat, but no client uplink yet.")
+        logger.info("Got heartbeat, but no client connection yet.")
       }
     }
   }

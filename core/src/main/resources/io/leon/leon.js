@@ -10,13 +10,15 @@ var leon = (function() {
             return injector.getInstance(guice.Key.get(clazz, Names.named(name)));
         },
 
-        uplink: function(name) {
-            var UplinkFunction = Packages.io.leon.web.comet.UplinkFunction;
-            var uplinkFn = this.inject(UplinkFunction, name);
-            return function() {
-                var args = Array.prototype.slice.call(arguments);
-                var json = JSON.stringify(args);
-                uplinkFn.jsonApply(json);
+        getBrowserObject: function(name) {
+            var BrowserObject = Packages.io.leon.web.comet.BrowserObject;
+            var ref = this.inject(BrowserObject, name);
+            return function(methodName) {
+                return function() {
+                    var args = Array.prototype.slice.call(arguments);
+                    var json = JSON.stringify(args);
+                    ref.jsonApply(methodName, json);
+                };
             };
         }
 
