@@ -14,7 +14,7 @@ import java.util.logging.Logger
 import com.google.inject.servlet.ServletModule
 import io.leon.AbstractLeonModule
 import com.google.inject.{AbstractModule, Inject}
-import collection.mutable
+import io.leon.guice.annotations.InternalPathsList
 
 class ResourcesWebModule extends ServletModule {
   override def configureServlets() {
@@ -29,11 +29,10 @@ class ResourcesModule extends AbstractModule {
   }
 }
 
-class ResourcesServlet @Inject()(config: AbstractLeonModule) extends HttpServlet {
+class ResourcesServlet @Inject()(config: AbstractLeonModule,
+                                 @InternalPathsList internalPaths: List[String]) extends HttpServlet {
 
   private val logger = Logger.getLogger(getClass.getName)
-
-  var internalPaths = new mutable.ArrayBuffer[String]
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
     val contextPath = req.getContextPath

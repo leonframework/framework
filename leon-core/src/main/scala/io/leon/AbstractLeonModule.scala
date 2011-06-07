@@ -7,6 +7,7 @@
  */
 package io.leon
 
+import guice.annotations.InternalPathsList
 import javascript.JavaScriptAjaxHandlerProvider
 import web.ajax.{AjaxHandler, AjaxWebModule}
 import java.io.InputStreamReader
@@ -18,6 +19,7 @@ import web.resources.{ResourcesServlet, ResourcesWebModule}
 import collection.{JavaConversions, mutable}
 import com.google.inject._
 import name.{Named, Names}
+
 
 abstract class AbstractLeonModule extends AbstractModule {
 
@@ -34,12 +36,20 @@ abstract class AbstractLeonModule extends AbstractModule {
 
   val internalPaths = new mutable.ArrayBuffer[String]
 
+  var addModulePackageToInternalPaths = true
+
   def config()
+
+  @Provides @InternalPathsList
+  def provideInternalPathsList(): List[String] = internalPaths.toList
 
   def configure() {
     config()
 
     addInternalPath(classOf[AbstractLeonModule])
+    if (addModulePackageToInternalPaths) {
+      addInternalPath(getClass)
+    }
 
     userJavaScriptFiles foreach loadJsFile
     modules foreach install
@@ -48,7 +58,7 @@ abstract class AbstractLeonModule extends AbstractModule {
     bind(classOf[ScriptEngine]).toInstance(scriptEngine)
 
     requestInjection(new Object {
-      @Inject def init(injector: Injector, engine: ScriptEngine, resourcesServlet: ResourcesServlet) {
+      @Inject def init(injector: Injector, engine: ScriptEngine) {
         engine.put("injector", injector)
 
         // Loading Leon JavaScript files
@@ -64,8 +74,6 @@ abstract class AbstractLeonModule extends AbstractModule {
 
         // Loading User JavaScript files
         userJavaScriptFiles foreach { f => evalJavaScriptFile(engine, f) }
-
-        resourcesServlet.internalPaths = internalPaths
       }
     })
   }

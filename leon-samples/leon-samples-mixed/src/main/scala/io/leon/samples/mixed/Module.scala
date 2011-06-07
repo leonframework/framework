@@ -1,4 +1,4 @@
-package io.leon.dummyapp
+package io.leon.samples.mixed
 
 /*
  * Copyright (c) 2010 WeigleWilczek and others.
@@ -13,7 +13,7 @@ class Module extends AbstractLeonModule {
 
   def config() {
 
-    loadJsFile("io/leon/dummyapp/person.js")
+    loadJsFile("io/leon/samples/mixed/person.js")
 
     browser("person").linksToServer("person")
 
