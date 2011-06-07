@@ -9,7 +9,6 @@ package io.leon.web.resources
  */
 import javax.servlet._
 import http.{HttpServletResponse, HttpServletRequest, HttpServlet}
-import java.util.logging.Logger
 import com.google.inject.servlet.ServletModule
 import io.leon.AbstractLeonModule
 import com.google.inject.{AbstractModule, Inject}
@@ -31,13 +30,12 @@ class ResourcesModule extends AbstractModule {
 class ResourcesServlet @Inject()(config: AbstractLeonModule,
                                  @InternalPathsList internalPaths: List[String]) extends HttpServlet {
 
-  private val logger = Logger.getLogger(getClass.getName)
+  //private val logger = Logger.getLogger(getClass.getName)
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
     val contextPath = req.getContextPath
     val requestUri = req.getRequestURI
     val url = requestUri.substring(contextPath.size)
-    logger.info("Processing request " + url)
 
     if (isInternalPath(url)) {
       res.setStatus(403)
@@ -63,16 +61,29 @@ class ResourcesServlet @Inject()(config: AbstractLeonModule,
   }
 
   private def doResource(req: HttpServletRequest, res: HttpServletResponse, path: String) {
-    logger.info("Loading resource: " + path)
-    val in = getClass.getClassLoader.getResourceAsStream(path)
     val out = res.getOutputStream
-    val buffer = new Array[Byte](1024)
-    var bytesRead = 0
-    while (bytesRead != -1) {
-      out.write(buffer, 0, bytesRead)
-      bytesRead = in.read(buffer)
+    val in = getClass.getClassLoader.getResourceAsStream(path)
+    if (in != null) {
+      setResponseContentType(req, res)
+      val buffer = new Array[Byte](1024)
+      var bytesRead = 0
+      while (bytesRead != -1) {
+        out.write(buffer, 0, bytesRead)
+        bytesRead = in.read(buffer)
+      }
+    } else {
+      res.setContentType("text/html")
+      res.setStatus(404)
     }
     out.close()
+  }
+
+  private def setResponseContentType(req: HttpServletRequest, res: HttpServletResponse) {
+    req.getRequestURI.split('.').lastOption map { _ match {
+      case "html" => res.setContentType("text/html")
+      case "js" => res.setContentType("text/javascript")
+      case _ =>
+    }}
   }
   
 }

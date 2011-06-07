@@ -55,6 +55,7 @@ class AjaxProcessor @Inject()(injector: Injector) extends HttpServlet {
 class BrowserJsServlet @Inject()(injector: Injector) extends HttpServlet {
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
+    res.setContentType("text/javascript")
     val out = new BufferedWriter(res.getWriter)
 
     val serverObjects = injector.findBindingsByType(new TypeLiteral[AjaxHandler]() {})
