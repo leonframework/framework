@@ -18,14 +18,14 @@ import java.io.{BufferedWriter, BufferedOutputStream}
 class AjaxWebModule extends ServletModule {
   override def configureServlets() {
     install(new AjaxModule)
-    serve("/leon/ajax").`with`(classOf[AjaxProcessor])
+    serve("/leon/ajax").`with`(classOf[AjaxCallServlet])
     serve("/leon/browser.js").`with`(classOf[BrowserJsFileServlet])
   }
 }
 
 class AjaxModule extends AbstractModule {
   def configure() {
-    bind(classOf[AjaxProcessor]).asEagerSingleton()
+    bind(classOf[AjaxCallServlet]).asEagerSingleton()
     bind(classOf[BrowserJsFileServlet]).asEagerSingleton()
   }
 }
@@ -34,7 +34,7 @@ trait AjaxHandler {
   def jsonApply(member: String, args: String): String
 }
 
-class AjaxProcessor @Inject()(injector: Injector) extends HttpServlet {
+class AjaxCallServlet @Inject()(injector: Injector) extends HttpServlet {
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
     val targetName = req.getParameter("target")

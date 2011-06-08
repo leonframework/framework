@@ -51,12 +51,6 @@ class CometHandler @Inject()(registry: CometRegistry) extends HttpServlet {
     }
   }
 
-  override def doPost(req: HttpServletRequest, res: HttpServletResponse) {
-    logger.info("Handling Comet POST request")
-    val message = req.getParameter("message")
-    registry.broadcast("MSG:" + message)
-  }
-
 }
 
 class CometServlet @Inject()(cometHandler: CometHandler) extends AtmosphereServlet {

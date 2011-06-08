@@ -4,12 +4,18 @@ jQuery.fn.toObject = function() {
 };
 
 var leon = (function() {
+
+    var randomPageId = Math.floor(Math.random() * 999999999);
+
     return {
+
+        pageId: randomPageId,
 
         call: function(target, args, callback) {
             jQuery.post(
                 "/leon/ajax",
                 {
+                    pageId: this.pageId,
                     target: target,
                     args: JSON.stringify(args),
                     dataType: "json"
@@ -27,10 +33,10 @@ var leon = (function() {
             method.apply(method, args);
         },
 
-        registerPage: function(pageId) {
+        registerPage: function() {
             var handle = this.handleBrowserObjectMethodCall;
             $.atmosphere.subscribe(
-                "/leon/registerPage" + "?pageId=" + pageId + "&uplink=true",
+                "/leon/registerPage" + "?pageId=" + this.pageId + "&uplink=true",
                 function(data) {
                     var message = JSON.parse(data.responseBody);
                     if (message.type === "browserObjectMethodCall") {

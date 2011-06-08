@@ -7,7 +7,11 @@ var leon = (function() {
     return {
 
         inject: function(clazz, name) {
-            return injector.getInstance(guice.Key.get(clazz, Names.named(name)));
+            if (name === undefined) {
+                return injector.getInstance(clazz);
+            } else {
+                return injector.getInstance(guice.Key.get(clazz, Names.named(name)));
+            }
         },
 
         getBrowserObject: function(name) {

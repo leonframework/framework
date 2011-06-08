@@ -23,6 +23,8 @@ import org.atmosphere.util.XSSHtmlFilter
 
 class ClientConnection(val pageId: String, private var _uplink: Meteor, var lastPing: Long) {
 
+  val sessionId = uplink.getAtmosphereResource.getRequest.getSession.getId
+
   private val lock = new Object
 
   private val logger = Logger.getLogger(getClass.getName)
@@ -87,14 +89,19 @@ class Clients {
 
   private val byPageId = new mutable.HashMap[String, ClientConnection]
 
+  private val bySession = new mutable.HashMap[String, mutable.ArrayBuffer[ClientConnection]]
+
   def allClients = all.toList
 
   def clientByPageId(id: String) = byPageId.get(id)
+
+  def clientsBySessionId(id: String) = bySession.getOrElse(id, new mutable.ArrayBuffer[ClientConnection])
 
   def add(client: ClientConnection) {
     lock.synchronized {
       all.append(client)
       byPageId(client.pageId) = client
+      bySession.getOrElseUpdate(client.sessionId, new mutable.ArrayBuffer[ClientConnection]).append(client)
     }
   }
 
@@ -102,6 +109,8 @@ class Clients {
     lock.synchronized {
       all.remove(all.indexOf(client))
       byPageId.remove(client.pageId)
+      bySession.getOrElseUpdate(client.sessionId, new mutable.ArrayBuffer[ClientConnection])
+      bySession(client.sessionId).remove(bySession(client.sessionId).indexOf(client))
     }
   }
 
@@ -120,6 +129,12 @@ class CometRegistry {
   private val clients = new Clients
 
   private var shouldStop = false
+
+  private def createMeteor(req: HttpServletRequest): Meteor = {
+    import scala.collection.JavaConverters._
+    val meteor = Meteor.build(req, filter.asJava, null)
+    meteor
+  }
 
   def start() {
     shouldStop = false
@@ -148,8 +163,7 @@ class CometRegistry {
 
   def registerUplink(sessionId: String, pageId: String, req: HttpServletRequest) {
     val meteor = createMeteor(req)
-    //val id = sessionId + pageId // TODO
-    val id = pageId
+    val id = sessionId + "__" + pageId
     logger.info("Adding Client comet connection: " + id)
     clients.clientByPageId(id) match {
       case None => clients.add(new ClientConnection(id, meteor, System.currentTimeMillis))
@@ -159,8 +173,7 @@ class CometRegistry {
   }
 
   def processClientHeartbeat(sessionId: String, pageId: String) {
-    //val id = sessionId + pageId // TODO
-    val id = pageId
+    val id = sessionId + "__" + pageId
     clients.clientByPageId(id) match {
       case Some(cc) => {
         logger.info("Updating heartbeat for: " + id)
@@ -172,17 +185,14 @@ class CometRegistry {
     }
   }
 
-  def broadcast(msg: String) {
-    clients.allClients foreach { cc =>
-      cc.send(msg)
-    }
-  }
+  def allClients: List[ClientConnection] =
+    clients.allClients
 
-  private def createMeteor(req: HttpServletRequest): Meteor = {
-    import scala.collection.JavaConverters._
-    val meteor = Meteor.build(req, filter.asJava, null)
-    meteor
-  }
+  def clientsBySessionId(id: String): List[ClientConnection] =
+    clients.clientsBySessionId(id).toList
+
+  def clientByPageId(sessionId: String, pageId: String): Option[ClientConnection] =
+    clients.clientByPageId(sessionId + "__" + pageId)
 
 }
 

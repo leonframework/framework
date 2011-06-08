@@ -14,7 +14,7 @@ import java.io.InputStreamReader
 import java.util.logging.Logger
 import java.lang.RuntimeException
 import javax.script.{ScriptEngineManager, ScriptEngine}
-import web.comet.{BrowserObjectProvider, BrowserObject, CometWebModule}
+import web.comet._
 import web.resources.ResourcesWebModule
 import collection.{JavaConversions, mutable}
 import com.google.inject._
@@ -107,6 +107,9 @@ abstract class AbstractLeonModule extends AbstractModule {
   // --- Ajax/Comet DSL -----------------------------------
 
   def browser(browserName: String) = new {
+    def linksToServer() {
+      linksToServer(browserName)
+    }
     def linksToServer(serverName: String) {
       bind(classOf[AjaxHandler]).annotatedWith(Names.named(browserName)).toProvider(
         new JavaScriptAjaxHandlerProvider(serverName)).asEagerSingleton()
@@ -115,8 +118,17 @@ abstract class AbstractLeonModule extends AbstractModule {
 
   def server(serverName: String) = new {
     def linksToBrowser(browserName: String) {
+      linksToBrowsersWithScope(browserName, BrowerObjectAllScope)
+    }
+    def linksToBrowserPage(browserName: String) {
+      linksToBrowsersWithScope(browserName, BrowerObjectPageScope)
+    }
+    def linksToBrowserSession(browserName: String) {
+      linksToBrowsersWithScope(browserName, BrowerObjectSessionScope)
+    }
+    def linksToBrowsersWithScope(browserName: String, browserScope: BrowserObjectScopes) {
       bind(classOf[BrowserObject]).annotatedWith(Names.named(serverName)).toProvider(
-        new BrowserObjectProvider(browserName)).asEagerSingleton()
+        new BrowserObjectProvider(browserName, browserScope)).asEagerSingleton()
     }
   }
 

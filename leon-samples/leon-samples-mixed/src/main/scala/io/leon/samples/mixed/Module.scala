@@ -15,9 +15,9 @@ class Module extends AbstractLeonModule {
 
     loadJsFile("io/leon/samples/mixed/person.js")
 
-    browser("person").linksToServer("person")
+    browser("person").linksToServer()
 
-    server("leon.browser.all").linksToBrowser("leon")
+    server("leon.browser").linksToBrowserPage("leon")
 
   }
 
