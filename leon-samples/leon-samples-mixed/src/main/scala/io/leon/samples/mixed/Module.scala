@@ -17,7 +17,7 @@ class Module extends AbstractLeonModule {
 
     browser("person").linksToServer("person")
 
-    server("browserLeon").linksToBrowser("leon")
+    server("leon.browser.all").linksToBrowser("leon")
 
   }
 

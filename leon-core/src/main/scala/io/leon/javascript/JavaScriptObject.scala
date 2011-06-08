@@ -36,7 +36,7 @@ class JavaScriptAjaxHandlerProvider(objName: String) extends Provider[AjaxHandle
   private lazy val jsObject = new JavaScriptObject(engine, objName)
 
   private lazy val handler = new AjaxHandler {
-    def jsonApply(members: List[String], args: String) = jsObject.jsonApply(members, args)
+    def jsonApply(member: String, args: String) = jsObject.jsonApply(member, args)
   }
 
   def get() = handler
@@ -47,9 +47,9 @@ class JavaScriptObject(val engine: ScriptEngine, val objName: String) {
 
   private def invocable = engine.asInstanceOf[Invocable]
 
-  def jsonApply(members: List[String], args: String): String = {
+  def jsonApply(member: String, args: String): String = {
     val argsParsed = RhinoUtils.json2RhinoObject(engine, args)
-    val function = engine.eval((objName :: members).mkString("."))
+    val function = engine.eval(objName + "." + member)
     val objResult = invocable.invokeMethod(function, "apply", function, argsParsed)
     RhinoUtils.rhinoObject2Json(engine, objResult)
   }

@@ -19,30 +19,31 @@ class AjaxWebModule extends ServletModule {
   override def configureServlets() {
     install(new AjaxModule)
     serve("/leon/ajax").`with`(classOf[AjaxProcessor])
-    serve("/leon/browser.js").`with`(classOf[BrowserJsServlet])
+    serve("/leon/browser.js").`with`(classOf[BrowserJsFileServlet])
   }
 }
 
 class AjaxModule extends AbstractModule {
   def configure() {
     bind(classOf[AjaxProcessor]).asEagerSingleton()
-    bind(classOf[BrowserJsServlet]).asEagerSingleton()
+    bind(classOf[BrowserJsFileServlet]).asEagerSingleton()
   }
 }
 
 trait AjaxHandler {
-  def jsonApply(members: List[String], args: String): String
+  def jsonApply(member: String, args: String): String
 }
 
 class AjaxProcessor @Inject()(injector: Injector) extends HttpServlet {
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
-    val target = req.getParameter("target")
+    val targetName = req.getParameter("target")
     val args = req.getParameter("args")
 
-    val obj :: members = target.split('.').toList
+    val (obj, member) = targetName.splitAt(targetName.lastIndexOf('.'))
+
     val handler = injector.getInstance(Key.get(classOf[AjaxHandler], Names.named(obj)))
-    val result = handler.jsonApply(members, args)
+    val result = handler.jsonApply(member.substring(1), args)
 
     res.setContentType("application/json")
     val out = new BufferedOutputStream(res.getOutputStream)
@@ -52,7 +53,7 @@ class AjaxProcessor @Inject()(injector: Injector) extends HttpServlet {
 
 }
 
-class BrowserJsServlet @Inject()(injector: Injector) extends HttpServlet {
+class BrowserJsFileServlet @Inject()(injector: Injector) extends HttpServlet {
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
     res.setContentType("text/javascript")
@@ -69,7 +70,8 @@ class BrowserJsServlet @Inject()(injector: Injector) extends HttpServlet {
   private def createJavaScriptFunctionDeclaration(name: String): String = {
     // TODO support '.' in names
     """
-    var %s = function (methodName) {
+    leon.utils.createVar("%s");
+    %s = function (methodName) {
       return function() {
         var argLength = arguments.length - 1;
         var args = Array(argLength);
@@ -81,7 +83,7 @@ class BrowserJsServlet @Inject()(injector: Injector) extends HttpServlet {
         leon.call("%s." + methodName, args, callback);
       };
     }
-    """.format(name, name)
+    """.format(name, name, name)
   }
 
 }

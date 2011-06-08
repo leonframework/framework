@@ -30,7 +30,7 @@ abstract class AbstractLeonModule extends AbstractModule {
   val modules = mutable.ArrayBuffer(
     new AjaxWebModule, new CometWebModule, new ResourcesWebModule)
 
-  val leonJavaScriptFiles = "/io/leon/json2.js" :: "/io/leon/leon.js" :: Nil
+  val leonJavaScriptFiles = "/io/leon/json2.js" :: "/io/leon/leon.js" :: "/leon/shared/utils.js" :: Nil
 
   val userJavaScriptFiles = mutable.ArrayBuffer[String]()
 
@@ -67,9 +67,9 @@ abstract class AbstractLeonModule extends AbstractModule {
         // Binding server->browser objects
         val browserObjects = injector.findBindingsByType(new TypeLiteral[BrowserObject]() {})
         JavaConversions.asScalaBuffer(browserObjects) foreach { b =>
-          // TODO support '.' in names
           val serverName = b.getKey.getAnnotation.asInstanceOf[Named].value()
-          engine.eval("var %s = leon.getBrowserObject(\"%s\");".format(serverName, serverName))
+          engine.eval("""leon.utils.createVar("%s");""".format(serverName))
+          engine.eval("%s = leon.getBrowserObject(\"%s\");".format(serverName, serverName))
         }
 
         // Loading User JavaScript files
