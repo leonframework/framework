@@ -66,7 +66,7 @@ class ResourcesServlet @Inject()(config: AbstractLeonConfiguration) extends Http
   }
 
   private def setResponseContentType(req: HttpServletRequest, res: HttpServletResponse) {
-    Option(getServletContext getMimeType req.getRequestURI) foreach res.setContentType
+    Option(getServletContext.getMimeType(req.getRequestURI)) foreach res.setContentType
   }
   
 }
