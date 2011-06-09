@@ -11,7 +11,6 @@
 <body>
 
 <script type="text/javascript">
-    var ar;
     var ViewModel = function() {
 
         this.firstName = ko.observable("John"),
@@ -29,7 +28,6 @@
 
         this.savePerson = function() {
             person("save")(ko.toJS(this), function(result) {
-                ar = result;
                 console.log("ajax call result firstname: " + result.firstName);
             });
         }

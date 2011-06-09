@@ -8,20 +8,19 @@
  */
 package io.leon.javascript
 
-import javax.script.{Invocable, ScriptEngine}
 import com.google.inject.{Inject, Provider}
 import io.leon.web.ajax.AjaxHandler
 
 object RhinoUtils {
 
-  def json2RhinoObject(engine: ScriptEngine, string: String): AnyRef = {
-    val invocable = engine.asInstanceOf[Invocable]
+  def json2RhinoObject(engine: LeonScriptEngine, string: String): AnyRef = {
+    val invocable = engine.asInvocable
     val json = engine.get("JSON")
     invocable.invokeMethod(json, "parse", string)
   }
 
-  def rhinoObject2Json(engine: ScriptEngine, obj: AnyRef): String = {
-    val invocable = engine.asInstanceOf[Invocable]
+  def rhinoObject2Json(engine: LeonScriptEngine, obj: AnyRef): String = {
+    val invocable = engine.asInvocable
     val json = engine.get("JSON")
     invocable.invokeMethod(json, "stringify", obj).asInstanceOf[String]
   }
@@ -31,7 +30,7 @@ object RhinoUtils {
 class JavaScriptAjaxHandlerProvider(objName: String) extends Provider[AjaxHandler] {
 
   @Inject
-  var engine: ScriptEngine = _
+  var engine: LeonScriptEngine = _
 
   private lazy val jsObject = new JavaScriptObject(engine, objName)
 
@@ -43,9 +42,9 @@ class JavaScriptAjaxHandlerProvider(objName: String) extends Provider[AjaxHandle
 
 }
 
-class JavaScriptObject(val engine: ScriptEngine, val objName: String) {
+class JavaScriptObject(val engine: LeonScriptEngine, val objName: String) {
 
-  private def invocable = engine.asInstanceOf[Invocable]
+  private def invocable = engine.asInvocable
 
   def jsonApply(member: String, args: String): String = {
     val argsParsed = RhinoUtils.json2RhinoObject(engine, args)
