@@ -1,26 +1,27 @@
 package io.leon.javascript
 
-import com.google.inject.AbstractModule
 import java.io.InputStreamReader
-import java.util.logging.Logger
-import javax.script.{Invocable, ScriptEngine, ScriptEngineManager}
+import javax.script.{Invocable, ScriptEngineManager}
+import io.leon.resources.ResourceLoader
+import com.google.inject.{Inject, AbstractModule}
 
-class LeonScriptEngine(scriptEngine: ScriptEngine) {
+class LeonScriptEngine @Inject()(resourceLoader: ResourceLoader) {
 
-  private val logger = Logger.getLogger(getClass.getName)
+  //private val logger = Logger.getLogger(getClass.getName)
+
+  private val scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript")
+
+  loadResource("/io/leon/json2.js")
+  loadResource("/io/leon/leon.js")
+  loadResource("/leon/leon_shared.js")
 
   def asInvocable = {
     scriptEngine.asInstanceOf[Invocable]
   }
 
   def loadResource(fileName: String) {
-    logger.info("Loading JavaScript file [%s]".format(fileName))
-    try {
-      val jsFile = getClass.getClassLoader.getResourceAsStream(fileName)
-      scriptEngine.eval(new InputStreamReader(jsFile))
-    } catch {
-      case e: Throwable => throw new RuntimeException("Can not load JavaScript file [%s]".format(fileName), e)
-    }
+    val resource = resourceLoader.getInputStream(fileName)
+    scriptEngine.eval(new InputStreamReader(resource))
   }
 
   def loadResources(fileNames: List[String]) {
@@ -43,13 +44,8 @@ class LeonScriptEngine(scriptEngine: ScriptEngine) {
 
 class LeonJavaScriptModule extends AbstractModule {
 
-  private val scriptEngine = new LeonScriptEngine(new ScriptEngineManager().getEngineByName("JavaScript"))
-  scriptEngine.loadResource("/io/leon/json2.js")
-  scriptEngine.loadResource("/io/leon/leon.js")
-  scriptEngine.loadResource("/leon/leon_shared.js")
-
   def configure() {
-    bind(classOf[LeonScriptEngine]).toInstance(scriptEngine)
+    bind(classOf[LeonScriptEngine]).asEagerSingleton()
   }
 
 }

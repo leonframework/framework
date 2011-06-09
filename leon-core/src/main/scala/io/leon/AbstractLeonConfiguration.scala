@@ -34,7 +34,7 @@ abstract class AbstractLeonConfiguration extends ServletModule {
 
     bind(classOf[AbstractLeonConfiguration]).toInstance(this)
 
-    addInternalPath(classOf[AbstractLeonConfiguration])
+    addInternalPath(classOf[LeonModule])
     if (addModulePackageToInternalPaths) {
       addInternalPath(getClass)
     }

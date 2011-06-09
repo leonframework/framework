@@ -13,6 +13,7 @@ import com.google.inject.servlet.ServletModule
 import io.leon.AbstractLeonConfiguration
 import com.google.inject.{AbstractModule, Inject}
 import io.leon.web.WebUtils
+import io.leon.resources.ResourceLoader
 
 class ResourcesWebModule extends ServletModule {
   override def configureServlets() {
@@ -27,7 +28,8 @@ class ResourcesModule extends AbstractModule {
   }
 }
 
-class ResourcesServlet @Inject()(config: AbstractLeonConfiguration) extends HttpServlet {
+class ResourcesServlet @Inject()(config: AbstractLeonConfiguration,
+                                 resourceLoader: ResourceLoader) extends HttpServlet {
 
   //private val logger = Logger.getLogger(getClass.getName)
 
@@ -49,18 +51,20 @@ class ResourcesServlet @Inject()(config: AbstractLeonConfiguration) extends Http
 
   private def doResource(req: HttpServletRequest, res: HttpServletResponse, path: String) {
     val out = res.getOutputStream
-    val in = getClass.getClassLoader.getResourceAsStream(path)
-    if (in != null) {
-      setResponseContentType(req, res)
-      val buffer = new Array[Byte](1024)
-      var bytesRead = 0
-      while (bytesRead != -1) {
-        out.write(buffer, 0, bytesRead)
-        bytesRead = in.read(buffer)
+    resourceLoader.getInputStreamOption(path) match {
+      case Some(resource) => {
+        setResponseContentType(req, res)
+        val buffer = new Array[Byte](1024)
+        var bytesRead = 0
+        while (bytesRead != -1) {
+          out.write(buffer, 0, bytesRead)
+          bytesRead = resource.read(buffer)
+        }
       }
-    } else {
-      res.setContentType("text/html")
-      res.setStatus(404)
+      case None => {
+        res.setContentType("text/html")
+        res.setStatus(404)
+      }
     }
     out.close()
   }
