@@ -1,12 +1,7 @@
 
 // Set top-level global var to be independent from browser or server side
-var global;
 if (this.window === undefined) {
-    // server side
-    global = this;
-} else {
-    // browser side
-    global = window;
+    window = this;
 }
 
 // Util functions
@@ -15,7 +10,7 @@ leon.utils = (function() {
     return {
         createVar: function(name) {
             var names = name.split(".");
-            var root = global;
+            var root = window;
             while (names.length > 0) {
                 var first = names.shift();
                 if (root[first] === undefined) {

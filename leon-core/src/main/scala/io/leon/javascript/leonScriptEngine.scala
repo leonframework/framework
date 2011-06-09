@@ -46,7 +46,7 @@ class LeonJavaScriptModule extends AbstractModule {
   private val scriptEngine = new LeonScriptEngine(new ScriptEngineManager().getEngineByName("JavaScript"))
   scriptEngine.loadResource("/io/leon/json2.js")
   scriptEngine.loadResource("/io/leon/leon.js")
-  scriptEngine.loadResource("/leon/shared/utils.js")
+  scriptEngine.loadResource("/leon/leon_shared.js")
 
   def configure() {
     bind(classOf[LeonScriptEngine]).toInstance(scriptEngine)
