@@ -26,10 +26,7 @@ class ClassLoaderResourceLocation extends ResourceLocation {
   val classLoader = getClass.getClassLoader
 
   def getInputStreamOption(fileName: String): Option[InputStream] = {
-    classLoader.getResourceAsStream(fileName) match {
-      case null => None
-      case i: InputStream => Some(i)
-    }
+    Option(classLoader.getResourceAsStream(fileName))
   }
 }
 
