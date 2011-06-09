@@ -7,7 +7,6 @@
  */
 package io.leon
 
-import guice.annotations.InternalPathsList
 import javascript.{LeonScriptEngine, JavaScriptAjaxHandlerProvider}
 import web.ajax.AjaxHandler
 import java.util.logging.Logger
@@ -15,9 +14,10 @@ import web.comet._
 import collection.mutable
 import com.google.inject._
 import name.Names
+import servlet.ServletModule
+import web.resources.InternalPathFilter
 
-
-abstract class AbstractLeonConfiguration extends AbstractModule {
+abstract class AbstractLeonConfiguration extends ServletModule {
 
   private val logger = Logger.getLogger(getClass.getName)
 
@@ -29,10 +29,7 @@ abstract class AbstractLeonConfiguration extends AbstractModule {
 
   def config()
 
-  @Provides @InternalPathsList
-  def provideInternalPathsList(): List[String] = internalPaths.toList
-
-  def configure() {
+  override def configureServlets() {
     config()
 
     bind(classOf[AbstractLeonConfiguration]).toInstance(this)
@@ -42,11 +39,15 @@ abstract class AbstractLeonConfiguration extends AbstractModule {
       addInternalPath(getClass)
     }
 
-    javaScriptFilesToLoad foreach loadFile
+    val internalPathFilter = new InternalPathFilter(internalPaths.toList)
+    requestInjection(internalPathFilter)
+    val filterKey = Key.get(classOf[InternalPathFilter], Names.named(getClass.getName))
+    bind(filterKey).toInstance(internalPathFilter)
+    filter("/*").through(filterKey)
 
     requestInjection(new Object {
       @Inject def init(injector: Injector, engine: LeonScriptEngine) {
-        // Loading User JavaScript files
+        // Loading JavaScript files
         engine.loadResources(javaScriptFilesToLoad.toList)
       }
     })

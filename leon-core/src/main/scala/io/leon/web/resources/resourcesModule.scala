@@ -12,7 +12,7 @@ import http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import com.google.inject.servlet.ServletModule
 import io.leon.AbstractLeonConfiguration
 import com.google.inject.{AbstractModule, Inject}
-import io.leon.guice.annotations.InternalPathsList
+import io.leon.web.WebUtils
 
 class ResourcesWebModule extends ServletModule {
   override def configureServlets() {
@@ -27,21 +27,12 @@ class ResourcesModule extends AbstractModule {
   }
 }
 
-class ResourcesServlet @Inject()(config: AbstractLeonConfiguration,
-                                 @InternalPathsList internalPaths: List[String]) extends HttpServlet {
+class ResourcesServlet @Inject()(config: AbstractLeonConfiguration) extends HttpServlet {
 
   //private val logger = Logger.getLogger(getClass.getName)
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
-    val contextPath = req.getContextPath
-    val requestUri = req.getRequestURI
-    val url = requestUri.substring(contextPath.size)
-
-    if (isInternalPath(url)) {
-      res.setStatus(403)
-      // TODO send page
-      return
-    }
+    val url = WebUtils.getRequestUrl(req)
 
     val urlList = url.split('/').toList dropWhile { _ == "" }
     urlList match {
@@ -54,10 +45,6 @@ class ResourcesServlet @Inject()(config: AbstractLeonConfiguration,
       case xs =>
         doResource(req, res, "/" + xs.mkString("/"))
     }
-  }
-
-  private def isInternalPath(url: String): Boolean = {
-    internalPaths exists { p => url.startsWith(p) }
   }
 
   private def doResource(req: HttpServletRequest, res: HttpServletResponse, path: String) {
@@ -87,3 +74,26 @@ class ResourcesServlet @Inject()(config: AbstractLeonConfiguration,
   }
   
 }
+
+class InternalPathFilter(internalPaths: List[String]) extends Filter {
+
+  def init(config: FilterConfig) {}
+
+  def destroy() {}
+
+  def doFilter(_req: ServletRequest, _res: ServletResponse, chain: FilterChain) {
+    val req = _req.asInstanceOf[HttpServletRequest]
+    val res = _res.asInstanceOf[HttpServletResponse]
+
+    val isInternal = internalPaths exists { p => WebUtils.getRequestUrl(req).startsWith(p) }
+    if (isInternal) {
+      res.setStatus(403)
+      // TODO send page
+      return
+    } else {
+      chain.doFilter(_req, _res)
+    }
+  }
+
+}
+

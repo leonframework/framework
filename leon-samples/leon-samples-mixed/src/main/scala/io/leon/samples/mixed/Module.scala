@@ -1,7 +1,3 @@
-package io.leon.samples.mixed
-
-import io.leon.{LeonModule, AbstractLeonConfiguration}
-
 /*
  * Copyright (c) 2010 WeigleWilczek and others.
  * All rights reserved. This program and the accompanying materials
@@ -9,6 +5,10 @@ import io.leon.{LeonModule, AbstractLeonConfiguration}
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
+package io.leon.samples.mixed
+
+import io.leon.AbstractLeonConfiguration
+
 class Module extends AbstractLeonConfiguration {
 
   def config() {

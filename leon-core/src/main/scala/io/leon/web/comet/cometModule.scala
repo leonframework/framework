@@ -18,7 +18,6 @@ package io.leon.web.comet
 import com.google.inject.servlet.ServletModule
 import org.atmosphere.cpr._
 import io.leon.javascript.LeonScriptEngine
-import collection.JavaConversions
 import com.google.inject.name.Named
 import com.google.inject.{Injector, TypeLiteral, Inject, AbstractModule}
 
@@ -48,18 +47,16 @@ class CometModule extends AbstractModule {
 }
 
 class CometInit @Inject()(injector: Injector, engine: LeonScriptEngine) {
+  import scala.collection.JavaConverters._
 
   engine.put("injector", injector)
 
-  // Binding server->browser objects
   val browserObjects = injector.findBindingsByType(new TypeLiteral[BrowserObject]() {})
-  JavaConversions.asScalaBuffer(browserObjects) foreach { b =>
+
+  browserObjects.asScala foreach { b =>
     val serverName = b.getKey.getAnnotation.asInstanceOf[Named].value()
     engine.eval("""leon.utils.createVar("%s");""".format(serverName))
     engine.eval("%s = leon.getBrowserObject(\"%s\");".format(serverName, serverName))
   }
 
-
-
 }
-

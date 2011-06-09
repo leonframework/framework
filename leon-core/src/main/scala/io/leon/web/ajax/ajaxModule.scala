@@ -56,11 +56,13 @@ class AjaxCallServlet @Inject()(injector: Injector) extends HttpServlet {
 class BrowserJsFileServlet @Inject()(injector: Injector) extends HttpServlet {
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
+    import scala.collection.JavaConverters._
+
     res.setContentType("text/javascript")
     val out = new BufferedWriter(res.getWriter)
 
     val serverObjects = injector.findBindingsByType(new TypeLiteral[AjaxHandler]() {})
-    JavaConversions.asScalaBuffer(serverObjects) foreach { o =>
+    serverObjects.asScala foreach { o =>
       val browserName = o.getKey.getAnnotation.asInstanceOf[Named].value()
       out.write(createJavaScriptFunctionDeclaration(browserName))
     }
