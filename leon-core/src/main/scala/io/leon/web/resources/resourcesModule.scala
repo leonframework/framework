@@ -79,11 +79,7 @@ class ResourcesServlet @Inject()(config: AbstractLeonModule,
   }
 
   private def setResponseContentType(req: HttpServletRequest, res: HttpServletResponse) {
-    req.getRequestURI.split('.').lastOption map { _ match {
-      case "html" => res.setContentType("text/html")
-      case "js" => res.setContentType("text/javascript")
-      case _ =>
-    }}
+    Option(getServletContext getMimeType req.getRequestURI) foreach res.setContentType
   }
   
 }
