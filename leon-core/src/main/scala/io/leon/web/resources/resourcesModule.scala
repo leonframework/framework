@@ -10,7 +10,7 @@ package io.leon.web.resources
 import javax.servlet._
 import http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import com.google.inject.servlet.ServletModule
-import io.leon.AbstractLeonModule
+import io.leon.AbstractLeonConfiguration
 import com.google.inject.{AbstractModule, Inject}
 import io.leon.guice.annotations.InternalPathsList
 
@@ -27,7 +27,7 @@ class ResourcesModule extends AbstractModule {
   }
 }
 
-class ResourcesServlet @Inject()(config: AbstractLeonModule,
+class ResourcesServlet @Inject()(config: AbstractLeonConfiguration,
                                  @InternalPathsList internalPaths: List[String]) extends HttpServlet {
 
   //private val logger = Logger.getLogger(getClass.getName)
