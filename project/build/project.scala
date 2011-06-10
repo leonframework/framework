@@ -32,6 +32,8 @@ class LeonParentProject(info: ProjectInfo) extends ParentProject(info) with Unpu
 
   def jetty7 = "org.eclipse.jetty" % "jetty-webapp" % "7.0.2.v20100331" % "test" withSources()
 
+  def rhino = "rhino" % "js" % "1.7R2" withSources()
+
   def sjson = "net.debasishg" % "sjson_2.8.1" % "0.9.1" withSources()
 
   def atmosphere_version = "0.7.1"
@@ -100,7 +102,7 @@ http://www.eclipse.org/legal/epl-v10.html
     override def testFrameworks = super.testFrameworks ++ Seq(specs2Framework)
 
     override def libraryDependencies =
-      Set(specs2, logback_classic, logback_core, servletApi, atmosphere_runtime, atmosphere_runtimejq,
+      Set(specs2, logback_classic, logback_core, servletApi, rhino, atmosphere_runtime, atmosphere_runtimejq,
         guice, guiceServlet, sjson, snakeYaml, mongodb, h2database)
 
     override def packageSrcJar = defaultJarPath("-sources.jar")

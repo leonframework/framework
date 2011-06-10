@@ -8,6 +8,16 @@
  */
 package io.leon.javascript
 
-class JavaScriptWebBindings {
+import com.google.inject.Inject 
+
+//class HttpSessionObject extends ScriptableObject {
+//  def getClassName = getClass.getName
+//}
+
+class JavaScriptWebBindings @Inject()(leonScriptEngine: LeonScriptEngine) {
+
+  //private val httpSessionObject = new HttpSessionObject
+
+  leonScriptEngine.put("session", "foo")
 
 }

@@ -32,8 +32,6 @@ class Module extends AbstractLeonConfiguration {
 
     browser("person").linksToServer()
 
-    browser("person.session").linksToServer()
-
     server("leon.browser").linksToAllPages("leon")
   }
 
