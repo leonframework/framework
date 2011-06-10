@@ -1,7 +1,7 @@
 package io.leon.persistence.mongodb
 
-import com.google.inject.{Injector, Inject, AbstractModule}
 import io.leon.javascript.LeonScriptEngine
+import com.google.inject._
 
 class LeonMongoConfig {
   var host: String = "127.0.0.1"
@@ -13,15 +13,12 @@ class LeonMongoModule(config: LeonMongoConfig) extends AbstractModule {
 
   def this() = this(new LeonMongoConfig())
 
-
   def configure() {
-    bind(classOf[LeonMongoManager]).toProvider(new LeonMongoManagerFactory(config))
-
-//    requestInjection(new Object {
-//      @Inject def init(injector: Injector, engine: LeonScriptEngine) {
-//        // Loading JavaScript files
-//        engine.loadResource("/io/leon/mongo.js")
-//      }
-//    })
+    bind(classOf[LeonMongoInit]).asEagerSingleton()
+    bind(classOf[LeonMongoManager]).toProvider(new LeonMongoManagerFactory(config)).in(Scopes.SINGLETON)
   }
+}
+
+class LeonMongoInit @Inject()(engine: LeonScriptEngine) {
+  engine.loadResource("/io/leon/mongo.js")
 }

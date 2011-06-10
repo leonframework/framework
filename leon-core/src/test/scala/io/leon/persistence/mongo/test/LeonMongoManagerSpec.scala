@@ -11,12 +11,15 @@ class LeonMongoManagerSpec extends Specification {
 
   private val TestDb = "leon_test"
 
-  private val module = new AbstractLeonConfiguration {
-    def config() {
-      install(new LeonMongoModule)
+  //private
+  val module = new AbstractModule {
+    def configure() {
+      install(new ResourceLoaderModule)
+      install(new LeonJavaScriptModule)
+      install(new LeonMongoModule())
     }
   }
-
+ 
   private def createManager(): LeonMongoManager = {
     val m = Guice.createInjector(module).getInstance(classOf[LeonMongoManager])
     m.getDb(TestDb).drop()
