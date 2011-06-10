@@ -31,8 +31,6 @@ abstract class AbstractLeonConfiguration extends ServletModule {
   override def configureServlets() {
     config()
 
-    bind(classOf[AbstractLeonConfiguration]).toInstance(this)
-
     addInternalPath(classOf[LeonModule])
     if (addModulePackageToInternalPaths) {
       addInternalPath(getClass)

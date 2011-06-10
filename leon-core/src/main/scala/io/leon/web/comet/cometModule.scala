@@ -49,8 +49,6 @@ class CometModule extends AbstractModule {
 class CometInit @Inject()(injector: Injector, engine: LeonScriptEngine) {
   import scala.collection.JavaConverters._
 
-  engine.put("injector", injector)
-
   val browserObjects = injector.findBindingsByType(new TypeLiteral[BrowserObject]() {})
 
   browserObjects.asScala foreach { b =>
