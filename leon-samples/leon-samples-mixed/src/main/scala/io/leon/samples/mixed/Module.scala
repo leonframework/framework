@@ -8,15 +8,32 @@
 package io.leon.samples.mixed
 
 import io.leon.AbstractLeonConfiguration
+import io.leon.resources.ResourceLocation
+import java.io.{File, FileInputStream}
+
+class HomeDirResourceLocation extends ResourceLocation {
+  def getInputStreamOption(fileName: String) = {
+    val file = new File("/home/roman/" + fileName)
+    file.exists() match {
+      case true => Some(new FileInputStream(file))
+      case false => None
+    }
+
+  }
+}
+
 
 class Module extends AbstractLeonConfiguration {
 
   def config() {
+
     loadFile("io/leon/samples/mixed/person.js")
 
-    browser("person").linksToServer("person")
+    browser("person").linksToServer()
 
-    server("leon.browser").linksToCurrentPage("leon")
+    browser("person.session").linksToServer()
+
+    server("leon.browser").linksToAllPages("leon")
   }
 
 }

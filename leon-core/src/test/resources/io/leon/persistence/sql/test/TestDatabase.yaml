@@ -24,3 +24,7 @@ table :city:
     :name: char(100) not null
     
 
+query :personWithCity:
+    select :person:*, :city:* from :person, :city where :person:zipCode == :city:zipCode
+
+

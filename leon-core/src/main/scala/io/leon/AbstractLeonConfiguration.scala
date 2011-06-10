@@ -9,7 +9,6 @@ package io.leon
 
 import javascript.{LeonScriptEngine, JavaScriptAjaxHandlerProvider}
 import web.ajax.AjaxHandler
-import java.util.logging.Logger
 import web.comet._
 import collection.mutable
 import com.google.inject._
@@ -19,7 +18,7 @@ import web.resources.InternalPathFilter
 
 abstract class AbstractLeonConfiguration extends ServletModule {
 
-  private val logger = Logger.getLogger(getClass.getName)
+  //private val logger = Logger.getLogger(getClass.getName)
 
   val javaScriptFilesToLoad = mutable.ArrayBuffer[String]()
 

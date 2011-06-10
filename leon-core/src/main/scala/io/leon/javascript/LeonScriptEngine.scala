@@ -1,15 +1,15 @@
 package io.leon.javascript
 
 import java.io.InputStreamReader
-import javax.script.{Invocable, ScriptEngineManager}
 import io.leon.resources.ResourceLoader
-import com.google.inject.{Inject, AbstractModule}
+import javax.script.{Invocable, ScriptEngineManager}
+import com.google.inject.Inject
 
 class LeonScriptEngine @Inject()(resourceLoader: ResourceLoader) {
 
   //private val logger = Logger.getLogger(getClass.getName)
 
-  private val scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript")
+  val scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript")
 
   loadResource("/io/leon/json2.js")
   loadResource("/io/leon/leon.js")
@@ -19,7 +19,7 @@ class LeonScriptEngine @Inject()(resourceLoader: ResourceLoader) {
     scriptEngine.asInstanceOf[Invocable]
   }
 
-  def loadResource(fileName: String) {
+ def loadResource(fileName: String) {
     val resource = resourceLoader.getInputStream(fileName)
     scriptEngine.eval(new InputStreamReader(resource))
   }
@@ -42,10 +42,3 @@ class LeonScriptEngine @Inject()(resourceLoader: ResourceLoader) {
 
 }
 
-class LeonJavaScriptModule extends AbstractModule {
-
-  def configure() {
-    bind(classOf[LeonScriptEngine]).asEagerSingleton()
-  }
-
-}

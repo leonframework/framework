@@ -11,22 +11,6 @@ package io.leon.javascript
 import com.google.inject.{Inject, Provider}
 import io.leon.web.ajax.AjaxHandler
 
-object RhinoUtils {
-
-  def json2RhinoObject(engine: LeonScriptEngine, string: String): AnyRef = {
-    val invocable = engine.asInvocable
-    val json = engine.get("JSON")
-    invocable.invokeMethod(json, "parse", string)
-  }
-
-  def rhinoObject2Json(engine: LeonScriptEngine, obj: AnyRef): String = {
-    val invocable = engine.asInvocable
-    val json = engine.get("JSON")
-    invocable.invokeMethod(json, "stringify", obj).asInstanceOf[String]
-  }
-
-}
-
 class JavaScriptAjaxHandlerProvider(objName: String) extends Provider[AjaxHandler] {
 
   @Inject
@@ -35,7 +19,9 @@ class JavaScriptAjaxHandlerProvider(objName: String) extends Provider[AjaxHandle
   private lazy val jsObject = new JavaScriptObject(engine, objName)
 
   private lazy val handler = new AjaxHandler {
-    def jsonApply(member: String, args: String) = jsObject.jsonApply(member, args)
+    def jsonApply(member: String, args: String) = {
+      jsObject.jsonApply(member, args)
+    }
   }
 
   def get() = handler
@@ -44,13 +30,18 @@ class JavaScriptAjaxHandlerProvider(objName: String) extends Provider[AjaxHandle
 
 class JavaScriptObject(val engine: LeonScriptEngine, val objName: String) {
 
-  private def invocable = engine.asInvocable
-
   def jsonApply(member: String, args: String): String = {
-    val argsParsed = RhinoUtils.json2RhinoObject(engine, args)
-    val function = engine.eval(objName + "." + member)
-    val objResult = invocable.invokeMethod(function, "apply", function, argsParsed)
-    RhinoUtils.rhinoObject2Json(engine, objResult)
+    //val argsParsed = RhinoUtils.json2RhinoObject(engine.leonScriptEngine, args)
+    //val function = engine.eval(objName + "." + member)
+
+    val target = objName + "." + member
+    val inv = target + ".apply(eval('" + target + "'), " + args + ");"
+
+    val res = engine.eval(inv)
+    RhinoUtils.rhinoObject2Json(engine, res)
+
+    //val objResult = invocable.invokeMethod(function, "apply", function, argsParsed)
+    //RhinoUtils.rhinoObject2Json(engine.leonScriptEngine, objResult)
   }
 
 }
