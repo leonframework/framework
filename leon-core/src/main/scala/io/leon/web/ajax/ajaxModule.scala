@@ -69,7 +69,6 @@ class BrowserJsFileServlet @Inject()(injector: Injector) extends HttpServlet {
   }
 
   private def createJavaScriptFunctionDeclaration(name: String): String = {
-    // TODO support '.' in names
     """
     leon.utils.createVar("%s");
     %s = function (methodName) {
