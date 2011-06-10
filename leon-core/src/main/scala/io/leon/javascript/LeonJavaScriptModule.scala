@@ -6,6 +6,7 @@ class LeonJavaScriptModule extends AbstractModule {
 
   def configure() {
     bind(classOf[LeonScriptEngine]).asEagerSingleton()
+    bind(classOf[JavaScriptWebBindings]).asEagerSingleton()
   }
 
 }
