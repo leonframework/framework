@@ -2,7 +2,7 @@
 import sbt._
 
 
-class LeonProject(info: ProjectInfo) extends ParentProject(info) with UnpublishedProject {
+class LeonParentProject(info: ProjectInfo) extends ParentProject(info) with UnpublishedProject {
 
   // ===================================================================================================================
   // Repositories
@@ -71,13 +71,29 @@ class LeonProject(info: ProjectInfo) extends ParentProject(info) with Unpublishe
   // lazy val publishTo = "Scala Tools Nexus" at "http://nexus.scala-tools.org/content/repositories/snapshots/"
   val publishTo = Resolver.file("Local Test Repository", Path fileProperty "java.io.tmpdir" asFile)
 
+
+  // ===================================================================================================================
+  // Defaults for sub projects
+  // ===================================================================================================================
+
+  trait LeonDefaults extends LicenseHeaders {
+    def licenseText =
+      """Copyright (c) 2010 WeigleWilczek and others.
+
+All rights reserved. This program and the accompanying materials
+are made available under the terms of the Eclipse Public License v1.0
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/epl-v10.html
+"""
+  }
+
   // ===================================================================================================================
   // core subproject
   // ===================================================================================================================
 
   val leon_core = project("leon-core", "leon-core", new LeonCoreProject(_))
 
-  class LeonCoreProject(info: ProjectInfo) extends DefaultProject(info) {
+  class LeonCoreProject(info: ProjectInfo) extends DefaultProject(info) with LeonDefaults {
 
     def specs2Framework = new TestFramework("org.specs2.runner.SpecsFramework")
 
@@ -104,7 +120,7 @@ class LeonProject(info: ProjectInfo) extends ParentProject(info) with Unpublishe
     val leon_samples_mixed_project = project("leon-samples-mixed", "leon-samples-mixed", new LeonSamplesMixedProject(_), leon_core)
   }
 
-  class LeonSamplesMixedProject(info: ProjectInfo) extends DefaultWebProject(info) with UnpublishedProject {
+  class LeonSamplesMixedProject(info: ProjectInfo) extends DefaultWebProject(info) with UnpublishedProject with LeonDefaults {
 
     override def libraryDependencies = Set(logback_classic, logback_core, jetty7, mysql)
 
