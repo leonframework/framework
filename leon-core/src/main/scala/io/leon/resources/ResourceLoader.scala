@@ -31,13 +31,17 @@ trait ResourceLocation {
 
 class ClassLoaderResourceLocation extends ResourceLocation {
   def getInputStreamOption(fileName: String): Option[InputStream] = {
-    val t1 = getClass.getResourceAsStream(fileName)
-    if (t1 != null) {
-      return Some(t1)
+    val try1 = Thread.currentThread().getContextClassLoader.getResourceAsStream(fileName)
+    if (try1 != null) {
+      return Some(try1)
     }
-    val t2 = getClass.getClassLoader.getResourceAsStream(fileName)
-    if (t2 != null) {
-      return Some(t2)
+    val try2 = getClass.getResourceAsStream(fileName)
+    if (try2 != null) {
+      return Some(try2)
+    }
+    val try3 = getClass.getClassLoader.getResourceAsStream(fileName)
+    if (try3 != null) {
+      return Some(try3)
     }
     None
   }
