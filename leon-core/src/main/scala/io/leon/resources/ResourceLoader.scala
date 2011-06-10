@@ -22,11 +22,8 @@ trait ResourceLocation {
 }
 
 class ClassLoaderResourceLocation extends ResourceLocation {
-
-  val classLoader = getClass.getClassLoader
-
   def getInputStreamOption(fileName: String): Option[InputStream] = {
-    Option(classLoader.getResourceAsStream(fileName))
+    Option(getClass.getResourceAsStream(fileName))
   }
 }
 

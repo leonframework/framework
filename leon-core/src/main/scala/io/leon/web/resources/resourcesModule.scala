@@ -10,7 +10,6 @@ package io.leon.web.resources
 import javax.servlet._
 import http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import com.google.inject.servlet.ServletModule
-import io.leon.AbstractLeonConfiguration
 import com.google.inject.{AbstractModule, Inject}
 import io.leon.web.WebUtils
 import io.leon.resources.ResourceLoader
@@ -28,8 +27,7 @@ class ResourcesModule extends AbstractModule {
   }
 }
 
-class ResourcesServlet @Inject()(config: AbstractLeonConfiguration,
-                                 resourceLoader: ResourceLoader) extends HttpServlet {
+class ResourcesServlet @Inject()(resourceLoader: ResourceLoader) extends HttpServlet {
 
   //private val logger = Logger.getLogger(getClass.getName)
 
