@@ -3,13 +3,15 @@ package io.leon.javascript
 import java.io.InputStreamReader
 import io.leon.resources.ResourceLoader
 import javax.script.{Invocable, ScriptEngineManager}
-import com.google.inject.Inject
+import com.google.inject.{Injector, Inject}
 
-class LeonScriptEngine @Inject()(resourceLoader: ResourceLoader) {
+class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader) {
 
   //private val logger = Logger.getLogger(getClass.getName)
 
   val scriptEngine = new ScriptEngineManager().getEngineByName("JavaScript")
+
+  put("injector", injector)
 
   loadResource("/io/leon/json2.js")
   loadResource("/io/leon/leon.js")
