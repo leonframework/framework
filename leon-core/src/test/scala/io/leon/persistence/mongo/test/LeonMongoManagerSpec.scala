@@ -1,7 +1,7 @@
 package io.leon.persistence.mongo.test
 
 import org.specs2.mutable.Specification
-import io.leon.persistence.mongodb.{LeonMongoManager, LeonMongoModule, LeonMongoConfig}
+import io.leon.persistence.mongo.{LeonMongoManager, LeonMongoModule, LeonMongoConfig}
 import com.google.inject.{Guice, AbstractModule}
 import io.leon.resources.ResourceLoaderModule
 import io.leon.javascript.LeonJavaScriptModule
@@ -11,8 +11,7 @@ class LeonMongoManagerSpec extends Specification {
 
   private val TestDb = "leon_test"
 
-  //private
-  val module = new AbstractModule {
+  private val module = new AbstractModule {
     def configure() {
       install(new ResourceLoaderModule)
       install(new LeonJavaScriptModule)
@@ -22,7 +21,7 @@ class LeonMongoManagerSpec extends Specification {
  
   private def createManager(): LeonMongoManager = {
     val m = Guice.createInjector(module).getInstance(classOf[LeonMongoManager])
-    m.getDb(TestDb).drop()
+    // m.getDb(TestDb).drop()
     m
   }
 
@@ -30,7 +29,7 @@ class LeonMongoManagerSpec extends Specification {
     val m = createManager()
     val db = m.getDb(TestDb)
     val coll = db.getCollection("people")
-    coll.drop()
+    // coll.drop()
     coll
   }
 

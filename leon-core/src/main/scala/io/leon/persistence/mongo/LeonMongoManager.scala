@@ -1,9 +1,10 @@
-package io.leon.persistence.mongodb
+package io.leon.persistence.mongo
 
 import com.mongodb._
 
 import collection._
 import scala.collection.JavaConverters
+import javax.inject.Inject
 
 class MongoDatabase(db: DB) {
 
@@ -24,34 +25,43 @@ class MongoDatabase(db: DB) {
 
 class MongoCollection(coll: DBCollection) {
 
-  type MongoObject = Map[_,_]
+  import MongoUtils._
 
-  def insert(data: MongoObject*) {
+  def insert(data: RawMap) {
+    insert(List(data))
+  }
+
+  def insert(data: RawMap*) {
     import JavaConverters._
-    val dbObjects = data map MongoUtils.mapToDbObject
+    val dbObjects = data map mapToDbObject
+
     coll.insert(dbObjects.asJava)
   }
 
-  def insert(data: List[MongoObject]) {
+  def insert(data: List[RawMap]) {
     insert(data: _*)
   }
 
-  def find(): List[MongoObject] = {
+  def find(): List[RawMap] = {
     import JavaConverters._
 
     val cursor = coll.find()
     val result = cursor.toArray.asScala.toList
 
-    result map MongoUtils.dbObjectToMap
+    result map dbObjectToMap
   }
 
-  def find(query: MongoObject): List[MongoObject] = {
+  def find(query: RawMap): List[RawMap] = {
     import JavaConverters._
 
-    val cursor = coll.find(MongoUtils.mapToDbObject(query))
+    val cursor = coll.find(mapToDbObject(query))
     val result = cursor.toArray.asScala.toList
 
-    result map MongoUtils.dbObjectToMap
+    result map dbObjectToMap
+  }
+
+  def findAndModify(query: RawMap, update: RawMap): RawMap = {
+    coll.findAndModify(query, update)
   }
 
   def drop() {
@@ -59,11 +69,10 @@ class MongoCollection(coll: DBCollection) {
   }
 }
 
-class LeonMongoManager(mongo: Mongo) {
+class LeonMongoManager @Inject() (mongo: Mongo) {
 
   def getDb(dbName: String) = {
     val db = mongo.getDB(dbName)
     new MongoDatabase(db)
   }
-
 }

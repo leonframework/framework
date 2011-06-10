@@ -10,6 +10,7 @@ package io.leon.samples.mixed
 import io.leon.AbstractLeonConfiguration
 import io.leon.resources.ResourceLocation
 import java.io.{File, FileInputStream}
+import io.leon.persistence.mongo.LeonMongoModule
 
 class HomeDirResourceLocation extends ResourceLocation {
   def getInputStreamOption(fileName: String) = {
@@ -26,8 +27,9 @@ class HomeDirResourceLocation extends ResourceLocation {
 class Module extends AbstractLeonConfiguration {
 
   def config() {
+    install(new LeonMongoModule())
 
-    loadFile("io/leon/samples/mixed/person.js")
+    loadFile("/io/leon/samples/mixed/person.js")
 
     browser("person").linksToServer()
 
