@@ -6,6 +6,12 @@ var person = (function() {
     return {
         save: function(person) {
 
+            if (session.clicks == null) {
+                session.clicks = 0;
+            }
+            session.clicks = session.clicks + 1;
+            java.lang.System.out.println(session.clicks);
+
             leon.browser("alert")("To Browser", "Got person [" + person.firstName + "]");
 
             return {
