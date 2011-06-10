@@ -57,6 +57,8 @@ class LeonProject(info: ProjectInfo) extends ParentProject(info) with Unpublishe
 
   def snakeYaml = "org.yaml" % "snakeyaml" % "1.8" withSources()
 
+  def mongodb = "org.mongodb" % "mongo-java-driver" % "2.6.2" withSources()
+
 
   // ===================================================================================================================
   // Publishing
@@ -83,7 +85,7 @@ class LeonProject(info: ProjectInfo) extends ParentProject(info) with Unpublishe
 
     override def libraryDependencies =
       Set(specs2, logback_classic, logback_core, servletApi, atmosphere_runtime, atmosphere_runtimejq,
-        guice, guiceServlet, sjson, snakeYaml, h2database)
+        guice, guiceServlet, sjson, snakeYaml, mongodb, h2database)
 
     override def packageSrcJar = defaultJarPath("-sources.jar")
     lazy val sourceArtifact = sources(artifactID) // lazy is important here!
