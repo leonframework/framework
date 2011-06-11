@@ -13,7 +13,6 @@ import io.leon.resources.ResourceLoader
 import com.google.inject.{Injector, Inject}
 import org.mozilla.javascript.{NativeObject, ScriptableObject, Context, Function => RhinoFunction}
 import java.lang.IllegalArgumentException
-import collection.Seq
 
 class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader) {
 
@@ -67,6 +66,12 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
 
   def eval(script: String): AnyRef = {
     rhinoContext.evaluateString(rhinoScope, script, "<no source>", 0, null)
+  }
+
+  def evalToJson(script: String): String = {
+    val result = eval(script)
+    val json = invokeFunction("JSON.stringify", result)
+    json.asInstanceOf[String]
   }
 
   def put(key: String, value: Any) {

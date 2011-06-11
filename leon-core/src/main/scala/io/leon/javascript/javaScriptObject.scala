@@ -32,10 +32,8 @@ class JavaScriptObject(val engine: LeonScriptEngine, val objName: String) {
 
   def jsonApply(member: String, args: String): String = {
     val target = objName + "." + member
-    val inv = target + ".apply(eval('" + target + "'), JSON.parse('" + args + "'));"
-    val res = engine.eval(inv)
-    RhinoUtils.java2Json(engine, res)
-    // TODO in/out von js am besten nur JSON oder so
+    val inv = target + ".apply(" + target + ", JSON.parse('" + args + "'));"
+    engine.evalToJson(inv)
   }
 
 }
