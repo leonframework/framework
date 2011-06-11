@@ -31,17 +31,11 @@ class JavaScriptAjaxHandlerProvider(objName: String) extends Provider[AjaxHandle
 class JavaScriptObject(val engine: LeonScriptEngine, val objName: String) {
 
   def jsonApply(member: String, args: String): String = {
-    //val argsParsed = RhinoUtils.json2RhinoObject(engine.leonScriptEngine, args)
-    //val function = engine.eval(objName + "." + member)
-
     val target = objName + "." + member
-    val inv = target + ".apply(eval('" + target + "'), " + args + ");"
-
+    val inv = target + ".apply(eval('" + target + "'), JSON.parse('" + args + "'));"
     val res = engine.eval(inv)
-    RhinoUtils.rhinoObject2Json(engine, res)
-
-    //val objResult = invocable.invokeMethod(function, "apply", function, argsParsed)
-    //RhinoUtils.rhinoObject2Json(engine.leonScriptEngine, objResult)
+    RhinoUtils.java2Json(engine, res)
+    // TODO in/out von js am besten nur JSON oder so
   }
 
 }

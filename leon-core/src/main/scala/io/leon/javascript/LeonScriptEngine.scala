@@ -13,6 +13,7 @@ import io.leon.resources.ResourceLoader
 import com.google.inject.{Injector, Inject}
 import org.mozilla.javascript.{NativeObject, ScriptableObject, Context, Function => RhinoFunction}
 import java.lang.IllegalArgumentException
+import collection.Seq
 
 class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader) {
 
