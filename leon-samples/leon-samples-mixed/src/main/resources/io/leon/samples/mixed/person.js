@@ -6,12 +6,15 @@ var person = (function() {
         save: function(person) {
             var people = leon.mongo("leon")("people");
 
+            if (session.clicks == null) {
+                session.clicks = 0;
+            }
+            session.clicks = session.clicks + 1;
+            java.lang.System.out.println(session.clicks);
+
             leon.browser("alert")("To Browser", "Got person [" + person.firstName + "]");
 
             people.insert(person);
-
-            var res = people.find({"firstName": "John"});
-            println(res[0].lastName);
 
             return {
                 calls: calls++,

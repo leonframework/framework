@@ -2,7 +2,7 @@
 import sbt._
 
 
-class LeonProject(info: ProjectInfo) extends ParentProject(info) with UnpublishedProject {
+class LeonParentProject(info: ProjectInfo) extends ParentProject(info) with UnpublishedProject {
 
   // ===================================================================================================================
   // Repositories
@@ -31,6 +31,8 @@ class LeonProject(info: ProjectInfo) extends ParentProject(info) with Unpublishe
   def servletApi = "org.mortbay.jetty" % "servlet-api" % "2.5-20081211" % "provided"
 
   def jetty7 = "org.eclipse.jetty" % "jetty-webapp" % "7.0.2.v20100331" % "test" withSources()
+
+  def rhino = "rhino" % "js" % "1.7R2" withSources()
 
   def sjson = "net.debasishg" % "sjson_2.8.1" % "0.9.1" withSources()
 
@@ -71,20 +73,36 @@ class LeonProject(info: ProjectInfo) extends ParentProject(info) with Unpublishe
   // lazy val publishTo = "Scala Tools Nexus" at "http://nexus.scala-tools.org/content/repositories/snapshots/"
   val publishTo = Resolver.file("Local Test Repository", Path fileProperty "java.io.tmpdir" asFile)
 
+
+  // ===================================================================================================================
+  // Defaults for sub projects
+  // ===================================================================================================================
+
+  trait LeonDefaults extends LicenseHeaders {
+    def licenseText =
+      """Copyright (c) 2010 WeigleWilczek and others.
+
+All rights reserved. This program and the accompanying materials
+are made available under the terms of the Eclipse Public License v1.0
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/epl-v10.html
+"""
+  }
+
   // ===================================================================================================================
   // core subproject
   // ===================================================================================================================
 
   val leon_core = project("leon-core", "leon-core", new LeonCoreProject(_))
 
-  class LeonCoreProject(info: ProjectInfo) extends DefaultProject(info) {
+  class LeonCoreProject(info: ProjectInfo) extends DefaultProject(info) with LeonDefaults {
 
     def specs2Framework = new TestFramework("org.specs2.runner.SpecsFramework")
 
     override def testFrameworks = super.testFrameworks ++ Seq(specs2Framework)
 
     override def libraryDependencies =
-      Set(specs2, logback_classic, logback_core, servletApi, atmosphere_runtime, atmosphere_runtimejq,
+      Set(specs2, logback_classic, logback_core, servletApi, rhino, atmosphere_runtime, atmosphere_runtimejq,
         guice, guiceServlet, sjson, snakeYaml, mongodb, h2database)
 
     override def packageSrcJar = defaultJarPath("-sources.jar")
@@ -104,7 +122,7 @@ class LeonProject(info: ProjectInfo) extends ParentProject(info) with Unpublishe
     val leon_samples_mixed_project = project("leon-samples-mixed", "leon-samples-mixed", new LeonSamplesMixedProject(_), leon_core)
   }
 
-  class LeonSamplesMixedProject(info: ProjectInfo) extends DefaultWebProject(info) with UnpublishedProject {
+  class LeonSamplesMixedProject(info: ProjectInfo) extends DefaultWebProject(info) with UnpublishedProject with LeonDefaults {
 
     override def libraryDependencies = Set(logback_classic, logback_core, jetty7, mysql)
 

@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2010 WeigleWilczek and others.
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package io.leon.persistence.mongo
 
 import io.leon.javascript.LeonScriptEngine
@@ -21,7 +29,7 @@ class LeonMongoModule(config: LeonMongoConfig) extends AbstractModule {
 
   def configure() {
     bind(classOf[LeonMongoInit]).asEagerSingleton()
-    bind(classOf[LeonMongoManager])asEagerSingleton()
+    bind(classOf[LeonMongoManager]).asEagerSingleton()
   }
 }
 
@@ -29,3 +37,4 @@ class LeonMongoInit @Inject()(engine: LeonScriptEngine) {
   MongoUtils.engine = engine
   engine.loadResource("/io/leon/persistence/mongo/mongo.js")
 }
+

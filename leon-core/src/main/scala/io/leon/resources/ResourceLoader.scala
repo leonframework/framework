@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2010 WeigleWilczek and others.
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package io.leon.resources
 
 import java.io.InputStream
@@ -23,7 +31,19 @@ trait ResourceLocation {
 
 class ClassLoaderResourceLocation extends ResourceLocation {
   def getInputStreamOption(fileName: String): Option[InputStream] = {
-    Option(getClass.getResourceAsStream(fileName))
+    val try1 = Thread.currentThread().getContextClassLoader.getResourceAsStream(fileName)
+    if (try1 != null) {
+      return Some(try1)
+    }
+    val try2 = getClass.getResourceAsStream(fileName)
+    if (try2 != null) {
+      return Some(try2)
+    }
+    val try3 = getClass.getClassLoader.getResourceAsStream(fileName)
+    if (try3 != null) {
+      return Some(try3)
+    }
+    None
   }
 }
 

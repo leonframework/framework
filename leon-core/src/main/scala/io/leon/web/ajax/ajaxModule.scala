@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2010 WeigleWilczek and others.
-
+ * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@ package io.leon.web.ajax
 import com.google.inject.servlet.ServletModule
 import javax.servlet.http.{HttpServlet, HttpServletResponse, HttpServletRequest}
 import com.google.inject._
-import collection.JavaConversions
 import name.{Named, Names}
 import java.io.{BufferedWriter, BufferedOutputStream}
 
@@ -70,7 +69,6 @@ class BrowserJsFileServlet @Inject()(injector: Injector) extends HttpServlet {
   }
 
   private def createJavaScriptFunctionDeclaration(name: String): String = {
-    // TODO support '.' in names
     """
     leon.utils.createVar("%s");
     %s = function (methodName) {
