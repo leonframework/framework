@@ -1,10 +1,10 @@
 package io.leon.persistence.mongo.test
 
 import org.specs2.mutable.Specification
-import io.leon.resources.ResourceLoaderModule
 import io.leon.javascript.{LeonScriptEngine, LeonJavaScriptModule}
 import io.leon.persistence.mongo.{LeonMongoManager, LeonMongoModule}
 import com.google.inject.{Inject, Guice, AbstractModule}
+import io.leon.resources.ResourcesModule
 
 
 class MongoSpecification extends Specification {
@@ -13,7 +13,7 @@ class MongoSpecification extends Specification {
 
   private val module = new AbstractModule {
     def configure() {
-      install(new ResourceLoaderModule)
+      install(new ResourcesModule)
       install(new LeonJavaScriptModule)
       install(new LeonMongoModule())
       bind(classOf[MongoTestModuleInit]).asEagerSingleton()
