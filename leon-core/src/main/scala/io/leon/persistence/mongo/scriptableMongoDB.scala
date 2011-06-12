@@ -50,7 +50,10 @@ class JavaScriptMongoCollection(coll: MongoCollection) {
   }
 
   def save(obj: ScriptableObject) {
-    coll.save(obj)
+    val dbo = scriptableToDBObject(obj)
+    coll.save(dbo)
+
+    obj.put("_id", obj, dbo.get("_id").toString)
   }
 
   def find() = {
@@ -70,6 +73,16 @@ class JavaScriptMongoCollection(coll: MongoCollection) {
   def remove(obj: ScriptableObject) {
     coll.remove(obj)
   }
+
+  def count = {
+    coll.count
+  }
+
+  def drop() {
+    coll.drop();
+  }
+
+  // ---------------------------------------------------
 
   private def dbObjectToScriptable(obj: DBObject): ScriptableObject = {
     new ScriptableDBObject(obj)

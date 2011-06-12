@@ -1,28 +1,12 @@
 package io.leon.persistence.mongo.test
 
-import org.specs2.mutable.Specification
 import com.google.inject.{Guice, AbstractModule}
 import com.mongodb.casbah.commons.MongoDBObject
 import io.leon.resources.ResourceLoaderModule
 import io.leon.javascript.LeonJavaScriptModule
 import io.leon.persistence.mongo.{LeonMongoManager, LeonMongoModule}
 
-class LeonMongoManagerSpec extends Specification {
-
-  override def is = args(sequential = true) ^ super.is
-
-  private val module = new AbstractModule {
-    def configure() {
-      install(new ResourceLoaderModule)
-      install(new LeonJavaScriptModule)
-      install(new LeonMongoModule())
-    }
-  }
- 
-  private def createManager(): LeonMongoManager = {
-    val m = Guice.createInjector(module).getInstance(classOf[LeonMongoManager])
-    m
-  }
+class LeonMongoManagerSpec extends MongoSpecification {
 
   private def getCollection() = {
     val m = createManager()
@@ -60,7 +44,5 @@ class LeonMongoManagerSpec extends Specification {
       val query = MongoDBObject("firstName" -> "^first[12]$".r.pattern)
       coll.find(query) must have size (2)
     }
-
   }
-
 }
