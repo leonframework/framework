@@ -37,7 +37,7 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
     fileNames foreach loadResource
   }
 
-  def getObject(name: String): NativeObject = {
+  def getObject(name: String): ScriptableObject = {
     var segments = name.split('.').toList
     var currentRoot: ScriptableObject = rhinoScope
 
@@ -45,7 +45,7 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
       currentRoot = rhinoScope.get(segments.head, currentRoot).asInstanceOf[ScriptableObject]
       segments = segments.tail
     }
-    currentRoot.asInstanceOf[NativeObject]
+    currentRoot.asInstanceOf[ScriptableObject]
   }
 
   def invokeFunction(name: String, args: AnyRef*): AnyRef = {
