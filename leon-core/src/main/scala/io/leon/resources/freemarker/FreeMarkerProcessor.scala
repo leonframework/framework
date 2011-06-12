@@ -23,10 +23,6 @@ class FreeMarkerProcessor @Inject()(templateLoader: LeonFreeMarkerTemplateLoader
     "bb" -> Map("cc" -> 2).asJava
   )
 
-  def toFileEnding = null
-
-  def fromFileEnding = null
-
   def transform(fileName: String, in: InputStream) =  {
     val tpl = new Template(fileName, new InputStreamReader(in), configuration)
 

@@ -3,11 +3,7 @@
 
 <head>
     <title>Test Page</title>
-    <script src="/leon/jquery.js" type="text/javascript"></script>
-    <script src="/leon/jquery.atmosphere.js" type="text/javascript"></script>
-    <script src="/leon/leon.js" type="text/javascript"></script>
-    <script src="/leon/leon_shared.js" type="text/javascript"></script>
-    <script src="/leon/knockout.js" type="text/javascript"></script>
+    <#include "/io/leon/templates/commonjs.html" />
     <script src="/leon/browser.js" type="text/javascript"></script>
 </head>
 <body>
@@ -41,13 +37,6 @@
 <a href="#" onclick="leon.registerPage();">Active Uplink</a> <br/>
 
 Person:
-
-<#include "/layout/header.html" />
-
-X
-${bb.cc}
-Y
-
 
 <form action="#" id="person_form">
     <table>
