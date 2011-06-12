@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 WeigleWilczek and others.
+ * Copyright (c) 2011 WeigleWilczek and others.
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -31,17 +31,9 @@ class JavaScriptAjaxHandlerProvider(objName: String) extends Provider[AjaxHandle
 class JavaScriptObject(val engine: LeonScriptEngine, val objName: String) {
 
   def jsonApply(member: String, args: String): String = {
-    //val argsParsed = RhinoUtils.json2RhinoObject(engine.leonScriptEngine, args)
-    //val function = engine.eval(objName + "." + member)
-
     val target = objName + "." + member
-    val inv = target + ".apply(eval('" + target + "'), " + args + ");"
-
-    val res = engine.eval(inv)
-    RhinoUtils.rhinoObject2Json(engine, res)
-
-    //val objResult = invocable.invokeMethod(function, "apply", function, argsParsed)
-    //RhinoUtils.rhinoObject2Json(engine.leonScriptEngine, objResult)
+    val inv = target + ".apply(" + target + ", JSON.parse('" + args + "'));"
+    engine.evalToJson(inv)
   }
 
 }

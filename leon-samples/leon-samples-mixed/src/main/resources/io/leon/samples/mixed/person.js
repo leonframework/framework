@@ -3,7 +3,7 @@ var person = (function() {
 
     var calls = 0;
     return {
-        save: function(person) {
+        save: function(no, person) {
             var people = leon.mongo("leon")("people");
 
             if (session.clicks == null) {
@@ -12,7 +12,7 @@ var person = (function() {
             session.clicks = session.clicks + 1;
             java.lang.System.out.println(session.clicks);
 
-            leon.browser("alert")("To Browser", "Got person [" + person.firstName + "]");
+            leon.browser("alert")("To Browser", "Got person no." + no +  "[" + person.firstName + "]");
 
             people.insert(person);
 

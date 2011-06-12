@@ -27,7 +27,7 @@
         }, this);
 
         this.savePerson = function() {
-            person("save")(ko.toJS(this), function(result) {
+            person("save")(5, ko.toJS(this), function(result) {
                 console.log("ajax call result firstname: " + result.firstName);
             });
         }

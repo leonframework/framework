@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 WeigleWilczek and others.
+ * Copyright (c) 2011 WeigleWilczek and others.
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -66,6 +66,12 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
 
   def eval(script: String): AnyRef = {
     rhinoContext.evaluateString(rhinoScope, script, "<no source>", 0, null)
+  }
+
+  def evalToJson(script: String): String = {
+    val result = eval(script)
+    val json = invokeFunction("JSON.stringify", result)
+    json.asInstanceOf[String]
   }
 
   def put(key: String, value: Any) {
