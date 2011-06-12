@@ -36,6 +36,8 @@ class LeonParentProject(info: ProjectInfo) extends ParentProject(info) with Unpu
 
   def sjson = "net.debasishg" % "sjson_2.8.1" % "0.9.1" withSources()
 
+  def freemarker = "org.freemarker" % "freemarker" % "2.3.18" withSources()
+
   def atmosphere_version = "0.7.1"
 
   def atmosphere_runtime = "org.atmosphere" % "atmosphere-runtime" % atmosphere_version withSources()
@@ -106,8 +108,9 @@ http://www.eclipse.org/legal/epl-v10.html
     override def testFrameworks = super.testFrameworks ++ Seq(specs2Framework)
 
     override def libraryDependencies =
-      Set(specs2, logback_classic, logback_core, servletApi, rhino, atmosphere_runtime, atmosphere_runtimejq,
-        guice, guiceServlet, sjson, snakeYaml, mongodb, h2database)
+      Set(specs2, logback_classic, logback_core, servletApi, freemarker, rhino,
+        atmosphere_runtime, atmosphere_runtimejq, guice, guiceServlet, sjson, snakeYaml,
+        mongodb, h2database)
 
     override def packageSrcJar = defaultJarPath("-sources.jar")
     lazy val sourceArtifact = sources(artifactID) // lazy is important here!

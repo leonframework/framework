@@ -10,20 +10,9 @@ package io.leon.resources
 
 import java.io.InputStream
 import com.google.inject._
-import name.Names
 import java.lang.RuntimeException
 
-class ResourceLoaderModule extends AbstractModule {
-
-  private def addLocation(clazz: Class[_ <: ResourceLocation]) {
-    bind(classOf[ResourceLocation]).annotatedWith(Names.named(clazz.getName)).to(clazz).asEagerSingleton()
-  }
-  
-  def configure() {
-    bind(classOf[ResourceLoader]).asEagerSingleton()
-    addLocation(classOf[ClassLoaderResourceLocation])
-  }
-}
+// TODO Implement Resource class to group file/loader/lastModified/etc.
 
 trait ResourceLocation {
   def getInputStreamOption(fileName: String): Option[InputStream]
@@ -47,10 +36,13 @@ class ClassLoaderResourceLocation extends ResourceLocation {
   }
 }
 
-class ResourceLoader @Inject()(injector: Injector) {
+class ResourceLoader @Inject()(injector: Injector,
+                               resourceProcessorRegistry: ResourceProcessorRegistry) {
   import scala.collection.JavaConverters._
 
-  val resourceLocations = injector.findBindingsByType(new TypeLiteral[ResourceLocation]() {}).asScala
+  val resourceLocations: List[Binding[ResourceLocation]] = {
+    injector.findBindingsByType(new TypeLiteral[ResourceLocation]() {}).asScala.toList
+  }
 
   def getInputStream(fileName: String): InputStream = {
     getInputStreamOption(fileName) match {
@@ -60,10 +52,14 @@ class ResourceLoader @Inject()(injector: Injector) {
   }
 
   def getInputStreamOption(fileName: String): Option[InputStream] = {
-    for (rl <- resourceLocations) {
-      rl.getProvider.get().getInputStreamOption(fileName) match {
-        case Some(r) => return Some(r)
-        case None => None
+    // TODO cache resolved mappings
+    for (processor <- resourceProcessorRegistry.processorsForFile(fileName)) {
+      val fileNameForProcessor = resourceProcessorRegistry.replaceFileNameEndingForProcessor(processor, fileName)
+      for (rl <- resourceLocations) {
+        rl.getProvider.get().getInputStreamOption(fileNameForProcessor) match {
+          case Some(r) => return Some(processor.transform(fileName, r))
+          case None => None
+        }
       }
     }
     None

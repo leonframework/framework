@@ -3,7 +3,7 @@ package io.leon.persistence.mongo.test
 import org.specs2.mutable.Specification
 import io.leon.persistence.mongodb.{LeonMongoManager, LeonMongoModule, LeonMongoConfig}
 import com.google.inject.{Guice, AbstractModule}
-import io.leon.resources.ResourceLoaderModule
+import io.leon.resources.ResourcesModule
 import io.leon.javascript.LeonJavaScriptModule
 import io.leon.{AbstractLeonConfiguration, LeonModule}
 
@@ -14,7 +14,7 @@ class LeonMongoManagerSpec extends Specification {
   //private
   val module = new AbstractModule {
     def configure() {
-      install(new ResourceLoaderModule)
+      install(new ResourcesModule)
       install(new LeonJavaScriptModule)
       install(new LeonMongoModule())
     }
