@@ -75,6 +75,23 @@ test = (function() {
             return true;
         },
 
+        findOne: function() {
+            var spec_test = leon.mongo.spec_test;
+            spec_test.drop();
+
+            spec_test.insert(createPerson());
+
+            var result1 = spec_test.findOne({"address.zipCode": "88888"});
+            if(!result1)
+                throw "expected single result but got null";
+
+            var noResult = spec_test.findOne({"x": "doesnotexists"});
+            if(noResult)
+                throw "null expected but got: " + noResult;
+
+            return true;
+        },
+
         remove: function() {
             var spec_test = leon.mongo.spec_test;
             spec_test.drop();

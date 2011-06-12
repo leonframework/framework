@@ -70,6 +70,14 @@ class JavaScriptMongoCollection(coll: MongoCollection) {
     arrayToNativeArray(result.toArray)
   }
 
+  def findOne() = {
+    coll.findOne map dbObjectToScriptable getOrElse null
+  }
+
+  def findOne(obj: ScriptableObject) = {
+    coll.findOne(obj) map dbObjectToScriptable getOrElse null
+  }
+
   def remove(obj: ScriptableObject) {
     coll.remove(obj)
   }

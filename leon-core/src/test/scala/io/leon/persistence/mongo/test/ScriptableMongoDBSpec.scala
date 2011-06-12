@@ -16,6 +16,10 @@ class ScriptableMongoDBSpec extends MongoSpecification {
       invokeJsTest("test.find") must beTrue
     }
 
+    "findOne " in {
+      invokeJsTest("test.findOne") must beTrue
+    }
+
     "remove data" in {
       invokeJsTest("test.remove") must beTrue
     }
