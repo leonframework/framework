@@ -2,7 +2,7 @@ package io.leon.persistence.mongo.test
 
 import com.google.inject.{Guice, AbstractModule}
 import com.mongodb.casbah.commons.MongoDBObject
-import io.leon.resources.ResourceLoaderModule
+import io.leon.resources.ResourcesModule
 import io.leon.javascript.LeonJavaScriptModule
 import io.leon.persistence.mongo.{LeonMongoManager, LeonMongoModule}
 
