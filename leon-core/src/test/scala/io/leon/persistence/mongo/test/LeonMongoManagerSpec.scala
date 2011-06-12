@@ -1,15 +1,15 @@
 package io.leon.persistence.mongo.test
 
 import org.specs2.mutable.Specification
-import io.leon.persistence.mongo.{LeonMongoManager, LeonMongoModule, LeonMongoConfig}
 import com.google.inject.{Guice, AbstractModule}
+import com.mongodb.casbah.commons.MongoDBObject
 import io.leon.resources.ResourceLoaderModule
 import io.leon.javascript.LeonJavaScriptModule
-import io.leon.{AbstractLeonConfiguration, LeonModule}
+import io.leon.persistence.mongo.{LeonMongoManager, LeonMongoModule}
 
 class LeonMongoManagerSpec extends Specification {
 
-  private val TestDb = "leon_test"
+  override def is = args(sequential = true) ^ super.is
 
   private val module = new AbstractModule {
     def configure() {
@@ -21,22 +21,20 @@ class LeonMongoManagerSpec extends Specification {
  
   private def createManager(): LeonMongoManager = {
     val m = Guice.createInjector(module).getInstance(classOf[LeonMongoManager])
-    // m.getDb(TestDb).drop()
     m
   }
 
   private def getCollection() = {
     val m = createManager()
-    val db = m.getDb(TestDb)
-    val coll = db.getCollection("people")
-    // coll.drop()
+    val coll = m.mongo("people")
+    coll.drop()
     coll
   }
 
   private val personTestData = List(
-    Map("id" -> 1, "firstName" -> "first1", "lastName" -> "last1"),
-    Map("id" -> 2, "firstName" -> "first2", "lastName" -> "last2"),
-    Map("id" -> 3, "firstName" -> "first3", "lastName" -> "last3"))
+    MongoDBObject("id" -> 1, "firstName" -> "first1", "lastName" -> "last1"),
+    MongoDBObject("id" -> 2, "firstName" -> "first2", "lastName" -> "last2"),
+    MongoDBObject("id" -> 3, "firstName" -> "first3", "lastName" -> "last3"))
 
   "A LeonMongoManager" should {
 
@@ -49,15 +47,17 @@ class LeonMongoManagerSpec extends Specification {
 
     "find data by simple query" in {
       val coll = getCollection()
+      coll.insert(personTestData)
 
-      val query = Map("firstName" -> "first3")
+      val query = MongoDBObject("firstName" -> "first3")
       coll.find(query) must have size (1)
     }
 
     "find data by regular expression" in {
       val coll = getCollection()
+      coll.insert(personTestData)
 
-      val query = Map("firstName" -> "^first[12]$".r.pattern)
+      val query = MongoDBObject("firstName" -> "^first[12]$".r.pattern)
       coll.find(query) must have size (2)
     }
 
