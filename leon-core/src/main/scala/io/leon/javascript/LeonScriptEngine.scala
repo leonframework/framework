@@ -18,19 +18,38 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
 
   //private val logger = Logger.getLogger(getClass.getName)
 
-  private def rhinoContext = Context.enter()
-  private val rhinoScope = rhinoContext.initStandardObjects()
+  private val rhinoScope = withContext { _.initStandardObjects() }
 
   put("injector", injector)
 
+  // Load Leon core modules
   loadResource("/io/leon/json2.js")
   loadResource("/io/leon/leon.js")
+
+  // Load Coffee script
+  withContext { ctx =>
+    val ol = ctx.getOptimizationLevel
+    ctx.setOptimizationLevel(-1)
+    loadResource("/io/leon/coffee-script.js")
+    ctx.setOptimizationLevel(ol)
+  }
+
+  // We fake a browser with this code, so eval it at the end, it confuses the other server-side libs
   loadResource("/leon/leon_shared.js")
 
- def loadResource(fileName: String) {
-   val resource = resourceLoader.getInputStream(fileName)
-   val reader = new InputStreamReader(resource)
-   rhinoContext.evaluateReader(rhinoScope, reader, fileName, 1, null)
+  private def withContext[A](block: Context => A): A = {
+    val ctx = Context.enter()
+    val result = block(ctx)
+    Context.exit()
+    result
+  }
+
+  def loadResource(fileName: String) {
+    withContext { ctx =>
+      val resource = resourceLoader.getInputStream(fileName)
+      val reader = new InputStreamReader(resource)
+      ctx.evaluateReader(rhinoScope, reader, fileName, 1, null)
+    }
   }
 
   def loadResources(fileNames: List[String]) {
@@ -38,50 +57,62 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
   }
 
   def getObject(name: String): ScriptableObject = {
-    var segments = name.split('.').toList
-    var currentRoot: ScriptableObject = rhinoScope
+    withContext { ctx =>
+      var segments = name.split('.').toList
+      var currentRoot: ScriptableObject = rhinoScope
 
-    while(!segments.isEmpty) {
-      currentRoot = rhinoScope.get(segments.head, currentRoot).asInstanceOf[ScriptableObject]
-      segments = segments.tail
+      while(!segments.isEmpty) {
+        currentRoot = rhinoScope.get(segments.head, currentRoot).asInstanceOf[ScriptableObject]
+        segments = segments.tail
+      }
+      currentRoot.asInstanceOf[ScriptableObject]
     }
-    currentRoot.asInstanceOf[ScriptableObject]
   }
 
   def invokeFunction(name: String, args: AnyRef*): AnyRef = {
-    val (objectName, _fnName) = name.splitAt(name.lastIndexOf('.'))
-    val fnName = _fnName.substring(1)
+    withContext { ctx =>
+      val (objectName, _fnName) = name.splitAt(name.lastIndexOf('.'))
+      val fnName = _fnName.substring(1)
 
-    val functionObject = getObject(objectName)
-    val function = functionObject.get(fnName, functionObject)
-    
-    if (!(function.isInstanceOf[RhinoFunction])) {
-      throw new IllegalArgumentException("JavaScript code [%s] does not resolve to a function!".format(name))
-    } else {
-      val fn = function.asInstanceOf[org.mozilla.javascript.Function]
-      val result = fn.call(rhinoContext, rhinoScope, rhinoScope, args.toArray)
-      Context.jsToJava(result, classOf[Any])
+      val functionObject = getObject(objectName)
+      val function = functionObject.get(fnName, functionObject)
+
+      if (!(function.isInstanceOf[RhinoFunction])) {
+        throw new IllegalArgumentException("JavaScript code [%s] does not resolve to a function!".format(name))
+      } else {
+        val fn = function.asInstanceOf[org.mozilla.javascript.Function]
+        val result = fn.call(ctx, rhinoScope, rhinoScope, args.toArray)
+        Context.jsToJava(result, classOf[Any])
+      }
     }
   }
 
   def eval(script: String): AnyRef = {
-    rhinoContext.evaluateString(rhinoScope, script, "<no source>", 0, null)
+    withContext { ctx =>
+      ctx.evaluateString(rhinoScope, script, "<no source>", 0, null)
+    }
   }
 
   def evalToJson(script: String): String = {
-    val result = eval(script)
-    val json = invokeFunction("JSON.stringify", result)
-    json.asInstanceOf[String]
+    withContext { ctx =>
+      val result = eval(script)
+      val json = invokeFunction("JSON.stringify", result)
+      json.asInstanceOf[String]
+    }
   }
 
   def put(key: String, value: Any) {
-    val wrapped = Context.javaToJS(value, rhinoScope);
-    ScriptableObject.putProperty(rhinoScope, key, wrapped);
+    withContext { ctx =>
+      val wrapped = Context.javaToJS(value, rhinoScope);
+      ScriptableObject.putProperty(rhinoScope, key, wrapped);
+    }
   }
 
   def get(key: String): Any = {
-    val wrapped = ScriptableObject.getProperty(rhinoScope, key)
-    Context.jsToJava(wrapped, classOf[Any])
+    withContext { ctx =>
+      val wrapped = ScriptableObject.getProperty(rhinoScope, key)
+      Context.jsToJava(wrapped, classOf[Any])
+    }
   }
 
 }
