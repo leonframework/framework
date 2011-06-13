@@ -9,11 +9,11 @@
 package io.leon.persistence.mongo
 
 import com.google.inject.Inject
-import com.mongodb.casbah.{MongoCollection, MongoDB}
 import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.DBObject
 import org.bson.types.ObjectId
-import org.mozilla.javascript.{NativeArray, ScriptableObject, Scriptable}
+import com.mongodb.DBObject
+import com.mongodb.casbah.{MongoCursor, MongoCollection, MongoDB}
+import org.mozilla.javascript._
 
 class ScriptableMongoDB @Inject()(mongo: MongoDB) extends ScriptableObject {
 
@@ -40,7 +40,88 @@ class ScriptableDBObject(dbObject: DBObject) extends ScriptableObject {
   }
 }
 
+class ScriptableDBCursor(dbCursor: MongoCursor) extends ScriptableObject {
+  import MongoUtils._
+
+  private val jsFunctionNames = Array(
+    "toArray", "next", "hasNext", "skip", "limit", "sort",
+    "size", "length", "count", "close", "forEach", "map")
+
+  private lazy val list = dbCursor.toList map dbObjectToScriptable
+
+  defineFunctionProperties(jsFunctionNames, getClass, ScriptableObject.READONLY)
+
+  def getClassName = getClass.getName
+
+  override def get(index: Int, start: Scriptable) = {
+    // Attention: list is empty when next/ hasNext was called first
+    list(index)
+  }
+
+  def hasNext() = {
+    dbCursor.hasNext
+  }
+
+  def next() = {
+    val dbo = dbCursor.next()
+    dbObjectToScriptable(dbo)
+  }
+
+  def skip(n: Int) = {
+    val newCursor = dbCursor.skip(n)
+    new ScriptableDBCursor(newCursor)
+  }
+
+  def limit(n: Int) = {
+    val newCursor = dbCursor.limit(n)
+    new ScriptableDBCursor(newCursor)
+  }
+
+  def sort(orderBy: ScriptableObject) = {
+    new ScriptableDBCursor(dbCursor.sort(orderBy))
+  }
+
+  def size() = {
+    dbCursor.size
+  }
+
+  def length() = size()
+
+  def count() = {
+    dbCursor.count
+  }
+
+  def close() {
+    dbCursor.close();
+  }
+
+  def toArray() = {
+    arrayToNativeArray(list.toArray)
+  }
+
+  def forEach(func: Function) {
+    val ctx = Context.enter()
+    list foreach { obj =>
+      func.call(ctx, this, this, Array(obj))
+    }
+    Context.exit()
+  }
+
+  def map(func: Function) = {
+    val ctx = Context.enter()
+    val result =
+      list map { obj =>
+        func.call(ctx, this, this, Array(obj))
+      }
+    Context.exit();
+
+    arrayToNativeArray(result.toArray)
+  }
+}
+
 class JavaScriptMongoCollection(coll: MongoCollection) {
+
+  import MongoUtils._
 
   def insert(obj: ScriptableObject) {
     val dbo = scriptableToDBObject(obj)
@@ -57,17 +138,11 @@ class JavaScriptMongoCollection(coll: MongoCollection) {
   }
 
   def find() = {
-    val result =
-      coll.find().toList map dbObjectToScriptable
-
-    arrayToNativeArray(result.toArray)
+    new ScriptableDBCursor(coll.find())
   }
 
   def find(obj: ScriptableObject) = {
-    val result =
-      coll.find(obj).toList map dbObjectToScriptable
-
-    arrayToNativeArray(result.toArray)
+    new ScriptableDBCursor(coll.find(obj))
   }
 
   def findOne() = {
@@ -89,14 +164,15 @@ class JavaScriptMongoCollection(coll: MongoCollection) {
   def drop() {
     coll.drop();
   }
+}
 
-  // ---------------------------------------------------
+private[mongo] object MongoUtils {
 
-  private def dbObjectToScriptable(obj: DBObject): ScriptableObject = {
+  implicit def dbObjectToScriptable(obj: DBObject): ScriptableObject = {
     new ScriptableDBObject(obj)
   }
 
-  private implicit def scriptableToDBObject(obj: ScriptableObject): DBObject = {
+  implicit def scriptableToDBObject(obj: ScriptableObject): DBObject = {
     val tuples =
       obj.getAllIds.toList map {
         id =>
@@ -111,7 +187,7 @@ class JavaScriptMongoCollection(coll: MongoCollection) {
     MongoDBObject(tuples)
   }
 
-  private def arrayToNativeArray[A](arr: Array[A]): NativeArray = {
+  def arrayToNativeArray[A](arr: Array[A]): NativeArray = {
     new NativeArray(arr.asInstanceOf[Array[Object]])
   }
 }
