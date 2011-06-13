@@ -1,5 +1,6 @@
+leon.utils.createVar("io.leon.persistence.mongo.test");
 
-test = (function() {
+io.leon.persistence.mongo.test = (function() {
 
     function createPerson() {
         return {

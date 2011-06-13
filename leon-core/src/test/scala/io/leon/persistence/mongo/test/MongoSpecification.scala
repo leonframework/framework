@@ -5,6 +5,7 @@ import io.leon.javascript.{LeonScriptEngine, LeonJavaScriptModule}
 import io.leon.persistence.mongo.{LeonMongoManager, LeonMongoModule}
 import com.google.inject.{Inject, Guice, AbstractModule}
 import io.leon.resources.ResourcesModule
+import org.mozilla.javascript.Context
 
 
 class MongoSpecification extends Specification {
@@ -32,7 +33,12 @@ class MongoSpecification extends Specification {
 
   def invokeJsTest(func: String) = {
     val engine = getLeonScriptEngine
-    engine.invokeFunction(func).asInstanceOf[Boolean]
+
+    // TODO use invokeFunction when #5 is fixed
+    // engine.invokeFunction("io.leon.persistence.mongo." + func).asInstanceOf[Boolean]
+
+    val result = engine.eval("io.leon.persistence.mongo." + func + "();")
+    Context.jsToJava(result, classOf[Any]).asInstanceOf[Boolean]
   }
 }
 
