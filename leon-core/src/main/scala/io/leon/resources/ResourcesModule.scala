@@ -8,6 +8,7 @@
  */
 package io.leon.resources
 
+import coffeescript.CoffeeScriptResourceProcessor
 import com.google.inject._
 import freemarker.{LeonFreeMarkerTemplateLoader, FreeMarkerProcessor}
 import name.Names
@@ -22,8 +23,8 @@ class ResourcesModule extends AbstractModule {
     bind(classOf[ResourceLoader]).asEagerSingleton()
     addLocation(classOf[ClassLoaderResourceLocation])
 
-    //bind(Key.get(classOf[ResourceProcessor], Names.named(classOf[StringTemplateResourceProcessor].getName))).
-    //  to(classOf[StringTemplateResourceProcessor])
+    bind(Key.get(classOf[ResourceProcessor], Names.named(classOf[CoffeeScriptResourceProcessor].getName))).
+      to(classOf[CoffeeScriptResourceProcessor])
 
     bind(classOf[FreeMarkerProcessor]).asEagerSingleton()
     bind(classOf[LeonFreeMarkerTemplateLoader]).asEagerSingleton()
