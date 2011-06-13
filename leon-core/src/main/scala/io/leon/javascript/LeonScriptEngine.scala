@@ -61,7 +61,7 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
       var currentRoot: ScriptableObject = rhinoScope
 
       while(!segments.isEmpty) {
-        currentRoot = rhinoScope.get(segments.head, currentRoot).asInstanceOf[ScriptableObject]
+        currentRoot = currentRoot.get(segments.head, currentRoot).asInstanceOf[ScriptableObject]
         segments = segments.tail
       }
       currentRoot.asInstanceOf[ScriptableObject]

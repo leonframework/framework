@@ -34,11 +34,7 @@ class MongoSpecification extends Specification {
   def invokeJsTest(func: String) = {
     val engine = getLeonScriptEngine
 
-    // TODO use invokeFunction when #5 is fixed
-    // engine.invokeFunction("io.leon.persistence.mongo." + func).asInstanceOf[Boolean]
-
-    val result = engine.eval("io.leon.persistence.mongo." + func + "();")
-    Context.jsToJava(result, classOf[Any]).asInstanceOf[Boolean]
+    engine.invokeFunction("io.leon.persistence.mongo.test." + func).asInstanceOf[Boolean]
   }
 }
 
