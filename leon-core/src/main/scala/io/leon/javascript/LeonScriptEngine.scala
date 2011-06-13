@@ -25,16 +25,6 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
   // Load Leon core modules
   loadResource("/io/leon/json2.js")
   loadResource("/io/leon/leon.js")
-
-  // Load Coffee script
-  withContext { ctx =>
-    val ol = ctx.getOptimizationLevel
-    ctx.setOptimizationLevel(-1)
-    loadResource("/io/leon/coffee-script.js")
-    ctx.setOptimizationLevel(ol)
-  }
-
-  // We fake a browser with this code, so eval it at the end, it confuses the other server-side libs
   loadResource("/leon/leon_shared.js")
 
   private def withContext[A](block: Context => A): A = {
@@ -49,6 +39,15 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
       val resource = resourceLoader.getInputStream(fileName)
       val reader = new InputStreamReader(resource)
       ctx.evaluateReader(rhinoScope, reader, fileName, 1, null)
+    }
+  }
+
+  def loadResource(fileName: String, optimizationLevel: Int) {
+    withContext { ctx =>
+      val ol = ctx.getOptimizationLevel
+      ctx.setOptimizationLevel(optimizationLevel)
+      loadResource(fileName)
+      ctx.setOptimizationLevel(ol)
     }
   }
 

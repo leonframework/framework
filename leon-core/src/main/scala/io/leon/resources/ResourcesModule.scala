@@ -23,9 +23,6 @@ class ResourcesModule extends AbstractModule {
     bind(classOf[ResourceLoader]).asEagerSingleton()
     addLocation(classOf[ClassLoaderResourceLocation])
 
-    bind(Key.get(classOf[ResourceProcessor], Names.named(classOf[CoffeeScriptResourceProcessor].getName))).
-      to(classOf[CoffeeScriptResourceProcessor])
-
     bind(classOf[FreeMarkerProcessor]).asEagerSingleton()
     bind(classOf[LeonFreeMarkerTemplateLoader]).asEagerSingleton()
     bind(classOf[NoOpResourceProcessor]).asEagerSingleton()
