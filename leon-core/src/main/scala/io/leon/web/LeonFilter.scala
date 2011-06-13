@@ -27,7 +27,6 @@ package io.leon.web
 import com.google.inject.Guice
 import com.google.inject.servlet.GuiceFilter
 import javax.servlet.FilterConfig
-import com.google.inject.util.Modules
 import io.leon.{LeonModule, AbstractLeonConfiguration}
 
 class LeonFilter extends GuiceFilter {
@@ -35,16 +34,11 @@ class LeonFilter extends GuiceFilter {
   private val classLoader = Thread.currentThread.getContextClassLoader
 
   override def init(filterConfig: FilterConfig) {
-    import scala.collection.JavaConverters._
-
     val moduleName = filterConfig.getInitParameter("module")
     val moduleClass = classLoader.loadClass(moduleName).asInstanceOf[Class[AbstractLeonConfiguration]]
 
-    val leonIt = List(new LeonModule).toIterable.asJava
-    val userIt = List(moduleClass.newInstance()).toIterable.asJava
-    val combined = Modules.`override`(leonIt).`with`(userIt)
-    Guice.createInjector(combined)
-
+    Guice.createInjector(new LeonModule, moduleClass.newInstance())
+    
     super.init(filterConfig)
   }
 
