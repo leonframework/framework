@@ -23,5 +23,21 @@ class ScriptableMongoDBSpec extends MongoSpecification {
     "remove data" in {
       invokeJsTest("remove") must beTrue
     }
+
+    "cursor" in {
+      invokeJsTest("test.cursor") must beTrue
+    }
+
+    "sort" in {
+      invokeJsTest("test.sort") must beTrue
+    }
+
+    "DBCursor.forEach" in {
+      invokeJsTest("test.cursor_forEach") must beTrue
+    }
+
+    "DBCursor.map" in {
+      invokeJsTest("test.cursor_map") must beTrue
+    }
   }
 }
