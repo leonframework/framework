@@ -6,8 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
-package io.leon.sql
+package io.leon.persistence.sql
 
 import java.util.logging.Logger
 import java.lang.IllegalStateException

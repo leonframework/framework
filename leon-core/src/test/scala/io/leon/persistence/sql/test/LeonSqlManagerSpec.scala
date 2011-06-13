@@ -1,9 +1,9 @@
-package io.leon.sql.test
+package io.leon.persistence.sql.test
 
 import org.specs2.mutable.Specification
 import com.google.inject.{Guice, AbstractModule}
 import java.sql.DriverManager
-import io.leon.sql.{LeonSqlConfig, LeonSqlManager, LeonSqlModule}
+import io.leon.persistence.sql.{LeonSqlConfig, LeonSqlManager, LeonSqlModule}
 
 class LeonSqlManagerSpec extends Specification {
 
@@ -16,7 +16,7 @@ class LeonSqlManagerSpec extends Specification {
   private val module = new AbstractModule {
 
     private val leonSqlConfig = new LeonSqlConfig
-    leonSqlConfig.configFilePath = "/io/leon/sql/test/TestDatabase.yaml"
+    leonSqlConfig.configFilePath = "/io/leon/persistence/sql/test/TestDatabase.yaml"
     leonSqlConfig.connectionFactory = () => {
       DriverManager.getConnection("jdbc:h2:mem:")
     }
