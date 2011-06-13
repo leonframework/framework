@@ -20,12 +20,14 @@ class MongoSpecification extends Specification {
     }
   }
 
+  private val injector = Guice.createInjector(module)
+
   def getLeonScriptEngine = {
-    Guice.createInjector(module).getInstance(classOf[LeonScriptEngine])
+    injector.getInstance(classOf[LeonScriptEngine])
   }
 
-  def createManager(): LeonMongoManager = {
-    Guice.createInjector(module).getInstance(classOf[LeonMongoManager])
+  def getManager(): LeonMongoManager = {
+    injector.getInstance(classOf[LeonMongoManager])
   }
 
   def invokeJsTest(func: String) = {

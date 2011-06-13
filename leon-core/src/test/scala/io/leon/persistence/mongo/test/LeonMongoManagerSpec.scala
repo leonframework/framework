@@ -9,7 +9,7 @@ import io.leon.persistence.mongo.{LeonMongoManager, LeonMongoModule}
 class LeonMongoManagerSpec extends MongoSpecification {
 
   private def getCollection() = {
-    val m = createManager()
+    val m = getManager()
     val coll = m.mongo("people")
     coll.drop()
     coll
