@@ -12,18 +12,6 @@ import io.leon.AbstractLeonConfiguration
 import io.leon.resources.ResourceLocation
 import java.io.{File, FileInputStream}
 
-class HomeDirResourceLocation extends ResourceLocation {
-  def getInputStreamOption(fileName: String) = {
-    val file = new File("/home/roman/" + fileName)
-    file.exists() match {
-      case true => Some(new FileInputStream(file))
-      case false => None
-    }
-
-  }
-}
-
-
 class Module extends AbstractLeonConfiguration {
 
   def config() {
