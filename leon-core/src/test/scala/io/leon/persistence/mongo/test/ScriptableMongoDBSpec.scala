@@ -25,19 +25,23 @@ class ScriptableMongoDBSpec extends MongoSpecification {
     }
 
     "cursor" in {
-      invokeJsTest("test.cursor") must beTrue
+      invokeJsTest("cursor") must beTrue
     }
 
     "sort" in {
-      invokeJsTest("test.sort") must beTrue
+      invokeJsTest("sort") must beTrue
     }
 
     "DBCursor.forEach" in {
-      invokeJsTest("test.cursor_forEach") must beTrue
+      invokeJsTest("cursor_forEach") must beTrue
     }
 
     "DBCursor.map" in {
-      invokeJsTest("test.cursor_map") must beTrue
+      invokeJsTest("cursor_map") must beTrue
+    }
+
+    "Query with regular expression" in {
+      invokeJsTest("regex_find") must beTrue
     }
   }
 }

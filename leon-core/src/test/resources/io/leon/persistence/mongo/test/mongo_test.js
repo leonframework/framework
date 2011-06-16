@@ -201,8 +201,20 @@ io.leon.persistence.mongo.test = (function() {
             }
 
             return true;
-        }
+        },
 
+        regex_find: function() {
+            var spec_test = leon.mongo.spect_test;
+            spec_test.drop();
+
+            spec_test.insert(createPerson());
+
+            var result = spec_test.find({ "firstName": /^first.*$/i });
+            if(result.size() != 1)
+                throw "expected one but got " + result.size();
+
+            return true;
+        }
 
     }
 })();
