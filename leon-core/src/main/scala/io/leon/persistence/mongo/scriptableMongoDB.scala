@@ -14,6 +14,9 @@ import org.bson.types.ObjectId
 import com.mongodb.DBObject
 import com.mongodb.casbah.{MongoCursor, MongoCollection, MongoDB}
 import org.mozilla.javascript._
+import regexp.NativeRegExp
+import java.util.regex.Pattern
+import com.sun.corba.se.spi.ior.ObjectKey
 
 class ScriptableMongoDB @Inject()(mongo: MongoDB) extends ScriptableObject {
 
@@ -177,6 +180,7 @@ private[mongo] object MongoUtils {
       obj.getAllIds.toList map {
         id =>
           val value = obj.get(id.toString, obj) match {
+            case regex: NativeRegExp => nativeRegExpToPattern(regex)
             case so: ScriptableObject => scriptableToDBObject(so)
             case x if id == "_id" => new ObjectId(x.toString)
             case x => x
@@ -189,5 +193,21 @@ private[mongo] object MongoUtils {
 
   def arrayToNativeArray[A](arr: Array[A]): NativeArray = {
     new NativeArray(arr.asInstanceOf[Array[Object]])
+  }
+
+  private def nativeRegExpToPattern(obj: NativeRegExp) = {
+    import Pattern._
+
+    val source = obj.get("source", obj).asInstanceOf[String]
+    val multiline = obj.get("multiline", obj).asInstanceOf[Boolean]
+    val ignoreCase = obj.get("ignoreCase", obj).asInstanceOf[Boolean]
+
+    var flags = 0
+    if(multiline) flags = flags & MULTILINE
+    if(ignoreCase) flags = flags & CASE_INSENSITIVE
+
+    // println("==== regex[source=%s; multiline=%s; ignoreCase=%s]".format(source, multiline, ignoreCase))
+
+    compile(source, flags)
   }
 }

@@ -39,5 +39,9 @@ class ScriptableMongoDBSpec extends MongoSpecification {
     "DBCursor.map" in {
       invokeJsTest("cursor_map") must beTrue
     }
+
+    "Query with regular expression" in {
+      invokeJsTest("regex_find") must beTrue
+    }
   }
 }
