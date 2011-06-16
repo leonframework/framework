@@ -71,7 +71,7 @@ class BrowserObject(cometRegistry: CometRegistry,
 
   def apply(methodName: String): (Any*) => Unit = {
     def call(args: Any*) {
-      val out = JsValue.toJson(JsValue.apply(args))
+      val out = JsValue.toJson(JsValue(args))
       jsonApply(methodName, out)
     }
     call
