@@ -203,10 +203,8 @@ private[mongo] object MongoUtils {
     val ignoreCase = obj.get("ignoreCase", obj).asInstanceOf[Boolean]
 
     var flags = 0
-    if(multiline) flags = flags & MULTILINE
-    if(ignoreCase) flags = flags & CASE_INSENSITIVE
-
-    // println("==== regex[source=%s; multiline=%s; ignoreCase=%s]".format(source, multiline, ignoreCase))
+    if(multiline) flags = flags | MULTILINE
+    if(ignoreCase) flags = flags | CASE_INSENSITIVE
 
     compile(source, flags)
   }

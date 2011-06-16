@@ -209,7 +209,7 @@ io.leon.persistence.mongo.test = (function() {
 
             spec_test.insert(createPerson());
 
-            var result = spec_test.find({ "firstName": /^First.*$/g });
+            var result = spec_test.find({ "firstName": /^first.*$/i });
             if(result.size() != 1)
                 throw "expected one but got " + result.size();
 
