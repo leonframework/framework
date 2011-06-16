@@ -2,8 +2,10 @@
 var person = (function() {
 
     var calls = 0;
+
     return {
         save: function(no, person) {
+
             if (session.clicks == null) {
                 session.clicks = 0;
             }

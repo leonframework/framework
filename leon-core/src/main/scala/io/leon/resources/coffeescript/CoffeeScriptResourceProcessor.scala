@@ -24,9 +24,7 @@ class CoffeeScriptResourceProcessor @Inject()(leonScriptEngineProvider: Provider
 
   def transform(fileName: String, in: InputStream) = {
     val inStr = inputStreamToString(in)
-
     val cs = leonScriptEngine.invokeFunction("CoffeeScript.compile", inStr)
-
     stringToInputStream(cs.toString)
   }
 

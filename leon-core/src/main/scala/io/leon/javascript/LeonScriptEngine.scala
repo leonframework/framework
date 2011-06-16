@@ -88,7 +88,7 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
 
   def eval(script: String): AnyRef = {
     withContext { ctx =>
-      ctx.evaluateString(rhinoScope, script, "<no source>", 0, null)
+      ctx.evaluateString(rhinoScope, script, "LeonScriptEngine.eval(...)", 0, null)
     }
   }
 
