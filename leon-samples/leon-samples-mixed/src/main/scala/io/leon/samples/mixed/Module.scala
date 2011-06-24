@@ -11,12 +11,15 @@ package io.leon.samples.mixed
 import io.leon.AbstractLeonConfiguration
 import io.leon.persistence.mongo.LeonMongoModule
 import io.leon.resources.coffeescript.CoffeeScriptModule
+import com.google.inject.Inject
+import io.leon.javascript.{JavaScriptProxy, LeonScriptEngine}
 
 class Module extends AbstractLeonConfiguration {
 
   def config() {
     install(new LeonMongoModule)
     install(new CoffeeScriptModule)
+    bind(classOf[ModuleInit]).asEagerSingleton()
 
     loadFile("/io/leon/samples/mixed/person.js")
 
@@ -25,4 +28,9 @@ class Module extends AbstractLeonConfiguration {
     server("leon.browser").linksToAllPages("leon")
   }
 
+}
+
+
+class ModuleInit @Inject() (engine: LeonScriptEngine) {
+  engine.put("personService", JavaScriptProxy(new PersonService))
 }

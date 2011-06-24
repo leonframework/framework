@@ -29,6 +29,7 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
 
   private def withContext[A](block: Context => A): A = {
     val ctx = Context.enter()
+    ctx.setWrapFactory(new LeonWrapFactory)
     val result = block(ctx)
     Context.exit()
     result
