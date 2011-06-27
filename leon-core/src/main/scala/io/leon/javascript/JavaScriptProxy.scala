@@ -30,14 +30,14 @@ object JavaScriptProxy {
 
     val jsInterface = classPool.makeInterface(clazz.getName + "GeneratedJavaScriptInterface")
 
+    val numberType = classPool.getCtClass("java.lang.Number")
+    val scriptableObjectType = classPool.getCtClass("org.mozilla.javascript.ScriptableObject")
+
     // TODO: use getMethod instead and ignore java.lang.Object methods
     val publicMethods =
       clazz.getDeclaredMethods filter { m => Modifier.isPublic(m.getModifiers) }
 
-
-    val numberType = classPool.getCtClass("java.lang.Number")
-    val scriptableObjectType = classPool.getCtClass("org.mozilla.javascript.ScriptableObject")
-
+    // TODO: add more cases (e.g. String)
     publicMethods foreach { m =>
       val returnType = classPool.getCtClass(m.getReturnType.getName)
       val params = m.getParameterTypes collect {
@@ -91,7 +91,7 @@ class JavaScriptProxy(obj: AnyRef) extends InvocationHandler {
         m.invoke(obj, params: _*)
 
       }
-    } getOrElse sys.error("no method found")
+    } getOrElse sys.error("Method not found: " + m.getName + "(" + argTypes.mkString(", ") + ")")
   }
 
   private def findObjectMethod(name: String, args: Array[Class[_]]) = {
