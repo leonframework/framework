@@ -63,7 +63,7 @@ class LeonParentProject(info: ProjectInfo) extends ParentProject(info) with Unpu
 
   def casbah_core = "com.mongodb.casbah" %% "casbah-core" % "2.1.5-1" withSources()
 
-  val javassist = "org.javassist" % "javassist" % "3.14.0-GA" withSources()
+  def javassist = "org.javassist" % "javassist" % "3.14.0-GA" withSources()
 
 
   // ===================================================================================================================
