@@ -12,7 +12,6 @@ import javassist._
 import java.lang.reflect.{Modifier, InvocationHandler, Method, Proxy}
 import org.mozilla.javascript.ScriptableObject
 import io.leon.conversions.SJSONConverter
-import java.lang.{Short, Byte}
 
 object JavaScriptProxy {
 
@@ -64,7 +63,12 @@ object JavaScriptProxy {
     case "long" => true
     case "double" => true
     case "float" => true
-    case _ => false
+    case "java.lang.Short" => true
+    case "java.lang.Float" => true
+    case x => {
+      println(x + " is not a numeric type!")
+      false
+    }
   }
 
 }
@@ -108,6 +112,8 @@ class JavaScriptProxy(obj: AnyRef) extends InvocationHandler {
       case "long" => new java.lang.Long(num.longValue())
       case "double" => new java.lang.Double(num.doubleValue())
       case "float" => new java.lang.Float(num.floatValue())
+      case "java.lang.Short" => new java.lang.Short(num.shortValue())
+      case "java.lang.Float" => new java.lang.Float(num.floatValue())
       case x => sys.error("convertNumber missed case for " + x)
     }
   }
