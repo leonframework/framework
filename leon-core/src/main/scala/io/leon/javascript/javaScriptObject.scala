@@ -32,7 +32,7 @@ class JavaScriptObject(val engine: LeonScriptEngine, val objName: String) {
 
   def jsonApply(member: String, args: String): String = {
     val target = objName + "." + member
-    val inv = target + ".apply(" + target + ", JSON.parse('" + args + "'));"
+    val inv = target + ".apply(" + objName + ", JSON.parse('" + args + "'));"
     engine.evalToJson(inv)
   }
 
