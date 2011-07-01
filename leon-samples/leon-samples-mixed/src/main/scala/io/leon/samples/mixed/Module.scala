@@ -24,6 +24,7 @@ class Module extends AbstractLeonConfiguration {
     loadFile("/io/leon/samples/mixed/person.js")
 
     browser("person").linksToServer("person")
+    browser("personService").linksToServer("personService")
 
     server("leon.browser").linksToAllPages("leon")
   }
