@@ -5,7 +5,7 @@ io.leon.javascript.test.Tests = (function() {
   var service = TestService;
 
   return {
-    testGetTestBean: function() {
+    testGetBean: function() {
       var bean = service.getTestBean();
 
       if(bean.x != "x") throw "bean.x is " + bean.x + " but expected 'x'";
@@ -16,7 +16,7 @@ io.leon.javascript.test.Tests = (function() {
       bean.z.b = 7;
     },
 
-    testSetTestBean: function() {
+    testSetBean: function() {
       service.setTestBean({
         "x": "Hello World",
         "y": 29322,
@@ -30,9 +30,15 @@ io.leon.javascript.test.Tests = (function() {
     },
 
     testMethodWithNumericArgs: function() {
-      var x = service.methodWithNumericArgs(10, 10, 0, 1, 0.5, 1.5)
+      var x = service.methodWithNumericArgs(10, 10, 0, 1, 0.5, 1.5);
       if(x != 23) throw "exepcted 23 but got " + x;
+    },
+
+    testMethodWithString: function() {
+      var x = service.methodWithString("Just call me Scala");
+      if(x != "Hello World") throw "expected 'Hello World' but got: " + x;
     }
+
   };
 
 })();

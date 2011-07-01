@@ -22,7 +22,7 @@ object JavaScriptProxy {
 
   private def createJsInterface(clazz: Class[_]): Class[_] = {
 
-    // println("=== createJsInterface (" + clazz.getName + ") ===")
+    println("=== createJsInterface (" + clazz.getName + ") ===")
 
     val classPool = ClassPool.getDefault()
     classPool.insertClassPath(new LoaderClassPath(this.getClass.getClassLoader))
@@ -30,6 +30,7 @@ object JavaScriptProxy {
     val jsInterface = classPool.makeInterface(clazz.getName + "GeneratedJavaScriptInterface")
 
     val numberType = classPool.getCtClass("java.lang.Number")
+    val stringType = classPool.getCtClass("java.lang.String")
     val scriptableObjectType = classPool.getCtClass("org.mozilla.javascript.ScriptableObject")
 
     // TODO: use getMethod instead and ignore java.lang.Object methods
@@ -41,17 +42,18 @@ object JavaScriptProxy {
       val returnType = classPool.getCtClass(m.getReturnType.getName)
       val params = m.getParameterTypes collect {
         case c if isNumberType(c) => numberType
+        case x if x.getName == "java.lang.String" => stringType
         case _ =>  scriptableObjectType
       }
 
-      // println(" + method " + m.getName + "(" + params.map(_.getName).mkString(",") + "): " + returnType.getName)
+      println(" + method " + m.getName + "(" + params.map(_.getName).mkString(",") + "): " + returnType.getName)
 
       val gm = CtNewMethod.abstractMethod(returnType, m.getName, params, Array.empty, jsInterface)
 
       jsInterface.addMethod(gm)
     }
 
-    // println("=== createJsInterface =============")
+    println("=== createJsInterface =============")
 
     jsInterface.toClass
   }

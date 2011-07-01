@@ -25,13 +25,13 @@ class JavaScriptProxySpec extends Specification {
 
     "map return values to JavaScript objects" in {
       val engine = getLeonScriptEngine
-      engine.invokeFunction("io.leon.javascript.test.Tests.testGetTestBean")
+      engine.invokeFunction("io.leon.javascript.test.Tests.testGetBean")
       success
     }
 
     "automatically convert JavaScript objects to the corresponding type in method calls" in {
       val engine = getLeonScriptEngine
-      engine.invokeFunction("io.leon.javascript.test.Tests.testSetTestBean")
+      engine.invokeFunction("io.leon.javascript.test.Tests.testSetBean")
       success
     }
 
@@ -44,6 +44,12 @@ class JavaScriptProxySpec extends Specification {
     "call a method with numeric arguments" in {
       val engine = getLeonScriptEngine
       engine.invokeFunction("io.leon.javascript.test.Tests.testMethodWithNumericArgs")
+      success
+    }
+
+    "call a method with a string argument" in {
+      var engine = getLeonScriptEngine
+      engine.invokeFunction("io.leon.javascript.test.Tests.testMethodWithString")
       success
     }
   }

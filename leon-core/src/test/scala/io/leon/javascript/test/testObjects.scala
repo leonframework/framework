@@ -31,4 +31,9 @@ class TestService {
   def methodWithDefaultArgs(bean: TestBean, x: Int = 2) {
     println("bean: %s, x: %s".format(bean, x))
   }
+
+  def methodWithString(s: String) = {
+    println("s = " + s)
+    "Hello World"
+  }
 }
