@@ -37,6 +37,25 @@ io.leon.javascript.test.Tests = (function() {
     testMethodWithString: function() {
       var x = service.methodWithString("Just call me Scala");
       if(x != "Hello World") throw "expected 'Hello World' but got: " + x;
+    },
+
+    testMethodWithList: function() {
+      var arr = [
+        { "x": "Hello World 1",
+          "y": 29322,
+          "z": { "a": "abcdef", "b": 12389384 }
+        },
+        { "x": "Hello World 2",
+          "y": 29322,
+          "z": { "a": "abcdef", "b": 12389384 }
+        }
+      ];
+
+      service.methodWithList(arr);
+    },
+
+    testMethodWithIntList: function() {
+      service.methodWithIntList([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     }
 
   };

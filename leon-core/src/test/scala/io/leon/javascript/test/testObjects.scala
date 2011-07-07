@@ -36,4 +36,12 @@ class TestService {
     println("s = " + s)
     "Hello World"
   }
+
+  def methodWithList(list: Seq[TestBean]) = {
+    println(list.mkString(", "))
+  }
+
+  def methodWithIntList(list: Seq[Int]) = {
+    println(list.mkString(", "))
+  }
 }

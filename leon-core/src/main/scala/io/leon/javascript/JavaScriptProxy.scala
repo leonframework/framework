@@ -9,9 +9,9 @@
 package io.leon.javascript
 
 import javassist._
-import java.lang.reflect.{Modifier, InvocationHandler, Method, Proxy}
-import org.mozilla.javascript.ScriptableObject
+import org.mozilla.javascript.{ScriptableObject, NativeArray}
 import io.leon.conversions.SJSONConverter
+import java.lang.reflect.{Method, ParameterizedType, InvocationHandler, Proxy}
 
 object JavaScriptProxy {
 
@@ -32,6 +32,7 @@ object JavaScriptProxy {
     val numberType = classPool.getCtClass("java.lang.Number")
     val stringType = classPool.getCtClass("java.lang.String")
     val scriptableObjectType = classPool.getCtClass("org.mozilla.javascript.ScriptableObject")
+    val nativeArrayType = classPool.getCtClass("org.mozilla.javascript.NativeArray")
 
     // TODO: use getMethod instead and ignore java.lang.Object methods
     val publicMethods =
@@ -43,7 +44,10 @@ object JavaScriptProxy {
       val params = m.getParameterTypes collect {
         case c if isNumberType(c) => numberType
         case x if x.getName == "java.lang.String" => stringType
-        case _ =>  scriptableObjectType
+        case c if classOf[Seq[_]].isAssignableFrom(c) =>
+          println("List: " + c.getName)
+          nativeArrayType
+        case x => scriptableObjectType
       }
 
       println(" + method " + m.getName + "(" + params.map(_.getName).mkString(",") + "): " + returnType.getName)
@@ -67,10 +71,7 @@ object JavaScriptProxy {
     case "float" => true
     case "java.lang.Short" => true
     case "java.lang.Float" => true
-    case x => {
-      println(x + " is not a numeric type!")
-      false
-    }
+    case x => false
   }
 
 }
@@ -88,14 +89,8 @@ class JavaScriptProxy(obj: AnyRef) extends InvocationHandler {
     findObjectMethod(m.getName, argTypes) map { m =>
       if (args == null) m.invoke(obj)
       else {
-        val params = (args zip m.getParameterTypes) collect {
-          case (arg: ScriptableObject, argType: Class[AnyRef]) =>
-            converter.jsToJava(arg, argType)
-          case (x: Number, argType) =>  convertNumber(x, argType)
-          case (x: AnyRef, _) => x
-        }
+        val params = (args zip m.getParameterTypes) collect { jsToJava(m) }
         m.invoke(obj, params: _*)
-
       }
     } getOrElse sys.error("Method not found: " + m.getName + "(" + argTypes.mkString(", ") + ")")
   }
@@ -104,6 +99,13 @@ class JavaScriptProxy(obj: AnyRef) extends InvocationHandler {
     obj.getClass.getMethods.find { m =>
       m.getName == name && m.getParameterTypes.size == args.size
     }
+  }
+
+  private def jsToJava(m: Method): PartialFunction[(AnyRef, Class[_]), AnyRef] = {
+    case (arg: NativeArray, argType) => convertNativeArray(m, arg, getTypeParameter(m))
+    case (arg: ScriptableObject, argType: Class[AnyRef]) => converter.jsToJava(arg, argType)
+    case (x: Number, argType) =>  convertNumber(x, argType)
+    case (x: AnyRef, _) => x
   }
 
   private def convertNumber(num: Number, targetType: Class[_]): AnyRef = {
@@ -117,6 +119,26 @@ class JavaScriptProxy(obj: AnyRef) extends InvocationHandler {
       case "java.lang.Short" => new java.lang.Short(num.shortValue())
       case "java.lang.Float" => new java.lang.Float(num.floatValue())
       case x => sys.error("convertNumber missed case for " + x)
+    }
+  }
+
+  private def convertNativeArray[T <: AnyRef](m: Method, arr: NativeArray, targetType: Class[T]): Seq[T] = {
+    val seq =
+      for(i <- (0 until arr.getLength().toInt)) yield {
+        jsToJava(m)((arr.get(i, arr), targetType))
+      }
+    seq.asInstanceOf[Seq[T]]
+  }
+
+  private def getTypeParameter(m: Method): Class[AnyRef] = {
+    // TODO: does not work for primitive types like int. In that case actualType is 'java.lang.Object'.
+
+    m.getGenericParameterTypes.toList.asInstanceOf[List[ParameterizedType]] match {
+      case param :: Nil =>
+        val actualType = param.getActualTypeArguments.apply(0).asInstanceOf[Class[AnyRef]]
+        println("actualType: " + actualType.getName)
+        actualType
+      case _ => sys.error("cannot get type parameter for method: " + m.getName)
     }
   }
 }

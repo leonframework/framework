@@ -50,8 +50,6 @@ trait Converter {
     }
   }
 
-  // ---- convinience methods ----
-
   def javaToJs(obj: AnyRef) =
     mapToScriptableObject(objectToMap(obj))
 
