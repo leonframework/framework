@@ -56,8 +56,12 @@ io.leon.javascript.test.Tests = (function() {
 
     testMethodWithIntList: function() {
       service.methodWithIntList([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-    }
+    },
 
+    testMethodWithJavaType: function() {
+      var bean = service.getTestBean();
+      service.setTestBean(bean);
+    }
   };
 
 })();

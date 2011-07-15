@@ -8,129 +8,85 @@
  */
 package io.leon.javascript
 
-import javassist._
-import org.mozilla.javascript.{ScriptableObject, NativeArray}
 import io.leon.conversions.SJSONConverter
-import java.lang.reflect.{Method, ParameterizedType, InvocationHandler, Proxy}
+import java.lang.reflect.{Method, ParameterizedType}
+import org.mozilla.javascript._
 
 object JavaScriptProxy {
-
-  def apply[T <: AnyRef](obj: T): AnyRef = {
-    val jsInterface = createJsInterface(obj.getClass)
-    Proxy.newProxyInstance(obj.getClass.getClassLoader, Array(jsInterface), new JavaScriptProxy(obj))
-  }
-
-  private def createJsInterface(clazz: Class[_]): Class[_] = {
-
-    println("=== createJsInterface (" + clazz.getName + ") ===")
-
-    val classPool = ClassPool.getDefault()
-    classPool.insertClassPath(new LoaderClassPath(this.getClass.getClassLoader))
-
-    val jsInterface = classPool.makeInterface(clazz.getName + "GeneratedJavaScriptInterface")
-
-    val numberType = classPool.getCtClass("java.lang.Number")
-    val stringType = classPool.getCtClass("java.lang.String")
-    val scriptableObjectType = classPool.getCtClass("org.mozilla.javascript.ScriptableObject")
-    val nativeArrayType = classPool.getCtClass("org.mozilla.javascript.NativeArray")
-
-    // TODO: use getMethod instead and ignore java.lang.Object methods
-    val publicMethods =
-      clazz.getDeclaredMethods filter { m => Modifier.isPublic(m.getModifiers) }
-
-    // TODO: add more cases (e.g. String)
-    publicMethods foreach { m =>
-      val returnType = classPool.getCtClass(m.getReturnType.getName)
-      val params = m.getParameterTypes collect {
-        case c if isNumberType(c) => numberType
-        case x if x.getName == "java.lang.String" => stringType
-        case c if classOf[Seq[_]].isAssignableFrom(c) =>
-          println("List: " + c.getName)
-          nativeArrayType
-        case x => scriptableObjectType
-      }
-
-      println(" + method " + m.getName + "(" + params.map(_.getName).mkString(",") + "): " + returnType.getName)
-
-      val gm = CtNewMethod.abstractMethod(returnType, m.getName, params, Array.empty, jsInterface)
-
-      jsInterface.addMethod(gm)
-    }
-
-    println("=== createJsInterface =============")
-
-    jsInterface.toClass
-  }
-
-  private def isNumberType(clazz: Class[_]) = clazz.getName match {
-    case "byte" => true
-    case "short" => true
-    case "int" => true
-    case "long" => true
-    case "double" => true
-    case "float" => true
-    case "java.lang.Short" => true
-    case "java.lang.Float" => true
-    case x => false
-  }
-
+  def apply[T <: AnyRef](target: T) =
+    new JavaScriptProxy(target)
 }
 
-class JavaScriptProxy(obj: AnyRef) extends InvocationHandler {
+class JavaScriptProxy[T <: AnyRef](target: T) extends ScriptableObject {
 
-  private val converter = new SJSONConverter
+  override def getClassName = target.getClass.getName
 
-  def invoke(proxy: AnyRef, m: Method, args: Array[AnyRef]) = {
+  override def get(name: String, start: Scriptable) =
+    new DelegatingFunction(name, target)
+}
 
+class DelegatingFunction(name: String, target: AnyRef) extends BaseFunction with RhinoTypeConversions {
+
+  private val targetClass = target.getClass
+
+  override def call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array[AnyRef]) = {
     val argTypes = Option(args).getOrElse(Array.empty) map { _.getClass }
 
-    // println("JavaScriptProxy.invoke: " + m.getName + "(" + argTypes.mkString(", ") + ")")
+    // println("JavaScriptProxy.invoke: " + name + "(" + argTypes.mkString(", ") + ")")
 
-    findObjectMethod(m.getName, argTypes) map { m =>
-      if (args == null) m.invoke(obj)
+    def createNativeJavaObject(obj: AnyRef) =
+      new JavaScriptProxyObject(scope, obj, obj.getClass)
+
+    findObjectMethod(name, argTypes) map { m =>
+      if (args == null) m.invoke(target)
       else {
         val params = (args zip m.getParameterTypes) collect { jsToJava(m) }
-        m.invoke(obj, params: _*)
+        m.invoke(target, params: _*)
       }
-    } getOrElse sys.error("Method not found: " + m.getName + "(" + argTypes.mkString(", ") + ")")
+    } map { createNativeJavaObject } getOrElse sys.error("Method not found: " + name + "(" + argTypes.mkString(", ") + ")")
   }
 
-  private def findObjectMethod(name: String, args: Array[Class[_]]) = {
-    obj.getClass.getMethods.find { m =>
+  private def findObjectMethod(name: String, args: Array[_]) = {
+    targetClass.getMethods.find { m =>
       m.getName == name && m.getParameterTypes.size == args.size
     }
   }
+}
 
-  private def jsToJava(m: Method): PartialFunction[(AnyRef, Class[_]), AnyRef] = {
+class JavaScriptProxyObject(scope: Scriptable, obj: AnyRef, targetClass: Class[_]) extends NativeJavaObject(scope, obj, targetClass) {
+
+  private val toJsonFunction =
+    new BaseFunction with RhinoTypeConversions {
+      override def call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array[AnyRef]) = {
+        converter.javaToJs(obj)
+      }
+    }
+
+  override def get(name: String, start: Scriptable) = {
+    if (name == "toJSON") toJsonFunction
+    else super.get(name, start)
+  }
+}
+
+trait RhinoTypeConversions {
+
+  val converter = new SJSONConverter
+
+  protected def jsToJava(m: Method): PartialFunction[(AnyRef, Class[_]), AnyRef] = {
     case (arg: NativeArray, argType) => convertNativeArray(m, arg, getTypeParameter(m))
     case (arg: ScriptableObject, argType: Class[AnyRef]) => converter.jsToJava(arg, argType)
-    case (x: Number, argType) =>  convertNumber(x, argType)
-    case (x: AnyRef, _) => x
+    case (arg: AnyRef, argType: Class[AnyRef]) => Context.jsToJava(arg, argType)
   }
 
-  private def convertNumber(num: Number, targetType: Class[_]): AnyRef = {
-    targetType.getName match {
-      case "byte" => new java.lang.Byte(num.byteValue())
-      case "short" => new java.lang.Short(num.shortValue())
-      case "int" => new java.lang.Integer(num.intValue())
-      case "long" => new java.lang.Long(num.longValue())
-      case "double" => new java.lang.Double(num.doubleValue())
-      case "float" => new java.lang.Float(num.floatValue())
-      case "java.lang.Short" => new java.lang.Short(num.shortValue())
-      case "java.lang.Float" => new java.lang.Float(num.floatValue())
-      case x => sys.error("convertNumber missed case for " + x)
-    }
-  }
-
-  private def convertNativeArray[T <: AnyRef](m: Method, arr: NativeArray, targetType: Class[T]): Seq[T] = {
+  protected def convertNativeArray[T <: AnyRef](m: Method, arr: NativeArray, targetType: Class[T]): Seq[T] = {
     val seq =
       for(i <- (0 until arr.getLength().toInt)) yield {
-        jsToJava(m)((arr.get(i, arr), targetType))
+        jsToJava(m).apply((arr.get(i, arr), targetType))
       }
     seq.asInstanceOf[Seq[T]]
   }
 
-  private def getTypeParameter(m: Method): Class[AnyRef] = {
+  protected def getTypeParameter(m: Method): Class[AnyRef] = {
     // TODO: does not work for primitive types like int. In that case actualType is 'java.lang.Object'.
 
     m.getGenericParameterTypes.toList.asInstanceOf[List[ParameterizedType]] match {
@@ -142,4 +98,5 @@ class JavaScriptProxy(obj: AnyRef) extends InvocationHandler {
     }
   }
 }
+
 

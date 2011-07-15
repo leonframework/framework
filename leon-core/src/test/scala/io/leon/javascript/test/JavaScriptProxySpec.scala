@@ -4,6 +4,7 @@ import org.specs2.mutable.Specification
 import io.leon.resources.ResourcesModule
 import com.google.inject.{Inject, Guice, AbstractModule}
 import io.leon.javascript.{JavaScriptProxy, LeonScriptEngine, LeonJavaScriptModule}
+import org.mozilla.javascript.NativeJavaObject
 
 class JavaScriptProxySpec extends Specification {
 
@@ -66,10 +67,17 @@ class JavaScriptProxySpec extends Specification {
       // success
       pending
     }
+
+    "call a method with its original java types" in {
+      val engine = getLeonScriptEngine
+      engine.invokeFunction("io.leon.javascript.test.Tests.testMethodWithJavaType")
+      success
+    }
+
   }
 }
 
 class TestObjectModuleInit @Inject()(engine: LeonScriptEngine) {
-  engine.put("TestService", JavaScriptProxy(new TestService))
+  engine.put("TestService", new NativeJavaObject(engine.rhinoScope, new TestService, classOf[TestService]))
   engine.loadResource("/io/leon/javascript/test/testObjects.js")
 }

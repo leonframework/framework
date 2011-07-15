@@ -10,8 +10,8 @@ package io.leon.conversions
 
 import sjson.json.Serializer.SJSON
 import dispatch.json._
-import org.mozilla.javascript.{Undefined, ScriptableObject}
 import java.lang.Boolean
+import org.mozilla.javascript.{Wrapper, Undefined, ScriptableObject}
 
 trait Converter {
 
@@ -37,12 +37,14 @@ trait Converter {
 
   // --- Java Map to JavaScriptNativeObject ---------------
 
-  def mapToScriptableObject(map: RawMap): ScriptableObject = {
-    new ScriptableObject() {
+  def mapToScriptableObject(map: RawMap, obj: AnyRef): ScriptableObject = {
+    new ScriptableObject() with Wrapper {
       def getClassName = "map"
 
+      def unwrap = obj
+
       map collect {
-        case (k, v: RawMap) => k -> mapToScriptableObject(v)
+        case (k, v: RawMap) => k -> mapToScriptableObject(v, obj)
         case x => x
       } foreach { case (k, v) =>
           defineProperty(k.toString, v, ScriptableObject.PERMANENT)
@@ -51,7 +53,7 @@ trait Converter {
   }
 
   def javaToJs(obj: AnyRef) =
-    mapToScriptableObject(objectToMap(obj))
+    mapToScriptableObject(objectToMap(obj), obj)
 
   def jsToJava[T <: AnyRef](obj: ScriptableObject, targetType: Class[T]) =
     mapToObject(scriptableObjectToMap(obj), targetType)
@@ -60,7 +62,7 @@ trait Converter {
 
 class SJSONConverter extends Converter {
 
-  def accept(clazz: Class[_]) = classOf[Product].isAssignableFrom(clazz)
+  def accept(clazz: Class[_]) = classOf[Any].isAssignableFrom(clazz)
 
   // --- Java Objects to Java Map -------------------------
 
