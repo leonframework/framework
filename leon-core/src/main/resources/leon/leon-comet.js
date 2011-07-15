@@ -87,7 +87,7 @@ leon.comet = (function() {
 
         connect: function() {
             clearInterval(pollTimer);
-            var url = "/leon/registerPage" + "?pageId=" + leon.pageId + "&uplink=true";
+            var url = "/leon/comet/connect" + "?pageId=" + leon.pageId;
             this.start(url);
         }
     }

@@ -26,7 +26,7 @@ class CometWebModule extends ServletModule {
       AtmosphereServlet.PROPERTY_NATIVE_COMETSUPPORT -> "true"
       ).asJava
 
-    serve("/leon/registerPage*").`with`(classOf[CometServlet], meteorParams)
+    serve("/leon/comet/connect*").`with`(classOf[CometServlet], meteorParams)
   }
 }
 

@@ -13,7 +13,7 @@ import java.util.logging.Logger
 import javax.servlet.http.HttpServletRequest
 import org.atmosphere.cpr.{BroadcastFilter, Meteor}
 import org.atmosphere.util.XSSHtmlFilter
-import sjson.json.Serializer.SJSON
+
 
 class ClientConnection(val pageId: String,
                        private var _uplink: Option[Meteor],
@@ -186,20 +186,6 @@ class CometRegistry {
     meteor.suspend(-1, true)
 
     clients.clientByPageId(id).get.send("\n")
-  }
-
-  def processClientHeartbeat(sessionId: String, pageId: String) {
-    // TODO delete this method
-    val id = sessionId + "__" + pageId
-    clients.clientByPageId(id) match {
-      case Some(cc) => {
-        logger.info("Updating heartbeat for: " + id)
-        cc.connectTime = System.currentTimeMillis
-      }
-      case None => {
-        logger.info("Got heartbeat, but no client connection yet.")
-      }
-    }
   }
 
   def allClients: List[ClientConnection] =
