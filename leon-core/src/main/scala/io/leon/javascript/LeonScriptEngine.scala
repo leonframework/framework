@@ -25,7 +25,7 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
   // Load Leon core modules
   loadResource("/io/leon/json2.js")
   loadResource("/io/leon/leon.js")
-  loadResource("/leon/leon_shared.js")
+  loadResource("/leon/leon-shared.js")
 
   private def withContext[A](block: Context => A): A = {
     val ctx = Context.enter()
