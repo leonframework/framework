@@ -41,7 +41,6 @@ class LeonParentProject(info: ProjectInfo) extends ParentProject(info) with Unpu
   def atmosphere_version = "0.7.1"
 
   def atmosphere_runtime = "org.atmosphere" % "atmosphere-runtime" % atmosphere_version withSources()
-  def atmosphere_runtimejq = "org.atmosphere" % "atmosphere-jquery" % atmosphere_version
 
   def logback_classic = "ch.qos.logback" % "logback-classic" % "0.9.24"
 
@@ -109,7 +108,7 @@ http://www.eclipse.org/legal/epl-v10.html
 
     override def libraryDependencies =
       Set(specs2, logback_classic, logback_core, servletApi, freemarker, rhino,
-        atmosphere_runtime, atmosphere_runtimejq, guice, guiceServlet, sjson, snakeYaml,
+        atmosphere_runtime, guice, guiceServlet, sjson, snakeYaml,
         casbah_core, h2database)
 
     override def packageSrcJar = defaultJarPath("-sources.jar")
