@@ -22,7 +22,7 @@ class CometWebModule extends ServletModule {
 
     val meteorParams = Map(
       "org.atmosphere.servlet" -> classOf[CometHandler].getName,
-      AtmosphereServlet.WEBSOCKET_SUPPORT -> "true",
+      AtmosphereServlet.WEBSOCKET_SUPPORT -> "false",
       AtmosphereServlet.PROPERTY_NATIVE_COMETSUPPORT -> "true"
       ).asJava
 

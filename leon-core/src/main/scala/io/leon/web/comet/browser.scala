@@ -44,12 +44,13 @@ class BrowserObject(cometRegistry: CometRegistry,
   def jsonApply(methodName: String, jsonArgs: String) {
     logger.info("Calling browser object [%s.%s]".format(browserObjectName, methodName))
 
-    val message = """ {
+    val message = """$$$MESSAGE$$${
       "type": "browserObjectMethodCall",
       "object": "%s",
       "method": "%s",
       "args": %s
-    } """.format(browserObjectName, methodName, jsonArgs)
+    }
+    """.format(browserObjectName, methodName, jsonArgs).replace('\n', ' ') + "\n"
 
     browserScope match {
       case BrowerObjectAllScope => {

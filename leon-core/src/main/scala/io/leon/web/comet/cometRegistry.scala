@@ -13,10 +13,13 @@ import java.util.logging.Logger
 import javax.servlet.http.HttpServletRequest
 import org.atmosphere.cpr.{BroadcastFilter, Meteor}
 import org.atmosphere.util.XSSHtmlFilter
+import sjson.json.Serializer.SJSON
 
-class ClientConnection(val pageId: String, private var _uplink: Meteor, var lastPing: Long) {
+class ClientConnection(val pageId: String,
+                       private var _uplink: Option[Meteor],
+                       var connectTime: Long = System.currentTimeMillis()) {
 
-  val sessionId = uplink.getAtmosphereResource.getRequest.getSession.getId
+  val sessionId = uplink.get.getAtmosphereResource.getRequest.getSession.getId
 
   private val lock = new Object
 
@@ -26,11 +29,18 @@ class ClientConnection(val pageId: String, private var _uplink: Meteor, var last
 
   def uplink = _uplink
 
-  def uplink_=(meteor: Meteor) {
+  def uplink_=(meteor: Option[Meteor]) {
     lock.synchronized {
-      _uplink.resume()
+      try {
+        _uplink foreach { _.resume() }
+      } catch {
+        case e: IllegalStateException => logger.warning("Cannot resume existing comet connection.")
+      }
       _uplink = meteor
-      flushQueue()
+      if (meteor.isDefined) {
+        connectTime = System.currentTimeMillis()
+        flushQueue()
+      }
     }
   }
 
@@ -53,20 +63,23 @@ class ClientConnection(val pageId: String, private var _uplink: Meteor, var last
       }
     }
   }
-
+ 
   private def sendPackage(msg: String): Boolean = {
     try {
-      val res = uplink.getAtmosphereResource.getResponse
-      val writer = res.getWriter
+      // TODO check if None.forall(...) yields false
+      uplink forall { meteor =>
+        val res = meteor.getAtmosphereResource.getResponse
+        val writer = res.getWriter
 
-      // send message
-      writer.write(msg.toString)
-      res.flushBuffer()
+        // send message
+        writer.write(msg.toString)
+        res.flushBuffer()
 
-      // make sure connection was/is open
-      writer.write(' ')
-      res.flushBuffer()
-      true
+        // make sure connection was/is open
+        writer.write(' ')
+        res.flushBuffer()
+        true
+      }
     } catch {
       case _ => false
     }
@@ -113,9 +126,11 @@ class CometRegistry {
 
   private val logger = Logger.getLogger(getClass.getName)
 
-  private val checkClientsInterval = 1000 * 10 // 10 seconds
+  private val checkClientsInterval = 1 * 1000
 
-  private val clientsTimeout = 1000 * 60 // 1 minute
+  private val reconnectTimeout = 10 * 1000
+
+  private val disconnectTimeout = reconnectTimeout + 30 * 1000
 
   private val filter: List[BroadcastFilter] = List(new XSSHtmlFilter)
 
@@ -133,25 +148,31 @@ class CometRegistry {
     shouldStop = false
     new Thread(new Runnable {
       def run() {
-        logger.info("Checking for dead client connections every " + checkClientsInterval + "ms")
+        logger.info("Checking for client connection timeouts every " + checkClientsInterval + "ms")
         while (!shouldStop) {
           Thread.sleep(checkClientsInterval)
           val now = System.currentTimeMillis
           clients.allClients foreach { client =>
-            if ((now - client.lastPing) > clientsTimeout) {
-              logger.info("Last ping for client [" + client.pageId + "] too old. Removing client.")
+            if (client.uplink.isDefined) {
+              if ((now - client.connectTime) > reconnectTimeout) {
+                logger.info("Client connection for [" + client.pageId + "] too old. Forcing reconnect.")
+                client.uplink = None
+              }
+            }
+            if ((now - client.connectTime) > disconnectTimeout) {
+              logger.info("Client connection for [" + client.pageId + "] too old. Forcing disconnect.")
+              client.uplink foreach { _.resume() } // Should not be required, just to be safe
               clients.remove(client)
-              client.uplink.resume()
             }
           }
         }
       }
     }).start()
   }
-
+ 
   def stop() {
     shouldStop = true
-    clients.allClients foreach { _.uplink.resume() }
+    clients.allClients foreach { _.uplink foreach { m => m.resume() } }
   }
 
   def registerUplink(sessionId: String, pageId: String, req: HttpServletRequest) {
@@ -159,18 +180,21 @@ class CometRegistry {
     val id = sessionId + "__" + pageId
     logger.info("Adding Client comet connection: " + id)
     clients.clientByPageId(id) match {
-      case None => clients.add(new ClientConnection(id, meteor, System.currentTimeMillis))
-      case Some(cc) => cc.uplink = meteor
+      case None => clients.add(new ClientConnection(id, Some(meteor)))
+      case Some(cc) => cc.uplink = Some(meteor)
     }
     meteor.suspend(-1, true)
+
+    clients.clientByPageId(id).get.send("\n")
   }
 
   def processClientHeartbeat(sessionId: String, pageId: String) {
+    // TODO delete this method
     val id = sessionId + "__" + pageId
     clients.clientByPageId(id) match {
       case Some(cc) => {
         logger.info("Updating heartbeat for: " + id)
-        cc.lastPing = System.currentTimeMillis
+        cc.connectTime = System.currentTimeMillis
       }
       case None => {
         logger.info("Got heartbeat, but no client connection yet.")
