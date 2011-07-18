@@ -9,51 +9,18 @@
 package io.leon.javascript
 
 import io.leon.conversions.SJSONConverter
-import java.lang.reflect.{Method, ParameterizedType}
 import org.mozilla.javascript._
+import java.lang.reflect.{Method, ParameterizedType}
+
 
 object JavaScriptProxy {
-  def apply[T <: AnyRef](target: T) =
-    new JavaScriptProxy(target)
+  def apply[T <: AnyRef](scope: Scriptable, target: T) =
+    new JavaScriptProxy(scope, target, target.getClass)
 }
 
-class JavaScriptProxy[T <: AnyRef](target: T) extends ScriptableObject {
+class JavaScriptProxy[T <: AnyRef](scope: Scriptable, obj: AnyRef, targetClass: Class[_]) extends NativeJavaObject(scope, obj, targetClass) {
 
-  override def getClassName = target.getClass.getName
-
-  override def get(name: String, start: Scriptable) =
-    new DelegatingFunction(name, target)
-}
-
-class DelegatingFunction(name: String, target: AnyRef) extends BaseFunction with RhinoTypeConversions {
-
-  private val targetClass = target.getClass
-
-  override def call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array[AnyRef]) = {
-    val argTypes = Option(args).getOrElse(Array.empty) map { _.getClass }
-
-    // println("JavaScriptProxy.invoke: " + name + "(" + argTypes.mkString(", ") + ")")
-
-    def createNativeJavaObject(obj: AnyRef) =
-      new JavaScriptProxyObject(scope, obj, obj.getClass)
-
-    findObjectMethod(name, argTypes) map { m =>
-      if (args == null) m.invoke(target)
-      else {
-        val params = (args zip m.getParameterTypes) collect { jsToJava(m) }
-        m.invoke(target, params: _*)
-      }
-    } map { createNativeJavaObject } getOrElse sys.error("Method not found: " + name + "(" + argTypes.mkString(", ") + ")")
-  }
-
-  private def findObjectMethod(name: String, args: Array[_]) = {
-    targetClass.getMethods.find { m =>
-      m.getName == name && m.getParameterTypes.size == args.size
-    }
-  }
-}
-
-class JavaScriptProxyObject(scope: Scriptable, obj: AnyRef, targetClass: Class[_]) extends NativeJavaObject(scope, obj, targetClass) {
+  override def getClassName = "JavaScriptProxy"
 
   private val toJsonFunction =
     new BaseFunction with RhinoTypeConversions {
@@ -64,7 +31,58 @@ class JavaScriptProxyObject(scope: Scriptable, obj: AnyRef, targetClass: Class[_
 
   override def get(name: String, start: Scriptable) = {
     if (name == "toJSON") toJsonFunction
-    else super.get(name, start)
+    else
+      super.get(name, start) match {
+        case m: NativeJavaMethod => new DispatchFunction(name, m, obj)
+        case x => x
+      }
+  }
+}
+
+class DispatchFunction(name: String, javaMethod: NativeJavaMethod, target: AnyRef) extends BaseFunction with RhinoTypeConversions {
+
+  private val scope = javaMethod.getParentScope
+
+  private val targetClass = target.getClass
+
+  override def getArity = javaMethod.getArity
+
+  override def getLength = javaMethod.getLength
+
+  override def getFunctionName = javaMethod.getFunctionName
+
+  override def getDefaultValue(typeHint: Class[_]) = javaMethod.getDefaultValue(typeHint)
+
+  setParentScope(scope)
+  setPrototype(ScriptableObject.getFunctionPrototype(scope))
+
+  override def call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array[AnyRef]) = {
+    val argTypes = Option(args).getOrElse(Array.empty) map { _.getClass }
+
+    // println("JavaScriptProxy.invoke: " + name + "(" + argTypes.mkString(", ") + ")")
+
+    def createNativeJavaObject(obj: AnyRef) =
+      if(obj == null) Undefined.instance
+      else new JavaScriptProxy(scope, obj, obj.getClass)
+
+    if (argTypes exists { classOf[Scriptable].isAssignableFrom }) {
+      findObjectMethod(name, argTypes) map { m =>
+        if (args == null) m.invoke(target)
+        else {
+          val params = (args zip m.getParameterTypes) collect { jsToJava(m) }
+          m.invoke(target, params: _*)
+        }
+      } map { createNativeJavaObject } getOrElse sys.error("Method not found: " + name + "(" + argTypes.mkString(", ") + ")")
+
+    } else {
+      javaMethod.call(cx, scope, thisObj, args)
+    }
+  }
+
+  private def findObjectMethod(name: String, args: Array[_]) = {
+    targetClass.getMethods.find { m =>
+      m.getName == name && m.getParameterTypes.size == args.size
+    }
   }
 }
 

@@ -74,10 +74,15 @@ class JavaScriptProxySpec extends Specification {
       success
     }
 
+    "invoke a method by calling method.apply(...)" in {
+      val engine = getLeonScriptEngine
+      engine.invokeFunction("io.leon.javascript.test.Tests.testApplyMethodCall")
+      success
+    }
   }
 }
 
 class TestObjectModuleInit @Inject()(engine: LeonScriptEngine) {
-  engine.put("TestService", new NativeJavaObject(engine.rhinoScope, new TestService, classOf[TestService]))
+  engine.put("TestService", JavaScriptProxy(engine.rhinoScope, new TestService))
   engine.loadResource("/io/leon/javascript/test/testObjects.js")
 }

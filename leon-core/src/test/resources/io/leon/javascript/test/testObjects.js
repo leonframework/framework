@@ -8,12 +8,12 @@ io.leon.javascript.test.Tests = (function() {
     testGetBean: function() {
       var bean = service.getTestBean();
 
-      if(bean.x != "x") throw "bean.x is " + bean.x + " but expected 'x'";
-      if(bean.y != 1) throw "bean.y is " + bean.x + " but expected '1'";
+      if(bean.x() != "x") throw "bean.x is " + bean.x + " but expected 'x'";
+      if(bean.y() != 1) throw "bean.y is " + bean.x + " but expected '1'";
 
-      bean.x = "Hello World";
-      bean.y = 3;
-      bean.z.b = 7;
+      // bean.x = "Hello World";
+      // bean.y = 3;
+      // bean.z.b = 7;
     },
 
     testSetBean: function() {
@@ -61,6 +61,16 @@ io.leon.javascript.test.Tests = (function() {
     testMethodWithJavaType: function() {
       var bean = service.getTestBean();
       service.setTestBean(bean);
+    },
+
+    testApplyMethodCall: function() {
+      var data = {
+        "x": "Hello World",
+        "y": 29322,
+        "z": { "a": "abcdef", "b": 12389384 }
+      };
+
+      service.setTestBean.apply(service, [data]);
     }
   };
 

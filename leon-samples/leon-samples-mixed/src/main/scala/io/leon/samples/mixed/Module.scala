@@ -31,7 +31,6 @@ class Module extends AbstractLeonConfiguration {
 
 }
 
-
 class ModuleInit @Inject() (engine: LeonScriptEngine) {
-  engine.put("personService", JavaScriptProxy(new PersonService))
+  engine.put("personService", JavaScriptProxy(engine.rhinoScope, new PersonService))
 }
