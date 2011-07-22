@@ -11,12 +11,14 @@ package io.leon.samples.mixed
 import io.leon.AbstractLeonConfiguration
 import io.leon.persistence.mongo.LeonMongoModule
 import io.leon.resources.coffeescript.CoffeeScriptModule
+import io.leon.resources.closure.ClosureTemplatesModule
 
 class Module extends AbstractLeonConfiguration {
 
   def config() {
     install(new LeonMongoModule)
     install(new CoffeeScriptModule)
+    install(new ClosureTemplatesModule)
 
     loadFile("/io/leon/samples/mixed/person.js")
 

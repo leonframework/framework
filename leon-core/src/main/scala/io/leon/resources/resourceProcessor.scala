@@ -21,8 +21,9 @@ trait ResourceProcessor {
 
   def transform(fileName: String, in: InputStream): InputStream
 
+
   protected def inputStreamToString(stream: InputStream): String = {
-    val br = new BufferedReader(new InputStreamReader(stream))
+      val br = new BufferedReader(new InputStreamReader(stream))
     val sb = new StringBuilder
     var line: String = br.readLine()
 
@@ -38,7 +39,6 @@ trait ResourceProcessor {
   protected def stringToInputStream(string: String): InputStream = {
     new ByteArrayInputStream(string.getBytes)
   }
-
 }
 
 class NoOpResourceProcessor @Inject()(freeMarker: FreeMarkerProcessor) extends ResourceProcessor {
