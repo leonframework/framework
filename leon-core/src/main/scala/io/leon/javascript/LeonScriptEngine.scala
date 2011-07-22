@@ -11,10 +11,10 @@ package io.leon.javascript
 import java.io.InputStreamReader
 import io.leon.resources.ResourceLoader
 import com.google.inject.{Injector, Inject}
-import org.mozilla.javascript.{NativeObject, ScriptableObject, Context, Function => RhinoFunction}
 import java.lang.IllegalArgumentException
+import org.mozilla.javascript.{ScriptableObject, Context, Function => RhinoFunction}
 
-class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader) {
+class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader, wrapFactory: LeonWrapFactory) {
 
   //private val logger = Logger.getLogger(getClass.getName)
 
@@ -29,6 +29,7 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
 
   private def withContext[A](block: Context => A): A = {
     val ctx = Context.enter()
+    ctx.setWrapFactory(wrapFactory)
     val result = block(ctx)
     Context.exit()
     result

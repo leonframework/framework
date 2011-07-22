@@ -12,7 +12,7 @@ import io.leon.AbstractLeonConfiguration
 import io.leon.persistence.mongo.LeonMongoModule
 import io.leon.resources.coffeescript.CoffeeScriptModule
 import com.google.inject.Inject
-import io.leon.javascript.{JavaScriptProxy, LeonScriptEngine}
+import io.leon.javascript.LeonScriptEngine
 
 class Module extends AbstractLeonConfiguration {
 
@@ -32,5 +32,5 @@ class Module extends AbstractLeonConfiguration {
 }
 
 class ModuleInit @Inject() (engine: LeonScriptEngine) {
-  engine.put("personService", JavaScriptProxy(engine.rhinoScope, new PersonService))
+  engine.put("personService", new PersonService)
 }

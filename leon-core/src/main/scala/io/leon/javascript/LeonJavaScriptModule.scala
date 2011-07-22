@@ -13,8 +13,10 @@ import com.google.inject.AbstractModule
 class LeonJavaScriptModule extends AbstractModule {
 
   def configure() {
+    bind(classOf[LeonWrapFactory]).asEagerSingleton()
     bind(classOf[LeonScriptEngine]).asEagerSingleton()
     bind(classOf[JavaScriptWebBindings]).asEagerSingleton()
+
   }
 
 }

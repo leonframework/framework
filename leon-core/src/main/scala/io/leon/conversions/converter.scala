@@ -17,8 +17,6 @@ trait Converter {
 
   type RawMap = Map[String, _]
 
-  def accept(clazz: Class[_]): Boolean
-
   def objectToMap(obj: AnyRef): RawMap
 
   def mapToObject[A <: AnyRef](map: RawMap, targetType: Class[A]): A
@@ -56,8 +54,8 @@ trait Converter {
     mapToScriptableObject(objectToMap(obj), obj)
 
   def jsToJava[T <: AnyRef](obj: ScriptableObject, targetType: Class[T]) =
-    mapToObject(scriptableObjectToMap(obj), targetType)
-
+    if(targetType.isAssignableFrom(obj.getClass)) obj
+    else mapToObject(scriptableObjectToMap(obj), targetType)
 }
 
 class SJSONConverter extends Converter {

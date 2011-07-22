@@ -8,15 +8,9 @@
  */
 package io.leon.javascript
 
-import io.leon.conversions.SJSONConverter
+import io.leon.conversions._
 import org.mozilla.javascript._
-import java.lang.reflect.{Method, ParameterizedType}
-
-
-object JavaScriptProxy {
-  def apply[T <: AnyRef](scope: Scriptable, target: T) =
-    new JavaScriptProxy(scope, target, target.getClass)
-}
+import java.lang.reflect.Method
 
 class JavaScriptProxy[T <: AnyRef](scope: Scriptable, obj: AnyRef, targetClass: Class[_]) extends NativeJavaObject(scope, obj, targetClass) {
 
@@ -39,11 +33,11 @@ class JavaScriptProxy[T <: AnyRef](scope: Scriptable, obj: AnyRef, targetClass: 
   }
 }
 
-class DispatchFunction(name: String, javaMethod: NativeJavaMethod, target: AnyRef) extends BaseFunction with RhinoTypeConversions {
+class DispatchFunction(name: String, javaMethod: NativeJavaMethod, targetObject: AnyRef) extends BaseFunction with RhinoTypeConversions {
 
   private val scope = javaMethod.getParentScope
 
-  private val targetClass = target.getClass
+  private val targetClass = targetObject.getClass
 
   override def getArity = javaMethod.getArity
 
@@ -61,22 +55,25 @@ class DispatchFunction(name: String, javaMethod: NativeJavaMethod, target: AnyRe
 
     // println("JavaScriptProxy.invoke: " + name + "(" + argTypes.mkString(", ") + ")")
 
-    def createNativeJavaObject(obj: AnyRef) =
-      if(obj == null) Undefined.instance
-      else new JavaScriptProxy(scope, obj, obj.getClass)
+    def hasScriptableArgs =
+      argTypes exists { classOf[Scriptable].isAssignableFrom }
 
-    if (argTypes exists { classOf[Scriptable].isAssignableFrom }) {
-      findObjectMethod(name, argTypes) map { m =>
-        if (args == null) m.invoke(target)
-        else {
-          val params = (args zip m.getParameterTypes) collect { jsToJava(m) }
-          m.invoke(target, params: _*)
-        }
-      } map { createNativeJavaObject } getOrElse sys.error("Method not found: " + name + "(" + argTypes.mkString(", ") + ")")
-
-    } else {
-      javaMethod.call(cx, scope, thisObj, args)
+    def invokeMethod(method: Method, args: Array[AnyRef]) = {
+      val result = method.invoke(targetObject, args: _*)
+      cx.getWrapFactory.wrap(cx, scope, result, method.getReturnType)
     }
+
+    if(hasScriptableArgs) {
+      findObjectMethod(name, argTypes) map { m =>
+        val convertedArgs =
+          if (args == null) Array.empty[AnyRef]
+          else (args zip m.getParameterTypes) collect { jsToJava(m) }
+
+        invokeMethod(m, convertedArgs)
+
+      } getOrElse sys.error("Method not found: " + name + "(" + argTypes.mkString(", ") + ")")
+
+    } else javaMethod.call(cx, scope, thisObj, args)
   }
 
   private def findObjectMethod(name: String, args: Array[_]) = {
@@ -91,29 +88,8 @@ trait RhinoTypeConversions {
   val converter = new SJSONConverter
 
   protected def jsToJava(m: Method): PartialFunction[(AnyRef, Class[_]), AnyRef] = {
-    case (arg: NativeArray, argType) => convertNativeArray(m, arg, getTypeParameter(m))
     case (arg: ScriptableObject, argType: Class[AnyRef]) => converter.jsToJava(arg, argType)
     case (arg: AnyRef, argType: Class[AnyRef]) => Context.jsToJava(arg, argType)
-  }
-
-  protected def convertNativeArray[T <: AnyRef](m: Method, arr: NativeArray, targetType: Class[T]): Seq[T] = {
-    val seq =
-      for(i <- (0 until arr.getLength().toInt)) yield {
-        jsToJava(m).apply((arr.get(i, arr), targetType))
-      }
-    seq.asInstanceOf[Seq[T]]
-  }
-
-  protected def getTypeParameter(m: Method): Class[AnyRef] = {
-    // TODO: does not work for primitive types like int. In that case actualType is 'java.lang.Object'.
-
-    m.getGenericParameterTypes.toList.asInstanceOf[List[ParameterizedType]] match {
-      case param :: Nil =>
-        val actualType = param.getActualTypeArguments.apply(0).asInstanceOf[Class[AnyRef]]
-        println("actualType: " + actualType.getName)
-        actualType
-      case _ => sys.error("cannot get type parameter for method: " + m.getName)
-    }
   }
 }
 

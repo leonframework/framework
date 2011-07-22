@@ -2,6 +2,7 @@ package io.leon.javascript.test
 
 import reflect.BeanInfo
 import java.lang.{Float, Short}
+import sun.security.util.DerEncoder
 
 @BeanInfo
 case class TestBean(x: String, y: Int, z: NestedTestBean) {
