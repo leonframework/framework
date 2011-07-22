@@ -13,9 +13,9 @@ import org.mozilla.javascript.{Scriptable, Context, WrapFactory}
 class LeonWrapFactory extends WrapFactory {
 
   private val excludedPackages =
-     "java.lang" ::
-     "com.google.inject" ::
-     "org.mozilla.javascript" :: Nil
+     "java." ::
+     "com.google.inject." ::
+     "org.mozilla.javascript." :: Nil
 
   private def isExcluded(clazz: Class[_]) =
     excludedPackages exists { clazz.getName startsWith _ }

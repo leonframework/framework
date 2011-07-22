@@ -8,10 +8,11 @@
  */
 package io.leon.javascript
 
-import java.io.InputStreamReader
 import io.leon.resources.ResourceLoader
 import com.google.inject.{Injector, Inject}
+import java.io.InputStreamReader
 import java.lang.IllegalArgumentException
+
 import org.mozilla.javascript.{ScriptableObject, Context, Function => RhinoFunction}
 
 class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader, wrapFactory: LeonWrapFactory) {

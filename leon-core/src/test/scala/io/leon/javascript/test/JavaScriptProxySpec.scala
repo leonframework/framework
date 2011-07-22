@@ -35,40 +35,19 @@ class JavaScriptProxySpec extends Specification {
       success
     }
 
-    "call a method with default args" in {
-//      val engine = getLeonScriptEngine
-//      engine.invokeFunction("io.leon.javascript.test.Tests.testMethodWithDefaultArgs")
-//      success
-      pending
-    }
-
-    "call a method with numeric arguments" in {
+    "support method calls with numeric arguments" in {
       val engine = getLeonScriptEngine
       engine.invokeFunction("io.leon.javascript.test.Tests.testMethodWithNumericArgs")
       success
     }
 
-    "call a method with a string argument" in {
+    "support method calls with string arguments" in {
       val engine = getLeonScriptEngine
       engine.invokeFunction("io.leon.javascript.test.Tests.testMethodWithString")
       success
     }
 
-    "call a method with a list argument" in {
-//      val engine = getLeonScriptEngine
-//      engine.invokeFunction("io.leon.javascript.test.Tests.testMethodWithList")
-//      success
-      pending
-    }
-
-    "call a method with an Int list argument" in {
-//      val engine = getLeonScriptEngine
-//      engine.invokeFunction("io.leon.javascript.test.Tests.testMethodWithIntList")
-//      success
-      pending
-    }
-
-    "call a method with its original java types" in {
+    "support method calls with java types" in {
       val engine = getLeonScriptEngine
       engine.invokeFunction("io.leon.javascript.test.Tests.testMethodWithJavaType")
       success

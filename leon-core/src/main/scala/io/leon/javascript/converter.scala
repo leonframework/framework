@@ -6,23 +6,20 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.conversions
+package io.leon.javascript
 
 import sjson.json.Serializer.SJSON
 import dispatch.json._
 import java.lang.Boolean
 import org.mozilla.javascript.{Wrapper, Undefined, ScriptableObject}
 
-trait Converter {
+private[javascript] trait Converter {
 
   type RawMap = Map[String, _]
 
   def objectToMap(obj: AnyRef): RawMap
 
   def mapToObject[A <: AnyRef](map: RawMap, targetType: Class[A]): A
-
-
-  // --- JavaScript Objects to Java Map -------------
 
   def scriptableObjectToMap(obj: ScriptableObject): RawMap = {
     (obj.getAllIds map { id =>
@@ -32,8 +29,6 @@ trait Converter {
       case x => x
     }).toMap
   }
-
-  // --- Java Map to JavaScriptNativeObject ---------------
 
   def mapToScriptableObject(map: RawMap, obj: AnyRef): ScriptableObject = {
     new ScriptableObject() with Wrapper {
@@ -58,11 +53,7 @@ trait Converter {
     else mapToObject(scriptableObjectToMap(obj), targetType)
 }
 
-class SJSONConverter extends Converter {
-
-  def accept(clazz: Class[_]) = classOf[Any].isAssignableFrom(clazz)
-
-  // --- Java Objects to Java Map -------------------------
+private[javascript] class SJSONConverter extends Converter {
 
   def objectToMap(obj: AnyRef): RawMap = {
     val data = SJSON.out(obj)
@@ -80,8 +71,6 @@ class SJSONConverter extends Converter {
 
     jsValueToAnyRef(jsValue).asInstanceOf[RawMap]
   }
-
-  // --- Java Map to Java Object --------------------------
 
   def mapToObject[A <: AnyRef](map: RawMap, targetType: Class[A]): A = {
     SJSON.fromJSON(JsValue(map), Some(targetType))

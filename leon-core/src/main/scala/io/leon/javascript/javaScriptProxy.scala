@@ -8,11 +8,10 @@
  */
 package io.leon.javascript
 
-import io.leon.conversions._
 import org.mozilla.javascript._
 import java.lang.reflect.Method
 
-class JavaScriptProxy[T <: AnyRef](scope: Scriptable, obj: AnyRef, targetClass: Class[_]) extends NativeJavaObject(scope, obj, targetClass) {
+private[javascript] class JavaScriptProxy[T <: AnyRef](scope: Scriptable, obj: AnyRef, targetClass: Class[_]) extends NativeJavaObject(scope, obj, targetClass) {
 
   override def getClassName = "JavaScriptProxy"
 
@@ -33,19 +32,10 @@ class JavaScriptProxy[T <: AnyRef](scope: Scriptable, obj: AnyRef, targetClass: 
   }
 }
 
-class DispatchFunction(name: String, javaMethod: NativeJavaMethod, targetObject: AnyRef) extends BaseFunction with RhinoTypeConversions {
+private class DispatchFunction(name: String, javaMethod: NativeJavaMethod, targetObject: AnyRef) extends BaseFunction with RhinoTypeConversions {
 
   private val scope = javaMethod.getParentScope
-
   private val targetClass = targetObject.getClass
-
-  override def getArity = javaMethod.getArity
-
-  override def getLength = javaMethod.getLength
-
-  override def getFunctionName = javaMethod.getFunctionName
-
-  override def getDefaultValue(typeHint: Class[_]) = javaMethod.getDefaultValue(typeHint)
 
   setParentScope(scope)
   setPrototype(ScriptableObject.getFunctionPrototype(scope))
@@ -53,9 +43,7 @@ class DispatchFunction(name: String, javaMethod: NativeJavaMethod, targetObject:
   override def call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array[AnyRef]) = {
     val argTypes = Option(args).getOrElse(Array.empty) map { _.getClass }
 
-    // println("JavaScriptProxy.invoke: " + name + "(" + argTypes.mkString(", ") + ")")
-
-    def hasScriptableArgs =
+    def hasScriptableArg =
       argTypes exists { classOf[Scriptable].isAssignableFrom }
 
     def invokeMethod(method: Method, args: Array[AnyRef]) = {
@@ -63,7 +51,9 @@ class DispatchFunction(name: String, javaMethod: NativeJavaMethod, targetObject:
       cx.getWrapFactory.wrap(cx, scope, result, method.getReturnType)
     }
 
-    if(hasScriptableArgs) {
+    // println("JavaScriptProxy.invoke: " + name + "(" + argTypes.mkString(", ") + ")")
+
+    if(hasScriptableArg) {
       findObjectMethod(name, argTypes) map { m =>
         val convertedArgs =
           if (args == null) Array.empty[AnyRef]
@@ -81,9 +71,17 @@ class DispatchFunction(name: String, javaMethod: NativeJavaMethod, targetObject:
       m.getName == name && m.getParameterTypes.size == args.size
     }
   }
+
+  override def getArity = javaMethod.getArity
+
+  override def getLength = javaMethod.getLength
+
+  override def getFunctionName = javaMethod.getFunctionName
+
+  override def getDefaultValue(typeHint: Class[_]) = javaMethod.getDefaultValue(typeHint)
 }
 
-trait RhinoTypeConversions {
+private trait RhinoTypeConversions {
 
   val converter = new SJSONConverter
 
