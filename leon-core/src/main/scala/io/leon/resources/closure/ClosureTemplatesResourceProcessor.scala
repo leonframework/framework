@@ -40,7 +40,7 @@ class ClosureTemplatesResourceProcessor ()
 
     val res = sfs.compileToJsSrc(new SoyJsSrcOptions(), null)
 
-    println(res.asScala.head)
+    //println(res.asScala.head)
 
     stringToInputStream(res.asScala.head)
   }
