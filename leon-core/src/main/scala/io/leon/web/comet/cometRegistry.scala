@@ -34,7 +34,7 @@ class ClientConnection(val pageId: String,
       try {
         _uplink foreach { _.resume() }
       } catch {
-        case e: IllegalStateException => logger.warning("Cannot resume existing comet connection.")
+        case e: Exception => logger.warning("Cannot resume existing comet connection.")
       }
       _uplink = meteor
       if (meteor.isDefined) {
@@ -66,8 +66,7 @@ class ClientConnection(val pageId: String,
  
   private def sendPackage(msg: String): Boolean = {
     try {
-      // TODO check if None.forall(...) yields false
-      uplink forall { meteor =>
+      uplink map { meteor =>
         val res = meteor.getAtmosphereResource.getResponse
         val writer = res.getWriter
 
@@ -79,7 +78,7 @@ class ClientConnection(val pageId: String,
         writer.write(' ')
         res.flushBuffer()
         true
-      }
+      } getOrElse false
     } catch {
       case _ => false
     }
@@ -130,7 +129,7 @@ class CometRegistry {
 
   private val reconnectTimeout = 10 * 1000
 
-  private val disconnectTimeout = reconnectTimeout + 30 * 1000
+  private val disconnectTimeout = reconnectTimeout + 60 * 1000
 
   private val filter: List[BroadcastFilter] = List(new XSSHtmlFilter)
 
@@ -180,8 +179,14 @@ class CometRegistry {
     val id = sessionId + "__" + pageId
     logger.info("Adding Client comet connection: " + id)
     clients.clientByPageId(id) match {
-      case None => clients.add(new ClientConnection(id, Some(meteor)))
-      case Some(cc) => cc.uplink = Some(meteor)
+      case None => {
+        logger.info("Creating new client connection.")
+        clients.add(new ClientConnection(id, Some(meteor)))
+      }
+      case Some(cc) => {
+        logger.info("Updating existing client connection.")
+        cc.uplink = Some(meteor)
+      }
     }
     meteor.suspend(-1, true)
 

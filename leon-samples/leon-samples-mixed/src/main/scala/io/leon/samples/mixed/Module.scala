@@ -23,6 +23,11 @@ class Module extends AbstractLeonConfiguration {
     browser("person").linksToServer("person")
 
     server("leon.browser").linksToAllPages("leon")
+
+    // Comet example
+    loadFile("/io/leon/samples/mixed/comet.js")
+    browser("server.comet").linksToServer("comet")
+    server("browser.comet").linksToAllPages("comet")
   }
 
 }

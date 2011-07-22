@@ -50,3 +50,4 @@ class CometServlet @Inject()(cometHandler: CometHandler) extends AtmosphereServl
   }
 
 }
+

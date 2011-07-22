@@ -74,21 +74,21 @@ leon.comet = (function() {
         },
 
         start: function(url) {
-                // reset
-                prevDataLength = 0;
-                nextLine = 0;
+            // reset
+            prevDataLength = 0;
+            nextLine = 0;
 
-                http = this.createRequestObject();
-                http.open('get', url);
-                http.onreadystatechange = this.handleResponse;
-                http.send(null);
-                pollTimer = setInterval(this.handleResponse, 1 * 1000);
+            http = leon.comet.createRequestObject();
+            http.open('get', url);
+            http.onreadystatechange = leon.comet.handleResponse;
+            http.send(null);
+            pollTimer = setInterval(leon.comet.handleResponse, 1 * 1000);
         },
 
         connect: function() {
             clearInterval(pollTimer);
             var url = "/leon/comet/connect" + "?pageId=" + leon.pageId;
-            this.start(url);
+            leon.comet.start(url);
         }
     }
 

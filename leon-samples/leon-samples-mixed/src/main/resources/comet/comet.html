@@ -2,10 +2,19 @@
 <head>
     <title>Test Page</title>
     <#include "/io/leon/templates/commonjs.html" />
+    <script type="text/javascript">
+        var comet = {
+            ping: function(msg) {
+                $("#content").prepend("<div>" + msg + "</div>");
+            }
+        };
+    </script>
 </head>
 <body>
 
-<a href="#" onclick="leon.registerPage();">Active Uplink</a> <br/>
+<a href="#" onclick="leon.comet.connect();">Active Uplink</a> <br/>
+
+<a href="#" onclick="server.comet('startPing')(function() {});">Start Ping</a> <br/>
 
 <div>
     <ul id="content">
