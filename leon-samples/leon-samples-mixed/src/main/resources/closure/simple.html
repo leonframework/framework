@@ -3,32 +3,16 @@
   <title>The Hello World of Closure Templates</title>
   <script type="text/javascript" src="/leon/soyutils.js"></script>
   <script type="text/javascript" src="/closure/simple.js"></script>
+  <script type="text/javascript" src="/closure/default.js"></script>
   <script src="/leon/jquery.js" type="text/javascript"></script>
 
 
 </head>
 <body>
 <script type="text/javascript">
-
-
-  $(function() {
-    var content2 = $('#content');
-    //var content2 = "Jan";
-
-
-  });
-
-  document.write(leon.templates.default(
-    {content: "Inhalt"}
-  ));
-
-
-
+  document.write(leon.templates.default());
 </script>
 
-<div id="content">
-  wuasasasasas
-</div>
 
 
 </body>

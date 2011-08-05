@@ -112,13 +112,8 @@ http://www.eclipse.org/legal/epl-v10.html
 
     override def libraryDependencies =
       Set(specs2, logback_classic, logback_core, servletApi, freemarker, rhino,
-<<<<<<< HEAD
-        atmosphere_runtime, guice, guiceServlet, sjson, snakeYaml, 
-        casbah_core, h2database)
-=======
         atmosphere_runtime, guice, guiceServlet, sjson, snakeYaml,
         casbah_core, commonsBeanutils, commonsCollections, h2database)
->>>>>>> master
 
     override def packageSrcJar = defaultJarPath("-sources.jar")
     lazy val sourceArtifact = sources(artifactID) // lazy is important here!
