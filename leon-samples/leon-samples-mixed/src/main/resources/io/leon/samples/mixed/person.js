@@ -21,7 +21,9 @@ var person = (function() {
 
                 _id: person._id,
                 firstName: person.firstName,
-                lastName: person.lastName
+                lastName: person.lastName,
+                person: personService.doSomething(person),
+                pojo: personService.pojoPerson(person)
             };
         }
     };

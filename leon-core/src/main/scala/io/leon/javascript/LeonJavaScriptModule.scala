@@ -8,13 +8,16 @@
  */
 package io.leon.javascript
 
-import com.google.inject.AbstractModule
+import com.google.inject.PrivateModule
 
-class LeonJavaScriptModule extends AbstractModule {
+class LeonJavaScriptModule extends PrivateModule {
 
   def configure() {
+    bind(classOf[LeonWrapFactory]).asEagerSingleton()
     bind(classOf[LeonScriptEngine]).asEagerSingleton()
     bind(classOf[JavaScriptWebBindings]).asEagerSingleton()
+
+    expose(classOf[LeonScriptEngine])
   }
 
 }

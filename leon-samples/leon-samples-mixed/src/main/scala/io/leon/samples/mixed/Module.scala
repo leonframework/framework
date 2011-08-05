@@ -12,6 +12,8 @@ import io.leon.AbstractLeonConfiguration
 import io.leon.persistence.mongo.LeonMongoModule
 import io.leon.resources.coffeescript.CoffeeScriptModule
 import io.leon.resources.closure.ClosureTemplatesModule
+import com.google.inject.Inject
+import io.leon.javascript.LeonScriptEngine
 
 class Module extends AbstractLeonConfiguration {
 
@@ -19,12 +21,18 @@ class Module extends AbstractLeonConfiguration {
     install(new LeonMongoModule)
     install(new CoffeeScriptModule)
     install(new ClosureTemplatesModule)
+    bind(classOf[ModuleInit]).asEagerSingleton()
 
     loadFile("/io/leon/samples/mixed/person.js")
 
     browser("person").linksToServer("person")
+    browser("personService").linksToServer("personService")
 
     server("leon.browser").linksToAllPages("leon")
   }
 
+}
+
+class ModuleInit @Inject() (engine: LeonScriptEngine) {
+  engine.put("personService", new PersonService)
 }

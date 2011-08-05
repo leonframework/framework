@@ -27,8 +27,13 @@
             person("save")(5, ko.toJS(this), function(result) {
                 console.log("ajax call result firstname: " + result.firstName);
             });
-        }
+        },
 
+        this.doSomething = function() {
+           personService("doSomething")(ko.toJS(this), function(result) {
+              console.log("result of doSomething: " + result);
+           });
+        }
     };
     $(function() { ko.applyBindings(new ViewModel()) });
 </script>
@@ -65,7 +70,11 @@ Person:
             </td>
         </tr>
         <tr>
-            <td></td><td><a href="#" data-bind="click: savePerson">Send</a></td>
+            <td></td>
+           <td>
+             <a href="#" data-bind="click: savePerson">Send</a>
+             <a href="#" data-bind="click: doSomething">Call TestService</a>
+           </td>
         </tr>
     </table>
 </form>
