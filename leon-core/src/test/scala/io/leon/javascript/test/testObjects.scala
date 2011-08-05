@@ -14,6 +14,7 @@ case class NestedTestBean(a: String, b: Long) {
   private def this() = this("", 0)
 }
 
+
 class TestService {
 
   private var bean = TestBean("x", 1, NestedTestBean("a", 2))
@@ -38,11 +39,17 @@ class TestService {
     "Hello World"
   }
 
-  def methodWithList(list: Seq[TestBean]) = {
+  def methodWithList(list: Seq[TestBean]) {
     println(list.mkString(", "))
   }
 
-  def methodWithIntList(list: Seq[Int]) = {
+  def methodWithIntList(list: Seq[Int]) {
     println(list.mkString(", "))
+  }
+
+  def methodWithJavaTestBean(bean: JavaTestBean) = {
+    println(bean)
+    bean.setX("Hello world")
+    bean
   }
 }

@@ -62,6 +62,10 @@ class LeonParentProject(info: ProjectInfo) extends ParentProject(info) with Unpu
 
   def casbah_core = "com.mongodb.casbah" %% "casbah-core" % "2.1.5-1" withSources()
 
+  def commonsBeanutils = "commons-beanutils" % "commons-beanutils" % "1.8.3" withSources()
+
+  def commonsCollections = "commons-collections" % "commons-collections" % "3.2.1" withSources()
+
 
   // ===================================================================================================================
   // Publishing
@@ -109,7 +113,7 @@ http://www.eclipse.org/legal/epl-v10.html
     override def libraryDependencies =
       Set(specs2, logback_classic, logback_core, servletApi, freemarker, rhino,
         atmosphere_runtime, guice, guiceServlet, sjson, snakeYaml,
-        casbah_core, h2database)
+        casbah_core, commonsBeanutils, commonsCollections, h2database)
 
     override def packageSrcJar = defaultJarPath("-sources.jar")
     lazy val sourceArtifact = sources(artifactID) // lazy is important here!

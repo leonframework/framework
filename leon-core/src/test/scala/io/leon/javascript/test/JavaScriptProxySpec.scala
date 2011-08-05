@@ -29,7 +29,7 @@ class JavaScriptProxySpec extends Specification {
       success
     }
 
-    "automatically convert JavaScript objects to the corresponding type in method calls" in {
+    "automatically convert JavaScript objects to the corresponding 'case class' in method calls" in {
       val engine = getLeonScriptEngine
       engine.invokeFunction("io.leon.javascript.test.Tests.testSetBean")
       success
@@ -56,6 +56,12 @@ class JavaScriptProxySpec extends Specification {
     "invoke a method by calling method.apply(...)" in {
       val engine = getLeonScriptEngine
       engine.invokeFunction("io.leon.javascript.test.Tests.testApplyMethodCall")
+      success
+    }
+
+    "support method calls with Plain Old Java Object" in {
+      val engine = getLeonScriptEngine
+      engine.invokeFunction("io.leon.javascript.test.Tests.methodWithJavaTestBean")
       success
     }
   }

@@ -16,15 +16,14 @@ var person = (function() {
 
             leon.mongo.people.insert(person);
 
-            var calculated = personService.doSomething(person);
-
             return {
                 calls: calls++,
 
                 _id: person._id,
                 firstName: person.firstName,
                 lastName: person.lastName,
-                person: calculated
+                person: personService.doSomething(person),
+                pojo: personService.pojoPerson(person)
             };
         }
     };

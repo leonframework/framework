@@ -28,4 +28,11 @@ class PersonService {
     person.copy(lastName = person.lastName * 2)
   }
 
+  def pojoPerson(person: PojoPerson): PojoPerson = {
+    println("pojoPerson: " + person)
+    person.setFirstName("Hello World")
+
+    person
+  }
+
 }

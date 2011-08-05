@@ -10,7 +10,7 @@ package io.leon.javascript
 
 import org.mozilla.javascript.{Scriptable, Context, WrapFactory}
 
-class LeonWrapFactory extends WrapFactory {
+private[javascript] class LeonWrapFactory extends WrapFactory {
 
   private val excludedPackages =
      "java." ::

@@ -11,9 +11,36 @@ package io.leon.javascript
 import sjson.json.Serializer.SJSON
 import dispatch.json._
 import java.lang.Boolean
+import org.apache.commons.beanutils.{BeanUtilsBean, ConvertUtilsBean, BeanMap, Converter => BeanUtilsConverter}
 import org.mozilla.javascript.{Wrapper, Undefined, ScriptableObject}
 
-private[javascript] trait Converter {
+
+private[javascript] object Converter {
+
+  private val sjsonConverter = new SJSONConverter
+  private val pojoConverter = new PojoConverter
+
+  def javaToJs(obj: AnyRef) = {
+    val conv = getConverterForType(obj.getClass)
+    conv.mapToScriptableObject(conv.objectToMap(obj), obj)
+  }
+
+  def jsToJava[T <: AnyRef](obj: ScriptableObject, targetType: Class[T]) = {
+    if(targetType.isAssignableFrom(obj.getClass)) obj
+    else {
+      val conv = getConverterForType(targetType)
+      conv.mapToObject(conv.scriptableObjectToMap(obj), targetType)
+    }
+  }
+
+  private def getConverterForType(clazz: Class[_]) = {
+    if(classOf[Product].isAssignableFrom(clazz)) sjsonConverter
+    else pojoConverter
+  }
+
+}
+
+private trait Converter {
 
   type RawMap = Map[String, _]
 
@@ -44,13 +71,6 @@ private[javascript] trait Converter {
       }
     }
   }
-
-  def javaToJs(obj: AnyRef) =
-    mapToScriptableObject(objectToMap(obj), obj)
-
-  def jsToJava[T <: AnyRef](obj: ScriptableObject, targetType: Class[T]) =
-    if(targetType.isAssignableFrom(obj.getClass)) obj
-    else mapToObject(scriptableObjectToMap(obj), targetType)
 }
 
 private[javascript] class SJSONConverter extends Converter {
@@ -74,5 +94,44 @@ private[javascript] class SJSONConverter extends Converter {
 
   def mapToObject[A <: AnyRef](map: RawMap, targetType: Class[A]): A = {
     SJSON.fromJSON(JsValue(map), Some(targetType))
+  }
+}
+
+private class PojoConverter extends ConvertUtilsBean with Converter {
+  import scala.collection.JavaConverters._
+
+  private val utils = new BeanUtilsBean(this)
+
+  private val converter = new BeanUtilsConverter {
+    def convert(targetType: Class[_], obj: AnyRef) =  {
+      mapToObject(obj.asInstanceOf[RawMap],
+        targetType.asInstanceOf[Class[AnyRef]])
+    }
+  }
+
+  def objectToMap(obj: AnyRef) =  {
+
+    def canConvert(obj: AnyRef) =
+      ! (obj.getClass.getName startsWith "java.")
+
+    val beanMap =
+      new BeanMap(obj).asScala.toMap collect {
+        case (k, v: AnyRef) if canConvert(v) => k.toString -> objectToMap(v)
+        case (k, v) => k.toString -> v
+      }
+
+    beanMap - "class" // BeanMap adds an entry ('class', java.lang.Class) to the map, that we don't need!
+  }
+
+  def mapToObject[A <: AnyRef](map: RawMap, targetType: Class[A]) = {
+    val obj = targetType.newInstance()
+    utils.populate(obj, map.asJava)
+    obj
+  }
+
+  override def lookup(clazz: Class[_]) = {
+    val conv = super.lookup(clazz)
+    if(conv == null) converter
+    else conv
   }
 }

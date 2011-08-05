@@ -43,6 +43,14 @@ io.leon.javascript.test.Tests = (function() {
       };
 
       service.setTestBean.apply(service, [data]);
+    },
+
+    methodWithJavaTestBean: function() {
+      service.methodWithJavaTestBean({
+        "x": "test",
+        "y": 1,
+        "z": { "x": "test" }
+      });
     }
   };
 })();

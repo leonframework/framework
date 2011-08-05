@@ -11,6 +11,7 @@ package io.leon.javascript
 import org.mozilla.javascript._
 import java.lang.reflect.Method
 
+
 private[javascript] class JavaScriptProxy[T <: AnyRef](scope: Scriptable, obj: AnyRef, targetClass: Class[_]) extends NativeJavaObject(scope, obj, targetClass) {
 
   override def getClassName = "JavaScriptProxy"
@@ -18,7 +19,7 @@ private[javascript] class JavaScriptProxy[T <: AnyRef](scope: Scriptable, obj: A
   private val toJsonFunction =
     new BaseFunction with RhinoTypeConversions {
       override def call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array[AnyRef]) = {
-        converter.javaToJs(obj)
+        Converter.javaToJs(obj)
       }
     }
 
@@ -51,8 +52,6 @@ private class DispatchFunction(name: String, javaMethod: NativeJavaMethod, targe
       cx.getWrapFactory.wrap(cx, scope, result, method.getReturnType)
     }
 
-    // println("JavaScriptProxy.invoke: " + name + "(" + argTypes.mkString(", ") + ")")
-
     if(hasScriptableArg) {
       findObjectMethod(name, argTypes) map { m =>
         val convertedArgs =
@@ -83,10 +82,8 @@ private class DispatchFunction(name: String, javaMethod: NativeJavaMethod, targe
 
 private trait RhinoTypeConversions {
 
-  val converter = new SJSONConverter
-
   protected def jsToJava(m: Method): PartialFunction[(AnyRef, Class[_]), AnyRef] = {
-    case (arg: ScriptableObject, argType: Class[AnyRef]) => converter.jsToJava(arg, argType)
+    case (arg: ScriptableObject, argType: Class[AnyRef]) => Converter.jsToJava(arg, argType)
     case (arg: AnyRef, argType: Class[AnyRef]) => Context.jsToJava(arg, argType)
   }
 }
