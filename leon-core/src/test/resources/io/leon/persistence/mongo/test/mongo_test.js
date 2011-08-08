@@ -171,7 +171,7 @@ io.leon.persistence.mongo.test = (function() {
 
             var i = 0;
             spec_test.find().forEach(function(p) {
-                java.lang.System.out.println("Firstname: " + p.firstName);
+                var x = p.firstname;
                 i++;
             });
 
@@ -197,7 +197,7 @@ io.leon.persistence.mongo.test = (function() {
                 throw "expected " + spec_test.count() + " iterations but was " + i;
 
             for(var i=0; i < names.length; i++) {
-                java.lang.System.out.println(names[i]);
+                var x= names[i];
             }
 
             return true;

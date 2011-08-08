@@ -17,9 +17,9 @@ private[javascript] class JavaScriptProxy[T <: AnyRef](scope: Scriptable, obj: A
   override def getClassName = "JavaScriptProxy"
 
   private val toJsonFunction =
-    new BaseFunction with RhinoTypeConversions {
+    new BaseFunction {
       override def call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array[AnyRef]) = {
-        Converter.javaToJs(obj)
+        Converter.javaToJs(obj, scope)
       }
     }
 
@@ -33,7 +33,7 @@ private[javascript] class JavaScriptProxy[T <: AnyRef](scope: Scriptable, obj: A
   }
 }
 
-private class DispatchFunction(name: String, javaMethod: NativeJavaMethod, targetObject: AnyRef) extends BaseFunction with RhinoTypeConversions {
+private class DispatchFunction(name: String, javaMethod: NativeJavaMethod, targetObject: AnyRef) extends BaseFunction {
 
   private val scope = javaMethod.getParentScope
   private val targetClass = targetObject.getClass
@@ -54,9 +54,9 @@ private class DispatchFunction(name: String, javaMethod: NativeJavaMethod, targe
 
     if(hasScriptableArg) {
       findObjectMethod(name, argTypes) map { m =>
-        val convertedArgs =
+        val convertedArgs: Array[AnyRef] =
           if (args == null) Array.empty[AnyRef]
-          else (args zip m.getParameterTypes) collect { jsToJava(m) }
+          else (args zip m.getParameterTypes) collect { case (obj, argType: Class[AnyRef]) => Converter.jsToJava(obj, argType, m) }
 
         invokeMethod(m, convertedArgs)
 
@@ -79,13 +79,3 @@ private class DispatchFunction(name: String, javaMethod: NativeJavaMethod, targe
 
   override def getDefaultValue(typeHint: Class[_]) = javaMethod.getDefaultValue(typeHint)
 }
-
-private trait RhinoTypeConversions {
-
-  protected def jsToJava(m: Method): PartialFunction[(AnyRef, Class[_]), AnyRef] = {
-    case (arg: ScriptableObject, argType: Class[AnyRef]) => Converter.jsToJava(arg, argType)
-    case (arg: AnyRef, argType: Class[AnyRef]) => Context.jsToJava(arg, argType)
-  }
-}
-
-

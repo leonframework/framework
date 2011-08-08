@@ -50,7 +50,39 @@ io.leon.javascript.test.Tests = (function() {
         "x": "test",
         "y": 1,
         "z": { "x": "test" }
-      });
+      }).toJSON();
+    },
+
+    methodWithJavaList: function() {
+      var bean = {
+        "x": "test",
+        "y": 1,
+        "z": { "x": "test" }
+      };
+
+      var list = [bean, bean, bean];
+      var result = service.methodWithJavaList(list).toJSON();
+
+      if(result.length != list.length) throw "expected " + list.length + " but got " + result.length;
+
+      for(var i = 0; i < result.length; i++)
+        if(result[i].x != "test") throw "expected 'test' but got: " + result[i].x;
+    },
+
+    methodWithSeq: function() {
+      var bean = {
+        "x": "Hello World",
+        "y": 1,
+        "z": { "a": "abcdef", "b": 12389384 }
+      };
+
+      var list = [bean, bean, bean]
+      var result = service.methodWithSeq(list).toJSON();
+
+      if(result.length != list.length) throw "expected " + list.length + " but got " + result.length;
+
+      for(var i = 0; i < result.length; i++)
+        if(result[i].y != (bean.y + 1)) throw "expected " + (bean.y + 1) + " but got: " + result[i].y;
     }
   };
 })();

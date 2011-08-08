@@ -64,6 +64,18 @@ class JavaScriptProxySpec extends Specification {
       engine.invokeFunction("io.leon.javascript.test.Tests.methodWithJavaTestBean")
       success
     }
+
+    "suport method calls with java Lists" in {
+      val engine = getLeonScriptEngine
+      engine.invokeFunction("io.leon.javascript.test.Tests.methodWithJavaList")
+      success
+    }
+
+    "suport method calls with scala seq" in {
+      val engine = getLeonScriptEngine
+      engine.invokeFunction("io.leon.javascript.test.Tests.methodWithSeq")
+      success
+    }
   }
 }
 

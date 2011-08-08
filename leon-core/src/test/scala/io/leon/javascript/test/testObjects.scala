@@ -2,7 +2,7 @@ package io.leon.javascript.test
 
 import reflect.BeanInfo
 import java.lang.{Float, Short}
-import sun.security.util.DerEncoder
+
 
 @BeanInfo
 case class TestBean(x: String, y: Int, z: NestedTestBean) {
@@ -23,7 +23,6 @@ class TestService {
 
   def setTestBean(bean: TestBean) {
     this.bean = bean
-    println("setTestBean got: " + bean)
   }
 
   def methodWithNumericArgs(i: Int, l: Long, s: Short, b: Byte, f: Float, d: Double) = {
@@ -31,25 +30,29 @@ class TestService {
   }
 
   def methodWithDefaultArgs(bean: TestBean, x: Int = 2) {
-    println("bean: %s, x: %s".format(bean, x))
+
   }
 
   def methodWithString(s: String) = {
-    println("s = " + s)
     "Hello World"
   }
 
   def methodWithList(list: Seq[TestBean]) {
-    println(list.mkString(", "))
   }
 
   def methodWithIntList(list: Seq[Int]) {
-    println(list.mkString(", "))
   }
 
   def methodWithJavaTestBean(bean: JavaTestBean) = {
-    println(bean)
     bean.setX("Hello world")
     bean
+  }
+
+  def methodWithJavaList(list: java.util.List[JavaTestBean]) = {
+    list
+  }
+
+  def methodWithSeq(seq: Seq[TestBean]) = {
+    seq map { e => e.copy(y = e.y + 1) }
   }
 }
