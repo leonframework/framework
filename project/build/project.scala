@@ -34,7 +34,7 @@ class LeonParentProject(info: ProjectInfo) extends ParentProject(info) with Unpu
 
   def rhino = "rhino" % "js" % "1.7R2" withSources()
 
-  def sjson = "net.debasishg" % "sjson_2.8.1" % "0.9.1" withSources()
+  def sjson = "net.debasishg" %% "sjson" % "0.13" withSources()
 
   def freemarker = "org.freemarker" % "freemarker" % "2.3.18" withSources()
 
