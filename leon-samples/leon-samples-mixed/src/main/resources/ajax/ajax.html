@@ -10,32 +10,51 @@
 <script type="text/javascript">
     var ViewModel = function() {
 
-        this.firstName = ko.observable("John"),
+        this.firstName = ko.observable("John");
 
-        this.lastName = ko.observable("Doe"),
+        this.lastName = ko.observable("Doe");
 
         this.address = {
             zipcode: ko.observable("73728"),
-            city: ko.observable("Esslingen")
-        },
+            city: ko.observable("Esslingen"),
+            country: ko.observable()
+        };
 
         this.fullName = ko.dependentObservable(function() {
             return this.firstName() + " " + this.lastName();
         }, this);
 
+        this.hobbies = ko.observableArray([]);
+
+        this.hobbyToAdd = ko.observable("");
+
+        this.addHobby = function() {
+            if (this.hobbyToAdd() != "") {
+                this.hobbies.push(this.hobbyToAdd());
+                this.hobbyToAdd("");
+            }
+        };
+
         this.savePerson = function() {
             person("save")(5, ko.toJS(this), function(result) {
                 console.log("ajax call result firstname: " + result.firstName);
             });
-        },
+        };
 
         this.doSomething = function() {
            personService("doSomething")(ko.toJS(this), function(result) {
               console.log("result of doSomething: " + result);
            });
-        }
+        };
     };
-    $(function() { ko.applyBindings(new ViewModel()) });
+    $(function() {
+      personService("getCountries")(function(result) {
+        var viewModel = new ViewModel();
+        viewModel.countries = ko.observableArray(result);
+
+        ko.applyBindings(viewModel);
+      });
+    });
 </script>
 
 <a href="#" onclick="leon.comet.connect();">Active Uplink</a> <br/>
@@ -68,6 +87,20 @@ Person:
                 <input type="text" data-bind="value: address.zipcode" />
                 <input type="text" data-bind="value: address.city" />
             </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><select data-bind="options: countries, optionsText: 'name', value: address.country, optionsCaption: 'Choose...'"></select></td>
+        </tr>
+        <tr>
+          <td valign="top">Hobbies</td>
+          <td>
+              <input data-bind='value: hobbyToAdd, valueUpdate: "afterkeydown"' />
+              <button data-bind="click: addHobby, enable: hobbyToAdd().length > 0">Add</button>
+              <p>
+              <select data-bind="options: hobbies" multiple="multiple" size="5" style="width: 100%"> </select>
+              </p>
+          </td>
         </tr>
         <tr>
             <td></td>

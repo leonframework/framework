@@ -12,6 +12,7 @@ public class PojoAddress {
 
     private String zipcode;
     private String city;
+    private PojoCountry country;
 
     public String getZipcode() {
         return zipcode;
@@ -29,11 +30,20 @@ public class PojoAddress {
         this.city = city;
     }
 
+    public PojoCountry getCountry() {
+        return country;
+    }
+
+    public void setCountry(PojoCountry country) {
+        this.country = country;
+    }
+
     @Override
     public String toString() {
         return "PojoAddress{" +
                 "zipcode='" + zipcode + '\'' +
                 ", city='" + city + '\'' +
+                ", country=" + country +
                 '}';
     }
 }

@@ -8,11 +8,15 @@
  */
 package io.leon.samples.mixed;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PojoPerson {
 
     private String firstName;
     private String lastName;
     private PojoAddress address;
+    private List<String> hobbies;
 
     public String getFirstName() {
         return firstName;
@@ -38,12 +42,24 @@ public class PojoPerson {
         this.address = address;
     }
 
+    public List<String> getHobbies() {
+        if(hobbies == null)
+            hobbies = new ArrayList<String>();
+
+        return hobbies;
+    }
+
+    public void setHobbies(List<String> hobbies) {
+        this.hobbies = hobbies;
+    }
+
     @Override
     public String toString() {
         return "PojoPerson{" +
                 "firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", address='" + address + '\'' +
+                ", address=" + address +
+                ", hobbies=" + hobbies +
                 '}';
     }
 }

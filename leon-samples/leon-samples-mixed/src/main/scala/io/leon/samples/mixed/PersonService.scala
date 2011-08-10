@@ -11,16 +11,27 @@ package io.leon.samples.mixed
 import reflect.BeanInfo
 
 @BeanInfo
-case class Person(firstName: String, lastName: String, address: Address) {
+case class Person(firstName: String, lastName: String, address: Address, hobbies: Seq[String]) {
+  private def this() = this(null, null, null, null)
+}
+
+@BeanInfo
+case class Address(zipcode: String, city: String, country: Country) {
   private def this() = this(null, null, null)
 }
 
 @BeanInfo
-case class Address(zipcode: String, city: String) {
+case class Country(isoCode: String, name: String) {
   private def this() = this(null, null)
 }
 
 class PersonService {
+
+  def getCountries: Seq[Country] =
+    Country("de", "Germany") ::
+    Country("es", "Spain") ::
+    Country("fr", "France") ::
+    Country("nl", "Netherlands") :: Nil
 
   def doSomething(person: Person): Person = {
     println("doSomething got: " + person)
