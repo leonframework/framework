@@ -56,7 +56,7 @@ private class DispatchFunction(name: String, javaMethod: NativeJavaMethod, targe
       findObjectMethod(name, argTypes) map { m =>
         val convertedArgs: Array[AnyRef] =
           if (args == null) Array.empty[AnyRef]
-          else (args zip m.getParameterTypes) collect { case (obj, argType: Class[AnyRef]) => Converter.jsToJava(obj, argType, m) }
+          else (args zip m.getParameterTypes) collect { case (obj, argType: Class[AnyRef]) => Converter.jsToJava(obj, argType, Some(m)) }
 
         invokeMethod(m, convertedArgs)
 

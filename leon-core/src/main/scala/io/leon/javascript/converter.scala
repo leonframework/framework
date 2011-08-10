@@ -22,7 +22,7 @@ private[javascript] trait Converter {
 
   def javaToJs(obj: AnyRef, scope: Scriptable): AnyRef
 
-  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], method: Method): AnyRef
+  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method] = None): AnyRef
 }
 
 
@@ -40,7 +40,7 @@ private class SJSONConverter extends Converter with RawMapConversion {
       case JsString(s) => s
       case JsTrue => Boolean.TRUE
       case JsFalse => Boolean.FALSE
-      case JsArray(arr) => arr
+      case JsArray(arr) => arr map { jsValueToAnyRef }
       case JsNull => Undefined.instance
     }
 
@@ -48,7 +48,7 @@ private class SJSONConverter extends Converter with RawMapConversion {
     mapToScriptableObject(rawMap, obj, scope)
   }
 
-  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], method: Method): A = {
+  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method] = None): A = {
     require(js.isInstanceOf[ScriptableObject], "js is not an instance of ScriptableObject but " + js.getClass.getName)
 
     val rawMap = scriptableObjectToMap(js.asInstanceOf[ScriptableObject])
@@ -90,7 +90,7 @@ private class PojoConverter extends ConvertUtilsBean with Converter with RawMapC
     mapToScriptableObject(rawMap, obj, scope)
   }
 
-  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], method: Method) = {
+  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method] = None) = {
     require(js.isInstanceOf[ScriptableObject], "js is not an instance of ScriptableObject")
 
     mapToObject(scriptableObjectToMap(js.asInstanceOf[ScriptableObject]), targetType)
@@ -128,10 +128,10 @@ private class JCLConverter extends Converter with NativeArrayConversion {
     new NativeArray(jsSeq.toArray)
   }
 
-  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], method: Method) = {
+  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method] = None) = {
     require(js.isInstanceOf[NativeArray], "js is not an instance of NativeArray but" + js.getClass.getName)
 
-    val arr = toArray(js.asInstanceOf[NativeArray], targetType, method)
+    val arr = toArray(js.asInstanceOf[NativeArray], methodOption)
 
     if(targetType.isAssignableFrom(classOf[JList[_]])) arr.toList.asJava.asInstanceOf[A]
     else if (targetType.isAssignableFrom(classOf[JSet[_]])) arr.toSet.asJava.asInstanceOf[A]
@@ -155,10 +155,10 @@ private class ScalaCollectionConverter extends Converter with NativeArrayConvers
     new NativeArray(jsSeq.toArray)
   }
 
-  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], method: Method) = {
+  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method] = None) = {
     require(js.isInstanceOf[NativeArray], "js is not an instance of NativeArray but" + js.getClass.getName)
 
-    val arr = toArray(js.asInstanceOf[NativeArray], targetType, method)
+    val arr = toArray(js.asInstanceOf[NativeArray], methodOption)
 
     if(targetType.isAssignableFrom(classOf[Seq[_]])) arr.toSeq.asInstanceOf[A]
     else if (targetType.isAssignableFrom(classOf[Set[_]])) arr.toSet.asInstanceOf[A]
@@ -173,7 +173,7 @@ private class RhinoConverter extends Converter {
 
   def javaToJs(obj: AnyRef, scope: Scriptable) = Context.javaToJS(obj, scope)
 
-  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], method: Method) = Context.jsToJava(js, targetType)
+  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method] = None) = Context.jsToJava(js, targetType)
 }
 
 
@@ -195,11 +195,11 @@ private[javascript] object Converter extends Converter {
     }
   }
 
-  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], method: Method) = {
+  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method] = None) = {
     if(js == null || targetType.isAssignableFrom(js.getClass)) js
     else {
       val conv = getConverterForType(js, targetType)
-      conv.jsToJava(js, targetType, method)
+      conv.jsToJava(js, targetType, methodOption)
     }
   }
 
@@ -239,17 +239,18 @@ private[javascript] object Converter extends Converter {
 
 private trait NativeArrayConversion {
 
-  protected def toArray[A <: AnyRef](arg: NativeArray, argType: Class[A], method: Method) = {
-    // TODO Scala's AnyVal types result into java.lang.Object (scalap)
+  protected def toArray[A <: AnyRef](arg: NativeArray, methodOption: Option[Method] = None) = {
+    // TODO Scala's AnyVal types
 
     val actualType = {
       val _option = for {
+        method <- methodOption
         genericType <- method.getGenericParameterTypes.headOption
         paramType = genericType.asInstanceOf[ParameterizedType]
         actualType <- paramType.getActualTypeArguments.headOption
       } yield actualType.asInstanceOf[Class[AnyRef]]
 
-      _option getOrElse sys.error("raw type collections are not supported")
+      _option getOrElse classOf[AnyRef]
     }
 
 //    println("actualType: " + actualType.getName)
@@ -257,7 +258,7 @@ private trait NativeArrayConversion {
     for (id <- arg.getIds) yield {
       val index = id.asInstanceOf[Int]
       val elem = arg.get(index, null)
-      Converter.jsToJava(elem, actualType, method)
+      Converter.jsToJava(elem, actualType, methodOption)
     }
   }
 }
@@ -267,9 +268,21 @@ private trait RawMapConversion {
   type RawMap = Map[String, _]
 
   def scriptableObjectToMap(obj: ScriptableObject): RawMap = {
+
+    def toArray(arr: NativeArray): Array[AnyRef] =
+      for (id <- arr.getIds) yield {
+        val index = id.asInstanceOf[Int]
+        arr.get(index, null) match {
+          case a: NativeArray => toArray(a)
+          case so: ScriptableObject => scriptableObjectToMap(so)
+          case x => x
+        }
+      }
+
     (obj.getAllIds map { id =>
       id.toString -> obj.get(id.toString, obj)
     } collect {
+      case (k, v: NativeArray) => k -> toArray(v).toList
       case (k, v: ScriptableObject) => k -> scriptableObjectToMap(v)
       case x => x
     }).toMap
@@ -287,10 +300,12 @@ private trait RawMapConversion {
 
       map collect {
         case (k, v: RawMap) => k -> mapToScriptableObject(v, obj, this)
+        case (k, v: List[_]) => k -> Converter.javaToJs(v, scope)
         case x => x
       } foreach { case (k, v) =>
           defineProperty(k.toString, v, ScriptableObject.PERMANENT)
       }
     }
   }
+
 }
