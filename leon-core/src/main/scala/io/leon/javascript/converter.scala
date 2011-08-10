@@ -51,7 +51,20 @@ private class SJSONConverter extends Converter with RawMapConversion {
   def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method] = None): A = {
     require(js.isInstanceOf[ScriptableObject], "js is not an instance of ScriptableObject but " + js.getClass.getName)
 
-    val rawMap = scriptableObjectToMap(js.asInstanceOf[ScriptableObject])
+    def toList(arr: NativeArray): List[AnyRef] =
+      for (id <- arr.getIds.toList) yield {
+        val index = id.asInstanceOf[Int]
+        arr.get(index, null) match {
+          case a: NativeArray => toList(a)
+          case so: ScriptableObject => scriptableObjectToMap(so)
+          case x => x
+        }
+      }
+
+    val rawMap = scriptableObjectToMap(js.asInstanceOf[ScriptableObject]) collect {
+      case (k, v: NativeArray) => k -> toList(v)
+      case x => x
+    }
     SJSON.fromJSON(JsValue(rawMap), Some(targetType))
   }
 }
@@ -66,8 +79,10 @@ private class PojoConverter extends ConvertUtilsBean with Converter with RawMapC
 
   private val converter = new BeanUtilsConverter {
     def convert(targetType: Class[_], obj: AnyRef) =  {
-      mapToObject(obj.asInstanceOf[RawMap],
-        targetType.asInstanceOf[Class[AnyRef]])
+      obj match {
+        case map: RawMap => mapToObject(map, targetType.asInstanceOf[Class[AnyRef]])
+        case x => Converter.jsToJava(x, targetType.asInstanceOf[Class[AnyRef]])
+      }
     }
   }
 
@@ -80,7 +95,7 @@ private class PojoConverter extends ConvertUtilsBean with Converter with RawMapC
 
     val beanMap =
       new BeanMap(obj).asScala.toMap collect {
-        case (k, v: AnyRef) if canConvert(v) => k.toString -> javaToJs(v, scope)
+        case (k, v: AnyRef) if canConvert(v) => k.toString -> Converter.javaToJs(v, scope)
         case (k, v) => k.toString -> v
       }
 
@@ -228,7 +243,7 @@ private[javascript] object Converter extends Converter {
       }
       else rhinoConverter
 
-    // println("using converter %s for targetType %s / object %s".format(conv.getClass.getName, targetType.getName, obj.getClass.getName))
+//    println("using converter %s for targetType %s / object %s".format(conv.getClass.getName, targetType.getName, obj.getClass.getName))
 
     conv
   }
@@ -268,21 +283,10 @@ private trait RawMapConversion {
   type RawMap = Map[String, _]
 
   def scriptableObjectToMap(obj: ScriptableObject): RawMap = {
-
-    def toArray(arr: NativeArray): Array[AnyRef] =
-      for (id <- arr.getIds) yield {
-        val index = id.asInstanceOf[Int]
-        arr.get(index, null) match {
-          case a: NativeArray => toArray(a)
-          case so: ScriptableObject => scriptableObjectToMap(so)
-          case x => x
-        }
-      }
-
     (obj.getAllIds map { id =>
       id.toString -> obj.get(id.toString, obj)
     } collect {
-      case (k, v: NativeArray) => k -> toArray(v).toList
+      case (k, v: NativeArray) => k -> v
       case (k, v: ScriptableObject) => k -> scriptableObjectToMap(v)
       case x => x
     }).toMap
