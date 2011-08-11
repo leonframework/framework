@@ -1,10 +1,13 @@
 package io.leon.javascript.test;
 
+import java.util.Arrays;
+
 public class JavaTestBean {
 
     private String x;
     private int y;
     private JavaTestBean z;
+    private String[] xs;
 
     public JavaTestBean() {
         // necessary for mapper
@@ -39,12 +42,21 @@ public class JavaTestBean {
         this.z = z;
     }
 
+    public String[] getXs() {
+        return xs;
+    }
+
+    public void setXs(String[] xs) {
+        this.xs = xs;
+    }
+
     @Override
     public String toString() {
         return "JavaTestBean{" +
                 "x='" + x + '\'' +
                 ", y=" + y +
                 ", z=" + z +
+                ", xs=" + (xs == null ? null : Arrays.asList(xs)) +
                 '}';
     }
 }

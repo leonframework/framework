@@ -119,7 +119,7 @@ private class PojoConverter extends ConvertUtilsBean with Converter with RawMapC
 
   override def lookup(clazz: Class[_]) = {
     val conv = super.lookup(clazz)
-    if(conv == null) converter
+    if(clazz.isArray || conv == null) converter
     else conv
   }
 }
@@ -181,6 +181,35 @@ private class ScalaCollectionConverter extends Converter with NativeArrayConvers
   }
 }
 
+// ----------- Array Converter ----------------------------------------------
+
+private class ArrayConverter extends Converter with NativeArrayConversion {
+  import java.lang.reflect.{Array => ReflectArray }
+
+  def javaToJs(obj: AnyRef, scope: Scriptable) = {
+    require(obj.getClass.isArray, "obj is not an array but " + obj.getClass.getName)
+
+    val array = obj.asInstanceOf[Array[AnyRef]]
+    new NativeArray(array)
+  }
+
+  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method]) = {
+    require(js.isInstanceOf[NativeArray], "js is not an array but " + js.getClass.getName)
+
+    val jsArray = js.asInstanceOf[NativeArray]
+    val arrayType = targetType.getComponentType.asInstanceOf[Class[AnyRef]]
+
+    val array = {
+      // Do I really have to use reflection to build an array of an specific type (eg. String[]) ???
+      val _objArray = toArray(jsArray, arrayType)
+      val _array = ReflectArray.newInstance(arrayType, _objArray.length)
+      _objArray.zipWithIndex foreach { case (elem, index) => ReflectArray.set(_array, index, elem) }
+      _array
+    }
+
+    array
+  }
+}
 
 // ----------- Rhino's default java interop (LiveConnect 3) -----------------
 
@@ -201,6 +230,7 @@ private[javascript] object Converter extends Converter {
   private val pojoConverter = new PojoConverter
   private val scalaCollectionConverter = new ScalaCollectionConverter
   private val jclConverter = new JCLConverter
+  private val arrayConverter = new ArrayConverter
 
   def javaToJs(obj: AnyRef, scope: Scriptable): AnyRef = {
     if (obj == null || classOf[Scriptable].isAssignableFrom(obj.getClass)) obj
@@ -224,7 +254,8 @@ private[javascript] object Converter extends Converter {
     val conv =
       if(classOf[NativeArray].isAssignableFrom(obj.getClass)) {
         // from js array to java/scala collection
-        if(classOf[JCollection[_]].isAssignableFrom(targetType)) jclConverter
+        if(targetType.isArray) arrayConverter
+        else if(classOf[JCollection[_]].isAssignableFrom(targetType)) jclConverter
         else scalaCollectionConverter
       }
       else if(classOf[ScriptableObject].isAssignableFrom(obj.getClass)) {
@@ -235,7 +266,8 @@ private[javascript] object Converter extends Converter {
       else if(classOf[Scriptable].isAssignableFrom(targetType)) {
         // from pojo to js object
 
-        if(classOf[Iterable[_]].isAssignableFrom(obj.getClass)) scalaCollectionConverter
+        if(obj.getClass.isArray) arrayConverter
+        else if(classOf[Iterable[_]].isAssignableFrom(obj.getClass)) scalaCollectionConverter
         else if(classOf[JCollection[_]].isAssignableFrom(obj.getClass)) jclConverter
         else if(classOf[Product].isAssignableFrom(obj.getClass)) sjsonConverter
         else if(obj.getClass.getName.startsWith("java.lang.")) rhinoConverter
@@ -254,7 +286,18 @@ private[javascript] object Converter extends Converter {
 
 private trait NativeArrayConversion {
 
-  protected def toArray[A <: AnyRef](arg: NativeArray, methodOption: Option[Method] = None) = {
+  protected def toArray[A <: AnyRef](arg: NativeArray, targetType: Class[A])(implicit m: ClassManifest[A]): Array[A] = {
+    val seq: Seq[A] =
+      for (id <- arg.getIds) yield {
+        val index = id.asInstanceOf[Int]
+        val elem = arg.get(index, null)
+        Converter.jsToJava(elem, targetType, None).asInstanceOf[A]
+      }
+
+    seq.toArray[A]
+  }
+
+  protected def toArray(arg: NativeArray, methodOption: Option[Method] = None): Array[AnyRef] = {
     // TODO Scala's AnyVal types
 
     val actualType = {
@@ -268,13 +311,10 @@ private trait NativeArrayConversion {
       _option getOrElse classOf[AnyRef]
     }
 
-//    println("actualType: " + actualType.getName)
+//    println("actualType: " + targetType.getName)
 
-    for (id <- arg.getIds) yield {
-      val index = id.asInstanceOf[Int]
-      val elem = arg.get(index, null)
-      Converter.jsToJava(elem, actualType, methodOption)
-    }
+
+    toArray(arg, actualType)
   }
 }
 

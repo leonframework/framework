@@ -16,7 +16,8 @@ io.leon.javascript.test.Tests = (function() {
       service.setTestBean({
         "x": "Hello World",
         "y": 29322,
-        "z": { "a": "abcdef", "b": 12389384 }
+        "z": { "a": "abcdef", "b": 12389384 },
+        "xs": ["a", "b", "c"]
       });
     },
 
@@ -49,7 +50,8 @@ io.leon.javascript.test.Tests = (function() {
       service.methodWithJavaTestBean({
         "x": "test",
         "y": 1,
-        "z": { "x": "test" }
+        "z": { "x": "test" },
+        "xs": ["a", "b", "c"]
       }).toJSON();
     },
 
@@ -83,6 +85,14 @@ io.leon.javascript.test.Tests = (function() {
 
       for(var i = 0; i < result.length; i++)
         if(result[i].y != (bean.y + 1)) throw "expected " + (bean.y + 1) + " but got: " + result[i].y;
+    },
+
+    methodWithArray: function() {
+      var result = service.methodWithArray([1, 2, 3]);
+      if(result.length != 3) throw "expected 3 but got " + result.length;
+
+      for(var i=0; i < result.length; i++)
+        if(result[i] != (i + 2)) throw "expected " + (i + 2) + " but got " + result[i];
     }
   };
 })();

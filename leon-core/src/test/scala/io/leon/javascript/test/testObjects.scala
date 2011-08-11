@@ -5,8 +5,8 @@ import java.lang.{Float, Short}
 
 
 @BeanInfo
-case class TestBean(x: String, y: Int, z: NestedTestBean) {
-  private def this() = this("", 0, null)
+case class TestBean(x: String, y: Int, z: NestedTestBean, xs: Array[String]) {
+  private def this() = this("", 0, null, null)
 }
 
 @BeanInfo
@@ -17,7 +17,7 @@ case class NestedTestBean(a: String, b: Long) {
 
 class TestService {
 
-  private var bean = TestBean("x", 1, NestedTestBean("a", 2))
+  private var bean = TestBean("x", 1, NestedTestBean("a", 2), Array("a"))
 
   def getTestBean = bean
 
@@ -55,4 +55,9 @@ class TestService {
   def methodWithSeq(seq: Seq[TestBean]) = {
     seq map { e => e.copy(y = e.y + 1) }
   }
+
+  def methodWithArray(arr: Array[Int]) = {
+    arr map { _ + 1 }
+  }
+
 }
