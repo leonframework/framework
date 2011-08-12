@@ -45,8 +45,10 @@ class AjaxCallServlet @Inject()(injector: Injector) extends HttpServlet {
     val result = handler.jsonApply(member.substring(1), args)
 
     res.setContentType("application/json")
+    res.setCharacterEncoding("utf-8")
+
     val out = new BufferedOutputStream(res.getOutputStream)
-    out.write(result.getBytes)
+    out.write(result.getBytes("utf-8"))
     out.close()
   }
 

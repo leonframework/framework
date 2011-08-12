@@ -25,6 +25,12 @@ case class Country(isoCode: String, name: String) {
   private def this() = this(null, null)
 }
 
+@BeanInfo
+case class State(isoCode: String, name: String) {
+  private def this() = this(null, null)
+}
+
+
 class PersonService {
 
   def getCountries: Seq[Country] =
@@ -32,6 +38,9 @@ class PersonService {
     Country("es", "Spain") ::
     Country("fr", "France") ::
     Country("nl", "Netherlands") :: Nil
+
+  def getStates(countryCode: String) =
+    states.getOrElse(countryCode, Nil)
 
   def doSomething(person: Person): Person = {
     println("doSomething got: " + person)
@@ -46,4 +55,20 @@ class PersonService {
     person
   }
 
+  // --- sample data ---
+
+  private val states = Map(
+    "de" -> List(
+      State("de-bw", "Baden Württemberg"),
+      State("de-by", "Bayern"),
+      State("de-be", "Berlin")),
+    "es" -> List(
+      State("es-aa", "Andalucía"),
+      State("es-bb", "Castilla y León"),
+      State("es-cc", "Cataluña")),
+    "fr" -> List(
+      State("fr-aa", "Alsace"),
+      State("fr-bb", "Chanpagne-Ardenne"),
+      State("fr-cc", "Burgundy"))
+  )
 }

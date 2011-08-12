@@ -1,4 +1,3 @@
-
 <html>
 
 <head>
@@ -9,6 +8,7 @@
 
 <script type="text/javascript">
     var ViewModel = function() {
+        var self = this;
 
         this.firstName = ko.observable("John");
 
@@ -33,6 +33,16 @@
                 this.hobbies.push(this.hobbyToAdd());
                 this.hobbyToAdd("");
             }
+        };
+
+        this.states = ko.observableArray([]);
+
+        this.getStates = function() {
+          personService("getStates")(this.address.country().isoCode, function(newStates) {
+            self.states.removeAll();
+            for(var i=0; i < newStates.length; i++)
+              self.states.push(newStates[i]);
+          });
         };
 
         this.savePerson = function() {
@@ -90,7 +100,10 @@ Person:
         </tr>
         <tr>
           <td></td>
-          <td><select data-bind="options: countries, optionsText: 'name', value: address.country, optionsCaption: 'Choose...'"></select></td>
+          <td>
+            <select data-bind="options: countries, optionsText: 'name', value: address.country, optionsCaption: 'Choose...', event: { change: getStates }"></select>
+            <select data-bind="options: states, optionsText: 'name', value: address.state, optionsCaption: 'Choose...'"></select>
+          </td>
         </tr>
         <tr>
           <td valign="top">Hobbies</td>
