@@ -69,7 +69,9 @@ abstract class AbstractLeonConfiguration extends ServletModule {
   }
 
   def addInternalPath(clazz: Class[_]) {
-    addInternalPath("/" + clazz.getPackage.getName.replace('.', '/'))
+    val pckg = clazz.getPackage
+    if(pckg != null)
+      addInternalPath("/" + pckg.getName.replace('.', '/'))
   }
 
   // --- JavaScript methods -------------------------------

@@ -8,26 +8,14 @@
  */
 package io.leon.web
 
-/*
- * Copyright 2011 Weigle Wilczek GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import com.google.inject.Guice
 import com.google.inject.servlet.GuiceFilter
 import javax.servlet.FilterConfig
 import io.leon.{LeonModule, AbstractLeonConfiguration}
+import java.io.File
+import scala.io.Source
+import org.mozilla.javascript.{NativeJavaObject, Context}
+
 
 class LeonFilter extends GuiceFilter {
 
@@ -35,11 +23,54 @@ class LeonFilter extends GuiceFilter {
 
   override def init(filterConfig: FilterConfig) {
     val moduleName = filterConfig.getInitParameter("module")
-    val moduleClass = classLoader.loadClass(moduleName).asInstanceOf[Class[AbstractLeonConfiguration]]
 
-    Guice.createInjector(new LeonModule, moduleClass.newInstance())
+    val module =
+      if(moduleName.endsWith(".js")) loadModuleFromJavaScript(moduleName)
+      else classLoader.loadClass(moduleName).asInstanceOf[Class[AbstractLeonConfiguration]].newInstance()
+
+    Guice.createInjector(new LeonModule, module)
     
     super.init(filterConfig)
+  }
+
+  private def loadModuleFromJavaScript(filename: String): AbstractLeonConfiguration = {
+
+    val configBody = {
+      val _configFile = new File(filename).getAbsoluteFile
+      val _src = Source.fromFile(_configFile)
+      val _lines =
+        for {
+          line <- _src.getLines()
+          trimmedLine = line.trim
+        } yield trimmedLine match {
+          case "" => trimmedLine
+          case s if s.startsWith("//") => s
+          // TODO: support multi line comments
+          case s => "this." + s
+        }
+
+      _lines mkString "\n"
+    }
+
+    val jsConfig =
+      """
+      var module = {
+          config: function() {
+             %s
+          }
+      };
+      new Packages.io.leon.AbstractLeonConfiguration(module);
+      """.format(configBody)
+
+    // println(jsConfig)
+
+    val ctx = Context.enter()
+    val rhinoScope = ctx.initStandardObjects()
+    val jsObject = ctx.evaluateString(rhinoScope, jsConfig, filename, 1, null).asInstanceOf[NativeJavaObject]
+    val javaObject = jsObject.unwrap()
+    Context.exit()
+
+    javaObject.asInstanceOf[AbstractLeonConfiguration]
   }
 
 }
