@@ -36,7 +36,7 @@ class ResourceWatcher @Inject()(resourceLoader: ResourceLoader) {
             Thread.sleep(Interval)
           }
         }
-      }).start()
+      }, "ResourceWatcher").start()
     }
   }
 
