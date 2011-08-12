@@ -9,6 +9,7 @@
 package io.leon
 
 import javascript.{LeonScriptEngine, JavaScriptAjaxHandlerProvider}
+import resources.{FileSystemResourceLocation, ResourceLocation}
 import web.ajax.AjaxHandler
 import web.comet._
 import collection.mutable
@@ -16,6 +17,7 @@ import com.google.inject._
 import name.Names
 import servlet.ServletModule
 import web.resources.InternalPathFilter
+import java.io.File
 
 abstract class AbstractLeonConfiguration extends ServletModule {
 
@@ -49,6 +51,15 @@ abstract class AbstractLeonConfiguration extends ServletModule {
         engine.loadResources(javaScriptFilesToLoad.toList)
       }
     })
+  }
+
+  // --- Resources ----------------------------------------
+
+  def addLocation(path: String) {
+    val name = "%s[%s]".format(classOf[FileSystemResourceLocation].getName, path)
+    val res = new FileSystemResourceLocation(new File(path))
+
+    bind(classOf[ResourceLocation]).annotatedWith(Names.named(name)).toInstance(res)
   }
 
   // --- Internal URL methods -----------------------------

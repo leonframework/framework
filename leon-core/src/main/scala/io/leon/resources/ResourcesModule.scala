@@ -9,7 +9,6 @@
 package io.leon.resources
 
 import closure.ClosureTemplatesModule
-import coffeescript.CoffeeScriptResourceProcessor
 import com.google.inject._
 import freemarker.{LeonFreeMarkerTemplateLoader, FreeMarkerProcessor}
 import name.Names
@@ -29,6 +28,13 @@ class ResourcesModule extends AbstractModule {
     bind(classOf[LeonFreeMarkerTemplateLoader]).asEagerSingleton()
     bind(classOf[NoOpResourceProcessor]).asEagerSingleton()
     bind(classOf[ResourceProcessorRegistry]).asEagerSingleton()
+    bind(classOf[ResourceWatcher]).asEagerSingleton()
+
+    requestInjection(new Object {
+      @Inject def init(watcher: ResourceWatcher) {
+        watcher.start()
+      }
+    })
   }
 }
 

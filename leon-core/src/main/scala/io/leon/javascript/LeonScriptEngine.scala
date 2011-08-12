@@ -8,14 +8,15 @@
  */
 package io.leon.javascript
 
-import io.leon.resources.ResourceLoader
 import com.google.inject.{Injector, Inject}
 import java.io.InputStreamReader
 import java.lang.IllegalArgumentException
 
 import org.mozilla.javascript.{ScriptableObject, Context, Function => RhinoFunction}
+import io.leon.resources.{ResourceWatcher, ResourceLoader}
 
-class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader, wrapFactory: LeonWrapFactory) {
+class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader,
+                                 resourceWatcher: ResourceWatcher, wrapFactory: LeonWrapFactory) {
 
   //private val logger = Logger.getLogger(getClass.getName)
 
@@ -39,6 +40,10 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
   def loadResource(fileName: String) {
     withContext { ctx =>
       val resource = resourceLoader.getInputStream(fileName)
+
+      // TODO: Only watch in 'development mode'
+      resourceWatcher.watch(fileName, loadResource _)
+
       val reader = new InputStreamReader(resource)
       ctx.evaluateReader(rhinoScope, reader, fileName, 1, null)
     }
