@@ -23,7 +23,7 @@ class Module extends AbstractLeonConfiguration {
     install(new ClosureTemplatesModule)
     bind(classOf[ModuleInit]).asEagerSingleton()
 
-    addLocation("./WebContent")
+    addLocation("leon-samples/leon-samples-mixed/WebContent")
 
     loadFile("/io/leon/samples/mixed/person.js")
 
