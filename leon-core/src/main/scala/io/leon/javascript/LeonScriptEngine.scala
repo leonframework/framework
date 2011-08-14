@@ -29,7 +29,7 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
   loadResource("/io/leon/leon.js")
   loadResource("/leon/leon-shared.js")
 
-  private def withContext[A](block: Context => A): A = {
+  private[javascript] def withContext[A](block: Context => A): A = {
     val ctx = Context.enter()
     ctx.setWrapFactory(wrapFactory)
     val result = block(ctx)

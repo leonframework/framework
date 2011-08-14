@@ -2,6 +2,7 @@
 var person = (function() {
 
     var calls = 0;
+    var personService = new Packages.io.leon.samples.mixed.PersonService;
 
     return {
         save: function(no, person) {

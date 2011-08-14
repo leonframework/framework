@@ -8,7 +8,7 @@
  */
 package io.leon
 
-import javascript.{LeonScriptEngine, JavaScriptAjaxHandlerProvider}
+import javascript.{LeonScriptEngine, JavaObjectAjaxHandlerProvider, JavaScriptAjaxHandlerProvider}
 import resources.{FileSystemResourceLocation, ResourceLocation}
 import web.ajax.AjaxHandler
 import web.comet._
@@ -89,6 +89,11 @@ abstract class AbstractLeonConfiguration extends ServletModule {
     def linksToServer(serverName: String) {
       bind(classOf[AjaxHandler]).annotatedWith(Names.named(browserName)).toProvider(
         new JavaScriptAjaxHandlerProvider(serverName)).asEagerSingleton()
+    }  
+    
+    def linksToServerObject[A <: AnyRef](obj: A) {
+      bind(classOf[AjaxHandler]).annotatedWith(Names.named(browserName)).toProvider(
+        new JavaObjectAjaxHandlerProvider(obj)).asEagerSingleton()
     }
   }
 
