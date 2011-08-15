@@ -85,13 +85,12 @@ abstract class AbstractLeonConfiguration extends ServletModule {
   def browser(browserName: String) = new {
     def linksToServer() {
       linksToServer(browserName)
-    }
+    }    
     def linksToServer(serverName: String) {
       bind(classOf[AjaxHandler]).annotatedWith(Names.named(browserName)).toProvider(
         new JavaScriptAjaxHandlerProvider(serverName)).asEagerSingleton()
-    }  
-    
-    def linksToServerObject[A <: AnyRef](obj: A) {
+    }          
+    def linksToServer[A <: AnyRef](obj: A) {
       bind(classOf[AjaxHandler]).annotatedWith(Names.named(browserName)).toProvider(
         new JavaObjectAjaxHandlerProvider(obj)).asEagerSingleton()
     }

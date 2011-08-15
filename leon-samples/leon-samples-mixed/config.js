@@ -11,7 +11,7 @@ loadFile("/io/leon/samples/mixed/person.js");
 
 // ajax support
 browser("person").linksToServer("person");
-browser("personService").linksToServerObject(new Packages.io.leon.samples.mixed.PersonService);
+browser("personService").linksToServer(new Packages.io.leon.samples.mixed.PersonService);
 
 // comet support
 server("leon.browser").linksToAllPages("leon");
