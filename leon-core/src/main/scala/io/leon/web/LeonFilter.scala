@@ -8,13 +8,14 @@
  */
 package io.leon.web
 
-import com.google.inject.Guice
 import com.google.inject.servlet.GuiceFilter
 import javax.servlet.FilterConfig
-import io.leon.{LeonModule, AbstractLeonConfiguration}
 import java.io.File
 import scala.io.Source
 import org.mozilla.javascript.{NativeJavaObject, Context}
+import io.leon.{AbstractLeonConfiguration, LeonModule}
+import com.google.inject.Guice
+import java.lang.reflect.Method
 
 
 class LeonFilter extends GuiceFilter {
@@ -25,7 +26,7 @@ class LeonFilter extends GuiceFilter {
     val moduleName = filterConfig.getInitParameter("module")
 
     val module =
-      if(moduleName.endsWith(".js")) loadModuleFromJavaScript(moduleName)
+      if(moduleName.endsWith(".js")) loadModuleFromJavaScript(new File(moduleName))
       else classLoader.loadClass(moduleName).asInstanceOf[Class[AbstractLeonConfiguration]].newInstance()
 
     Guice.createInjector(new LeonModule, module)
@@ -33,36 +34,50 @@ class LeonFilter extends GuiceFilter {
     super.init(filterConfig)
   }
 
-  private def loadModuleFromJavaScript(filename: String): AbstractLeonConfiguration = {
+  def loadModuleFromJavaScript(file: File): AbstractLeonConfiguration = {
+    val js = Source.fromFile(file.getAbsoluteFile).getLines mkString "\n"
 
-    val configBody = {
-      val _configFile = new File(filename).getAbsoluteFile
-      val _src = Source.fromFile(_configFile)
-      val _lines =
-        for {
-          line <- _src.getLines()
-          trimmedLine = line.trim
-        } yield trimmedLine match {
-          case "" => trimmedLine
-          case s if s.startsWith("//") => s
-          // TODO: support multi line comments
-          case s => "this." + s
-        }
+    loadModuleFromJavaScript(file.getName, js)
+  }
 
-      _lines mkString "\n"
+  def loadModuleFromJavaScript(filename: String, js: String): AbstractLeonConfiguration = {
+
+    // contains the names of all methods which are relevant for module configuration code.
+    val methodNames: Set[String] = {
+      import java.lang.reflect.Modifier._
+
+      def getMethods(clazz: Class[_]): Set[Method] = {
+        val superclass = clazz.getSuperclass
+        if(superclass == null) clazz.getDeclaredMethods.toSet
+        else if (superclass == classOf[Object]) clazz.getDeclaredMethods.toSet
+        else clazz.getDeclaredMethods.toSet ++ getMethods(clazz.getSuperclass)
+      }
+
+      for {
+        method <- getMethods(classOf[AbstractLeonConfiguration])
+        modifiers = method.getModifiers if isPublic(modifiers) || isProtected(modifiers)
+        name = method.getName if !(name contains "$") // ignore special 'scala' methods
+      } yield name
     }
+
+    val forwardMethods = methodNames map { name =>
+      "var %s = function() { return self.%s.apply(self, arguments); }".format(name, name)
+    } mkString "\n"
 
     val jsConfig =
       """
       var module = {
           config: function() {
+             var self = this;
+             %s
+
              %s
           }
       };
       new Packages.io.leon.AbstractLeonConfiguration(module);
-      """.format(configBody)
+      """.format(forwardMethods, js)
 
-    // println(jsConfig)
+//    println(jsConfig)
 
     val ctx = Context.enter()
     val rhinoScope = ctx.initStandardObjects()
