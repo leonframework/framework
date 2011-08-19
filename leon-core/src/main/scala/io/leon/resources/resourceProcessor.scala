@@ -19,7 +19,7 @@ trait ResourceProcessor {
 
   def toFileEnding: String
 
-  def transform(in: Resource): Resource
+  def process(in: Resource): Resource
 
   protected def inputStreamToString(stream: InputStream): String = {
       val br = new BufferedReader(new InputStreamReader(stream))
@@ -46,7 +46,7 @@ class NoOpResourceProcessor @Inject()(freeMarker: FreeMarkerProcessor) extends R
 
   def toFileEnding = ""
 
-  def transform(in: Resource) = {
+  def process(in: Resource) = {
     if (in.name.endsWith("html")) {
       freeMarker.transform(in)
     } else {

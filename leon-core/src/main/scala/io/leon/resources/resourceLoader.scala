@@ -33,7 +33,7 @@ class ResourceLoader @Inject()(injector: Injector,
       val fileNameForProcessor = resourceProcessorRegistry.replaceFileNameEndingForProcessor(processor, fileName)
       for (rl <- resourceLocations) {
         rl.getProvider.get().getResource(fileNameForProcessor) match {
-          case Some(res) => return Some(processor.transform(res))
+          case Some(res) => return Some(processor.process(res))
           case None => None
         }
       }

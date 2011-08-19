@@ -11,7 +11,7 @@ package io.leon.resources.freemarker
 import com.google.inject.Inject
 import freemarker.template.{Template, Configuration}
 import java.io._
-import io.leon.resources.{StreamResource, Resource}
+import io.leon.resources.Resource
 
 class FreeMarkerProcessor @Inject()(templateLoader: LeonFreeMarkerTemplateLoader) {
   import scala.collection.JavaConverters._
@@ -24,7 +24,7 @@ class FreeMarkerProcessor @Inject()(templateLoader: LeonFreeMarkerTemplateLoader
     "bb" -> Map("cc" -> 2).asJava
   )
 
-  def transform(in: Resource) =  {
+  def transform(in: Resource) =  new Resource(in.name, () => {
     val tpl = new Template(in.name, new InputStreamReader(in.getInputStream), configuration)
 
     val out = new ByteArrayOutputStream
@@ -32,7 +32,6 @@ class FreeMarkerProcessor @Inject()(templateLoader: LeonFreeMarkerTemplateLoader
 
     tpl.process(data.asJava, writer);
 
-    val stream = new ByteArrayInputStream(out.toByteArray)
-    new StreamResource(in.name, stream)
-  }
+    new ByteArrayInputStream(out.toByteArray)
+  })
 }

@@ -9,7 +9,6 @@
 package io.leon.resources
 
 import java.io.{FileInputStream, File, InputStream}
-import java.net.URL
 
 
 trait ResourceLocation {
@@ -22,15 +21,15 @@ class ClassLoaderResourceLocation extends ResourceLocation {
   def getResource(fileName: String): Option[Resource] = {
     val try1 = Thread.currentThread().getContextClassLoader.getResource(fileName)
     if (try1 != null) {
-      return Some(new URLResource(fileName, try1))
+      return Some(new Resource(fileName, () => try1.openStream()))
     }
     val try2 = getClass.getResource(fileName)
     if (try2 != null) {
-      return Some(new URLResource(fileName, try2))
+      return Some(new Resource(fileName, () => try2.openStream()))
     }
     val try3 = getClass.getClassLoader.getResource(fileName)
     if (try3 != null) {
-      return Some(new URLResource(fileName, try3))
+      return Some(new Resource(fileName, () => try3.openStream()))
     }
     None
   }
@@ -47,35 +46,18 @@ class FileSystemResourceLocation(val baseDir: File) extends ResourceLocation {
   def getResource(fileName: String) = {
     val file = new File(baseDir, fileName)
 
-    if(file.exists() && file.canRead) Some(new FileResource(fileName, file))
+    if(file.exists() && file.canRead) Some(new Resource(fileName, () => file.lastModified(), () => new FileInputStream(file)))
     else None
   }
 }
 
-abstract class Resource(val name: String) {
+class Resource(val name: String, lastModifiedFunc: () => Long, streamFunc: () => InputStream) {
 
-  def lastModified: Long
+  def this(name: String, streamFunc: () => InputStream) = this(name, () => 0, streamFunc)
 
-  def getInputStream: InputStream
+  def lastModified = lastModifiedFunc.apply()
+
+  def getInputStream = streamFunc.apply()
 }
 
-class URLResource(name: String, url: URL) extends Resource(name) {
 
-  def lastModified = 0
-
-  def getInputStream = url.openStream()
-}
-
-class FileResource(name: String, file: File) extends Resource(name) {
-
-  def lastModified = file.lastModified()
-
-  def getInputStream = new FileInputStream(file)
-}
-
-class StreamResource(name: String, in: InputStream) extends Resource(name) {
-
-  def lastModified = 0
-
-  def getInputStream = in
-}
