@@ -8,17 +8,11 @@
  */
 package io.leon.resources.closure
 
-/*
- * Copyright (c) 2011 WeigleWilczek and others.
- * 
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
+
 import com.google.template.soy.jssrc.SoyJsSrcOptions
-import io.leon.resources.{StreamResource, Resource, ResourceProcessor}
+import io.leon.resources.{Resource, ResourceProcessor}
 import com.google.template.soy.{SoyFileSet, SoyToJsSrcCompiler}
+import collection.JavaConverters
 
 class ClosureTemplatesResourceProcessor ()
   extends ResourceProcessor {
@@ -27,9 +21,9 @@ class ClosureTemplatesResourceProcessor ()
 
   def toFileEnding = "js"
 
-  def transform(in: Resource) = {
+  def process(in: Resource) = new Resource(in.name, () => {
 
-    import scala.collection.JavaConverters._
+    import JavaConverters._
 
     // Bundle the given Soy file into a SoyFileSet
     val inStr = inputStreamToString(in.getInputStream)
@@ -39,8 +33,7 @@ class ClosureTemplatesResourceProcessor ()
 
     //println(res.asScala.head)
 
-    val stream = stringToInputStream(res.asScala.head)
-    new StreamResource(in.name, stream)
-  }
+    stringToInputStream(res.asScala.head)
+  })
 
 }

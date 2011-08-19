@@ -44,7 +44,7 @@ class ResourceLoader @Inject()(injector: Injector,
           case Some(res) => {
 
             val fileFromCache: File = getOrTransformResource(res, fileNameForProcessor, cacheLocation, processor)
-            return Some(new FileResource(fileName, fileFromCache))
+            return Some(new Resource(fileName, () => fileFromCache.lastModified(), () => new FileInputStream(fileFromCache)))
           }
           case None => None
         }
@@ -69,7 +69,7 @@ class ResourceLoader @Inject()(injector: Injector,
       doTransform = true
 
     if (doTransform) {
-      val processedRes = processor.transform(res)
+      val processedRes = processor.process(res)
 
       //TODO get os seperator
       val dir = fileNameInCache.take(fileNameInCache.lastIndexOf("/"))
