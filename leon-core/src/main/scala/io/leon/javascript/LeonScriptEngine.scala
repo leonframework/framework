@@ -39,12 +39,12 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
 
   def loadResource(fileName: String) {
     withContext { ctx =>
-      val resource = resourceLoader.getInputStream(fileName)
+      val resource = resourceLoader.getResource(fileName)
 
       // TODO: Only watch in 'development mode'
       resourceWatcher.watch(fileName, loadResource _)
 
-      val reader = new InputStreamReader(resource)
+      val reader = new InputStreamReader(resource.getInputStream)
       ctx.evaluateReader(rhinoScope, reader, fileName, 1, null)
     }
   }

@@ -16,12 +16,9 @@ package io.leon.resources.closure
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-import io.leon.resources.ResourceProcessor
-import java.io.{ByteArrayInputStream, File, InputStream}
-import com.google.template.soy.{SoyToJsSrcCompiler, SoyFileSet}
-import com.google.template.soy.tofu.SoyTofu
+import com.google.template.soy.SoyToJsSrcCompiler
 import com.google.template.soy.jssrc.SoyJsSrcOptions
-
+import io.leon.resources.{StreamResource, Resource, ResourceProcessor}
 
 class ClosureTemplatesResourceProcessor ()
   extends ResourceProcessor {
@@ -30,19 +27,20 @@ class ClosureTemplatesResourceProcessor ()
 
   def toFileEnding = "js"
 
-  def transform(fileName: String, in: InputStream) = {
+  def transform(in: Resource) = {
 
     import scala.collection.JavaConverters._
 
     // Bundle the given Soy file into a SoyFileSet
-    val inStr = inputStreamToString(in)
-    val sfs = (new SoyFileSet.Builder()).add(inStr,fileName).build()
+    val inStr = inputStreamToString(in.getInputStream)
+    val sfs = (new SoyFileSet.Builder()).add(inStr,in.name).build()
 
     val res = sfs.compileToJsSrc(new SoyJsSrcOptions(), null)
 
     //println(res.asScala.head)
 
-    stringToInputStream(res.asScala.head)
+    val stream = stringToInputStream(res.asScala.head)
+    new StreamResource(in.name, stream)
   }
 
 }

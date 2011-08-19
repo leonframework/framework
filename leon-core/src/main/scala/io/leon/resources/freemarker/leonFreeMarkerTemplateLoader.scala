@@ -29,8 +29,8 @@ class LeonFreeMarkerTemplateLoader@Inject()(resourceLoaderProvider: Provider[Res
   private lazy val resourceLoader = resourceLoaderProvider.get()
 
   def findTemplateSource(name: String): AnyRef = {
-    resourceLoader.getInputStreamOption(name) match {
-      case Some(i) => FoundResource(name, i)
+    resourceLoader.getResourceOption(name) match {
+      case Some(res) => FoundResource(name, res.getInputStream)
       case None => null
     }
   }

@@ -21,7 +21,7 @@ class ResourceWatcher @Inject()(resourceLoader: ResourceLoader) {
   private val watchedFiles = new mutable.HashMap[Resource, Value] with mutable.SynchronizedMap[Resource, Value]
 
   def watch(filename: String, action: (String) => Unit) {
-    for (res <- resourceLoader.getResource(filename)) {
+    for (res <- resourceLoader.getResourceOption(filename)) {
       watchedFiles += res -> (res.lastModified, action)
     }
   }
