@@ -16,9 +16,9 @@ package io.leon.resources.closure
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-import com.google.template.soy.SoyToJsSrcCompiler
 import com.google.template.soy.jssrc.SoyJsSrcOptions
 import io.leon.resources.{StreamResource, Resource, ResourceProcessor}
+import com.google.template.soy.{SoyFileSet, SoyToJsSrcCompiler}
 
 class ClosureTemplatesResourceProcessor ()
   extends ResourceProcessor {
