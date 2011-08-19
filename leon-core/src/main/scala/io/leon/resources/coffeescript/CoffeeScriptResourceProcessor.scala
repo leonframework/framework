@@ -22,7 +22,7 @@ class CoffeeScriptResourceProcessor @Inject()(leonScriptEngineProvider: Provider
 
   def toFileEnding = "js"
 
-  def transform(in: Resource) = {
+  def transform(in: Resource) = synchronized {
     val inStr = inputStreamToString(in.getInputStream)
     val cs = leonScriptEngine.invokeFunction("CoffeeScript.compile", inStr)
     val stream = stringToInputStream(cs.toString)
