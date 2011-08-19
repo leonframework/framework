@@ -14,12 +14,14 @@ import java.io.File
 import scala.io.Source
 import org.mozilla.javascript.{NativeJavaObject, Context}
 import io.leon.{AbstractLeonConfiguration, LeonModule}
-import com.google.inject.Guice
 import java.lang.reflect.Method
+import com.google.inject.{Injector, Guice}
+import io.leon.resources.ResourceWatcher
 
 
 class LeonFilter extends GuiceFilter {
 
+  private var injector: Injector = _
   private val classLoader = Thread.currentThread.getContextClassLoader
 
   override def init(filterConfig: FilterConfig) {
@@ -29,9 +31,14 @@ class LeonFilter extends GuiceFilter {
       if(moduleName.endsWith(".js")) loadModuleFromJavaScript(new File(moduleName))
       else classLoader.loadClass(moduleName).asInstanceOf[Class[AbstractLeonConfiguration]].newInstance()
 
-    Guice.createInjector(new LeonModule, module)
+    injector = Guice.createInjector(new LeonModule, module)
     
     super.init(filterConfig)
+  }
+
+  override def destroy() {
+    injector.getInstance(classOf[ResourceWatcher]).stop()
+    super.destroy()
   }
 
   def loadModuleFromJavaScript(file: File): AbstractLeonConfiguration = {
