@@ -10,8 +10,7 @@ package io.leon.resources
 
 import com.google.inject._
 import java.lang.RuntimeException
-import java.util.Date
-import java.io.{FileOutputStream, FileInputStream, InputStream, File}
+import java.io.{FileInputStream, File}
 import org.apache.commons.io.FileUtils
 import scala.io.Source
 import scala.collection.JavaConversions._
@@ -33,6 +32,7 @@ class ResourceLoader @Inject()(injector: Injector,
   }
 
   def getResourceOption(fileName: String): Option[Resource] = {
+    //TODO make cache location configurable
     val cacheLocation = System.getProperty("java.io.tmpdir")
     //System.out.println("Cache is at: " + cacheLocation)
 
@@ -71,8 +71,7 @@ class ResourceLoader @Inject()(injector: Injector,
     if (doTransform) {
       val processedRes = processor.process(res)
 
-      //TODO get os seperator
-      val dir = fileNameInCache.take(fileNameInCache.lastIndexOf("/"))
+      val dir = fileNameInCache.take(fileNameInCache.lastIndexOf(File.separator))
 
       System.out.println("Creating dir " + dir)
       new File(dir).mkdirs()
