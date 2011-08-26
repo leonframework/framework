@@ -70,7 +70,7 @@ class ResourceWatcher @Inject()(resourceLoader: ResourceLoader) {
   }
 
   private def executePendingActions() {
-    logger.debug("Executing {} pending actions", pendingActions.size)
+    logger.debug("Executing {} pending action(s)", pendingActions.size)
 
     // make sure we execute all actions in the same order they were added.
     val sortedActions = pendingActions sortWith { _._3 < _._3 }
