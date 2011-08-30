@@ -36,3 +36,6 @@ runner
 # This project
 scalaee*.log
 
+# Sphinx
+docs/_build
+
