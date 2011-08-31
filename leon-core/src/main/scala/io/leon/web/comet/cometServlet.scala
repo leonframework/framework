@@ -14,7 +14,7 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import javax.servlet.ServletConfig
 import org.atmosphere.cpr.AtmosphereServlet
 import org.atmosphere.handler.ReflectorServletProcessor
-
+  
 class CometHandler @Inject()(registry: CometRegistry) extends HttpServlet {
 
   private val logger = Logger.getLogger(getClass.getName)

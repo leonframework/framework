@@ -73,17 +73,20 @@ class BrowserJsFileServlet @Inject()(injector: Injector) extends HttpServlet {
     leon.utils.createVar("%s");
     %s = function (methodName) {
       return function() {
-        var argLength = arguments.length - 1;
-        var args = Array(argLength);
-        for (var i = 0; i < argLength; i++) {
-          args[i] = arguments[i];
-        }
-        var callback = arguments[arguments.length - 1];
+        // convert arguments to array
+        var args = Array.prototype.slice.call(arguments);
 
-        leon.call("%s." + methodName, args, callback);
+        // check if last argument is the callback function
+        var callback = args[args.length - 1];
+        if (typeof callback === 'function') {
+          var params = args.slice(0, args.length - 1);
+          leon.call("%s." + methodName, params, callback);
+        } else {
+          leon.call("%s." + methodName, args, function() {});
+        }
       };
     }
-    """.format(name, name, name)
+    """.format(name, name, name, name)
   }
 
 }
