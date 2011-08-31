@@ -8,10 +8,9 @@
  */
 package io.leon.resources.coffeescript
 
-import io.leon.resources.ResourceProcessor
-import java.io.InputStream
 import io.leon.javascript.LeonScriptEngine
 import com.google.inject.{Provider, Inject}
+import io.leon.resources.{Resource, ResourceProcessor}
 
 class CoffeeScriptResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScriptEngine])
   extends ResourceProcessor {
@@ -22,10 +21,11 @@ class CoffeeScriptResourceProcessor @Inject()(leonScriptEngineProvider: Provider
 
   def toFileEnding = "js"
 
-  def transform(fileName: String, in: InputStream) = {
-    val inStr = inputStreamToString(in)
-    val cs = leonScriptEngine.invokeFunction("CoffeeScript.compile", inStr)
-    stringToInputStream(cs.toString)
-  }
+  def process(in: Resource) = new Resource(in.name, () =>
+    synchronized {
+      val inStr = inputStreamToString(in.getInputStream)
+      val cs = leonScriptEngine.invokeFunction("CoffeeScript.compile", inStr)
+      stringToInputStream(cs.toString)
+    })
 
 }

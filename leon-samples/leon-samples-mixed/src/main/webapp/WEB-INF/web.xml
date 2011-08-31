@@ -10,7 +10,7 @@
         <async-supported>true</async-supported>
         <init-param>
             <param-name>module</param-name>
-            <param-value>io.leon.samples.mixed.Module</param-value>
+            <param-value>leon-samples/leon-samples-mixed/config.js</param-value>
         </init-param>
     </filter>
 

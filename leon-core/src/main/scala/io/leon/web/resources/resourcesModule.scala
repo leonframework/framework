@@ -57,14 +57,15 @@ class ResourcesServlet @Inject()(resourceLoader: ResourceLoader) extends HttpSer
 
   private def doResource(req: HttpServletRequest, res: HttpServletResponse, path: String) {
     val out = res.getOutputStream
-    resourceLoader.getInputStreamOption(path) match {
+    resourceLoader.getResourceOption(path) match {
       case Some(resource) => {
         setResponseContentType(req, res)
+        val stream = resource.getInputStream
         val buffer = new Array[Byte](1024)
         var bytesRead = 0
         while (bytesRead != -1) {
           out.write(buffer, 0, bytesRead)
-          bytesRead = resource.read(buffer)
+          bytesRead = stream.read(buffer)
         }
       }
       case None => {

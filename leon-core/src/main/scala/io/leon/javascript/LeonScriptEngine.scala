@@ -8,17 +8,19 @@
  */
 package io.leon.javascript
 
-import java.io.InputStreamReader
-import io.leon.resources.ResourceLoader
 import com.google.inject.{Injector, Inject}
-import org.mozilla.javascript.{NativeObject, ScriptableObject, Context, Function => RhinoFunction}
+import java.io.InputStreamReader
 import java.lang.IllegalArgumentException
 
-class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader) {
+import org.mozilla.javascript.{ScriptableObject, Context, Function => RhinoFunction}
+import io.leon.resources.{Resource, ResourceWatcher, ResourceLoader}
+
+class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader,
+                                 resourceWatcher: ResourceWatcher, wrapFactory: LeonWrapFactory) {
 
   //private val logger = Logger.getLogger(getClass.getName)
 
-  private val rhinoScope = withContext { _.initStandardObjects() }
+  val rhinoScope = withContext { _.initStandardObjects() }
 
   put("injector", injector)
 
@@ -27,19 +29,28 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
   loadResource("/io/leon/leon.js")
   loadResource("/leon/leon-shared.js")
 
-  private def withContext[A](block: Context => A): A = {
+  private[javascript] def withContext[A](block: Context => A): A = {
     val ctx = Context.enter()
+    ctx.setWrapFactory(wrapFactory)
     val result = block(ctx)
     Context.exit()
     result
   }
 
   def loadResource(fileName: String) {
-    withContext { ctx =>
-      val resource = resourceLoader.getInputStream(fileName)
-      val reader = new InputStreamReader(resource)
-      ctx.evaluateReader(rhinoScope, reader, fileName, 1, null)
+
+    def _loadResource(resource: Resource) {
+      withContext { ctx =>
+        val reader = new InputStreamReader(resource.getInputStream)
+        ctx.evaluateReader(rhinoScope, reader, fileName, 1, null)
+      }
     }
+
+    val resource = resourceLoader.getResource(fileName)
+    // TODO: Only watch in 'development mode'
+    resourceWatcher.watch(resource, _loadResource _)
+
+    _loadResource(resource)
   }
 
   def loadResource(fileName: String, optimizationLevel: Int) {

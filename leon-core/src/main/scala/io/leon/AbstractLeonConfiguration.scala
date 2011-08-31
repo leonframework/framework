@@ -8,7 +8,8 @@
  */
 package io.leon
 
-import javascript.{LeonScriptEngine, JavaScriptAjaxHandlerProvider}
+import javascript.{LeonScriptEngine, JavaObjectAjaxHandlerProvider, JavaScriptAjaxHandlerProvider}
+import resources.{FileSystemResourceLocation, ResourceLocation}
 import web.ajax.AjaxHandler
 import web.comet._
 import collection.mutable
@@ -16,6 +17,7 @@ import com.google.inject._
 import name.Names
 import servlet.ServletModule
 import web.resources.InternalPathFilter
+import java.io.File
 
 abstract class AbstractLeonConfiguration extends ServletModule {
 
@@ -26,6 +28,8 @@ abstract class AbstractLeonConfiguration extends ServletModule {
   val internalPaths = new mutable.ArrayBuffer[String]
 
   var addModulePackageToInternalPaths = true
+
+  var baseDirOption: Option[File] = None
 
   def config()
 
@@ -51,6 +55,25 @@ abstract class AbstractLeonConfiguration extends ServletModule {
     })
   }
 
+  // --- Resources ----------------------------------------
+
+  def setBaseDir(baseDir: String) {
+    baseDirOption = Some(new File(baseDir).getAbsoluteFile)
+  }
+
+  def addLocation(path: String) {
+    val name = "%s[%s]".format(classOf[FileSystemResourceLocation].getName, path)
+
+    val filePath = new File(path)
+    val file =
+      if(filePath.isAbsolute) filePath
+      else baseDirOption map { baseDir => new File(baseDir, path) } getOrElse filePath
+
+    val res = new FileSystemResourceLocation(file)
+
+    bind(classOf[ResourceLocation]).annotatedWith(Names.named(name)).toInstance(res)
+  }
+
   // --- Internal URL methods -----------------------------
 
   def addInternalPath(path: String) {
@@ -58,7 +81,9 @@ abstract class AbstractLeonConfiguration extends ServletModule {
   }
 
   def addInternalPath(clazz: Class[_]) {
-    addInternalPath("/" + clazz.getPackage.getName.replace('.', '/'))
+    val pckg = clazz.getPackage
+    if(pckg != null)
+      addInternalPath("/" + pckg.getName.replace('.', '/'))
   }
 
   // --- JavaScript methods -------------------------------
@@ -72,10 +97,14 @@ abstract class AbstractLeonConfiguration extends ServletModule {
   def browser(browserName: String) = new {
     def linksToServer() {
       linksToServer(browserName)
-    }
+    }    
     def linksToServer(serverName: String) {
       bind(classOf[AjaxHandler]).annotatedWith(Names.named(browserName)).toProvider(
         new JavaScriptAjaxHandlerProvider(serverName)).asEagerSingleton()
+    }          
+    def linksToServer[A <: AnyRef](obj: A) {
+      bind(classOf[AjaxHandler]).annotatedWith(Names.named(browserName)).toProvider(
+        new JavaObjectAjaxHandlerProvider(obj)).asEagerSingleton()
     }
   }
 

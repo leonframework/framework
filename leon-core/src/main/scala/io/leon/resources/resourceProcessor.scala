@@ -19,10 +19,10 @@ trait ResourceProcessor {
 
   def toFileEnding: String
 
-  def transform(fileName: String, in: InputStream): InputStream
+  def process(in: Resource): Resource
 
   protected def inputStreamToString(stream: InputStream): String = {
-    val br = new BufferedReader(new InputStreamReader(stream))
+      val br = new BufferedReader(new InputStreamReader(stream))
     val sb = new StringBuilder
     var line: String = br.readLine()
 
@@ -38,7 +38,6 @@ trait ResourceProcessor {
   protected def stringToInputStream(string: String): InputStream = {
     new ByteArrayInputStream(string.getBytes)
   }
-
 }
 
 class NoOpResourceProcessor @Inject()(freeMarker: FreeMarkerProcessor) extends ResourceProcessor {
@@ -47,9 +46,9 @@ class NoOpResourceProcessor @Inject()(freeMarker: FreeMarkerProcessor) extends R
 
   def toFileEnding = ""
 
-  def transform(fileName: String, in: InputStream) = {
-    if (fileName.endsWith("html")) {
-      freeMarker.transform(fileName: String, in)
+  def process(in: Resource) = {
+    if (in.name.endsWith("html")) {
+      freeMarker.transform(in)
     } else {
       in
     }
@@ -87,7 +86,4 @@ class ResourceProcessorRegistry @Inject()(injector: Injector, noOpProcessor: NoO
     val processors = resourceProcessors.getOrElse(ending, new mutable.ListBuffer)
     processors.toList ::: noOpProcessor :: Nil
   }
-
-
-
 }
