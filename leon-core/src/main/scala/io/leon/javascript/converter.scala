@@ -129,9 +129,11 @@ private class PojoConverter extends ConvertUtilsBean with Converter with RawMapC
 
 private class JCLConverter extends Converter with NativeArrayConversion {
   import java.util.{ Collection => JCollection, List => JList, Set => JSet }
+  import java.util.{ ArrayList => JArrayList, LinkedList => JLinkedList, Vector => JVector }
+  import java.util.{ HashSet => JHashSet, TreeSet => JTreeSet, LinkedHashSet => JLinkedHashSet }
   import scala.collection.JavaConverters._
 
-  // TODO: Support maps and concrete collection types (e.g. ArrayList)
+  // TODO: Support maps
 
   def javaToJs(obj: AnyRef, scope: Scriptable) = {
     require(obj.isInstanceOf[JCollection[_]], "obj is not an instance of java.util.Collection but " + obj.getClass.getName)
@@ -148,8 +150,18 @@ private class JCLConverter extends Converter with NativeArrayConversion {
 
     val arr = toArray(js.asInstanceOf[NativeArray], methodOption)
 
-    if(targetType.isAssignableFrom(classOf[JList[_]])) arr.toList.asJava.asInstanceOf[A]
-    else if (targetType.isAssignableFrom(classOf[JSet[_]])) arr.toSet.asJava.asInstanceOf[A]
+    def is(clazz: Class[_]) = targetType.isAssignableFrom(clazz)
+
+    if(is(classOf[JList[_]])) arr.toList.asJava.asInstanceOf[A]
+    else if (is(classOf[JSet[_]])) arr.toSet.asJava.asInstanceOf[A]
+    // concrete java.util.Lists
+    else if(is(classOf[JArrayList[_]])) new JArrayList(arr.toList.asJava)
+    else if(is(classOf[JLinkedList[_]])) new JLinkedList(arr.toList.asJava)
+    else if(is(classOf[JVector[_]])) new JVector(arr.toList.asJava)
+    // concrete java.util.Sets
+    else if(is(classOf[JHashSet[_]])) new JHashSet(arr.toList.asJava)
+    else if(is(classOf[JTreeSet[_]])) new JTreeSet(arr.toList.asJava)
+    else if(is(classOf[JLinkedHashSet[_]])) new JLinkedHashSet(arr.toList.asJava)
     else sys.error("unsupported java collection type: " + targetType.getName)
   }
 }

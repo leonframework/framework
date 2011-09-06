@@ -13,7 +13,6 @@ import org.mozilla.javascript.{Scriptable, Context, WrapFactory}
 private[javascript] class LeonWrapFactory extends WrapFactory {
 
   private val excludedPackages =
-     "java." ::
      "com.google.inject." ::
      "org.mozilla.javascript." :: Nil
 
