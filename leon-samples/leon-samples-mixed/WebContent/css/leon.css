@@ -8,7 +8,6 @@ a:hover {
 }
 
 body {
-  background-color: #e7792b;
   margin-left: auto;
   margin-right: auto;
   width: 960px;
@@ -25,12 +24,17 @@ ul {
   padding-left: 1em;
 }
 
-#topArea, #centerArea, #bottomArea {
+
+#content, #header, #sidebar, #bottomArea {
   background-color: white;
   margin-top: 1em;
   padding: 1em;
-  -moz-border-radius: 0.5em;
-  -webkit-border-radius: 0.5em;
+  -moz-border-radius: 0.2em;
+  -webkit-border-radius: 0.2em;
+}
+
+#header {
+  margin-top: 20px;
 }
 
 #topArea {
@@ -59,9 +63,17 @@ ul {
   text-align: center;
 }
 
-#input {
-  height: 2.1em;
+#inputText {
+  height: 2em;
   padding: 0.2em;
   width: 99%;
+  font-size: 20px;
+
+   -moz-border-radius: 0.5em;
+  -webkit-border-radius: 0.5em;
+}
+
+.message {
+  font-size: 16px;
 }
 
