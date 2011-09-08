@@ -1,0 +1,27 @@
+Short intro to Leon's documentation
+===================================
+
+Install Sphinx (http://sphinx.pocoo.org/):
+
+1. Install Python 2.4 or higher (if not already installed)
+2. As admin run the following command: easy_install -U Sphinx
+3. Make sure you have installed make (xCode on Mac)
+4. Done.       
+
+
+Generating html documentation
+-----------------------------
+
+* make html
+
+The output can be found in the _build directory.
+
+
+Generating pdf documentation
+----------------------------
+
+* Install pdflatex (mac: http://www.tug.org/mactex/2011/)
+* run: make latexpdf
+
+If you get missing packages errors, install them (as admin) with:
+tlmgr install {package name}
