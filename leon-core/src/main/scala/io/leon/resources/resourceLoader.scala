@@ -57,42 +57,22 @@ class ResourceLoader @Inject()(injector: Injector,
     val fileNameInCache: String = cacheLocation + fileNameForProcessor
 
     val cachedFile = new File(fileNameInCache)
-    var doTransform = false
 
-    if (cachedFile.exists()) {
-      //System.out.println("File exists " + fileNameInCache)
-
-      if (res.lastModified > cachedFile.lastModified())
-        doTransform = true
-    }
-    else
-      doTransform = true
-
-    if (doTransform) {
+    if (!cachedFile.exists() || res.lastModified > cachedFile.lastModified()) {
       val processedRes = processor.process(res)
 
       val dir = fileNameInCache.take(fileNameInCache.lastIndexOf(File.separator))
 
-      System.out.println("Creating dir " + dir)
-      new File(dir).mkdirs()
-      System.out.println("Creating File " + fileNameInCache)
-
-      val newFile = new File(fileNameInCache)
-
-      val lines = Source.fromInputStream(processedRes.getInputStream).getLines().toList
+      if (!new File(dir).exists())
+        new File(dir).mkdirs()
 
       //System.out.println("Writing " + fileName + " to cache ....")
-      FileUtils.writeLines(newFile, lines)
-
+      FileUtils.writeLines(new File(fileNameInCache), Source.fromInputStream(processedRes.getInputStream).getLines().toList)
       //System.out.println("Written " + fileName + " to cache ....")
-    }
-    else {
-      //System.out.println("Serving " + fileName + " from cache ....")
     }
 
     cachedFile
   }
-
 }
 
 
