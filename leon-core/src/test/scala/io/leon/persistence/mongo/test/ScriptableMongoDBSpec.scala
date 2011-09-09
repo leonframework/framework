@@ -43,5 +43,9 @@ class ScriptableMongoDBSpec extends MongoSpecification {
     "Query with regular expression" in {
       invokeJsTest("regex_find") must beTrue
     }
+
+    "Storing and querying arrays/lists" in {
+      invokeJsTest("arrays") must beTrue
+    }
   }
 }
