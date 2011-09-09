@@ -1,6 +1,7 @@
 package io.leon.web
 
 import org.specs2.mutable.Specification
+import java.io.File
 
 
 class LeonFilterSpec extends Specification {
@@ -37,7 +38,7 @@ class LeonFilterSpec extends Specification {
     "load a module configuration from javascript" in {
       val filter = new LeonFilter
 
-      filter.loadModuleFromJavaScript("<LeonFilterSpec>", JsConfig)
+      filter.loadModuleFromJavaScript("<LeonFilterSpec>", JsConfig, new File("test"))
       success
     }
 

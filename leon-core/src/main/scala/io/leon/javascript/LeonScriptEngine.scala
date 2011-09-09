@@ -13,7 +13,7 @@ import java.io.InputStreamReader
 import java.lang.IllegalArgumentException
 
 import org.mozilla.javascript.{ScriptableObject, Context, Function => RhinoFunction}
-import io.leon.resources.{ResourceWatcher, ResourceLoader}
+import io.leon.resources.{Resource, ResourceWatcher, ResourceLoader}
 
 class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader,
                                  resourceWatcher: ResourceWatcher, wrapFactory: LeonWrapFactory) {
@@ -38,15 +38,19 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
   }
 
   def loadResource(fileName: String) {
-    withContext { ctx =>
-      val resource = resourceLoader.getResource(fileName)
 
-      // TODO: Only watch in 'development mode'
-      resourceWatcher.watch(fileName, loadResource _)
-
-      val reader = new InputStreamReader(resource.getInputStream)
-      ctx.evaluateReader(rhinoScope, reader, fileName, 1, null)
+    def _loadResource(resource: Resource) {
+      withContext { ctx =>
+        val reader = new InputStreamReader(resource.getInputStream)
+        ctx.evaluateReader(rhinoScope, reader, fileName, 1, null)
+      }
     }
+
+    val resource = resourceLoader.getResource(fileName)
+    // TODO: Only watch in 'development mode'
+    resourceWatcher.watch(resource, _loadResource _)
+
+    _loadResource(resource)
   }
 
   def loadResource(fileName: String, optimizationLevel: Int) {

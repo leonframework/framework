@@ -14,12 +14,15 @@ import java.io.File
 import scala.io.Source
 import org.mozilla.javascript.{NativeJavaObject, Context}
 import io.leon.{AbstractLeonConfiguration, LeonModule}
-import com.google.inject.Guice
 import java.lang.reflect.Method
+import com.google.inject.{Injector, Guice}
+import io.leon.resources.ResourceWatcher
+import org.slf4j.LoggerFactory
 
 
 class LeonFilter extends GuiceFilter {
 
+  private var injector: Injector = _
   private val classLoader = Thread.currentThread.getContextClassLoader
 
   override def init(filterConfig: FilterConfig) {
@@ -29,18 +32,28 @@ class LeonFilter extends GuiceFilter {
       if(moduleName.endsWith(".js")) loadModuleFromJavaScript(new File(moduleName))
       else classLoader.loadClass(moduleName).asInstanceOf[Class[AbstractLeonConfiguration]].newInstance()
 
-    Guice.createInjector(new LeonModule, module)
+    injector = Guice.createInjector(new LeonModule, module)
     
     super.init(filterConfig)
   }
 
-  def loadModuleFromJavaScript(file: File): AbstractLeonConfiguration = {
-    val js = Source.fromFile(file.getAbsoluteFile).getLines mkString "\n"
-
-    loadModuleFromJavaScript(file.getName, js)
+  override def destroy() {
+    injector.getInstance(classOf[ResourceWatcher]).stop()
+    super.destroy()
   }
 
-  def loadModuleFromJavaScript(filename: String, js: String): AbstractLeonConfiguration = {
+  def loadModuleFromJavaScript(file: File): AbstractLeonConfiguration = {
+    val absoluteFile = file.getAbsoluteFile
+
+    val js = Source.fromFile(absoluteFile).getLines mkString "\n"
+
+    loadModuleFromJavaScript(file.getName, js, absoluteFile.getParentFile)
+  }
+
+  def loadModuleFromJavaScript(filename: String, js: String, baseDir: File): AbstractLeonConfiguration = {
+
+    logger.info("loading leon configuration from {}", filename)
+    logger.info("Base directory is {}", baseDir.getAbsolutePath)
 
     // contains the names of all methods which are relevant for module configuration code.
     val methodNames: Set[String] = {
@@ -71,13 +84,14 @@ class LeonFilter extends GuiceFilter {
              var self = this;
              %s
 
+             setBaseDir('%s');
              %s
           }
       };
       new Packages.io.leon.AbstractLeonConfiguration(module);
-      """.format(forwardMethods, js)
+      """.format(forwardMethods, baseDir.getAbsolutePath, js)
 
-//    println(jsConfig)
+    // logger.debug("generated js config: {}", jsConfig)
 
     val ctx = Context.enter()
     val rhinoScope = ctx.initStandardObjects()
@@ -88,4 +102,5 @@ class LeonFilter extends GuiceFilter {
     javaObject.asInstanceOf[AbstractLeonConfiguration]
   }
 
+  private val logger = LoggerFactory.getLogger(this.getClass)
 }

@@ -29,6 +29,8 @@ abstract class AbstractLeonConfiguration extends ServletModule {
 
   var addModulePackageToInternalPaths = true
 
+  var baseDirOption: Option[File] = None
+
   def config()
 
   override def configureServlets() {
@@ -55,9 +57,19 @@ abstract class AbstractLeonConfiguration extends ServletModule {
 
   // --- Resources ----------------------------------------
 
+  def setBaseDir(baseDir: String) {
+    baseDirOption = Some(new File(baseDir).getAbsoluteFile)
+  }
+
   def addLocation(path: String) {
     val name = "%s[%s]".format(classOf[FileSystemResourceLocation].getName, path)
-    val res = new FileSystemResourceLocation(new File(path))
+
+    val filePath = new File(path)
+    val file =
+      if(filePath.isAbsolute) filePath
+      else baseDirOption map { baseDir => new File(baseDir, path) } getOrElse filePath
+
+    val res = new FileSystemResourceLocation(file)
 
     bind(classOf[ResourceLocation]).annotatedWith(Names.named(name)).toInstance(res)
   }
