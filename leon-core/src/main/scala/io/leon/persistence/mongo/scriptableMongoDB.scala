@@ -27,22 +27,6 @@ class ScriptableMongoDB @Inject()(mongo: MongoDB) extends ScriptableObject {
   }
 }
 
-class ScriptableDBObject(val dbObject: DBObject) extends ScriptableObject {
-  import MongoUtils._
-
-  def getClassName = getClass.getName
-
-  override def get(name: String, start: Scriptable): AnyRef = {
-    val elem = dbObject.get(name)
-    javaToJs(elem)
-  }
-
-  override def put(name: String, start: Scriptable, value: AnyRef) {
-    dbObject.put(name, value)
-  }
-
-}
-
 class ScriptableDBCursor(dbCursor: MongoCursor) extends ScriptableObject {
   import MongoUtils._
 
@@ -169,6 +153,7 @@ class JavaScriptMongoCollection(coll: MongoCollection) {
 }
 
 private[mongo] object MongoUtils {
+  import scala.collection.JavaConverters._
 
   def jsToJava(obj: Any) = obj match {
     case regex: NativeRegExp => nativeRegExpToPattern(regex)
@@ -179,32 +164,36 @@ private[mongo] object MongoUtils {
 
   def javaToJs(obj: AnyRef): AnyRef = obj match {
     case dbList: BasicDBList => new NativeArray(dbList.toArray map { javaToJs })
-    case dbObj: DBObject => new ScriptableDBObject(dbObj)
+    case dbObj: DBObject => dbObjectToScriptable(dbObj)
+    case objId: ObjectId => objId.toString
     case x => x
   }
 
-  implicit def dbObjectToScriptable(obj: DBObject): ScriptableObject = {
-    new ScriptableDBObject(obj)
+  implicit def dbObjectToScriptable(obj: DBObject): ScriptableObject =
+    new ScriptableObject() {
+      def getClassName = "DBObject"
+
+      obj.toMap.asScala foreach { case (k: String, v: AnyRef) =>
+        defineProperty(k, javaToJs(v), ScriptableObject.PERMANENT)
+      }
+    }
+
+  implicit def scriptableToDBObject(obj: ScriptableObject): DBObject = {
+    val tuples =
+      obj.getAllIds.toList map {
+        id =>
+          val value = obj.get(id.toString, obj) match {
+            case x if id == "_id" => new ObjectId(x.toString)
+            case x => jsToJava(x)
+          }
+
+          (id.toString -> value)
+      }
+    MongoDBObject(tuples)
   }
 
-  implicit def scriptableToDBObject(obj: ScriptableObject): DBObject = obj match {
-    case sdbo: ScriptableDBObject => sdbo.dbObject
-    case _ =>
-      val tuples =
-        obj.getAllIds.toList map {
-          id =>
-            val value = obj.get(id.toString, obj) match {
-              case x if id == "_id" => new ObjectId(x.toString)
-              case x => jsToJava(x)
-            }
-
-            (id.toString -> value)
-        }
-      MongoDBObject(tuples)
-  }
-
-  def arrayToNativeArray[A](arr: Array[A]): NativeArray = {
-    new NativeArray(arr.asInstanceOf[Array[Object]])
+  def arrayToNativeArray(arr: Array[AnyRef]): NativeArray = {
+    new NativeArray(arr map { javaToJs })
   }
 
   def nativeArrayToArray(arr: NativeArray): Array[Any] = {
