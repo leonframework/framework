@@ -46,7 +46,7 @@ class FileSystemResourceLocation(val baseDir: File) extends ResourceLocation {
   def getResource(fileName: String) = {
     val file = new File(baseDir, fileName)
 
-    if(file.exists() && file.canRead) Some(new Resource(fileName, () => file.lastModified(), () => new FileInputStream(file)))
+    if(file.exists() && file.isFile) Some(new Resource(fileName, () => file.lastModified(), () => new FileInputStream(file)))
     else None
   }
 }
