@@ -20,7 +20,7 @@ import http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import com.google.inject.servlet.ServletModule
 import com.google.inject.{AbstractModule, Inject}
 import io.leon.web.WebUtils
-import io.leon.resources.ResourceLoader
+import io.leon.resources.{Resource, ResourceLoader}
 
 class ResourcesWebModule extends ServletModule {
   override def configureServlets() {
@@ -39,6 +39,8 @@ class ResourcesServlet @Inject()(resourceLoader: ResourceLoader) extends HttpSer
 
   //private val logger = Logger.getLogger(getClass.getName)
 
+  private val welcomeFiles = List("index.html", "index.xhtml", "index.htm")
+
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
     val url = WebUtils.getRequestUrl(req)
 
@@ -51,13 +53,22 @@ class ResourcesServlet @Inject()(resourceLoader: ResourceLoader) extends HttpSer
         doResource(req, res, "/leon/knockout-1.2.0.debug.js")
 
       case xs =>
-        doResource(req, res, "/" + xs.mkString("/"))
+        doResource(req, res, url)
     }
   }
 
   private def doResource(req: HttpServletRequest, res: HttpServletResponse, path: String) {
     val out = res.getOutputStream
-    resourceLoader.getResourceOption(path) match {
+
+    val possiblePaths =
+      if(path.endsWith("/")) welcomeFiles map { path + _ }
+      else if (path.split("/").last.contains(".")) List(path)
+      else List(path) ::: (welcomeFiles map { path + "/" + _ })
+
+    val resourceOption =
+      possiblePaths.foldLeft[Option[Resource]](None) { _ orElse resourceLoader.getResourceOption(_) }
+
+    resourceOption match {
       case Some(resource) => {
         setResponseContentType(req, res)
         val stream = resource.getInputStream

@@ -9,14 +9,14 @@
 package io.leon.persistence.mongo
 
 import com.google.inject.Inject
-import com.mongodb.casbah.commons.MongoDBObject
-import org.bson.types.ObjectId
-import com.mongodb.DBObject
 import com.mongodb.casbah.{MongoCursor, MongoCollection, MongoDB}
+import com.mongodb.casbah.commons.MongoDBObject
+import com.mongodb.{BasicDBList, DBObject}
+import org.bson.types.ObjectId
 import org.mozilla.javascript._
 import regexp.NativeRegExp
 import java.util.regex.Pattern
-import com.sun.corba.se.spi.ior.ObjectKey
+
 
 class ScriptableMongoDB @Inject()(mongo: MongoDB) extends ScriptableObject {
 
@@ -27,20 +27,20 @@ class ScriptableMongoDB @Inject()(mongo: MongoDB) extends ScriptableObject {
   }
 }
 
-class ScriptableDBObject(dbObject: DBObject) extends ScriptableObject {
+class ScriptableDBObject(val dbObject: DBObject) extends ScriptableObject {
+  import MongoUtils._
 
   def getClassName = getClass.getName
 
   override def get(name: String, start: Scriptable): AnyRef = {
-    dbObject.get(name) match {
-      case dbObj: DBObject => new ScriptableDBObject(dbObj)
-      case x => x
-    }
+    val elem = dbObject.get(name)
+    javaToJs(elem)
   }
 
   override def put(name: String, start: Scriptable, value: AnyRef) {
     dbObject.put(name, value)
   }
+
 }
 
 class ScriptableDBCursor(dbCursor: MongoCursor) extends ScriptableObject {
@@ -123,7 +123,6 @@ class ScriptableDBCursor(dbCursor: MongoCursor) extends ScriptableObject {
 }
 
 class JavaScriptMongoCollection(coll: MongoCollection) {
-
   import MongoUtils._
 
   def insert(obj: ScriptableObject) {
@@ -171,31 +170,55 @@ class JavaScriptMongoCollection(coll: MongoCollection) {
 
 private[mongo] object MongoUtils {
 
+  def jsToJava(obj: Any) = obj match {
+    case regex: NativeRegExp => nativeRegExpToPattern(regex)
+    case array: NativeArray => nativeArrayToArray(array)
+    case so: ScriptableObject => scriptableToDBObject(so)
+    case x => x
+  }
+
+  def javaToJs(obj: AnyRef): AnyRef = obj match {
+    case dbList: BasicDBList => new NativeArray(dbList.toArray map { javaToJs })
+    case dbObj: DBObject => new ScriptableDBObject(dbObj)
+    case x => x
+  }
+
   implicit def dbObjectToScriptable(obj: DBObject): ScriptableObject = {
     new ScriptableDBObject(obj)
   }
 
-  implicit def scriptableToDBObject(obj: ScriptableObject): DBObject = {
-    val tuples =
-      obj.getAllIds.toList map {
-        id =>
-          val value = obj.get(id.toString, obj) match {
-            case regex: NativeRegExp => nativeRegExpToPattern(regex)
-            case so: ScriptableObject => scriptableToDBObject(so)
-            case x if id == "_id" => new ObjectId(x.toString)
-            case x => x
-          }
+  implicit def scriptableToDBObject(obj: ScriptableObject): DBObject = obj match {
+    case sdbo: ScriptableDBObject => sdbo.dbObject
+    case _ =>
+      val tuples =
+        obj.getAllIds.toList map {
+          id =>
+            val value = obj.get(id.toString, obj) match {
+              case x if id == "_id" => new ObjectId(x.toString)
+              case x => jsToJava(x)
+            }
 
-          (id.toString -> value)
-      }
-    MongoDBObject(tuples)
+            (id.toString -> value)
+        }
+      MongoDBObject(tuples)
   }
 
   def arrayToNativeArray[A](arr: Array[A]): NativeArray = {
     new NativeArray(arr.asInstanceOf[Array[Object]])
   }
 
-  private def nativeRegExpToPattern(obj: NativeRegExp) = {
+  def nativeArrayToArray(arr: NativeArray): Array[Any] = {
+    val seq: Seq[Any] =
+      for (id <- arr.getIds) yield {
+        val index = id.asInstanceOf[Int]
+        val elem = arr.get(index, null)
+        jsToJava(elem)
+      }
+
+    seq.toArray
+  }
+
+  def nativeRegExpToPattern(obj: NativeRegExp) = {
     import Pattern._
 
     val source = obj.get("source", obj).asInstanceOf[String]
