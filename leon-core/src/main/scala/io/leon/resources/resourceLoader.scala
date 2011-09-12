@@ -44,7 +44,7 @@ class ResourceLoader @Inject()(injector: Injector,
           case Some(res) => {
 
             val fileFromCache: File = getOrTransformResource(res, fileNameForProcessor, cacheLocation, processor)
-            return Some(new Resource(fileName, () => fileFromCache.lastModified(), () => new FileInputStream(fileFromCache)))
+            return Some(new Resource(fileName, () => res.lastModified, () => new FileInputStream(fileFromCache)))
           }
           case None => None
         }
