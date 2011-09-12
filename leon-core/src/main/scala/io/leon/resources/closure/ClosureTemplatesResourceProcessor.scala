@@ -8,9 +8,10 @@
  */
 package io.leon.resources.closure
 
+
 import com.google.template.soy.jssrc.SoyJsSrcOptions
 import io.leon.resources.{Resource, ResourceProcessor}
-import com.google.template.soy.{SoyFileSet, SoyToJsSrcCompiler}
+import com.google.template.soy.{SoyFileSet}
 import collection.JavaConverters
 
 class ClosureTemplatesResourceProcessor ()

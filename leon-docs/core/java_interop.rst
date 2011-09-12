@@ -14,11 +14,15 @@ However, this interoperability is limited to primitive types only. Leon enables 
 Using Java objects in JavaScript
 --------------------------------
 
-You can create a new instance of a Java object by using the keyword ``new`` and the full-qualified class name prefixed with ``Packages``::
+You can create a new instance of a Java object by using the keyword ``new`` and the full-qualified class name prefixed with ``Packages``:
+
+.. code-block:: javascript
 
   var obj = new Packages.java.lang.StringBuffer("I'm a Java object");
   
-Another way to access a Java object in JavaScript is by asking the dependency injector to get a reference to an object::
+Another way to access a Java object in JavaScript is by asking the dependency injector to get a reference to an object:
+
+.. code-block:: javascript
 
   var obj = leon.inject(Packages.xyz.MyJavaObject);
     
