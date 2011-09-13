@@ -30,6 +30,11 @@ class LeonMongoModule(config: LeonMongoConfig) extends AbstractModule {
   }
 
   @Provides
+  def getJavaMongo() = {
+    getMongoConnection().underlying
+  }
+
+  @Provides
   def createMongoDB() = {
     mongoConnection(config.db)
   }
