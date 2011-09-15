@@ -204,7 +204,7 @@ io.leon.persistence.mongo.test = (function() {
         },
 
         regex_find: function() {
-            var spec_test = leon.mongo.spect_test;
+            var spec_test = leon.mongo.spec_test;
             spec_test.drop();
 
             spec_test.insert(createPerson());
@@ -214,6 +214,27 @@ io.leon.persistence.mongo.test = (function() {
                 throw "expected one but got " + result.size();
 
             return true;
+        },
+
+        arrays: function() {
+          var spec_test = leon.mongo.spec_test;
+          spec_test.drop();
+
+          var people = [];
+          for(var i=0; i < 10; i++) {
+            people[i] = createPerson(i);
+          }
+
+          spec_test.insert({ "people": people });
+          var result = spec_test.findOne();
+
+          if(result.people.length != 10)
+            throw "expected '5' but got " + result.people.length;
+
+          if(result.people[0].firstName != "Firstname")
+            throw "expected 'Firstname' but got " + result.people[0].firstName;
+
+          return true;
         }
 
     }

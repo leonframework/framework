@@ -13,5 +13,5 @@ Contents:
    
    overview
    introduction
-   core/core
+   core/index
    modules
