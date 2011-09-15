@@ -15,7 +15,11 @@ import io.leon.resources.{Resource, ResourceProcessor}
 class CoffeeScriptResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScriptEngine])
   extends ResourceProcessor {
 
-  private lazy val leonScriptEngine = leonScriptEngineProvider.get()
+  private lazy val leonScriptEngine = {
+    val lse = leonScriptEngineProvider.get()
+    lse.loadResource("/io/leon/coffee-script.js", -1)
+    lse
+  }
 
   def fromFileEnding = "coffee"
 

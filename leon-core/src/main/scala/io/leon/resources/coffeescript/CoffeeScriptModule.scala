@@ -14,8 +14,6 @@ import com.google.inject.name.Names
 
 class CoffeeScriptModule extends AbstractModule {
   def configure() {
-    bind(classOf[CoffeeScriptInit]).asEagerSingleton()
-
     bind(Key.get(classOf[ResourceProcessor], Names.named(classOf[CoffeeScriptResourceProcessor].getName))).
       to(classOf[CoffeeScriptResourceProcessor]).asEagerSingleton()
   }
