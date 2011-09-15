@@ -8,14 +8,19 @@
  */
 package io.leon.javascript
 
-import com.google.inject.{Inject, Provider}
-import io.leon.web.ajax.AjaxHandler   
+import io.leon.web.ajax.AjaxHandler
 import org.mozilla.javascript.BaseFunction
+import com.google.inject.{Key, Injector, Inject, Provider}
 
-class JavaObjectAjaxHandlerProvider(obj: AnyRef) extends Provider[AjaxHandler] {
+class JavaObjectAjaxHandlerProvider[T <: AnyRef](key: Key[T]) extends Provider[AjaxHandler] {
+
+  @Inject
+  var injector: Injector = _
 
   @Inject
   var engine: LeonScriptEngine = _
+
+  private lazy val obj = injector.getInstance(key)
 
   private lazy val proxyObject = new JavaScriptProxy(engine.rhinoScope, obj, obj.getClass)
 
@@ -35,5 +40,4 @@ class JavaObjectAjaxHandlerProvider(obj: AnyRef) extends Provider[AjaxHandler] {
   }
 
   def get() = handler
-
 }

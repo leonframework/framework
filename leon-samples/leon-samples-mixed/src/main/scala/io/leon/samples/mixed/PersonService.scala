@@ -9,6 +9,9 @@
 package io.leon.samples.mixed
 
 import reflect.BeanInfo
+import com.google.inject.Inject
+import com.mongodb.casbah.MongoDB
+import com.mongodb.casbah.commons.MongoDBObject
 
 @BeanInfo
 case class Person(firstName: String, lastName: String, address: Address, hobbies: Seq[String]) {
@@ -31,7 +34,7 @@ case class State(isoCode: String, name: String) {
 }
 
 
-class PersonService {
+class PersonService @Inject()(mongo: MongoDB) {
 
   def getCountries: Seq[Country] =
     Country("de", "Germany") ::
@@ -44,6 +47,9 @@ class PersonService {
 
   def doSomething(person: Person): Person = {
     println("doSomething got: " + person)
+
+    val dbObject = MongoDBObject("fullName" -> "%s %s".format(person.firstName, person.lastName))
+    mongo("doSomething").save(dbObject)
 
     person.copy(lastName = person.lastName * 2)
   }

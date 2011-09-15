@@ -134,7 +134,7 @@ http://www.eclipse.org/legal/epl-v10.html
 
   class LeonSamplesMixedProject(info: ProjectInfo) extends DefaultWebProject(info) with UnpublishedProject with LeonDefaults {
 
-    override def libraryDependencies = Set(jetty7, mysql)
+    override def libraryDependencies = Set(jetty7, mysql, casbah_core)
 
     override def defaultExcludes =
       super.defaultExcludes || "*-sources.jar" || "atmosphere-ping-" + atmosphere_version + ".jar"

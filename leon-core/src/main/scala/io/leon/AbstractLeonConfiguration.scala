@@ -19,6 +19,7 @@ import servlet.ServletModule
 import web.resources.InternalPathFilter
 import java.io.File
 
+
 abstract class AbstractLeonConfiguration extends ServletModule {
 
   //private val logger = Logger.getLogger(getClass.getName)
@@ -101,10 +102,13 @@ abstract class AbstractLeonConfiguration extends ServletModule {
     def linksToServer(serverName: String) {
       bind(classOf[AjaxHandler]).annotatedWith(Names.named(browserName)).toProvider(
         new JavaScriptAjaxHandlerProvider(serverName)).asEagerSingleton()
-    }          
-    def linksToServer[A <: AnyRef](obj: A) {
+    }
+    def linksToServer(clazz: Class[AnyRef]) {
+      linksToServer(Key.get(clazz))
+    }
+    def linksToServer[T <: AnyRef](key: Key[T]) {
       bind(classOf[AjaxHandler]).annotatedWith(Names.named(browserName)).toProvider(
-        new JavaObjectAjaxHandlerProvider(obj)).asEagerSingleton()
+        new JavaObjectAjaxHandlerProvider(key)).asEagerSingleton()
     }
   }
 
@@ -124,4 +128,11 @@ abstract class AbstractLeonConfiguration extends ServletModule {
     }
   }
 
+  // -- Dependency injection ----------------------------------
+
+  override def bind[T](clazz: Class[T]) = super.bind(clazz)
+
+  override def bind[T](key: Key[T]) = super.bind(key)
+
+  override def bind[T](typeLiteral: TypeLiteral[T]) = super.bind(typeLiteral)
 }
