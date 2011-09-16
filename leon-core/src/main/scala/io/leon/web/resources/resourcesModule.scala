@@ -47,7 +47,7 @@ class ResourcesServlet @Inject()(resourceLoader: ResourceLoader) extends HttpSer
     val urlList = url.split('/').toList dropWhile { _ == "" }
     urlList match {
       case "leon" :: "jquery.js" :: Nil =>
-        doResource(req, res, "/leon/jquery-1.5.1.min.js")
+        doResource(req, res, "/leon/jquery-1.6.2.min.js")
 
       case "leon" :: "knockout.js" :: Nil =>
         doResource(req, res, "/leon/knockout-1.2.0.debug.js")
