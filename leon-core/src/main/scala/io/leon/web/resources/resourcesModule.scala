@@ -8,13 +8,6 @@
  */
 package io.leon.web.resources
 
-/*
- * Copyright (c) 2010 WeigleWilczek and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
 import javax.servlet._
 import http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import com.google.inject.servlet.ServletModule
@@ -49,8 +42,8 @@ class ResourcesServlet @Inject()(resourceLoader: ResourceLoader) extends HttpSer
       case "leon" :: "jquery.js" :: Nil =>
         doResource(req, res, "/leon/jquery-1.5.1.min.js")
 
-      case "leon" :: "knockout.js" :: Nil =>
-        doResource(req, res, "/leon/knockout-1.2.0.debug.js")
+      case "leon" :: "angular.js" :: Nil =>
+        doResource(req, res, "/leon/angular-0.9.19.js")
 
       case xs =>
         doResource(req, res, url)

@@ -38,7 +38,7 @@ class LeonFilter extends GuiceFilter {
   }
 
   override def destroy() {
-    injector.getInstance(classOf[ResourceWatcher]).stop()
+    Option(injector) foreach { _.getInstance(classOf[ResourceWatcher]).stop() }
     super.destroy()
   }
 
