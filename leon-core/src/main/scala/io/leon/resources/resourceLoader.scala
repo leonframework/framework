@@ -14,11 +14,14 @@ import java.io.{FileInputStream, File}
 import org.apache.commons.io.FileUtils
 import scala.io.Source
 import scala.collection.JavaConversions._
+import org.slf4j.LoggerFactory
 
 class ResourceLoader @Inject()(injector: Injector,
                                resourceProcessorRegistry: ResourceProcessorRegistry) {
 
   import scala.collection.JavaConverters._
+
+  private val logger = LoggerFactory.getLogger(getClass)
 
   val resourceLocations: List[Binding[ResourceLocation]] = {
     injector.findBindingsByType(new TypeLiteral[ResourceLocation]() {}).asScala.toList
@@ -53,22 +56,16 @@ class ResourceLoader @Inject()(injector: Injector,
     None
   }
 
-  private def getOrTransformResource(res: Resource, fileNameForProcessor: String, cacheLocation: String, processor: ResourceProcessor):File = {
-    val fileNameInCache: String = cacheLocation + fileNameForProcessor
-
-    val cachedFile = new File(fileNameInCache)
+  private def getOrTransformResource(res: Resource, fileNameForProcessor: String, cacheLocation: String, processor: ResourceProcessor): File = {
+    val cachedFile = new File(cacheLocation, fileNameForProcessor)
 
     if (!cachedFile.exists() || res.lastModified > cachedFile.lastModified()) {
+      logger.debug("File {} either too old or not in cache yet.", cachedFile.getAbsolutePath)
       val processedRes = processor.process(res)
 
-      val dir = fileNameInCache.take(fileNameInCache.lastIndexOf(File.separator))
+      cachedFile.getParentFile.mkdirs()
 
-      if (!new File(dir).exists())
-        new File(dir).mkdirs()
-
-      //System.out.println("Writing " + fileName + " to cache ....")
-      FileUtils.writeLines(new File(fileNameInCache), Source.fromInputStream(processedRes.getInputStream).getLines().toList)
-      //System.out.println("Written " + fileName + " to cache ....")
+      FileUtils.writeLines(cachedFile, Source.fromInputStream(processedRes.getInputStream).getLines().toList)
     }
 
     cachedFile
