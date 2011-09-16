@@ -3,7 +3,7 @@ function PersonCtrl($xhr) {
 
   this.countries = null;
   this.states = null;
-  this.hobbyToAdd = null;
+  this.hobbyToAdd = "";
 
   this.person = {
     firstName: "John",
@@ -20,6 +20,7 @@ function PersonCtrl($xhr) {
 
   personService("getCountries")(function(result) {
     self.countries = result;
+    self.person.address.country = self.countries[0];
     self.$service('$updateView')();
   });
 
