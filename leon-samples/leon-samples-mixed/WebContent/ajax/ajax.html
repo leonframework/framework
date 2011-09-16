@@ -40,10 +40,10 @@ Person:
       <tr>
         <td></td>
         <td>
-          <select name="person.address.country">
-            <option ng:repeat="country in countries">{{country.name}}</option>
+          <select name="person.address.country" ng:options="c.name for c in countries">
+            <option value="">-- select country --</option>
           </select>
-          <select name="person.address.state" ng:options="s.isoCode as s.name for s in states">
+          <select name="person.address.state" ng:options="s.name for s in states">
             <option value="">-- choose state --</option>
           </select>
         </td>
