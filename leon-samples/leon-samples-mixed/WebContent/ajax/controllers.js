@@ -2,24 +2,37 @@ function PersonCtrl($xhr) {
   self = this;
 
   this.countries = null;
-  this.states = [];
+  this.states = null;
   this.hobbyToAdd = "";
-
-  personService("getCountries")(function(result) {
-    self.countries = result;
-    self.$service('$updateView')();
-  });
 
   this.person = {
     firstName: "John",
     lastName: "Doe",
     address: {
       zipcode: "73728",
-      country: { isoCode: "DE", name: "Germany" },
+      country: { isoCode: "de", name: "Germany" },
       city: "Esslingen"
     },
     hobbies: []
   };
+
+  this.$watch("person.address.country", "states = getStates()");
+
+  personService("getCountries")(function(result) {
+    self.countries = result;
+    self.person.address.country = self.countries[0];
+    self.$service('$updateView')();
+  });
+
+  this.getStates = function() {
+    var country = self.person.address.country;
+    if(country) {
+      personService("getStates")(country.isoCode, function(result) {
+        self.states = result;
+        self.$service('$updateView')();
+      });
+    }
+  }
 
   this.addHobby = function() {
     var hobby = self.hobbyToAdd;
