@@ -13,16 +13,6 @@ body {
   width: 960px;
 }
 
-div, input, select, textarea {
-  color: #333333;
-  font-family: sans-serif;
-  font-size: 1em;
-}
-
-ul {
-  margin: 0;
-  padding-left: 1em;
-}
 
 
 #content, #header, #sidebar, #bottomArea {
@@ -41,36 +31,20 @@ ul {
   height: 60px;
 }
 
-#menu div {
-  margin-right: 1em;
-  float: left;
-}
-
-#menu div span {
-  font-weight: bold;
-}
-
-#logo {
-  float: right;
-}
-
-#logo div {
-  float: right;
-}
-
-#copyright {
-  font-style: italic;
-  text-align: center;
-}
-
 #inputText {
   height: 2em;
   padding: 0.2em;
   width: 99%;
   font-size: 20px;
 
-   -moz-border-radius: 0.5em;
+  -moz-border-radius: 0.5em;
   -webkit-border-radius: 0.5em;
+}
+
+input.nice {
+  font-size: 18px;
+  -moz-border-radius: 0.2em;
+  -webkit-border-radius: 0.2em;
 }
 
 .message {

@@ -1,3 +1,4 @@
+<html xmlns:ng="http://angularjs.org">
 <head>
   <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
   <title>blueprint sample</title>
@@ -11,25 +12,39 @@
   <!-- Import fancy-type plugin. -->
   <link rel="stylesheet" href="/css/plugins/fancy-type/screen.css" type="text/css" media="screen, projection"/>
 
-  <link rel="stylesheet" href="/css/blueprint_sample.css" type="text/css" media="screen, projection"/>
+  <link rel="stylesheet" href="/css/leonjax.css" type="text/css" media="screen, projection"/>
+
+  <#include "/io/leon/templates/commonjs.html" />
+  <script src="controllers.js" type="text/javascript"></script>
 </head>
-<body>
+<body ng:controller="LeonJaxCtrl">
 <div class="container">
   <div id="header" class="span-24 last">
-
     <h2 class="loud">Hello Dude!</h2>
   </div>
 
 
   <div class="span-17 colborder" id="content">
+    <div class="span-17 last">
+      <label>Name</label>
+      <input type="text" data-bind="value: firstName" class="nice"/>
+    </div>
 
-    <p>
-      <textarea id="inputText">Enter your message here!</textarea>
-    </p>
+    <div class="span-17 last">
+      <label>Raum</label>
+      <select></select>
+    </div>
 
-    <hr/>
-    <div class="loud message">
-      Nam vitae tortor id ante sodales facilisis.
+    <div class="span-17 last">
+      <textarea id="inputText" name="message">Enter your message here!</textarea>
+      <button ng:click="postMessage(message)" ng:disabled="{{message.length == 0}}">Add</button>
+    </div>
+
+    <div>
+      <div ng:repeat="message in messages">
+        {{message}}
+
+      </div>
     </div>
   </div>
 
@@ -43,10 +58,8 @@
 
         <div class="quiet">desc</div>
       </div>
-
     </div>
   </div>
-
 </div>
 
 </body>
