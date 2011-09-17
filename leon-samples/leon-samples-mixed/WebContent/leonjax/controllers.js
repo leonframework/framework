@@ -14,5 +14,7 @@ function LeonJaxCtrl($xhr) {
 
 
 var cometMessages = {
-  newMessage: function(message)
+  newMessage: function(message) {
+  
+  }
 }

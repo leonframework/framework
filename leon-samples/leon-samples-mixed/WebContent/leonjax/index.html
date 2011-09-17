@@ -40,6 +40,8 @@
       <button ng:click="postMessage(message)" ng:disabled="{{message.length == 0}}">Add</button>
     </div>
 
+    <a href="#" onclick="leon.comet.connect();">Active Uplink</a> <br/>
+
     <div>
       <div ng:repeat="message in messages">
         {{message}}

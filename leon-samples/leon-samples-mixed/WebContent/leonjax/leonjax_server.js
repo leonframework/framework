@@ -13,12 +13,12 @@ var leonJaxService = (function() {
             session.clicks = session.clicks + 1;
             java.lang.System.out.println("clicks: " + session.clicks);
 
-            //leon.browser("alert")("To Browser", "Got person no." + no +  "[" + person.firstName + "]");
+            leon.browser("alert")("To Browser", "Message no: " + no +  "[" + message + "]");
 
             //leon.mongo.messages.insert(message);
 
             return {
-                message: message + " du Arsch!"
+                message: message + " wurde gepostet"
             };
         }
     };
