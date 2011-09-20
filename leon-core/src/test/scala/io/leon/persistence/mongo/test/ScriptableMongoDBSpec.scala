@@ -47,5 +47,9 @@ class ScriptableMongoDBSpec extends MongoSpecification {
     "Storing and querying arrays/lists" in {
       invokeJsTest("arrays") must beTrue
     }
+
+    "mapReduce" in {
+      invokeJsTest("mapReduce") must beTrue
+    }
   }
 }
