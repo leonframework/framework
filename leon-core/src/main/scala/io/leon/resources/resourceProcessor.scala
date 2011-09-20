@@ -21,6 +21,8 @@ trait ResourceProcessor {
 
   def process(in: Resource): Resource
 
+  def isCachingRequested = false
+
   protected def inputStreamToString(stream: InputStream): String = {
       val br = new BufferedReader(new InputStreamReader(stream))
     val sb = new StringBuilder
