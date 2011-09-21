@@ -32,7 +32,7 @@ function PersonCtrl($xhr) {
         self.$service('$updateView')();
       });
     }
-  }
+  };
 
   this.addHobby = function() {
     var hobby = self.hobbyToAdd;
