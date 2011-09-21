@@ -14,6 +14,7 @@ import com.google.inject.servlet.ServletModule
 import com.google.inject.{AbstractModule, Inject}
 import io.leon.web.WebUtils
 import io.leon.resources.{Resource, ResourceLoader}
+import org.slf4j.LoggerFactory
 
 class ResourcesWebModule extends ServletModule {
   override def configureServlets() {
@@ -35,7 +36,7 @@ class ResourcesServlet @Inject()(resourceLoader: ResourceLoader) extends HttpSer
   private val welcomeFiles = List("index.html", "index.xhtml", "index.htm")
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
-    val url = WebUtils.getRequestUrl(req)
+    val url = WebUtils.getRequestedResource(req)
 
     val urlList = url.split('/').toList dropWhile { _ == "" }
     urlList match {
@@ -86,7 +87,11 @@ class ResourcesServlet @Inject()(resourceLoader: ResourceLoader) extends HttpSer
   
 }
 
-class InternalPathFilter(internalPaths: List[String]) extends Filter {
+class ExposedUrlCheckFilter(exposedUrls: List[String]) extends Filter {
+
+  private val logger = LoggerFactory.getLogger(getClass.getName)
+
+  private val exposedUrlsRegex = exposedUrls map { _.r }
 
   def init(config: FilterConfig) {}
 
@@ -96,13 +101,14 @@ class InternalPathFilter(internalPaths: List[String]) extends Filter {
     val req = _req.asInstanceOf[HttpServletRequest]
     val res = _res.asInstanceOf[HttpServletResponse]
 
-    val isInternal = internalPaths exists { p => WebUtils.getRequestUrl(req).startsWith(p) }
-    if (isInternal) {
-      res.setStatus(403)
-      // TODO send page
-      return
-    } else {
+    val requestUrl = WebUtils.getRequestedResource(req)
+    val isPublic = exposedUrlsRegex exists { _.findFirstIn(requestUrl).isDefined }
+    if (isPublic) {
+      logger.debug("Requested exposed URL {}", requestUrl)
       chain.doFilter(_req, _res)
+    } else {
+      logger.debug("Requested *private* URL {}", requestUrl)
+      res.setStatus(403)
     }
   }
 
