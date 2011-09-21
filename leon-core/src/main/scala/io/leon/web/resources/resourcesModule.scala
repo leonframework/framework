@@ -11,14 +11,19 @@ package io.leon.web.resources
 import javax.servlet._
 import http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import com.google.inject.servlet.ServletModule
-import com.google.inject.{AbstractModule, Inject}
 import io.leon.web.WebUtils
 import io.leon.resources.{Resource, ResourceLoader}
 import org.slf4j.LoggerFactory
+import com.google.inject._
+import name.Names
 
 class ResourcesWebModule extends ServletModule {
   override def configureServlets() {
     install(new ResourcesModule)
+
+    bind(classOf[ExposedUrlCheckFilter]).in(Scopes.SINGLETON)
+    filter("/*").through(classOf[ExposedUrlCheckFilter])
+
     serve("/*").`with`(classOf[ResourcesServlet])
   }
 }
@@ -37,18 +42,7 @@ class ResourcesServlet @Inject()(resourceLoader: ResourceLoader) extends HttpSer
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
     val url = WebUtils.getRequestedResource(req)
-
-    val urlList = url.split('/').toList dropWhile { _ == "" }
-    urlList match {
-      case "leon" :: "jquery.js" :: Nil =>
-        doResource(req, res, "/leon/jquery-1.5.1.min.js")
-
-      case "leon" :: "angular.js" :: Nil =>
-        doResource(req, res, "/leon/angular-0.9.19.js")
-
-      case xs =>
-        doResource(req, res, url)
-    }
+    doResource(req, res, url)
   }
 
   private def doResource(req: HttpServletRequest, res: HttpServletResponse, path: String) {
@@ -87,11 +81,23 @@ class ResourcesServlet @Inject()(resourceLoader: ResourceLoader) extends HttpSer
   
 }
 
-class ExposedUrlCheckFilter(exposedUrls: List[String]) extends Filter {
+object ExposedUrl {
+  def bind(binder: Binder, url: String) {
+    binder.bind(classOf[ExposedUrl]).annotatedWith(Names.named(url)).toInstance(new ExposedUrl(url))
+  }
+}
+
+class ExposedUrl(val urlRegex: String)
+
+class ExposedUrlCheckFilter @Inject()(injector: Injector) extends Filter {
+
+  import scala.collection.JavaConverters._
 
   private val logger = LoggerFactory.getLogger(getClass.getName)
 
-  private val exposedUrlsRegex = exposedUrls map { _.r }
+  private def exposedUrls = injector.findBindingsByType(new TypeLiteral[ExposedUrl]() {}).asScala
+
+  private def exposedUrlsRegex = exposedUrls map { _.getProvider.get().urlRegex.r }
 
   def init(config: FilterConfig) {}
 
@@ -113,3 +119,4 @@ class ExposedUrlCheckFilter(exposedUrls: List[String]) extends Filter {
   }
 
 }
+

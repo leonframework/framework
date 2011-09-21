@@ -13,6 +13,7 @@ import org.atmosphere.cpr._
 import io.leon.javascript.LeonScriptEngine
 import com.google.inject.name.Named
 import com.google.inject.{Injector, TypeLiteral, Inject, AbstractModule}
+import io.leon.web.resources.ExposedUrl
 
 class CometWebModule extends ServletModule {
 
@@ -27,6 +28,7 @@ class CometWebModule extends ServletModule {
       ).asJava
 
     serve("/leon/comet/connect*").`with`(classOf[CometServlet], meteorParams)
+    ExposedUrl.bind(binder(), "/leon/comet/connect")
   }
 }
 

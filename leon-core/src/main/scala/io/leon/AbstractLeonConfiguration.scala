@@ -16,8 +16,8 @@ import collection.mutable
 import com.google.inject._
 import name.Names
 import servlet.ServletModule
-import web.resources.ExposedUrlCheckFilter
 import java.io.File
+import web.resources.ExposedUrl
 
 
 abstract class AbstractLeonConfiguration extends ServletModule {
@@ -33,17 +33,13 @@ abstract class AbstractLeonConfiguration extends ServletModule {
   def config()
 
   override def configureServlets() {
-    config()
-
     exposeUrl(".*/$")
     exposeUrl(".*html$")
     exposeUrl(".*/browser/.*js$")
 
-    val exposedUrlCheckFilter = new ExposedUrlCheckFilter(exposedUrls.toList)
-    requestInjection(exposedUrlCheckFilter)
-    val filterKey = Key.get(classOf[ExposedUrlCheckFilter], Names.named(getClass.getName))
-    bind(filterKey).toInstance(exposedUrlCheckFilter)
-    filter("/*").through(filterKey)
+    config()
+
+    exposedUrls foreach { url => ExposedUrl.bind(binder(), url) }
 
     requestInjection(new Object {
       @Inject def init(injector: Injector, engine: LeonScriptEngine) {
@@ -72,9 +68,11 @@ abstract class AbstractLeonConfiguration extends ServletModule {
     bind(classOf[ResourceLocation]).annotatedWith(Names.named(name)).toInstance(res)
   }
 
-  // --- Internal URL methods -----------------------------
+  // --- Expose URL methods -----------------------------
 
   def exposeUrl(regex: String) {
+    // We first use a list instead of directly creating a binding so that
+    // users can change the default configuration
     exposedUrls.append(regex)
   }
 
