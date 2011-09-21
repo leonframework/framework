@@ -4,7 +4,7 @@ install(new Packages.io.leon.resources.coffeescript.CoffeeScriptModule());
 install(new Packages.io.leon.resources.closure.ClosureTemplatesModule());
 
 // location of application files
-addLocation("./WebContent");
+addLocation("./www");
 
 // server-side js files
 loadFile("/io/leon/samples/mixed/person.js");
