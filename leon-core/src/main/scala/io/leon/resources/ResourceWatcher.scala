@@ -14,17 +14,21 @@ import org.slf4j.LoggerFactory
 
 
 class ResourceWatcher @Inject()(resourceLoader: ResourceLoader) {
-  val Interval = 500
-  val Threshold = 2000
 
-  type Action = Resource => Unit
+  private type Action = Resource => Unit
 
   private type Value = (Resource, Long, Action)
 
   private val watchedResources = new mutable.ArrayBuffer[Value] with mutable.SynchronizedBuffer[Value]
+
   private val pendingActions = mutable.ArrayBuffer.empty[(Resource, Action, Int)]
 
+  private val interval = 500
+
+  private val threshold = 2000
+
   private var running = false
+
   private var lastModificationFound = -1L
 
   def watch(res: Resource, action: Action) {
@@ -40,10 +44,10 @@ class ResourceWatcher @Inject()(resourceLoader: ResourceLoader) {
 
           while(running) {
             doWatchFiles()
-            Thread.sleep(Interval)
+            Thread.sleep(interval)
 
             val timeSinceLastModification = System.currentTimeMillis() - lastModificationFound
-            if(lastModificationFound > 0 & timeSinceLastModification > Threshold)
+            if(lastModificationFound > 0 & timeSinceLastModification > threshold)
               executePendingActions()
           }
 

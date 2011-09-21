@@ -64,7 +64,7 @@ class ResourcesServlet @Inject()(resourceLoader: ResourceLoader) extends HttpSer
     resourceOption match {
       case Some(resource) => {
         setResponseContentType(req, res)
-        val stream = resource.getInputStream
+        val stream = resource.createInputStream()
         val buffer = new Array[Byte](1024)
         var bytesRead = 0
         while (bytesRead != -1) {
