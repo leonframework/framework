@@ -14,7 +14,7 @@ browser("person").linksToServer("person");
 browser("personService").linksToServer(Packages.io.leon.samples.mixed.PersonService);
 
 // comet support
-server("leon.browser").linksToAllPages("leon");
+server("leon").linksToAllPages("leon");
 
 // dependency injection
 bind(Packages.io.leon.samples.mixed.PersonService).asEagerSingleton();

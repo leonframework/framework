@@ -76,8 +76,9 @@ class BrowserJsFileServlet @Inject()(injector: Injector) extends HttpServlet {
 
   private def createJavaScriptFunctionDeclaration(name: String): String = {
     """
-    leon.utils.createVar("%s");
-    %s = function (methodName) {
+    leon.utils.createVar("server");
+    leon.utils.createVar("server.%s");
+    server.%s = function (methodName) {
       return function() {
         // convert arguments to array
         var args = Array.prototype.slice.call(arguments);

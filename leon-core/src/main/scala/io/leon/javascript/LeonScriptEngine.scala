@@ -14,11 +14,12 @@ import java.lang.IllegalArgumentException
 
 import org.mozilla.javascript.{ScriptableObject, Context, Function => RhinoFunction}
 import io.leon.resources.{Resource, ResourceWatcher, ResourceLoader}
+import org.slf4j.LoggerFactory
 
 class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader,
                                  resourceWatcher: ResourceWatcher, wrapFactory: LeonWrapFactory) {
 
-  //private val logger = Logger.getLogger(getClass.getName)
+  private val logger = LoggerFactory.getLogger(getClass.getName)
 
   val rhinoScope = withContext { _.initStandardObjects() }
 
@@ -99,6 +100,7 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
 
   def eval(script: String): AnyRef = {
     withContext { ctx =>
+      logger.debug("Eval [{}]", script)
       ctx.evaluateString(rhinoScope, script, "LeonScriptEngine.eval(...)", 1, null)
     }
   }

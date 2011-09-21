@@ -48,8 +48,9 @@ class CometInit @Inject()(injector: Injector, engine: LeonScriptEngine) {
 
   browserObjects.asScala foreach { b =>
     val serverName = b.getKey.getAnnotation.asInstanceOf[Named].value()
-    engine.eval("""leon.utils.createVar("%s");""".format(serverName))
-    engine.eval("%s = leon.getBrowserObject(\"%s\");".format(serverName, serverName))
+    engine.eval("""leon.utils.createVar("browser");""")
+    engine.eval("""leon.utils.createVar("browser.%s");""".format(serverName))
+    engine.eval("browser.%s = leon.getBrowserObject(\"%s\");".format(serverName, serverName))
   }
 
 }
