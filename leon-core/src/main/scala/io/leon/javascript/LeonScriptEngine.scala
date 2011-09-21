@@ -41,7 +41,7 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
 
     def _loadResource(resource: Resource) {
       withContext { ctx =>
-        val reader = new InputStreamReader(resource.getInputStream)
+        val reader = new InputStreamReader(resource.createInputStream())
         ctx.evaluateReader(rhinoScope, reader, fileName, 1, null)
       }
     }

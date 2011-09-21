@@ -10,10 +10,6 @@ package io.leon.resources
 
 import com.google.inject._
 import java.lang.RuntimeException
-import java.io.{FileInputStream, File}
-import org.apache.commons.io.FileUtils
-import scala.io.Source
-import scala.collection.JavaConversions._
 import org.slf4j.LoggerFactory
 
 class ResourceLoader @Inject()(injector: Injector,
@@ -29,32 +25,34 @@ class ResourceLoader @Inject()(injector: Injector,
 
   def getResource(fileName: String): Resource = {
     getResourceOption(fileName) match {
-      case Some(resource) => resource
+      case Some(resource) => {
+        logger.debug("Loaded resource {}", resource.name)
+        resource
+      }
       case None => throw new RuntimeException("Resource [%s] not found!".format(fileName))
     }
   }
 
   def getResourceOption(fileName: String): Option[Resource] = {
-    //TODO make cache location configurable
-    val cacheLocation = System.getProperty("java.io.tmpdir")
-    //System.out.println("Cache is at: " + cacheLocation)
-
     for (processor <- resourceProcessorRegistry.processorsForFile(fileName)) {
       val fileNameForProcessor = resourceProcessorRegistry.replaceFileNameEndingForProcessor(processor, fileName)
 
       for (rl <- resourceLocations) {
-        rl.getProvider.get().getResource(fileNameForProcessor) match {
-          case Some(res) => {
-
-            return Some(processor.process(res))
+        val resourceOption = rl.getProvider.get().getResource(fileNameForProcessor)
+        if (resourceOption.isDefined) {
+          val processed = resourceOption.map(processor.process)
+          if (processor.isCachingRequested) {
+            // TODO
           }
-          case None => None
+          return processed
         }
       }
+
     }
     None
   }
 
+/*
   private def getOrTransformResource(res: Resource, fileNameForProcessor: String, cacheLocation: String, processor: ResourceProcessor): File = {
     val cachedFile = new File(cacheLocation, fileNameForProcessor)
 
@@ -69,6 +67,8 @@ class ResourceLoader @Inject()(injector: Injector,
 
     cachedFile
   }
+  */
+
 }
 
 

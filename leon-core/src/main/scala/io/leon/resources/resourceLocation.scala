@@ -37,7 +37,9 @@ class ClassLoaderResourceLocation extends ResourceLocation {
 
 class FileSystemResourceLocation(val baseDir: File) extends ResourceLocation {
 
-  if(! baseDir.exists()) require(baseDir.mkdirs(), baseDir.getAbsolutePath + " does not exist and could not be created!")
+  if(!baseDir.exists()) {
+    require(baseDir.mkdirs(), baseDir.getAbsolutePath + " does not exist and could not be created!")
+  }
   else {
     require(baseDir.isDirectory, baseDir.getAbsolutePath + " is not a directory.")
     require(baseDir.canRead, baseDir.getAbsolutePath + " is not readable.")
@@ -45,8 +47,9 @@ class FileSystemResourceLocation(val baseDir: File) extends ResourceLocation {
 
   def getResource(fileName: String) = {
     val file = new File(baseDir, fileName)
-
-    if(file.exists() && file.isFile) Some(new Resource(fileName, () => file.lastModified(), () => new FileInputStream(file)))
+    if(file.exists() && file.isFile) {
+      Some(new Resource(fileName, () => file.lastModified(), () => new FileInputStream(file)))
+    }
     else None
   }
 }
@@ -55,9 +58,8 @@ class Resource(val name: String, lastModifiedFunc: () => Long, streamFunc: () =>
 
   def this(name: String, streamFunc: () => InputStream) = this(name, () => 0, streamFunc)
 
-  def lastModified = lastModifiedFunc.apply()
+  def lastModified() = lastModifiedFunc.apply()
 
-  def getInputStream = streamFunc.apply()
+  def createInputStream() = streamFunc.apply()
+
 }
-
-
