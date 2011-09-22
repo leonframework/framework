@@ -16,7 +16,7 @@ function PersonCtrl($xhr) {
     hobbies: []
   };
 
-  this.$watch("person.address.country", "states = getStates()");
+  this.$watch("person.address.country", "getStates()");
 
   server.personService("getCountries")(function(result) {
     self.countries = result;
