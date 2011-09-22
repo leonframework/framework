@@ -13,6 +13,7 @@ import org.atmosphere.cpr._
 import io.leon.javascript.LeonScriptEngine
 import com.google.inject.name.Named
 import com.google.inject.{Injector, TypeLiteral, Inject, AbstractModule}
+import io.leon.web.resources.ExposedUrl
 
 class CometWebModule extends ServletModule {
 
@@ -27,6 +28,7 @@ class CometWebModule extends ServletModule {
       ).asJava
 
     serve("/leon/comet/connect*").`with`(classOf[CometServlet], meteorParams)
+    ExposedUrl.bind(binder(), "/leon/comet/connect")
   }
 }
 
@@ -46,8 +48,9 @@ class CometInit @Inject()(injector: Injector, engine: LeonScriptEngine) {
 
   browserObjects.asScala foreach { b =>
     val serverName = b.getKey.getAnnotation.asInstanceOf[Named].value()
-    engine.eval("""leon.utils.createVar("%s");""".format(serverName))
-    engine.eval("%s = leon.getBrowserObject(\"%s\");".format(serverName, serverName))
+    engine.eval("""leon.utils.createVar("browser");""")
+    engine.eval("""leon.utils.createVar("browser.%s");""".format(serverName))
+    engine.eval("browser.%s = leon.getBrowserObject(\"%s\");".format(serverName, serverName))
   }
 
 }

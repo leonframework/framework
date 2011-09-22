@@ -26,7 +26,7 @@ class ClosureTemplatesResourceProcessor ()
     import JavaConverters._
 
     // Bundle the given Soy file into a SoyFileSet
-    val inStr = inputStreamToString(in.getInputStream)
+    val inStr = inputStreamToString(in.createInputStream())
     val sfs = (new SoyFileSet.Builder()).add(inStr,in.name).build()
 
     val res = sfs.compileToJsSrc(new SoyJsSrcOptions(), null)

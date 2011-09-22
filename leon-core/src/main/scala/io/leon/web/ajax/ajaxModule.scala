@@ -13,12 +13,16 @@ import javax.servlet.http.{HttpServlet, HttpServletResponse, HttpServletRequest}
 import com.google.inject._
 import name.{Named, Names}
 import java.io.{BufferedWriter, BufferedOutputStream}
+import io.leon.web.resources.ExposedUrl
 
 class AjaxWebModule extends ServletModule {
   override def configureServlets() {
     install(new AjaxModule)
+
     serve("/leon/ajax").`with`(classOf[AjaxCallServlet])
-    serve("/leon/browser.js").`with`(classOf[BrowserJsFileServlet])
+    ExposedUrl.bind(binder(), "/leon/ajax")
+
+    serve("/leon/browser/browser.js").`with`(classOf[BrowserJsFileServlet])
   }
 }
 
@@ -72,8 +76,9 @@ class BrowserJsFileServlet @Inject()(injector: Injector) extends HttpServlet {
 
   private def createJavaScriptFunctionDeclaration(name: String): String = {
     """
-    leon.utils.createVar("%s");
-    %s = function (methodName) {
+    leon.utils.createVar("server");
+    leon.utils.createVar("server.%s");
+    server.%s = function (methodName) {
       return function() {
         // convert arguments to array
         var args = Array.prototype.slice.call(arguments);

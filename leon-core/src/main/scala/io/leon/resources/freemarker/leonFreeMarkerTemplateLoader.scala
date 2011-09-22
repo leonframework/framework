@@ -30,7 +30,7 @@ class LeonFreeMarkerTemplateLoader@Inject()(resourceLoaderProvider: Provider[Res
 
   def findTemplateSource(name: String): AnyRef = {
     resourceLoader.getResourceOption(name) match {
-      case Some(res) => FoundResource(name, res.getInputStream)
+      case Some(res) => FoundResource(name, res.createInputStream())
       case None => null
     }
   }

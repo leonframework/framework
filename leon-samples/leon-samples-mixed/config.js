@@ -4,7 +4,7 @@ install(new Packages.io.leon.resources.coffeescript.CoffeeScriptModule());
 install(new Packages.io.leon.resources.closure.ClosureTemplatesModule());
 
 // location of application files
-addLocation("./WebContent");
+addLocation("./www");
 
 // server-side js files
 loadFile("/io/leon/samples/mixed/person.js");
@@ -17,8 +17,9 @@ browser("personService").linksToServer(Packages.io.leon.samples.mixed.PersonServ
 browser("leonJaxService").linksToServer()
 
 // comet support
-server("leon.browser").linksToAllPages("leon");
+server("leon").linksToAllPages("leon");
 server("leonJaxBrowser").linksToAllPages("cometMessages");
+
 
 // dependency injection
 bind(Packages.io.leon.samples.mixed.PersonService).asEagerSingleton();

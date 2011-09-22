@@ -22,18 +22,22 @@ import org.slf4j.LoggerFactory
 
 class LeonFilter extends GuiceFilter {
 
-  private var injector: Injector = _
+  private val logger = LoggerFactory.getLogger(this.getClass)
+
   private val classLoader = Thread.currentThread.getContextClassLoader
+
+  private var injector: Injector = _
 
   override def init(filterConfig: FilterConfig) {
     val moduleName = filterConfig.getInitParameter("module")
 
     val module =
-      if(moduleName.endsWith(".js")) loadModuleFromJavaScript(new File(moduleName))
-      else classLoader.loadClass(moduleName).asInstanceOf[Class[AbstractLeonConfiguration]].newInstance()
+      if(moduleName.endsWith(".js"))
+        loadModuleFromJavaScript(new File(moduleName))
+      else
+        classLoader.loadClass(moduleName).asInstanceOf[Class[AbstractLeonConfiguration]].newInstance()
 
     injector = Guice.createInjector(new LeonModule, module)
-    
     super.init(filterConfig)
   }
 
@@ -102,5 +106,4 @@ class LeonFilter extends GuiceFilter {
     javaObject.asInstanceOf[AbstractLeonConfiguration]
   }
 
-  private val logger = LoggerFactory.getLogger(this.getClass)
 }
