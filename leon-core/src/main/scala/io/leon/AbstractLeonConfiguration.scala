@@ -16,8 +16,8 @@ import collection.mutable
 import com.google.inject._
 import name.Names
 import servlet.ServletModule
-import web.resources.InternalPathFilter
 import java.io.File
+import web.resources.ExposedUrl
 
 
 abstract class AbstractLeonConfiguration extends ServletModule {
@@ -26,27 +26,20 @@ abstract class AbstractLeonConfiguration extends ServletModule {
 
   val javaScriptFilesToLoad = mutable.ArrayBuffer[String]()
 
-  val internalPaths = new mutable.ArrayBuffer[String]
-
-  var addModulePackageToInternalPaths = true
+  val exposedUrls = new mutable.ArrayBuffer[String]
 
   var baseDirOption: Option[File] = None
 
   def config()
 
   override def configureServlets() {
+    exposeUrl(".*/$")
+    exposeUrl(".*html$")
+    exposeUrl(".*/browser/.*js$")
+
     config()
 
-    addInternalPath(classOf[LeonModule])
-    if (addModulePackageToInternalPaths) {
-      addInternalPath(getClass)
-    }
-
-    val internalPathFilter = new InternalPathFilter(internalPaths.toList)
-    requestInjection(internalPathFilter)
-    val filterKey = Key.get(classOf[InternalPathFilter], Names.named(getClass.getName))
-    bind(filterKey).toInstance(internalPathFilter)
-    filter("/*").through(filterKey)
+    exposedUrls foreach { url => ExposedUrl.bind(binder(), url) }
 
     requestInjection(new Object {
       @Inject def init(injector: Injector, engine: LeonScriptEngine) {
@@ -75,16 +68,12 @@ abstract class AbstractLeonConfiguration extends ServletModule {
     bind(classOf[ResourceLocation]).annotatedWith(Names.named(name)).toInstance(res)
   }
 
-  // --- Internal URL methods -----------------------------
+  // --- Expose URL methods -----------------------------
 
-  def addInternalPath(path: String) {
-    internalPaths.append(path)
-  }
-
-  def addInternalPath(clazz: Class[_]) {
-    val pckg = clazz.getPackage
-    if(pckg != null)
-      addInternalPath("/" + pckg.getName.replace('.', '/'))
+  def exposeUrl(regex: String) {
+    // We first use a list instead of directly creating a binding so that
+    // users can change the default configuration
+    exposedUrls.append(regex)
   }
 
   // --- JavaScript methods -------------------------------
