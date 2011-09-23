@@ -54,3 +54,7 @@ function PersonCtrl($xhr) {
     });
   };
 }
+
+var personUpdate = function() {
+    alert("PERSON UPDATE");
+}

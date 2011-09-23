@@ -7,6 +7,12 @@ leon.comet = (function() {
     var nextLine = 0;
 
     var messageMarker = " $$$MESSAGE$$$"; // leading space required
+
+    var pageId = undefined;
+
+    var isCometActive = false;
+
+    var handlerFns = {};
  
     return {
 
@@ -22,11 +28,8 @@ leon.comet = (function() {
             return ro;
         },
 
-        handleBrowserObjectMethodCall: function(objectName, methodName, args) {
-            //var obj = eval(objectName);
-            var obj = window[objectName];
-            var method = obj[methodName];
-            method.apply(method, args);
+        handleEvent: function(topicId, data) {
+            handlerFns[topicId](data);
         },
 
         handleResponse: function() {
@@ -61,8 +64,8 @@ leon.comet = (function() {
                     if (line.substring(0, messageMarker.length) === messageMarker) {
                         var message = line.substring(messageMarker.length, line.length);
                         var json = JSON.parse(message);
-                        if (json.type === "browserObjectMethodCall") {
-                            leon.comet.handleBrowserObjectMethodCall(json.object, json.method, json.args);
+                        if (json.type === "publishedEvent") {
+                            leon.comet.handleEvent(json.topicId, json.data);
                         }
                     }
                 }
@@ -83,12 +86,29 @@ leon.comet = (function() {
             http.onreadystatechange = leon.comet.handleResponse;
             http.send(null);
             pollTimer = setInterval(leon.comet.handleResponse, 1 * 1000);
+            isCometActive = true;
         },
 
-        connect: function() {
-            clearInterval(pollTimer);
-            var url = "/leon/comet/connect" + "?pageId=" + leon.pageId;
-            leon.comet.start(url);
+        connect: function(id) {
+            if (!isCometActive) {
+                pageId = id;
+                clearInterval(pollTimer);
+                var url = "/leon/comet/connect" + "?pageId=" + pageId;
+                leon.comet.start(url);
+            }
+        },
+        
+        addHandler: function(topicId, handlerFn) {
+            handlerFns[topicId] = handlerFn;
+        },
+
+        updateFilter: function(topicId, key, value) {
+            jQuery.get("/leon/comet/updateFilter", {
+                pageId: pageId,
+                topicId: topicId,
+                key: key,
+                value: value
+            });
         }
     }
 

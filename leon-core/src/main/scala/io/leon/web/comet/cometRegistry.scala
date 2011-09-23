@@ -13,13 +13,13 @@ import java.util.logging.Logger
 import javax.servlet.http.HttpServletRequest
 import org.atmosphere.cpr.{BroadcastFilter, Meteor}
 import org.atmosphere.util.XSSHtmlFilter
-
+import com.google.inject.{Inject, Injector}
+import dispatch.json.JsValue
+import dispatch.json.JsValue._
 
 class ClientConnection(val pageId: String,
                        private var _uplink: Option[Meteor],
                        var connectTime: Long = System.currentTimeMillis()) {
-
-  val sessionId = uplink.get.getAtmosphereResource.getRequest.getSession.getId
 
   private val lock = new Object
 
@@ -67,14 +67,14 @@ class ClientConnection(val pageId: String,
   private def sendPackage(msg: String): Boolean = {
     try {
       uplink map { meteor =>
-        val res = meteor.getAtmosphereResource.getResponse
+      val res = meteor.getAtmosphereResource.getResponse
         val writer = res.getWriter
 
         // send message
         writer.write(msg.toString)
         res.flushBuffer()
 
-        // make sure connection was/is open
+        // make sconnection was/is open
         writer.write(' ')
         res.flushBuffer()
         true
@@ -94,19 +94,14 @@ class Clients {
 
   private val byPageId = new mutable.HashMap[String, ClientConnection]
 
-  private val bySession = new mutable.HashMap[String, mutable.ArrayBuffer[ClientConnection]]
-
   def allClients = all.toList
 
   def clientByPageId(id: String) = byPageId.get(id)
-
-  def clientsBySessionId(id: String) = bySession.getOrElse(id, new mutable.ArrayBuffer[ClientConnection])
 
   def add(client: ClientConnection) {
     lock.synchronized {
       all.append(client)
       byPageId(client.pageId) = client
-      bySession.getOrElseUpdate(client.sessionId, new mutable.ArrayBuffer[ClientConnection]).append(client)
     }
   }
 
@@ -114,14 +109,19 @@ class Clients {
     lock.synchronized {
       all.remove(all.indexOf(client))
       byPageId.remove(client.pageId)
-      bySession.getOrElseUpdate(client.sessionId, new mutable.ArrayBuffer[ClientConnection])
-      bySession(client.sessionId).remove(bySession(client.sessionId).indexOf(client))
     }
   }
 
 }
 
-class CometRegistry {
+case class ClientSubscription(clientId: String,
+                              topicId: String,
+                              filterOn: List[String],
+                              activeFilters: Map[String, String])
+
+
+// TODO locking, sync, etc checken
+class CometRegistry @Inject()(clients: Clients) {
 
   private val logger = Logger.getLogger(getClass.getName)
 
@@ -133,7 +133,7 @@ class CometRegistry {
 
   private val filter: List[BroadcastFilter] = List(new XSSHtmlFilter)
 
-  private val clients = new Clients
+  private val clientSubscriptions = new mutable.HashMap[String, List[ClientSubscription]]()
 
   private var shouldStop = false
 
@@ -157,11 +157,11 @@ class CometRegistry {
                 logger.info("Client connection for [" + client.pageId + "] too old. Forcing reconnect.")
                 client.uplink = None
               }
-            }
-            if ((now - client.connectTime) > disconnectTimeout) {
-              logger.info("Client connection for [" + client.pageId + "] too old. Forcing disconnect.")
-              client.uplink foreach { _.resume() } // Should not be required, just to be safe
-              clients.remove(client)
+              if ((now - client.connectTime) > disconnectTimeout) {
+                logger.info("Client connection for [" + client.pageId + "] too old. Forcing disconnect.")
+                client.uplink foreach { _.resume() } // Should not be required, just to be safe
+                clients.remove(client)
+              }
             }
           }
         }
@@ -174,14 +174,26 @@ class CometRegistry {
     clients.allClients foreach { _.uplink foreach { m => m.resume() } }
   }
 
+  def registerClientSubscription(pageId: String, topicId: String, filterOn: List[String]) {
+    val clientsForTopic = clientSubscriptions.getOrElse(topicId, Nil)
+    val cs = ClientSubscription(pageId, topicId, filterOn, Map())
+    clientSubscriptions += topicId -> (cs :: clientsForTopic)
+  }
+
   def registerUplink(sessionId: String, pageId: String, req: HttpServletRequest) {
+    // TODO es müsste jetzt schon ne CC geben, aber ohne uplink
+    // TODO security check
+
     val meteor = createMeteor(req)
     val id = sessionId + "__" + pageId
     logger.info("Adding Client comet connection: " + id)
     clients.clientByPageId(id) match {
       case None => {
-        logger.info("Creating new client connection.")
-        clients.add(new ClientConnection(id, Some(meteor)))
+        //logger.info("Creating new client connection.")
+        //clients.add(new ClientConnection(id, Some(meteor)))
+
+        // darf nicht passiert
+        throw new RuntimeException("ARG!!!")
       }
       case Some(cc) => {
         logger.info("Updating existing client connection.")
@@ -196,11 +208,67 @@ class CometRegistry {
   def allClients: List[ClientConnection] =
     clients.allClients
 
-  def clientsBySessionId(id: String): List[ClientConnection] =
-    clients.clientsBySessionId(id).toList
+  def clientById(clientId: String): Option[ClientConnection] =
+    clients.clientByPageId(clientId)
 
-  def clientByPageId(sessionId: String, pageId: String): Option[ClientConnection] =
-    clients.clientByPageId(sessionId + "__" + pageId)
+  def publish(topicId: String, filters: Map[String, Any], data: Any) {
+    val serialized = JsValue.toJson(JsValue(data))
+    val message = """$$$MESSAGE$$${
+      "type": "publishedEvent",
+      "topicId": "%s",
+      "data": %s
+    }
+    """.format(topicId, serialized).replace('\n', ' ') + "\n"
+
+    clientSubscriptions.get(topicId) foreach { clientsForTopic =>
+      clientsForTopic.foreach { client =>
+        val connection = clientById(client.clientId)
+        connection.map { _.send(message) }
+      }
+    }
+  }
+
+  def updateClientFilter(topicId: String, clientId: String, key: String, value: String) {
+    // TODO improve
+    val cs = (clientSubscriptions(topicId).find { _.clientId == clientId}).get
+    val updatedFilters = cs.activeFilters + (key -> value)
+    val updatedCs = cs.copy(activeFilters = updatedFilters)
+    val updatedList = clientSubscriptions(topicId).updated(clientSubscriptions(topicId).indexOf(cs), updatedCs)
+    clientSubscriptions(topicId) = updatedList
+
+    println(clientSubscriptions)
+  }
 
 }
+
+
+class HtmlSubscriber @Inject()(injector: Injector,
+                               clients: Clients,
+                               cometRegistry: CometRegistry) {
+
+  private def request = injector.getInstance(classOf[HttpServletRequest])
+
+  def subscribe(topicId: String, filterOn: Array[String], handlerFn: String): String = {
+    val pageId = Option(request.getAttribute("pageId")) map {
+      _.toString
+    } getOrElse {
+      System.currentTimeMillis().toString // TODO add MD5 bla bla
+    }
+    request.setAttribute("pageId", pageId)
+
+    val clientId = request.getSession.getId + "__" + pageId
+    clients.add(new ClientConnection(clientId, None, 0))
+    cometRegistry.registerClientSubscription(clientId, topicId, filterOn.toList)
+    
+    ("""
+    |<script>
+    |  leon.comet.addHandler("%s", %s);
+    |  leon.comet.connect(%s);
+    |</script>
+    """).stripMargin.format(topicId, handlerFn, pageId)
+  }
+
+}
+
+
 

@@ -27,8 +27,11 @@ class CometWebModule extends ServletModule {
       AtmosphereServlet.PROPERTY_NATIVE_COMETSUPPORT -> "true"
       ).asJava
 
-    serve("/leon/comet/connect*").`with`(classOf[CometServlet], meteorParams)
+    serve("/leon/comet/connect*").`with`(classOf[CometConnectionServlet], meteorParams)
     ExposedUrl.bind(binder(), "/leon/comet/connect")
+
+    serve("/leon/comet/updateFilter").`with`(classOf[CometUpdateFilterServlet])
+    ExposedUrl.bind(binder(), "/leon/comet/updateFilter")
   }
 }
 
@@ -36,21 +39,13 @@ class CometModule extends AbstractModule {
   def configure() {
     bind(classOf[CometInit]).asEagerSingleton()
     bind(classOf[CometRegistry]).asEagerSingleton()
+    bind(classOf[Clients]).asEagerSingleton()
     bind(classOf[CometHandler]).asEagerSingleton()
-    bind(classOf[CometServlet]).asEagerSingleton()
+    bind(classOf[CometConnectionServlet]).asEagerSingleton()
+    bind(classOf[CometUpdateFilterServlet]).asEagerSingleton()
+    bind(classOf[HtmlSubscriber]).asEagerSingleton()
   }
 }
 
 class CometInit @Inject()(injector: Injector, engine: LeonScriptEngine) {
-  import scala.collection.JavaConverters._
-
-  val browserObjects = injector.findBindingsByType(new TypeLiteral[BrowserObject]() {})
-
-  browserObjects.asScala foreach { b =>
-    val serverName = b.getKey.getAnnotation.asInstanceOf[Named].value()
-    engine.eval("""leon.utils.createVar("browser");""")
-    engine.eval("""leon.utils.createVar("browser.%s");""".format(serverName))
-    engine.eval("browser.%s = leon.getBrowserObject(\"%s\");".format(serverName, serverName))
-  }
-
 }

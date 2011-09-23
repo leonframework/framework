@@ -36,7 +36,7 @@ class CometHandler @Inject()(registry: CometRegistry) extends HttpServlet {
 
 }
 
-class CometServlet @Inject()(cometHandler: CometHandler) extends AtmosphereServlet {
+class CometConnectionServlet @Inject()(cometHandler: CometHandler) extends AtmosphereServlet {
 
   protected override def loadConfiguration(sc: ServletConfig) {
     val r = new ReflectorServletProcessor
@@ -47,6 +47,20 @@ class CometServlet @Inject()(cometHandler: CometHandler) extends AtmosphereServl
   override def destroy() {
     super.destroy()
     cometHandler.destroy()
+  }
+
+}
+
+class CometUpdateFilterServlet @Inject()(cometRegisty: CometRegistry) extends HttpServlet {
+
+  override def doGet(req: HttpServletRequest, resp: HttpServletResponse) {
+    val pageId = req.getParameter("pageId")
+    val topicId = req.getParameter("topicId")
+    val key = req.getParameter("key")
+    val value = req.getParameter("value")
+
+    cometRegisty.updateClientFilter(topicId, req.getSession.getId + "__" + pageId, key, value)
+    
   }
 
 }

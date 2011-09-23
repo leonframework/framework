@@ -7,7 +7,8 @@
 </head>
 <body ng:controller="PersonCtrl">
 
-<a href="#" onclick="leon.comet.connect();">Active Uplink</a> <br/>
+
+${leon.subscribe("personUpdates", ["country"], "personUpdate")}
 
 Person:
 
