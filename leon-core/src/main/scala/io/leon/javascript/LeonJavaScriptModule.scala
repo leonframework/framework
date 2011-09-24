@@ -16,8 +16,10 @@ class LeonJavaScriptModule extends PrivateModule {
     bind(classOf[LeonWrapFactory]).asEagerSingleton()
     bind(classOf[LeonScriptEngine]).asEagerSingleton()
     bind(classOf[JavaScriptWebBindings]).asEagerSingleton()
+    bind(classOf[Converter]).toProvider(classOf[ConverterProvider])
 
     expose(classOf[LeonScriptEngine])
+    expose(classOf[Converter])
   }
 
 }

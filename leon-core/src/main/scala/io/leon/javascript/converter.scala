@@ -14,6 +14,7 @@ import java.lang.Boolean
 import org.apache.commons.beanutils.{BeanUtilsBean, ConvertUtilsBean, BeanMap, Converter => BeanUtilsConverter}
 import java.lang.reflect.{ParameterizedType, Method}
 import org.mozilla.javascript._
+import com.google.inject.Provider
 
 
 // ---------- Converter API definition -------------------------
@@ -22,7 +23,9 @@ private[javascript] trait Converter {
 
   def javaToJs(obj: AnyRef, scope: Scriptable): AnyRef
 
-  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method] = None): AnyRef
+  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method]): AnyRef
+
+  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A]): AnyRef = jsToJava(js, targetType, None)
 }
 
 
@@ -293,6 +296,9 @@ private[javascript] object Converter extends Converter {
   }
 }
 
+class ConverterProvider extends Provider[Converter] {
+  def get() = Converter
+}
 
 // ---------------- common converter utils ----------------------------
 

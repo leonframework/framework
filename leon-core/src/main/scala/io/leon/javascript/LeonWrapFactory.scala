@@ -12,14 +12,7 @@ import org.mozilla.javascript.{Scriptable, Context, WrapFactory}
 
 private[javascript] class LeonWrapFactory extends WrapFactory {
 
-  private val excludedPackages =
-     "com.google.inject." ::
-     "org.mozilla.javascript." :: Nil
-
-  private def isExcluded(clazz: Class[_]) =
-    excludedPackages exists { clazz.getName startsWith _ }
-
-  override def wrapAsJavaObject(cx: Context, scope: Scriptable, javaObject: AnyRef, staticType: Class[_]) =
-    if(isExcluded(javaObject.getClass)) super.wrapAsJavaObject(cx, scope, javaObject, staticType)
-    else new JavaScriptProxy(scope, javaObject,javaObject.getClass)
+  override def wrapAsJavaObject(cx: Context, scope: Scriptable, javaObject: AnyRef, staticType: Class[_]) = {
+    new JavaScriptProxy(scope, javaObject,javaObject.getClass)
+  }
 }
