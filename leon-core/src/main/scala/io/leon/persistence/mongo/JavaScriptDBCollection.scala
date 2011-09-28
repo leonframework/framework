@@ -9,8 +9,8 @@
 package io.leon.persistence.mongo
 
 import com.mongodb.casbah.MongoCollection
-import org.mozilla.javascript.{Context, BaseFunction, ScriptableObject, Function => RhinoFunction}
-import com.mongodb.MapReduceCommand
+import org.mozilla.javascript.{Context, BaseFunction, ScriptableObject}
+import com.mongodb.BasicDBObject
 
 private[mongo] class JavaScriptDBCollection(coll: MongoCollection) {
   import MongoUtils._
@@ -119,14 +119,19 @@ private[mongo] class JavaScriptDBCollection(coll: MongoCollection) {
 
   def distinct(key: String, query: ScriptableObject) = arrayToNativeArray(coll.distinct(key, query).asInstanceOf[List[AnyRef]].toArray)
 
-  // -- TODO map reduce --
+  // -- mapReduce --
 
   def mapReduce(mapFunc: BaseFunction, reduceFunc: BaseFunction, options: ScriptableObject) = {
     val ctx = Context.getCurrentContext
     val map = ctx.decompileFunction(mapFunc, 2)
     val reduce = ctx.decompileFunction(reduceFunc, 2)
 
-    val cmd = new MapReduceCommand(coll.underlying, map, reduce, "todo", MapReduceCommand.OutputType.REPLACE, null)
+    val cmd = new BasicDBObject()
+    cmd.put("mapreduce", coll.getName())
+    cmd.put("map", map)
+    cmd.put("reduce", reduce)
+    cmd.putAll(options)
+
     val output = coll.underlying.mapReduce(cmd)
 
     new JavaScriptMapReduceOutput(output)

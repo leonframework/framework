@@ -260,7 +260,7 @@ io.leon.persistence.mongo.test = (function() {
             return {count: count};
           }
 
-          var output = spec_test.mapReduce(map, reduce, {});
+          var output = spec_test.mapReduce(map, reduce, {out: "mapReduceTest" });
           if(output.results().length != 1)
             throw "expected '1' but got " + results.length;
 
