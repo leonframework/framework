@@ -28,7 +28,14 @@ Another way to access a Java object in JavaScript is by asking the dependency in
     
 Getters and Setters can be accessed as they were ordinary attributes. Instead of ``person.getName()`` you can write ``person.name`` and instead of ``person.setName(x)`` you can write ``person.name = x`` in JavaScript.
   
-JavaScript objects can be passed as arguments to Java methods and will be converted to the corresponding Java type automatically. Note that return values will not be converted automatically, because we don't want to destroy its identity. They are wrapped in a transparent proxy type and you can work with it like it were a ordinary JavaScript object. If you pass such a java proxy to a method, the java object gets simply unwrapped and there is no need for a complete conversion. However, to convert such a proxy object to a native JavaScript object, you can call the ``toJSON`` method.
+JavaScript objects can be passed as arguments to Java methods and will be converted to the corresponding Java type automatically. However, this will not work for overloaded method calls. It would not be guaranteed that Leon selects the desired method. In that case you have to perform the serialization manually by calling the method ``asJavaObject(clazz)`` yourself.
+
+.. code-block:: javascript
+
+  var obj = {...}.asJavaObject(Packages.io.leon.test.TestBean);
+  javaObject.overloadedMethod(obj, 123);
+ 
+Note that return values will not be converted automatically, because we don't want to destroy its identity. They are wrapped in a transparent proxy type and you can work with it like it were a ordinary JavaScript object. If you pass such a java proxy to a method, the java object gets simply unwrapped and there is no need for a complete conversion. However, to convert such a proxy object to a native JavaScript object, you can call the ``toJSON`` method.
 
 
 Serializing Java objects to JSON
@@ -51,8 +58,11 @@ Note: Dates are currently not supported.
 Serializing JSON to Java objects
 --------------------------------
 
-The serialization of JavaScript to Java is triggered automatically when a method of an Java object is called from JavaScript. More precisely, the provided arguments are converted. 
+The serialization of JavaScript to Java is triggered automatically when a method of a Java object is called from JavaScript. More precisely, the provided arguments are converted. 
 For instance, you can call a Java method which expects some kind of POJO as its argument from JavaScript. Leon tries to build that object from the supplied JavaScript object.
+
+The serialization can also be triggered manually by calling the method ``asJavaObject(clazz)`` where ``clazz`` is the desired target type. This method is available on all JavaScript objects.
+
 
 The following conversions are supported:
 

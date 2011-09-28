@@ -102,7 +102,18 @@ io.leon.javascript.test.Tests = (function() {
         "z": { "x": "test" }
       };
 
+
       bean.asJavaObject(Packages.io.leon.javascript.test.TestBean);
+    },
+
+    overloadedMethod: function() {
+      var bean = {
+        "x": "test",
+        "y": 1,
+        "z": { "x": "test" }
+      };
+
+      service.overloadedMethod(1, bean.asJavaObject(Packages.io.leon.javascript.test.TestBean));
     }
   };
 })();
