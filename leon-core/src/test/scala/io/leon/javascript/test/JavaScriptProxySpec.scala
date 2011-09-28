@@ -82,6 +82,18 @@ class JavaScriptProxySpec extends Specification {
       engine.invokeFunction("io.leon.javascript.test.Tests.methodWithArray")
       success
     }
+
+    "support asJavaObject calls" in {
+      val engine = getLeonScriptEngine
+      engine.invokeFunction("io.leon.javascript.test.Tests.asJavaObject")
+      success
+    }
+
+    "do not convert js objects automatically in overloaded method calls" in {
+      val engine = getLeonScriptEngine
+      engine.invokeFunction("io.leon.javascript.test.Tests.overloadedMethod")
+      success
+    }
   }
 }
 

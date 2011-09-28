@@ -93,6 +93,27 @@ io.leon.javascript.test.Tests = (function() {
 
       for(var i=0; i < result.length; i++)
         if(result[i] != (i + 2)) throw "expected " + (i + 2) + " but got " + result[i];
+    },
+
+    asJavaObject: function() {
+      var bean = {
+        "x": "test",
+        "y": 1,
+        "z": { "x": "test" }
+      };
+
+
+      bean.asJavaObject(Packages.io.leon.javascript.test.TestBean);
+    },
+
+    overloadedMethod: function() {
+      var bean = {
+        "x": "test",
+        "y": 1,
+        "z": { "x": "test" }
+      };
+
+      service.overloadedMethod(1, bean.asJavaObject(Packages.io.leon.javascript.test.TestBean));
     }
   };
 })();
