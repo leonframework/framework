@@ -35,6 +35,7 @@ abstract class AbstractLeonConfiguration extends ServletModule {
   override def configureServlets() {
     exposeUrl(".*/$")
     exposeUrl(".*html$")
+    exposeUrl(".*css$")
     exposeUrl(".*/browser/.*js$")
 
     config()
