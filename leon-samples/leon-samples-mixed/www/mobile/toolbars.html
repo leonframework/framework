@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<html class="ui-mobile landscape">
+
+  <head>
+    <title>jQuery Mobile Example Index</title>
+    <#include "/io/leon/templates/commonjs.html" />
+    <#include "/io/leon/templates/mobilejs.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+
+  <body class="ui-mobile-viewport">
+    <div data-role="page" id="foo" data-fullscreen="true">
+      <div data-role="header" data-position="fixed" data-theme="b">
+        <a href="#" data-icon="delete">Button1</a>
+        <h1>Toolbars example</h1>
+        <a href="#" data-icon="check" data-theme="e">Button2</a>
+        <!-- Navbars can also be put into the footer area -->
+        <div data-role="navbar">
+          <ul>
+            <li><a href="http://www.spiegel.de/" class="ui-btn-active" data-icon="star" target="_blank">Spiegel.de</a></li>
+            <li><a href="http://www.tagesschau.de/" data-icon="alert" target="_blank">Tagesschau.de</a></li>
+            <li><a href="http://www.times.com/" data-icon="grid" target="_blank">Times.com</a></li>
+          </ul>
+        </div><!-- /navbar -->
+      </div><!-- /header -->
+      <div data-role="content">
+        <p>In this mode this text will be hidden by te toolbar.</p>
+        <br/>
+        <p>This is a toolbar example in fullscreen mode and fixed header and footer.</p>
+        <p>Click/tap in order to hide header and footer.</p>
+        <br/>
+        <p><a href="http://jquerymobile.com/demos/1.0rc1/docs/toolbars/index.html" target="_blank">more on toolbars...</a></p>
+        <p><a href="http://jquerymobile.com/demos/1.0rc1/docs/toolbars/bars-fixed.html" target="_blank">more on fixed bars...</a></p>
+        <p><a href="http://jquerymobile.com/demos/1.0rc1/docs/toolbars/bars-fullscreen.html" target="_blank">more on fullscreen...</a></p>
+        <p><a href="http://jquerymobile.com/demos/1.0rc1/docs/buttons/buttons-icons.html" target="_blank">more on icons...</a></p>
+        <p><a href="http://glyphish.com/" target="_blank">more custom icons...</a></p>
+      </div><!-- /content -->
+      <div data-role="footer" data-position="fixed">
+        <div data-role="controlgroup" data-type="horizontal">
+          <a href="#" data-role="button" data-icon="delete">Remove</a>
+          <a href="#" data-role="button" data-icon="plus">Add</a>
+        </div>
+        <a href="#" data-role="button" data-icon="arrow-u">Up</a>
+        <a href="#" data-role="button" data-icon="arrow-d">Down</a>
+        <h4>Back to <a href="index.html">examples index</a></h4>
+      </div><!-- /footer -->
+    </div><!-- /page -->
+  </body>
+
+</html>
