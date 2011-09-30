@@ -1,7 +1,7 @@
 <html xmlns:ng="http://angularjs.org">
 <head>
   <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
-  <title>blueprint sample</title>
+  <title>---------Leon Rocks!-----------</title>
 
   <!-- Framework CSS -->
   <link rel="stylesheet" href="/css/screen.css" type="text/css" media="screen, projection"/>
@@ -20,32 +20,31 @@
 <body ng:controller="LeonJaxCtrl">
 <div class="container">
   <div id="header" class="span-24 last">
-    <h2 class="loud">Hello Dude!</h2>
+    <h2 class="loud">Hello {{user.name}}!</h2>
   </div>
 
 
   <div class="span-17 colborder" id="content">
     <div class="span-17 last">
       <label>Name</label>
-      <input type="text" data-bind="value: firstName" class="nice"/>
+      <input type="text" name="user.name" class="nice"/>
     </div>
 
     <div class="span-17 last">
       <label>Raum</label>
-      <select></select>
+       <select name="user.room" ng:options="r.name for r in rooms" class="nice">
+        <option value="">-- select room --</option>
+      </select>
     </div>
 
     <div class="span-17 last">
-      <textarea id="inputText" name="message">Enter your message here!</textarea>
-      <button ng:click="postMessage(message)" ng:disabled="{{message.length == 0}}">Add</button>
+      <textarea id="inputText" name="message"></textarea>
+      <button ng:click="postMessage(message)" ng:disabled="{{user.name.length == 0 || message.length == 0 || user.room == null}}">Submit</button>
     </div>
 
-    <a href="#" onclick="leon.comet.connect();">Active Uplink</a> <br/>
-
-    <div>
-      <div ng:repeat="message in messages">
+    <div id="messages" class="span-17 last prepend-top">
+      <div ng:repeat="message in messages" class="message">
         {{message}}
-
       </div>
     </div>
   </div>

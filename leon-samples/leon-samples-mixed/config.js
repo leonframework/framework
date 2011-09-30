@@ -8,7 +8,6 @@ addLocation("./www");
 
 // server-side js files
 loadFile("/io/leon/samples/mixed/person.js");
-
 loadFile("/leonjax/leonjax_server.js");
 
 // ajax support
@@ -18,8 +17,6 @@ browser("leonJaxService").linksToServer()
 
 // comet support
 server("leon").linksToAllPages("leon");
-server("leonJaxBrowser").linksToAllPages("cometMessages");
-
 
 // dependency injection
 bind(Packages.io.leon.samples.mixed.PersonService).asEagerSingleton();

@@ -1,24 +1,18 @@
 
 var leonJaxService = (function() {
 
-    var calls = 0;
-    //var personService = leon.inject(Packages.io.leon.samples.mixed.PersonService);
-
     return {
-        postMessage: function(message) {
-
-            if (session.clicks == null) {
-                session.clicks = 0;
-            }
-            session.clicks = session.clicks + 1;
-            java.lang.System.out.println("clicks: " + session.clicks);
+        postMessage: function(user, room, message) {
 
             //browser.leon("alert")("To Browser", "Message: [" + message + "]");
 
             //leon.mongo.messages.insert(message);
+            var now = new Date();
+
+            var dateString = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
 
             return {
-                message: message + " wurde gepostet"
+                message: dateString + "     " + user + " (" + room + ") : " + message
             };
         }
     };

@@ -13,8 +13,6 @@ body {
   width: 960px;
 }
 
-
-
 #content, #header, #sidebar, #bottomArea {
   background-color: white;
   margin-top: 1em;
@@ -41,7 +39,7 @@ body {
   -webkit-border-radius: 0.5em;
 }
 
-input.nice {
+.nice {
   font-size: 18px;
   -moz-border-radius: 0.2em;
   -webkit-border-radius: 0.2em;
