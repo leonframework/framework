@@ -1,0 +1,72 @@
+<html xmlns:ng="http://angularjs.org">
+
+<head>
+    <title>Test Page</title>
+    <#include "/io/leon/templates/commonjs.html" />
+    <script src="browser/controllers.js" type="text/javascript"></script>
+</head>
+<body ng:controller="PersonCtrl">
+
+<a href="#" onclick="leon.comet.connect();">Active Uplink</a> <br/>
+
+Person:
+
+  <table>
+      <tr>
+          <td>Firstname</td>
+          <td>
+              <input type="text" name="person.firstName"/>
+          </td>
+      </tr>
+      <tr>
+          <td>Lastname</td>
+          <td>
+              <input type="text" name="person.lastName"/>
+          </td>
+      </tr>
+      <tr>
+          <td>Fullname</td>
+          <td>
+              {{person.firstName}} {{person.lastName}}
+          </td>
+      </tr>
+      <tr>
+          <td>Address</td>
+          <td>
+              <input type="text" name="person.address.zipcode" />
+              <input type="text" name="person.address.city" />
+          </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>
+          <select name="person.address.country" ng:options="c.name for c in countries">
+            <option value="">-- select country --</option>
+          </select>
+          <select name="person.address.state" ng:options="s.name for s in states">
+            <option value="">-- choose state --</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td valign="top">Hobbies</td>
+        <td>
+            <input name="hobbyToAdd" />
+            <button ng:click="addHobby()" ng:disabled="{{hobbyToAdd.length == 0}}">Add</button>
+            <p>
+              <select multiple="multiple" rows="5" style="width: 200px">
+                <option ng:repeat="hobby in person.hobbies">{{hobby}}</option>
+              </select>
+            </p>
+        </td>
+      </tr>
+      <tr>
+         <td></td>
+         <td>
+           <a href="#" ng:click="savePerson()">Send</a>
+           <a href="#" ng:click="doSomething()">Call TestService</a>
+         </td>
+      </tr>
+  </table>
+</body>
+</html>

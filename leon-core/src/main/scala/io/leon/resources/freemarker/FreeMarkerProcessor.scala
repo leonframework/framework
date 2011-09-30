@@ -25,7 +25,7 @@ class FreeMarkerProcessor @Inject()(templateLoader: LeonFreeMarkerTemplateLoader
   )
 
   def transform(in: Resource) =  new Resource(in.name, () => {
-    val tpl = new Template(in.name, new InputStreamReader(in.getInputStream), configuration)
+    val tpl = new Template(in.name, new InputStreamReader(in.createInputStream()), configuration)
 
     val out = new ByteArrayOutputStream
     val writer = new OutputStreamWriter(out)

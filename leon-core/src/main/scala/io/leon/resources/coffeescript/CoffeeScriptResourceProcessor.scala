@@ -25,11 +25,14 @@ class CoffeeScriptResourceProcessor @Inject()(leonScriptEngineProvider: Provider
 
   def toFileEnding = "js"
 
-  def process(in: Resource) = new Resource(in.name, () =>
+  def process(in: Resource) = {
     synchronized {
-      val inStr = inputStreamToString(in.getInputStream)
+      val inStr = inputStreamToString(in.createInputStream())
       val cs = leonScriptEngine.invokeFunction("CoffeeScript.compile", inStr)
-      stringToInputStream(cs.toString)
-    })
+      new Resource(in.name, () => stringToInputStream(cs.toString))
+    }
+  }
+
+  override def isCachingRequested = true
 
 }

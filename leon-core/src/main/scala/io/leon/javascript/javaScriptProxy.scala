@@ -52,8 +52,10 @@ private class DispatchFunction(name: String, javaMethod: NativeJavaMethod, targe
       cx.getWrapFactory.wrap(cx, scope, result, method.getReturnType)
     }
 
-    if(hasScriptableArg) {
-      findObjectMethod(name, argTypes) map { m =>
+    val method = findObjectMethod(name, argTypes)
+
+    if(method.isDefined && hasScriptableArg) {
+      method map { m =>
         val convertedArgs: Array[AnyRef] =
           if (args == null) Array.empty[AnyRef]
           else (args zip m.getParameterTypes) collect { case (obj, argType: Class[AnyRef]) => Converter.jsToJava(obj, argType, Some(m)) }
@@ -66,9 +68,13 @@ private class DispatchFunction(name: String, javaMethod: NativeJavaMethod, targe
   }
 
   private def findObjectMethod(name: String, args: Array[_]) = {
-    targetClass.getMethods.find { m =>
+    val methods = targetClass.getMethods.filter { m =>
       m.getName == name && m.getParameterTypes.size == args.size
     }
+
+    // currently we don't support object conversion for overloaded methods.
+    if(methods.size == 1) methods.headOption
+    else None
   }
 
   override def getArity = javaMethod.getArity

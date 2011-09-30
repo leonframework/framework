@@ -13,8 +13,6 @@ if (this.window === undefined) {
 
 leon.utils = (function() {
     return {
-
-
         createVar: function(name) {
             var names = name.split(".");
             var root = global;
