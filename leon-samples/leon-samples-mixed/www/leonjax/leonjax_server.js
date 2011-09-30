@@ -13,7 +13,7 @@ var leonJaxService = (function() {
             session.clicks = session.clicks + 1;
             java.lang.System.out.println("clicks: " + session.clicks);
 
-            leon.browser("alert")("To Browser", "Message no: " + no +  "[" + message + "]");
+            //browser.leon("alert")("To Browser", "Message: [" + message + "]");
 
             //leon.mongo.messages.insert(message);
 
