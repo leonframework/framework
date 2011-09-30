@@ -8,10 +8,12 @@ addLocation("./www");
 
 // server-side js files
 loadFile("/io/leon/samples/mixed/person.js");
+loadFile("/leonjax/leonjax_server.js");
 
 // ajax support
 browser("person").linksToServer("person");
 browser("personService").linksToServer(Packages.io.leon.samples.mixed.PersonService);
+browser("leonJaxService").linksToServer()
 
 // dependency injection
 bind(Packages.io.leon.samples.mixed.PersonService).asEagerSingleton();

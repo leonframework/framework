@@ -60,4 +60,8 @@ class TestService {
     arr map { _ + 1 }
   }
 
+  def methodWithClass(clazz: Class[_]) = {
+    clazz.getName
+  }
+
 }
