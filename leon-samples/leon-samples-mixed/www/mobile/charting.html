@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+    <title>Leon - HTML5 jQuery Mobile Charting Examples</title>
+    <#include "/io/leon/templates/commonjs.html" />
+    <#include "/io/leon/templates/mobilejs.html" />
+    <#include "/io/leon/templates/chartingjs.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript">
+      $(function() {
+        $('table').visualize({
+          type:         'area'
+        });
+      });
+    </script>
+<!--
+          type[string]            => accepts ‘bar’, ‘area’, ‘pie’, ‘line’       (default: ‘bar’)
+          width[number]           => width of chart                             (default: table width)
+          height[number]          => height of chart                            (default: table height)
+          appendTitle[boolean]    => add title to chart                         (default: true)
+          title[string]           => title for chart                            (default: text of table’s caption element)
+          appendKey[boolean]      => adds the color key to the chart            (default: true)
+          colors[array]           => array items are hex values, used in order
+                                     of appearance                              (default: ['#be1e2d','#666699','#92d5ea','#ee8310','#8d10ee','#5a3b16','#26a4ed','#f45a90','#e9e744'])
+          textColors[array]       => array items are hex values, each item
+                                     corresponds with colors array, null/
+                                     undefined items will fall back to CSS
+                                     text color                                 (default: [])
+          parseDirection[string]  => direction to parse the table data,
+                                     accepts ‘x’ and ‘y’                        (default: ‘x’)
+          pieMargin[number]       => space around outer circle of pie chart     (default: 20)
+          pieLabelPos[string]     => position of text labels in pie chart
+                                     accepts ‘inside’ and ‘outside’             (default: ‘inside’)
+          lineWeight[number]      => stroke weight for lines in line and area
+                                     charts                                     (default: 4)
+          barGroupMargin[number]  => space around each group of bars in a bar
+                                     chart                                      (default: 10)
+          barMargin[number]       => creates space around bars in bar chart
+                                     (added to both sides of each bar)          (default: 1)
+-->
+  </head>
+
+  <body>
+    <table>
+      <caption>Expenses last week</caption>
+      <thead>
+        <tr>
+          <td></td>
+          <th scope="col">Monday</th>
+          <th scope="col">Tuesday</th>
+          <th scope="col">Wednesday</th>
+          <th scope="col">Thursday</th>
+          <th scope="col">Friday</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Paul</th>
+          <td>14</td>
+          <td>25</td>
+          <td>50</td>
+          <td>87</td>
+          <td>67</td>
+        </tr>
+        <tr>
+          <th scope="row">Hank</th>
+          <td>56</td>
+          <td>45</td>
+          <td>23</td>
+          <td>34</td>
+          <td>56</td>
+        </tr>
+        <tr>
+          <th scope="row">Freddy</th>
+          <td>89</td>
+          <td>63</td>
+          <td>97</td>
+          <td>78</td>
+          <td>54</td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>
