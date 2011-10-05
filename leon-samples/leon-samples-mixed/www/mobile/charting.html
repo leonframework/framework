@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html>
+
+<html class="ui-mobile landscape">
+
   <head>
-    <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
     <title>Leon - HTML5 jQuery Mobile Charting Examples</title>
     <#include "/io/leon/templates/commonjs.html" />
     <#include "/io/leon/templates/mobilejs.html" />
     <#include "/io/leon/templates/chartingjs.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script type="text/javascript">
-      $(function() {
+      $(document).ready(function() {
         $('table').visualize({
           type:         'area'
         });
@@ -41,45 +42,59 @@
 -->
   </head>
 
-  <body>
-    <table>
-      <caption>Expenses last week</caption>
-      <thead>
-        <tr>
-          <td></td>
-          <th scope="col">Monday</th>
-          <th scope="col">Tuesday</th>
-          <th scope="col">Wednesday</th>
-          <th scope="col">Thursday</th>
-          <th scope="col">Friday</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th scope="row">Paul</th>
-          <td>14</td>
-          <td>25</td>
-          <td>50</td>
-          <td>87</td>
-          <td>67</td>
-        </tr>
-        <tr>
-          <th scope="row">Hank</th>
-          <td>56</td>
-          <td>45</td>
-          <td>23</td>
-          <td>34</td>
-          <td>56</td>
-        </tr>
-        <tr>
-          <th scope="row">Freddy</th>
-          <td>89</td>
-          <td>63</td>
-          <td>97</td>
-          <td>78</td>
-          <td>54</td>
-        </tr>
-      </tbody>
-    </table>
+  <body class="ui-mobile-viewport">
+    <div data-role="page" id="foo">
+
+      <div data-role="header">
+        <h1>Charting example</h1>
+      </div> <!-- /header -->
+
+      <div data-role="content">
+        <table>
+          <caption>Expenses last week</caption>
+          <thead>
+            <tr>
+              <td></td>
+              <th scope="col">Monday</th>
+              <th scope="col">Tuesday</th>
+              <th scope="col">Wednesday</th>
+              <th scope="col">Thursday</th>
+              <th scope="col">Friday</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Paul</th>
+              <td>14</td>
+              <td>25</td>
+              <td>50</td>
+              <td>87</td>
+              <td>67</td>
+            </tr>
+            <tr>
+              <th scope="row">Hank</th>
+              <td>56</td>
+              <td>45</td>
+              <td>23</td>
+              <td>34</td>
+              <td>56</td>
+            </tr>
+            <tr>
+              <th scope="row">Freddy</th>
+              <td>89</td>
+              <td>63</td>
+              <td>97</td>
+              <td>78</td>
+              <td>54</td>
+            </tr>
+          </tbody>
+        </table>
+      </div> <!-- /content -->
+
+      <div data-role="footer">
+        <h4>Back to <a href="index.html">examples index</a></h4>
+      </div> <!-- /footer -->
+
+    </div> <!-- /page -->
   </body>
 </html>
