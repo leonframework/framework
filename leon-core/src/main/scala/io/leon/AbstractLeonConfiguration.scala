@@ -37,6 +37,7 @@ abstract class AbstractLeonConfiguration extends ServletModule {
     exposeUrl(".*html$")
     exposeUrl(".*css$")
     exposeUrl(".*/browser/.*js$")
+    exposeUrl(".*/browser/images/.*png$")
 
     config()
 
