@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+
+<html class="ui-mobile landscape">
+
+  <head>
+    <title>Leon - HTML5 jQuery Mobile/Angular Integration Example</title>
+    <#include "/io/leon/templates/commonjs.html" />
+    <#include "/io/leon/templates/mobilejs.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+
+  <body class="ui-mobile-viewport">
+    <div data-role="page" id="formpage" ng:controller="FormController">
+      <div data-role="header">
+        <h1>jQuery Mobile/Angular integration example</h1>
+        <pre>form={{form}}</pre>
+      </div> <!-- /header -->
+
+      <div data-role="content">
+        <div data-role="fieldcontain">
+          <label for="text">Text</label>
+          <input type="text" name="form.text" id="text"/>
+        </div>
+
+        <div data-role="fieldcontain">
+          <label for="type" class="select">One selection necessary:</label>
+          <select name="form.type" data-native-menu="false" tabindex="-1" id="type">
+            <option value="" data-placeholder="true">Select type...</option>
+            <option value="1">Type One</option>
+            <option value="2">Type Two</option>
+          </select>
+        </div>
+
+        <div data-role="fieldcontain">
+          <label for="num_things">Number of Things</label>
+          <input type="range" name="form.num_things" min="0" max="10" value="0" id="num_things" />
+        </div>
+
+        <div data-role="fieldcontain">
+          <fieldset data-role="controlgroup">
+            <legend>Which of the following apply?</legend>
+            <input type="radio" name="form.options" id="options_a" value="a" />
+            <label for="options_a">A</label>
+            <input type="radio" name="form.options" id="options_b" value="b" />
+            <label for="options_b">B</label>
+            <input type="radio" name="form.options" id="options_c" value="c" />
+            <label for="options_c">C</label>
+            <input type="radio" name="form.options" id="options_d" value="d" />
+            <label for="options_d">D</label>
+          </fieldset>
+        </div>
+
+        <div data-role="fieldcontain">
+          <label for="ok">Are you ok?</label>
+          <select name="form.ok" data-role="slider" id="ok">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </div>
+      </div> <!-- /content -->
+
+      <div data-role="footer">
+        <h4>Back to <a href="index.html">examples index</a></h4>
+      </div> <!-- /footer -->
+
+    </div> <!-- /page -->
+
+    <script>
+      function FormController() {
+        this.form = {};
+      }
+    </script>
+
+  </body>
+</html>
