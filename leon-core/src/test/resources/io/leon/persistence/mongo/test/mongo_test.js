@@ -270,6 +270,11 @@ io.leon.persistence.mongo.test = (function() {
           output.drop();
 
           return true;
+        },
+
+        getStats: function() {
+          var stats = leon.mongo.getStats();
+          return stats.ok();
         }
     }
 })();

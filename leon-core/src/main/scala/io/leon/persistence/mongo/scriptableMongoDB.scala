@@ -8,15 +8,42 @@
  */
 package io.leon.persistence.mongo
 
+import io.leon.javascript.LeonScriptEngine
 import com.google.inject.Inject
 import com.mongodb.casbah.MongoDB
 import org.mozilla.javascript._
+import com.mongodb.BasicDBObject
 
-class ScriptableMongoDB @Inject()(mongo: MongoDB) extends ScriptableObject {
+
+class ScriptableMongoDB @Inject()(mongo: MongoDB, engine: LeonScriptEngine) extends ScriptableObject {
+  import MongoUtils._
+
+  private val jsFunctionNames = Array("getCollectionNames", "collectionExists", "authenticate", "getStats", "runCommand")
+
+  defineFunctionProperties(jsFunctionNames, getClass, ScriptableObject.READONLY)
 
   def getClassName = getClass.getName
 
   override def get(name: String, start: Scriptable): AnyRef = {
-    new JavaScriptDBCollection(mongo(name))
+    if(jsFunctionNames.contains(name)) super.get(name, start)
+    else new JavaScriptDBCollection(mongo(name))
   }
+
+  def getCollectionNames = arrayToNativeArray(mongo.getCollectionNames().toArray)
+
+  def collectionExists(name: String) = mongo.collectionExists(name)
+
+  def authenticate(username: String,  password: String) = mongo.authenticate(username, password)
+
+  def getStats = runCommand(new BasicDBObject("dbstats", true))
+
+  def getLastError = new JavaScriptCommandResult(mongo.getLastError())
+
+  def runCommand(cmd: ScriptableObject): ScriptableObject = {
+    val dbo = scriptableToDBObject(cmd)
+    val result = mongo.command(dbo, 0)
+
+    new JavaScriptCommandResult(result)
+  }
+
 }
