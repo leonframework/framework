@@ -4,7 +4,7 @@ class ScriptableMongoDBSpec extends MongoSpecification {
 
   "A ScriptableMongoDB" should {
 
-    "insert data" in {
+   "insert data" in {
       invokeJsTest("insert") must beTrue
     }
 
@@ -46,6 +46,14 @@ class ScriptableMongoDBSpec extends MongoSpecification {
 
     "Storing and querying arrays/lists" in {
       invokeJsTest("arrays") must beTrue
+    }
+
+    "mapReduce" in {
+      invokeJsTest("mapReduce") must beTrue
+    }
+
+    "getStats" in {
+      invokeJsTest("getStats") must beTrue
     }
   }
 }

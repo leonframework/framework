@@ -235,7 +235,46 @@ io.leon.persistence.mongo.test = (function() {
             throw "expected 'Firstname' but got " + result.people[0].firstName;
 
           return true;
-        }
+        },
 
+        mapReduce: function() {
+          var spec_test = leon.mongo.spec_test;
+          spec_test.drop();
+
+          var people = [];
+          for(var i=0; i < 10; i++) {
+            people[i] = createPerson(i);
+            spec_test.insert(people[i]);
+          }
+
+          var map = function() {
+            emit(this.address.zipCode, {count: 1})
+          }
+
+          var reduce = function(key, values) {
+            var count = 0;
+            for(var i=0; i < values.length; i++) {
+              count += values[i]["count"];
+            }
+
+            return {count: count};
+          }
+
+          var output = spec_test.mapReduce(map, reduce, {out: "mapReduceTest" });
+          if(output.results().length != 1)
+            throw "expected '1' but got " + results.length;
+
+          if(output.results()[0].value.count != 10)
+            throw "expected '10' but got " + results[0].value.count;
+
+          output.drop();
+
+          return true;
+        },
+
+        getStats: function() {
+          var stats = leon.mongo.getStats();
+          return stats.ok();
+        }
     }
 })();

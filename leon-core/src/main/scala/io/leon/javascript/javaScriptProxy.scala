@@ -42,7 +42,10 @@ private class DispatchFunction(name: String, javaMethod: NativeJavaMethod, targe
   setPrototype(ScriptableObject.getFunctionPrototype(scope))
 
   override def call(cx: Context, scope: Scriptable, thisObj: Scriptable, args: Array[AnyRef]) = {
-    val argTypes = Option(args).getOrElse(Array.empty) map { _.getClass }
+    val argTypes = Option(args).getOrElse(Array.empty) collect {
+      case null => null
+      case x => x.getClass
+    }
 
     def hasScriptableArg =
       argTypes exists { classOf[Scriptable].isAssignableFrom }
