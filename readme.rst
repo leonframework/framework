@@ -3,7 +3,9 @@
 
 ----
 
-.. note:: We are currently working hard to finish the documentation, getting started guide etc. but please note that Leon is still in beta state.
+**Note:** We are currently working hard to finish the documentation, getting started guide etc. but please note that Leon is still in beta state.
+
+----
 
 Leon is an application framework for building smart web applications. We believe that in modern web applications the UI should be completely based on HTML(5), CSS and JavaScript, and be rendered in the browser while the server should provide strong AJAX / Comet communication mechanisms, database access, security management, etc.
 
