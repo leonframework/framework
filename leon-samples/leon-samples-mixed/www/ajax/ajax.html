@@ -10,6 +10,10 @@
 
 ${leon.subscribe("personUpdates", ["country"], "personUpdate")}
 
+<script type="text/javascript">
+    leon.comet.updateFilter("personUpdates", "country", "abc");
+</script>
+
 Person:
 
   <table>
@@ -71,3 +75,4 @@ Person:
   </table>
 </body>
 </html>
+

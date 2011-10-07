@@ -47,8 +47,9 @@ class PersonService @Inject()(mongo: MongoDB, cometRegistry: CometRegistry) {
     states.getOrElse(countryCode, Nil)
 
   def doSomething(person: Person): Person = {
+
     //////////////////
-    cometRegistry.publish("personUpdates", Map("countries" -> "de"), Map("a" -> 1, "b" -> 2))
+    cometRegistry.publish("personUpdates", Map("country" -> "abc"), Map("a" -> 123, "b" -> 456))
     /////////////////////////
 
 

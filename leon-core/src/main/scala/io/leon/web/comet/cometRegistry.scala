@@ -15,7 +15,7 @@ import org.atmosphere.cpr.{BroadcastFilter, Meteor}
 import org.atmosphere.util.XSSHtmlFilter
 import com.google.inject.{Inject, Injector}
 import dispatch.json.JsValue
-import dispatch.json.JsValue._
+
 
 class ClientConnection(val pageId: String,
                        private var _uplink: Option[Meteor],
@@ -220,23 +220,40 @@ class CometRegistry @Inject()(clients: Clients) {
     }
     """.format(topicId, serialized).replace('\n', ' ') + "\n"
 
+    val requiredFilterSet = filters.toSet
+
     clientSubscriptions.get(topicId) foreach { clientsForTopic =>
       clientsForTopic.foreach { client =>
-        val connection = clientById(client.clientId)
-        connection.map { _.send(message) }
+        val clientFilterSet = client.activeFilters.toSet
+
+        println("!!!## found client subscription for topic " + topicId)
+        println("!!!## required filter set: " + requiredFilterSet)
+        println("!!!## client's active filter set: " + clientFilterSet)
+
+        if (requiredFilterSet == clientFilterSet) {
+
+          val connection = clientById(client.clientId)
+          connection.map { _.send(message) }
+        }
       }
     }
   }
 
   def updateClientFilter(topicId: String, clientId: String, key: String, value: String) {
-    // TODO improve
+    // TODO check if filter key was declared earlier
+
     val cs = (clientSubscriptions(topicId).find { _.clientId == clientId}).get
+
+    println("##### Updating filter for client subscription: " + cs.clientId)
+    println("##### Current filters: " + cs.activeFilters)
+    println("##### New filter: " + key + "=" + value)
+
     val updatedFilters = cs.activeFilters + (key -> value)
     val updatedCs = cs.copy(activeFilters = updatedFilters)
+    println("##### New filters list: " + updatedCs.activeFilters)
+
     val updatedList = clientSubscriptions(topicId).updated(clientSubscriptions(topicId).indexOf(cs), updatedCs)
     clientSubscriptions(topicId) = updatedList
-
-    println(clientSubscriptions)
   }
 
 }

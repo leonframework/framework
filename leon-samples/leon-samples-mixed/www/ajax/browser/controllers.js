@@ -52,9 +52,10 @@ function PersonCtrl($xhr) {
     server.personService("doSomething")(self.person, function(result) {
       console.log("result of doSomething: " + result);
     });
+
   };
 }
 
-var personUpdate = function() {
-    alert("PERSON UPDATE");
+var personUpdate = function(data) {
+    alert("PERSON UPDATE: a=" + data.a + ", b=" + data.b);
 }
