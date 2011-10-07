@@ -3,7 +3,6 @@ var leonJaxService = (function() {
 
     return {
         postMessage: function(user, room, message) {
-
             //browser.leon("alert")("To Browser", "Message: [" + message + "]");
 
             //leon.mongo.messages.insert(message);
