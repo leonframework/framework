@@ -20,6 +20,9 @@ class JavaObjectAjaxHandlerProvider[T <: AnyRef](key: Key[T]) extends Provider[A
   @Inject
   var engine: LeonScriptEngine = _
 
+  @Inject
+  var converter: Converter = _
+
   private lazy val obj = injector.getInstance(key)
 
   private lazy val proxyObject = new JavaScriptProxy(engine.rhinoScope, obj, obj.getClass)
@@ -27,11 +30,11 @@ class JavaObjectAjaxHandlerProvider[T <: AnyRef](key: Key[T]) extends Provider[A
   private lazy val handler = new AjaxHandler {
     def jsonApply(member: String, args: String) = {
       engine.withContext { ctx => 
-        val jsonArgs = Converter.jsToJava(engine.eval("JSON.parse('" + args + "')"), 
-          classOf[Array[AnyRef]]).asInstanceOf[Array[AnyRef]]
+        val argsArray = engine.invokeFunction("JSON.parse", args)
+        val argsArrayJava = converter.jsToJava(argsArray, classOf[Array[AnyRef]]).asInstanceOf[Array[AnyRef]]
       
         val result = proxyObject.get(member, proxyObject) match {
-          case func: BaseFunction => func.call(ctx, engine.rhinoScope, proxyObject, jsonArgs)
+          case func: BaseFunction => func.call(ctx, engine.rhinoScope, proxyObject, argsArrayJava)
           case _ => sys.error(member + " is not a function!")
         }
         engine.invokeFunction("JSON.stringify", result).asInstanceOf[String]
