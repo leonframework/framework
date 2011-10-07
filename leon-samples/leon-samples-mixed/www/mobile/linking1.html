@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<html class="ui-mobile landscape">
+
+  <head>
+    <title>Leon - jQuery Mobile Examples</title>
+    <#include "/io/leon/templates/commonjs.html" />
+    <#include "/io/leon/templates/mobilejs.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+
+  <body class="ui-mobile-viewport">
+    <!-- data-title="xyz" resets page's title when multiple internal pages are available -->
+    <div data-role="page" id="linking1_page1" data-title="Linking example (start page)">
+
+      <div data-role="header">
+        <h1>Linking example (start page)</h1>
+      </div> <!-- /header -->
+
+      <div data-role="content">
+        <p>Navigate to <a href="#linking1_page2">internal page two</a></p>
+        <p>Navigate to <a href="linking2.html" rel="external">external page</a></p>
+        <br/>
+        <p><a href="http://jquerymobile.com/demos/1.0rc1/docs/pages/page-links.html" target="_blank">more on linking...</a></p>
+      </div> <!-- /content -->
+
+      <div data-role="footer">
+        <h4>Back to <a href="index.html">examples index</a></h4>
+      </div> <!-- /footer -->
+    </div> <!-- /page -->
+
+    <!-- Start of second page -->
+    <div data-role="page" id="linking1_page2" data-title="Linking example (internal to start page)">
+
+      <div data-role="header">
+        <h1>Linking example (internal to start page)</h1>
+      </div> <!-- /header -->
+
+      <div data-role="content">
+        <p>Navigate back to <a href="#linking1_page1">page one</a></p>
+      </div> <!-- /content -->
+
+      <div data-role="footer">
+        <h4>&copy; 2011 by Weigle Wilczek GmbH</h4>
+      </div> <!-- /footer -->
+
+    </div> <!-- /page -->
+  </body>
+</html>

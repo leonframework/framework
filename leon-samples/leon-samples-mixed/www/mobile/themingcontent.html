@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+
+<html class="ui-mobile landscape">
+
+  <head>
+    <title>Leon - jQuery Mobile Examples</title>
+    <#include "/io/leon/templates/commonjs.html" />
+    <#include "/io/leon/templates/mobilejs.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+
+  <body class="ui-mobile-viewport">
+    <div data-role="page" id="foo" data-theme="e" data-content-theme="e">
+      
+      <div data-role="header">
+        <h1>Collapsibles / accordions example</h1>
+      </div> <!-- /header -->
+
+      <div data-role="content">
+        <div data-role="collapsible-set">
+          <div data-role="collapsible" data-collapsed="true" data-theme="a" data-content-theme="a">
+            <h3>Accordion, section 1</h3>
+            <p>I'm the accordion content.</p>
+          </div>
+          <div data-role="collapsible" data-theme="b" data-content-theme="b">
+            <h3>Accordion, section 2</h3>
+            <p>I'm the accordion content.</p>
+          </div>
+          <div data-role="collapsible" data-theme="c" data-content-theme="c">
+            <h3>Accordion, section 3</h3>
+            <p>I'm the accordion content.</p>
+          </div>
+          <div data-role="collapsible" data-theme="d" data-content-theme="d">
+            <h3>Accordion, section 4</h3>
+            <p>I'm the accordion content.</p>
+          </div>
+          <div data-role="collapsible"> <!-- formatting with theme "e" due to default on <div data-role="page"...> -->
+            <h3>Accordion, section 5</h3>
+            <p>I'm the accordion content.</p>
+          </div>
+        </div>
+        <br/>
+        <p><a href="http://jquerymobile.com/demos/1.0rc1/docs/content/content-themes.html" target="_blank">more on theming...</a></p>
+      </div> <!-- /content -->
+
+      <div data-role="footer">
+        <h4>Navigate <a href="contentformatting.html">back</a></h4>
+      </div> <!-- /footer -->
+
+    </div> <!-- /page -->
+  </body>
+</html>

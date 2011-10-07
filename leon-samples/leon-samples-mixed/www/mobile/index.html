@@ -1,0 +1,52 @@
+<!-- HTML5 needed for jQuery mobile -->
+<!DOCTYPE html>
+
+<html class="ui-mobile landscape">
+
+  <head>
+    <title>Leon - jQuery Mobile Examples</title>
+    <!-- inclusion of needed js/css -->
+    <#include "/io/leon/templates/commonjs.html" />
+    <#include "/io/leon/templates/mobilejs.html" />
+    <!-- defines page zoom level for mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript">
+      $(document).bind("mobileinit", function() {
+        alert('mobileinit fired');
+      });
+    </script>
+  </head>
+
+  <body class="ui-mobile-viewport">
+    <!-- data-role="page" defines a separate mobile page -->
+    <div data-role="page" id="foo">
+
+      <div data-role="header">
+        <h1>Leon jQuery Mobile Examples</h1>
+      </div> <!-- /header -->
+
+      <div data-role="content">
+        <!-- by default jQuery Mobile loads all linked pages with ajax in order to -->
+        <!-- be able to animate the page navigation -->
+        <!-- if the target page has multiple internal pages this behaviour must be overriden -->
+        <!-- with rel="external" see: http://jquerymobile.com/demos/1.0b3/docs/pages/page-links.html -->
+        <p><a href="linking1.html" rel="external">Linking example</a></p>
+        <p><a href="dialog1.html" rel="external">Dialog example</a></p>
+        <p><a href="eventing.html" data-prefetch>Events example</a></p>
+        <p><a href="theming.html" data-prefetch>Theming example</a></p>
+        <p><a href="toolbars.html" data-prefetch>Toolbars example</a></p>
+        <p><a href="buttons.html" data-prefetch>Buttons example</a></p>
+        <p><a href="contentformatting.html" data-prefetch>Content formatting examples</a></p>
+        <p><a href="forms.html" data-prefetch>Form example</a></p>
+        <p><a href="listviews.html" data-prefetch>List view examples</a></p>
+        <p><a href="charting.html" data-prefetch>Charting example</a></p>
+        <p><a href="angularintegration.html" data-prefetch>Angular integration example</a></p>
+      </div> <!-- /content -->
+
+      <div data-role="footer">
+        <h4>&copy; 2011 by Weigle Wilczek GmbH</h4>
+      </div> <!-- /footer -->
+
+    </div> <!-- /page -->
+  </body>
+</html>

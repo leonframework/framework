@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html class="ui-mobile landscape">
+
+  <head>
+    <title>Leon - jQuery Mobile Examples</title>
+    <#include "/io/leon/templates/commonjs.html" />
+    <#include "/io/leon/templates/mobilejs.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+
+  <body class="ui-mobile-viewport">
+    <div data-role="page" id="linking2_page1" data-title="Linking example (external sub page 1)">
+
+      <div data-role="header">
+        <h1>Linking example (external sub page 1)</h1>
+      </div> <!-- /header -->
+
+      <div data-role="content">
+        <p>Navigate to <a href="#linking2_page2">page two</a></p>
+        <p>Navigate back to <a href="linking1.html" rel="external">example start page</a></p>
+      </div> <!-- /content -->
+
+      <div data-role="footer">
+        <h4>Back to <a href="index.html" rel="external">examples index</a></h4>
+      </div> <!-- /footer -->
+    </div> <!-- /page -->
+
+    <!-- Start of second page -->
+    <div data-role="page" id="linking2_page2" data-title="Linking example (external sub page 2)">
+
+      <div data-role="header">
+        <h1>Linking example (external sub page 2)</h1>
+      </div> <!-- /header -->
+
+      <div data-role="content">
+        <p>Navigate back to <a href="#linking2_page1">page one</a></p>
+      </div> <!-- /content -->
+
+      <div data-role="footer">
+        <h4>&copy; 2011 by Weigle Wilczek GmbH</h4>
+      </div> <!-- /footer -->
+
+    </div> <!-- /page -->
+  </body>
+</html>

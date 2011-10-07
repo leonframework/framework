@@ -16,7 +16,10 @@ class JavaScriptAjaxHandlerProvider(objName: String) extends Provider[AjaxHandle
   @Inject
   var engine: LeonScriptEngine = _
 
-  private lazy val jsObject = new JavaScriptObject(engine, objName)
+  @Inject
+  var converter: Converter = _
+
+  private lazy val jsObject = new JavaScriptObject(engine, converter, objName)
 
   private lazy val handler = new AjaxHandler {
     def jsonApply(member: String, args: String) = {
@@ -28,12 +31,15 @@ class JavaScriptAjaxHandlerProvider(objName: String) extends Provider[AjaxHandle
 
 }
 
-class JavaScriptObject(val engine: LeonScriptEngine, val objName: String) {
+class JavaScriptObject(val engine: LeonScriptEngine, converter: Converter, val objName: String) {
 
   def jsonApply(member: String, args: String): String = {
+    val argsArray = engine.invokeFunction("JSON.parse", args)
+    val argsArrayJava = converter.jsToJava(argsArray, classOf[Array[AnyRef]]).asInstanceOf[Array[AnyRef]]
+
     val target = objName + "." + member
-    val inv = target + ".apply(" + objName + ", JSON.parse('" + args + "'));"
-    engine.evalToJson(inv)
+    val result = engine.invokeFunction(target, argsArrayJava: _*)
+    engine.invokeFunction("JSON.stringify", result).toString
   }
 
 }

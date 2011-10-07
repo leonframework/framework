@@ -60,8 +60,9 @@ class TestService {
     arr map { _ + 1 }
   }
 
-  def methodWithClass(clazz: Class[_]) = {
-    clazz.getName
-  }
+  def overloadedMethod(i: Int, bean: TestBean) {}
+
+  def overloadedMethod(bean: TestBean, i: Int) {}
+
 
 }
