@@ -11,6 +11,7 @@ package io.leon.resources
 import closure.ClosureTemplatesModule
 import com.google.inject._
 import freemarker.{LeonFreeMarkerTemplateLoader, FreeMarkerProcessor}
+import leon.LeonTagProcessor
 import name.Names
 
 class ResourcesModule extends AbstractModule {
@@ -26,6 +27,7 @@ class ResourcesModule extends AbstractModule {
     bind(classOf[ClosureTemplatesModule]).asEagerSingleton()
     bind(classOf[FreeMarkerProcessor]).asEagerSingleton()
     bind(classOf[LeonFreeMarkerTemplateLoader]).asEagerSingleton()
+    bind(classOf[LeonTagProcessor]).asEagerSingleton()
     bind(classOf[NoOpResourceProcessor]).asEagerSingleton()
     bind(classOf[ResourceProcessorRegistry]).asEagerSingleton()
     bind(classOf[ResourceWatcher]).asEagerSingleton()

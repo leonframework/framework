@@ -12,18 +12,14 @@ import com.google.inject.Inject
 import freemarker.template.{Template, Configuration}
 import java.io._
 import io.leon.resources.Resource
-import io.leon.web.comet.HtmlSubscriber
 
-class FreeMarkerProcessor @Inject()(templateLoader: LeonFreeMarkerTemplateLoader,
-                                     htmlSubscriber: HtmlSubscriber) {
+class FreeMarkerProcessor @Inject()(templateLoader: LeonFreeMarkerTemplateLoader) {
   import scala.collection.JavaConverters._
 
   private lazy val configuration = new Configuration
   configuration.setTemplateLoader(templateLoader)
 
-  private lazy val data = Map(
-    "leon" -> htmlSubscriber
-  )
+  private lazy val data = Map.empty[String, Any]
 
   def transform(in: Resource) =  new Resource(in.name, () => {
     val tpl = new Template(in.name, new InputStreamReader(in.createInputStream()), configuration)

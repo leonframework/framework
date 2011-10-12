@@ -11,9 +11,9 @@ package io.leon.web.comet
 import com.google.inject.servlet.ServletModule
 import org.atmosphere.cpr._
 import io.leon.javascript.LeonScriptEngine
-import com.google.inject.name.Named
-import com.google.inject.{Injector, TypeLiteral, Inject, AbstractModule}
+import com.google.inject.{Injector, Inject, AbstractModule}
 import io.leon.web.resources.ExposedUrl
+import io.leon.resources.leon.LeonTagRewriters
 
 class CometWebModule extends ServletModule {
 
@@ -43,7 +43,8 @@ class CometModule extends AbstractModule {
     bind(classOf[CometHandler]).asEagerSingleton()
     bind(classOf[CometConnectionServlet]).asEagerSingleton()
     bind(classOf[CometUpdateFilterServlet]).asEagerSingleton()
-    bind(classOf[HtmlSubscriber]).asEagerSingleton()
+
+    LeonTagRewriters.bind(binder(), classOf[CometSubscribeTagRewriter])
   }
 }
 

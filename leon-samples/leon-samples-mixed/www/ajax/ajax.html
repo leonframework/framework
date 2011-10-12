@@ -1,4 +1,4 @@
-<html xmlns:ng="http://angularjs.org">
+<html xmlns:ng="http://angularjs.org" xmlns:leon="http://leon.io">
 
 <head>
     <title>Test Page</title>
@@ -8,7 +8,7 @@
 <body ng:controller="PersonCtrl">
 
 
-${leon.subscribe("personUpdates", ["country"], "personUpdate")}
+<leon:subscribe topic="personUpdates" filterOn="country" handlerFn="personUpdate" />
 
 <script type="text/javascript">
     leon.comet.updateFilter("personUpdates", "country", "abc");

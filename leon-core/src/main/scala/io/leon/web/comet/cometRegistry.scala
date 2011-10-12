@@ -15,6 +15,8 @@ import org.atmosphere.cpr.{BroadcastFilter, Meteor}
 import org.atmosphere.util.XSSHtmlFilter
 import com.google.inject.{Inject, Injector}
 import dispatch.json.JsValue
+import io.leon.resources.leon.LeonTagRewriter
+import net.htmlparser.jericho.{Source, Segment}
 
 
 class ClientConnection(val pageId: String,
@@ -259,13 +261,19 @@ class CometRegistry @Inject()(clients: Clients) {
 }
 
 
-class HtmlSubscriber @Inject()(injector: Injector,
+class CometSubscribeTagRewriter @Inject()(injector: Injector,
                                clients: Clients,
-                               cometRegistry: CometRegistry) {
+                               cometRegistry: CometRegistry) extends LeonTagRewriter {
 
   private def request = injector.getInstance(classOf[HttpServletRequest])
 
-  def subscribe(topicId: String, filterOn: Array[String], handlerFn: String): String = {
+  def process(doc: Source): Seq[(Segment, String)] = {
+    import scala.collection.JavaConverters._
+
+    val subscribeTags = doc.getAllStartTags("leon:subscribe")
+    if(subscribeTags.size() == 0)
+      return Nil
+
     val pageId = Option(request.getAttribute("pageId")) map {
       _.toString
     } getOrElse {
@@ -275,17 +283,26 @@ class HtmlSubscriber @Inject()(injector: Injector,
 
     val clientId = request.getSession.getId + "__" + pageId
     clients.add(new ClientConnection(clientId, None, 0))
-    cometRegistry.registerClientSubscription(clientId, topicId, filterOn.toList)
-    
-    ("""
-    |<script>
-    |  leon.comet.addHandler("%s", %s);
-    |  leon.comet.connect(%s);
-    |</script>
-    """).stripMargin.format(topicId, handlerFn, pageId)
+
+    for (subscribeTag <- subscribeTags.asScala) yield {
+
+      // TODO make sure the tag was defined inside <body>
+
+      val topicId = subscribeTag.getAttributeValue("topic")
+      val filterOn = subscribeTag.getAttributeValue("filterOn").split(",") map { _.trim() }
+      val handlerFn = subscribeTag.getAttributeValue("handlerFn")
+
+      cometRegistry.registerClientSubscription(clientId, topicId, filterOn.toList)
+
+      val scriptToInclude =
+        ("""
+        |<script type="text/javascript">
+        |  leon.comet.addHandler("%s", %s);
+        |  leon.comet.connect(%s);
+        |</script>
+        """).stripMargin.format(topicId, handlerFn, pageId)
+
+      subscribeTag -> scriptToInclude
+    }
   }
-
 }
-
-
-
