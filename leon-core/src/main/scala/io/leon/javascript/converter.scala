@@ -23,8 +23,10 @@ private[javascript] trait Converter {
 
   def javaToJs(obj: AnyRef, scope: Scriptable): AnyRef
 
+  // TODO for Marco: the return type should be A
   def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method]): AnyRef
 
+  // TODO for Marco: the return type should be A
   def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A]): AnyRef = jsToJava(js, targetType, None)
 }
 
