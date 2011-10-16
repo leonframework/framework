@@ -7,10 +7,15 @@
     <#include "/io/leon/templates/full.mobile.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script type="text/javascript">
-      $(".myButton").bind("click", function(event, ui) {
-            alert("Button clicked!");
-          }
-        );
+      $(document).bind('pageshow', function() {
+        $(".myButton").bind("click", function(event, ui) {
+          alert("Button clicked!");
+        });
+      });
+
+      $(document).bind('pagehide', function() {
+        $(".myButton").unbind("click");
+      });
     </script>
   </head>
 

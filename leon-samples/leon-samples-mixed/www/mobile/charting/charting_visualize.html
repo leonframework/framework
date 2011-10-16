@@ -8,8 +8,8 @@
     <#include "/io/leon/templates/charting_visualizejs.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script type="text/javascript">
-      $(document).ready(function() {
-        $('table').visualize({
+      $(document).bind('pageshow', function() {
+        $('#dataTable').visualize({
           type:         'area'
         });
       });
@@ -45,11 +45,11 @@
     <div data-role="page" id="foo">
 
       <div data-role="header">
-        <h1>Charting example</h1>
+        <h1>Visualize charting example</h1>
       </div> <!-- /header -->
 
       <div data-role="content">
-        <table>
+        <table id="dataTable">
           <caption>Expenses last week</caption>
           <thead>
             <tr>
@@ -91,7 +91,7 @@
       </div> <!-- /content -->
 
       <div data-role="footer">
-        <h4>Back to <a href="index.html">examples index</a></h4>
+        <h4>Back to <a href="index.html">charting examples index</a></h4>
       </div> <!-- /footer -->
 
     </div> <!-- /page -->
