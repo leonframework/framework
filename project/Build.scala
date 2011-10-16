@@ -1,6 +1,8 @@
 import sbt._
 import Keys._
 import com.github.siasia._
+import com.banno.license.Plugin._
+import LicenseKeys._
 import WebappPlugin.webappSettings
 
 object BuildSettings {
@@ -8,10 +10,20 @@ object BuildSettings {
   val buildVersion      = "0.0.1"
   val buildScalaVersion = "2.9.1"
 
-  val buildSettings = Defaults.defaultSettings ++ Seq (
+  val licenseText =
+"""Copyright (c) 2011 WeigleWilczek and others.
+
+All rights reserved. This program and the accompanying materials
+are made available under the terms of the Eclipse Public License v1.0
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/epl-v10.html
+"""
+
+  val buildSettings = Defaults.defaultSettings ++ licenseSettings ++ Seq (
     organization := buildOrganization,
     version      := buildVersion,
-    scalaVersion := buildScalaVersion
+    scalaVersion := buildScalaVersion,
+    license      := licenseText
   )
 
   val publishSettings = Seq(
