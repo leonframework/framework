@@ -5,6 +5,7 @@ src_managed
 boot
 test/project/plugins/project
 local_glassfish.properties
+.history
 
 # Maven
 target
