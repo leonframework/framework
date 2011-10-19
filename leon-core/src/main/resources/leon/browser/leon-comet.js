@@ -40,7 +40,7 @@ leon.comet = (function() {
             if (http.readyState == 3 && http.status != 200)
                 return;
             if (http.readyState == 4 && http.status != 200) {
-                leon.comet.connect();
+                leon.comet.connect(pageId, true);
             }
             // In konqueror http.responseText is sometimes null here...
             if (http.responseText === null) {
@@ -72,7 +72,7 @@ leon.comet = (function() {
             }
 
             if (http.readyState == 4 && prevDataLength == http.responseText.length) {
-                leon.comet.connect();
+                leon.comet.connect(pageId, true);
             }
         },
 
@@ -89,15 +89,15 @@ leon.comet = (function() {
             isCometActive = true;
         },
 
-        connect: function(id) {
-            if (!isCometActive) {
+        connect: function(id, force) {
+            if (!isCometActive || force === true) {
                 pageId = id;
                 clearInterval(pollTimer);
                 var url = "/leon/comet/connect" + "?pageId=" + pageId;
                 leon.comet.start(url);
             }
         },
-        
+
         addHandler: function(topicId, handlerFn) {
             handlerFns[topicId] = handlerFn;
         },
