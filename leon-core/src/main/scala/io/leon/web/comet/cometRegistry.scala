@@ -286,13 +286,11 @@ class CometSubscribeTagRewriter @Inject()(injector: Injector,
 
     for (subscribeTag <- subscribeTags.asScala) yield {
 
-      // TODO make sure the tag was defined inside <body>
+      val topicId = Option(subscribeTag.getAttributeValue("topic")) getOrElse sys.error("attribute topic is missing in <leon:subscribe>!")
+      val filterOn = Option(subscribeTag.getAttributeValue("filterOn")) map { _.split(",").toList map { _.trim() } } getOrElse Nil
+      val handlerFn = Option(subscribeTag.getAttributeValue("handlerFn")) getOrElse sys.error("attribute handlerFn is missing in <leon:subscribe>!")
 
-      val topicId = subscribeTag.getAttributeValue("topic")
-      val filterOn = subscribeTag.getAttributeValue("filterOn").split(",") map { _.trim() }
-      val handlerFn = subscribeTag.getAttributeValue("handlerFn")
-
-      cometRegistry.registerClientSubscription(clientId, topicId, filterOn.toList)
+      cometRegistry.registerClientSubscription(clientId, topicId, filterOn)
 
       val scriptToInclude =
         ("""
