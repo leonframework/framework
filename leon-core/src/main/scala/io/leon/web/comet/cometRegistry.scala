@@ -10,16 +10,16 @@ package io.leon.web.comet
 
 import collection.mutable
 import java.util.logging.Logger
-import javax.servlet.http.HttpServletRequest
 import org.atmosphere.cpr.{BroadcastFilter, Meteor}
 import org.atmosphere.util.XSSHtmlFilter
 import com.google.inject.{Inject, Injector}
 import dispatch.json.JsValue
 import io.leon.resources.leon.LeonTagRewriter
 import net.htmlparser.jericho.{Source, Segment}
+import javax.servlet.http.{HttpSession, HttpServletRequest}
 
 
-class ClientConnection(val pageId: String,
+class ClientConnection(val clientId: String,
                        private var _uplink: Option[Meteor],
                        var connectTime: Long = System.currentTimeMillis()) {
 
@@ -58,14 +58,14 @@ class ClientConnection(val pageId: String,
       val success = sendPackage(queue(0))
       if (success) {
         queue.remove(0)
-        logger.info("Successfully send message to page: " + pageId)
+        logger.info("Successfully send message to page: " + clientId)
       } else {
-        logger.info("Error while sending message to page: " + pageId)
+        logger.info("Error while sending message to page: " + clientId)
         return
       }
     }
   }
- 
+
   private def sendPackage(msg: String): Boolean = {
     try {
       uplink map { meteor =>
@@ -88,29 +88,44 @@ class ClientConnection(val pageId: String,
 
 }
 
+object Clients {
+
+  def generateNewPageId(): String = {
+    System.currentTimeMillis().toString
+  }
+
+  def generateNewClientId(session: HttpSession): String = {
+    generateExistingClientId(session.getId, generateNewPageId())
+  }
+
+  def generateExistingClientId(sessionId: String, pageId: String): String = {
+    sessionId + "__" + pageId
+  }
+
+}
 class Clients {
 
   private val lock = new Object
 
   private val all = new mutable.ArrayBuffer[ClientConnection]
 
-  private val byPageId = new mutable.HashMap[String, ClientConnection]
+  private val byClientId = new mutable.HashMap[String, ClientConnection]
 
   def allClients = all.toList
 
-  def clientByPageId(id: String) = byPageId.get(id)
+  def getByClientId(id: String) = byClientId.get(id)
 
   def add(client: ClientConnection) {
     lock.synchronized {
       all.append(client)
-      byPageId(client.pageId) = client
+      byClientId(client.clientId) = client
     }
   }
 
   def remove(client: ClientConnection) {
     lock.synchronized {
       all.remove(all.indexOf(client))
-      byPageId.remove(client.pageId)
+      byClientId.remove(client.clientId)
     }
   }
 
@@ -156,11 +171,11 @@ class CometRegistry @Inject()(clients: Clients) {
           clients.allClients foreach { client =>
             if (client.uplink.isDefined) {
               if ((now - client.connectTime) > reconnectTimeout) {
-                logger.info("Client connection for [" + client.pageId + "] too old. Forcing reconnect.")
+                logger.info("Client connection for [" + client.clientId + "] too old. Forcing reconnect.")
                 client.uplink = None
               }
               if ((now - client.connectTime) > disconnectTimeout) {
-                logger.info("Client connection for [" + client.pageId + "] too old. Forcing disconnect.")
+                logger.info("Client connection for [" + client.clientId + "] too old. Forcing disconnect.")
                 client.uplink foreach { _.resume() } // Should not be required, just to be safe
                 clients.remove(client)
               }
@@ -183,35 +198,31 @@ class CometRegistry @Inject()(clients: Clients) {
   }
 
   def registerUplink(sessionId: String, pageId: String, req: HttpServletRequest) {
-    // TODO es müsste jetzt schon ne CC geben, aber ohne uplink
-    // TODO security check
-
     val meteor = createMeteor(req)
-    val id = sessionId + "__" + pageId
-    logger.info("Adding Client comet connection: " + id)
-    clients.clientByPageId(id) match {
-      case None => {
-        //logger.info("Creating new client connection.")
-        //clients.add(new ClientConnection(id, Some(meteor)))
+    val clientId = Clients.generateExistingClientId(sessionId, pageId)
+    logger.info("Registering meteor for client [" + clientId + "]")
 
-        // darf nicht passiert
-        throw new RuntimeException("ARG!!!")
+    clients.getByClientId(clientId) match {
+      case None => {
+        // TODO This is only allowed during DEVELOPMENT mode. Add check!
+        // TODO This cant work right now, since we lost the ClientSubscription
+        logger.info("No client connection found. Adding a new ClientConnection to client list.")
+        clients.add(new ClientConnection(clientId, Some(meteor)))
       }
       case Some(cc) => {
-        logger.info("Updating existing client connection.")
+        logger.info("Client connection found. Updating existing ClientConnection with new meteor.")
         cc.uplink = Some(meteor)
       }
     }
     meteor.suspend(-1, true)
-
-    clients.clientByPageId(id).get.send("\n")
+    clients.getByClientId(clientId).get.send("\n")
   }
 
   def allClients: List[ClientConnection] =
     clients.allClients
 
   def clientById(clientId: String): Option[ClientConnection] =
-    clients.clientByPageId(clientId)
+    clients.getByClientId(clientId)
 
   def publish(topicId: String, filters: Map[String, Any], data: Any) {
     val serialized = JsValue.toJson(JsValue(data))
@@ -262,8 +273,8 @@ class CometRegistry @Inject()(clients: Clients) {
 
 
 class CometSubscribeTagRewriter @Inject()(injector: Injector,
-                               clients: Clients,
-                               cometRegistry: CometRegistry) extends LeonTagRewriter {
+                                          clients: Clients,
+                                          cometRegistry: CometRegistry) extends LeonTagRewriter {
 
   private def request = injector.getInstance(classOf[HttpServletRequest])
 
@@ -277,11 +288,11 @@ class CometSubscribeTagRewriter @Inject()(injector: Injector,
     val pageId = Option(request.getAttribute("pageId")) map {
       _.toString
     } getOrElse {
-      System.currentTimeMillis().toString // TODO add MD5 bla bla
+      Clients.generateNewPageId()
     }
     request.setAttribute("pageId", pageId)
 
-    val clientId = request.getSession.getId + "__" + pageId
+    val clientId = Clients.generateExistingClientId(request.getSession.getId, pageId)
     clients.add(new ClientConnection(clientId, None, 0))
 
     for (subscribeTag <- subscribeTags.asScala) yield {

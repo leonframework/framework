@@ -30,7 +30,7 @@ class CometHandler @Inject()(registry: CometRegistry) extends HttpServlet {
   override def doGet(req: HttpServletRequest, res: HttpServletResponse) {
     val sessionId = req.getSession.getId
     val pageId = req.getParameter("pageId")
-    logger.info("Registering connection for client: " + sessionId + "-" + pageId)
+    logger.info("Registering connection for client: " + sessionId + "__" + pageId)
     registry.registerUplink(sessionId, pageId, req)
   }
 
