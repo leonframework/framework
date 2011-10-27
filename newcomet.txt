@@ -1,0 +1,19 @@
+
+
+<leon:subscribe topic="personUpdates1" filter-on="personId,b" handler="personUpdateFn1" />
+<leon:subscribe topic="personUpdates2" filter-on="personId,b" handler="personUpdateFn1" />
+
+<script>
+    leon.comet.addHandler("personUpdates1", personUpdateFn1);
+    leon.comet.connect(3);
+</script>
+<script>
+    leon.comet.addHandler("personUpdates2", personUpdateFn2);
+    leon.comet.connect(3);
+</script>
+
+
+leon.comet.updateFilter("personUpdates1", "personId", 5);
+
+
+browser.publish("personUpdates", meta, {bla});

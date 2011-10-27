@@ -108,22 +108,6 @@ abstract class AbstractLeonConfiguration extends ServletModule {
     }
   }
 
-  def server(serverName: String) = new {
-    def linksToAllPages(browserName: String) {
-      linksToPagesWithScope(browserName, BrowerObjectAllScope)
-    }
-    def linksToCurrentPage(browserName: String) {
-      linksToPagesWithScope(browserName, BrowerObjectPageScope)
-    }
-    def linksToSessionPages(browserName: String) {
-      linksToPagesWithScope(browserName, BrowerObjectSessionScope)
-    }
-    private def linksToPagesWithScope(browserName: String, browserScope: BrowserObjectScopes) {
-      bind(classOf[BrowserObject]).annotatedWith(Names.named(serverName)).toProvider(
-        new BrowserObjectProvider(browserName, browserScope)).asEagerSingleton()
-    }
-  }
-
   // -- Dependency injection ----------------------------------
 
   override def bind[T](clazz: Class[T]) = super.bind(clazz)

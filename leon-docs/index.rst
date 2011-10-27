@@ -14,4 +14,5 @@ Contents:
    overview
    introduction
    core/index
+   browser/index
    modules

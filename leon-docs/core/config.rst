@@ -25,17 +25,20 @@ Resources
 
 .. js:function:: addLocation(path)
 
-   Add a location of the file system where Leon should lookup resources. 
+   Adds a directory where Leon should lookup resources. 
 
    :param string path: Relative paths are relative to the base directory.
         
 
-.. js:function:: addInternalPath(path)
+.. js:function:: exposeUrl(regex)
   
-   Files and directories in this path will not be accessible by clients.
-  
-   :param string path:
-        Path which contains server-side resources. 
+   Exposes paths that match the given regular expression to clients.
+   
+   By default, Leon gives client access to the following paths/files: ``*.html, *.png, *.jpg, *.gif, *.css, favicon.ico, */browser/*.js, */browser/*.json``. To allow access on other paths or files to clients, you have to expose them by calling this function.
+   
+   
+   :param string regex:
+        Regular expression to match. 
 
 
 .. js:function:: loadFile(fileName)
@@ -46,7 +49,7 @@ Resources
         A server-side JavaScript file to load. The path must be relative to a registered location or to the application's classpath.
 
 
-AJAX-/ Comet-Support
+AJAX-Support
 --------------------
         
 .. js:function:: browser(browserName).linksToServer([serverName])
@@ -59,41 +62,21 @@ AJAX-/ Comet-Support
         Variable name of the server-side object. If not given, serverName is the same as browser name.
    
 
-.. js:function:: browser(browserName).linksToServer(obj)
+.. js:function:: browser(browserName).linksToServer(clazz)
 
     Makes Java objects directly accessible by clients via AJAX.
 
     :param string browserName: 
         Name of the client-side variable.
-    :param Object obj: 
-        Instance of a Java object.
-        
+    :param Class clazz: 
+        Java class on the server-side.
 
-.. js:function:: server(serverName).linksToAllPages(browserName)
+Dependency injection
+---------------------
 
-   TODO.
-   
-   :param string serverName:
-        TODO
-   :param string browserName:
-        TODO
-
-
-.. js:function:: server(serverName).linksToCurrentPage(browserName)
-
-    TODO.
-
-    :param string serverName:
-        TODO
-    :param string browserName:
-        TODO
-
-
-.. js:function:: server(serverName).linksToSessionPages(browserName)
-
-    TODO.
-
-    :param string serverName:
-        TODO
-    :param string browserName:
-        TODO
+.. js:function:: bind(clazz)
+  
+  TODO: Registers a binding in google guice. See `Google Guice Binder <http://google-guice.googlecode.com/svn/trunk/javadoc/com/google/inject/Binder.html>`_ for more information about how to use bindings.
+  
+  :param Class clazz:
+      The Java class to bind.

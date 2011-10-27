@@ -19,10 +19,7 @@ class FreeMarkerProcessor @Inject()(templateLoader: LeonFreeMarkerTemplateLoader
   private lazy val configuration = new Configuration
   configuration.setTemplateLoader(templateLoader)
 
-  private lazy val data = Map(
-    "aa" -> 1,
-    "bb" -> Map("cc" -> 2).asJava
-  )
+  private lazy val data = Map.empty[String, Any]
 
   def transform(in: Resource) =  new Resource(in.name, () => {
     val tpl = new Template(in.name, new InputStreamReader(in.createInputStream()), configuration)

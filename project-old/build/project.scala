@@ -66,6 +66,8 @@ class LeonParentProject(info: ProjectInfo) extends ParentProject(info) with Unpu
 
   def commonsCollections = "commons-collections" % "commons-collections" % "3.2.1" withSources()
 
+  def jerichoHtml = "net.htmlparser.jericho" % "jericho-html" % "3.2" withSources()
+
 
   // ===================================================================================================================
   // Publishing
@@ -112,7 +114,7 @@ http://www.eclipse.org/legal/epl-v10.html
 
     override def libraryDependencies =
       Set(specs2, logback_classic, logback_core, servletApi, freemarker, rhino,
-        atmosphere_runtime, guice, guiceServlet, sjson, snakeYaml,
+        atmosphere_runtime, guice, guiceServlet, sjson, snakeYaml, jerichoHtml,
         casbah_core, commonsBeanutils, commonsCollections, h2database)
 
     override def packageSrcJar = defaultJarPath("-sources.jar")

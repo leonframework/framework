@@ -13,7 +13,7 @@ var person = (function() {
             session.clicks = session.clicks + 1;
             java.lang.System.out.println("clicks: " + session.clicks);
 
-            browser.leon("alert")("To Browser", "Got person no." + no +  "[" + person.firstName + "]");
+            //browser.leon("alert")("To Browser", "Got person no." + no +  "[" + person.firstName + "]");
 
             leon.mongo.people.insert(person);
 
