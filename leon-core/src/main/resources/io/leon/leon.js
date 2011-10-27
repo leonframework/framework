@@ -29,8 +29,22 @@ var leon = (function() {
                     ref.jsonApply(methodName, json);
                 };
             };
-        }
+        },
 
+        parseLess: function(lessString) {
+          var result;
+          var parser = new less.Parser();
+
+          parser.parse(lessString, function (e, root) {
+            if (e) {
+               throw(e);
+            } else {
+                result =  root.toCSS();
+            }
+          });
+
+          return result;
+        }
     };
 
 })();
