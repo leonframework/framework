@@ -23,11 +23,9 @@ private[javascript] trait Converter {
 
   def javaToJs(obj: AnyRef, scope: Scriptable): AnyRef
 
-  // TODO for Marco: the return type should be A
-  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method]): AnyRef
+  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method] = None): A
 
-  // TODO for Marco: the return type should be A
-  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A]): AnyRef = jsToJava(js, targetType, None)
+  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A]): A = jsToJava(js, targetType, None)
 }
 
 
@@ -53,7 +51,7 @@ private class SJSONConverter extends Converter with RawMapConversion {
     mapToScriptableObject(rawMap, obj, scope)
   }
 
-  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method] = None): A = {
+  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method] = None) = {
     require(js.isInstanceOf[ScriptableObject], "js is not an instance of ScriptableObject but " + js.getClass.getName)
 
     def toList(arr: NativeArray): List[AnyRef] =
@@ -157,17 +155,20 @@ private class JCLConverter extends Converter with NativeArrayConversion {
 
     def is(clazz: Class[_]) = targetType.isAssignableFrom(clazz)
 
-    if(is(classOf[JList[_]])) arr.toList.asJava.asInstanceOf[A]
-    else if (is(classOf[JSet[_]])) arr.toSet.asJava.asInstanceOf[A]
-    // concrete java.util.Lists
-    else if(is(classOf[JArrayList[_]])) new JArrayList(arr.toList.asJava)
-    else if(is(classOf[JLinkedList[_]])) new JLinkedList(arr.toList.asJava)
-    else if(is(classOf[JVector[_]])) new JVector(arr.toList.asJava)
-    // concrete java.util.Sets
-    else if(is(classOf[JHashSet[_]])) new JHashSet(arr.toList.asJava)
-    else if(is(classOf[JTreeSet[_]])) new JTreeSet(arr.toList.asJava)
-    else if(is(classOf[JLinkedHashSet[_]])) new JLinkedHashSet(arr.toList.asJava)
-    else sys.error("unsupported java collection type: " + targetType.getName)
+    val result =
+      if(is(classOf[JList[_]])) arr.toList.asJava
+      else if (is(classOf[JSet[_]])) arr.toSet.asJava
+      // concrete java.util.Lists
+      else if(is(classOf[JArrayList[_]])) new JArrayList(arr.toList.asJava)
+      else if(is(classOf[JLinkedList[_]])) new JLinkedList(arr.toList.asJava)
+      else if(is(classOf[JVector[_]])) new JVector(arr.toList.asJava)
+      // concrete java.util.Sets
+      else if(is(classOf[JHashSet[_]])) new JHashSet(arr.toList.asJava)
+      else if(is(classOf[JTreeSet[_]])) new JTreeSet(arr.toList.asJava)
+      else if(is(classOf[JLinkedHashSet[_]])) new JLinkedHashSet(arr.toList.asJava)
+      else sys.error("unsupported java collection type: " + targetType.getName)
+
+    result.asInstanceOf[A]
   }
 }
 
@@ -192,9 +193,12 @@ private class ScalaCollectionConverter extends Converter with NativeArrayConvers
 
     val arr = toArray(js.asInstanceOf[NativeArray], methodOption)
 
-    if(targetType.isAssignableFrom(classOf[Seq[_]])) arr.toSeq.asInstanceOf[A]
-    else if (targetType.isAssignableFrom(classOf[Set[_]])) arr.toSet.asInstanceOf[A]
-    else sys.error("unsupported scala collection type: " + targetType.getName)
+    val result =
+      if(targetType.isAssignableFrom(classOf[Seq[_]])) arr.toSeq
+      else if (targetType.isAssignableFrom(classOf[Set[_]])) arr.toSet
+      else sys.error("unsupported scala collection type: " + targetType.getName)
+
+    result.asInstanceOf[A]
   }
 }
 
@@ -224,7 +228,7 @@ private class ArrayConverter extends Converter with NativeArrayConversion {
       _array
     }
 
-    array
+    array.asInstanceOf[A]
   }
 }
 
@@ -234,7 +238,8 @@ private class RhinoConverter extends Converter {
 
   def javaToJs(obj: AnyRef, scope: Scriptable) = Context.javaToJS(obj, scope)
 
-  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method] = None) = Context.jsToJava(js, targetType)
+  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method] = None) =
+    Context.jsToJava(js, targetType).asInstanceOf[A]
 }
 
 
@@ -258,7 +263,7 @@ private[javascript] object Converter extends Converter {
   }
 
   def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method] = None) = {
-    if(js == null || targetType.isAssignableFrom(js.getClass)) js
+    if(js == null || targetType.isAssignableFrom(js.getClass)) js.asInstanceOf[A]
     else {
       val conv = getConverterForType(js, targetType)
       conv.jsToJava(js, targetType, methodOption)
