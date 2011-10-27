@@ -16,7 +16,7 @@ function PersonCtrl($xhr) {
     hobbies: []
   };
 
-  this.$watch("person.address.country", "states = getStates()");
+  this.$watch("person.address.country", "getStates()");
 
   server.personService("getCountries")(function(result) {
     self.countries = result;
@@ -52,5 +52,10 @@ function PersonCtrl($xhr) {
     server.personService("doSomething")(self.person, function(result) {
       console.log("result of doSomething: " + result);
     });
+
   };
+}
+
+var personUpdate = function(data) {
+    alert("PERSON UPDATE: a=" + data.a + ", b=" + data.b);
 }

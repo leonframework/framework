@@ -1,4 +1,4 @@
-<html xmlns:ng="http://angularjs.org">
+<html xmlns:ng="http://angularjs.org" xmlns:leon="http://leon.io">
 
 <head>
     <title>Test Page</title>
@@ -7,7 +7,12 @@
 </head>
 <body ng:controller="PersonCtrl">
 
-<a href="#" onclick="leon.comet.connect();">Active Uplink</a> <br/>
+
+<leon:subscribe topic="personUpdates" filterOn="country" handlerFn="personUpdate" />
+
+<script type="text/javascript">
+    leon.comet.updateFilter("personUpdates", "country", "abc");
+</script>
 
 Person:
 
@@ -70,3 +75,4 @@ Person:
   </table>
 </body>
 </html>
+

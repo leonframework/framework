@@ -10,6 +10,7 @@ package io.leon.resources
 
 import com.google.inject.{TypeLiteral, Injector, Inject}
 import freemarker.FreeMarkerProcessor
+import leon.LeonTagProcessor
 import scala.collection.mutable
 import java.io.{ByteArrayInputStream, InputStreamReader, BufferedReader, InputStream}
 
@@ -42,7 +43,8 @@ trait ResourceProcessor {
   }
 }
 
-class NoOpResourceProcessor @Inject()(freeMarker: FreeMarkerProcessor) extends ResourceProcessor {
+class NoOpResourceProcessor @Inject()(freeMarker: FreeMarkerProcessor,
+                                      leonTag: LeonTagProcessor) extends ResourceProcessor {
 
   def fromFileEnding = ""
 
@@ -50,7 +52,7 @@ class NoOpResourceProcessor @Inject()(freeMarker: FreeMarkerProcessor) extends R
 
   def process(in: Resource) = {
     if (in.name.endsWith("html")) {
-      freeMarker.transform(in)
+      leonTag.transform(freeMarker.transform(in))
     } else {
       in
     }

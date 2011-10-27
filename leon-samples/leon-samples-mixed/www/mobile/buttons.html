@@ -15,6 +15,7 @@
 
       $(document).bind('pagehide', function() {
         $(".myButton").unbind("click");
+        $(document).unbind("pagehide");
       });
     </script>
   </head>

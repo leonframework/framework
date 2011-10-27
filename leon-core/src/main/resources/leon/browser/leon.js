@@ -5,11 +5,7 @@ jQuery.fn.toObject = function() {
 
 var leon = (function() {
 
-    var randomPageId = Math.floor(Math.random() * 999999999);
-
     return {
-
-        pageId: randomPageId,
 
         call: function(target, args, callback) {
             jQuery.post(

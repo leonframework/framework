@@ -12,6 +12,7 @@ import reflect.BeanInfo
 import com.google.inject.Inject
 import com.mongodb.casbah.MongoDB
 import com.mongodb.casbah.commons.MongoDBObject
+import io.leon.web.comet.CometRegistry
 
 @BeanInfo
 case class Person(firstName: String, lastName: String, address: Address, hobbies: Seq[String]) {
@@ -34,7 +35,7 @@ case class State(isoCode: String, name: String) {
 }
 
 
-class PersonService @Inject()(mongo: MongoDB) {
+class PersonService @Inject()(mongo: MongoDB, cometRegistry: CometRegistry) {
 
   def getCountries: Seq[Country] =
     Country("de", "Germany") ::
@@ -46,6 +47,16 @@ class PersonService @Inject()(mongo: MongoDB) {
     states.getOrElse(countryCode, Nil)
 
   def doSomething(person: Person): Person = {
+
+    //////////////////
+    cometRegistry.publish("personUpdates", Map("country" -> "abc"), Map("a" -> 123, "b" -> 456))
+    /////////////////////////
+
+
+
+
+
+
     println("doSomething got: " + person)
 
     val dbObject = MongoDBObject("fullName" -> "%s %s".format(person.firstName, person.lastName))

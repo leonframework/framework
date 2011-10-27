@@ -80,6 +80,8 @@ object Dependencies {
   def commonsBeanutils = "commons-beanutils" % "commons-beanutils" % "1.8.3" withSources()
 
   def commonsCollections = "commons-collections" % "commons-collections" % "3.2.1" withSources()
+
+  def jerichoHtml = "net.htmlparser.jericho" % "jericho-html" % "3.2" withSources()
 }
 
 object LeonBuild extends Build {
@@ -106,6 +108,7 @@ object LeonBuild extends Build {
     casbah_core,
     commonsBeanutils,
     commonsCollections,
+    jerichoHtml,
     h2database)
 
   val samplesDeps = Seq(servletApi)
