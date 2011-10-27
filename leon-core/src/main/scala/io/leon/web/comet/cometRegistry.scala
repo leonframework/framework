@@ -205,7 +205,7 @@ class CometRegistry @Inject()(clients: Clients) {
     clients.getByClientId(clientId) match {
       case None => {
         // TODO This is only allowed during DEVELOPMENT mode. Add check!
-        // TODO This cant work right now, since we lost the ClientSubscription
+        // This cant work right now, since we lost the ClientSubscription
         logger.info("No client connection found. Adding a new ClientConnection to client list.")
         clients.add(new ClientConnection(clientId, Some(meteor)))
       }
