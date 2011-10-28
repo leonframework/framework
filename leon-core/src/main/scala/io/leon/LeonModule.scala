@@ -12,8 +12,8 @@ import com.google.inject.AbstractModule
 import javascript.LeonJavaScriptModule
 import resources.ResourcesModule
 import web.ajax.AjaxWebModule
+import web.browser.BrowserWebModule
 import web.comet.CometWebModule
-import web.browser.HtmlContextPathRewriterModule
 import web.resources.ResourcesWebModule
 
 class LeonModule extends AbstractModule {
@@ -24,7 +24,7 @@ class LeonModule extends AbstractModule {
     install(new AjaxWebModule)
     install(new CometWebModule)
     install(new ResourcesWebModule)
-    install(new HtmlContextPathRewriterModule)
+    install(new BrowserWebModule)
   }
 
 }
