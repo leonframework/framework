@@ -35,9 +35,9 @@ class LeonTagProcessor @Inject()(injector: Injector) {
 
   def transform(in: Resource) = new Resource(in.name, () => {
 
-    measureTime(in.name) {
+    println(rewriters.map(_.getClass.getName).mkString(","))
 
-      // TODO by-pass documents which are known to have no server-side tags
+    measureTime(in.name) {
 
       val stream = in.createInputStream()
 
@@ -46,6 +46,7 @@ class LeonTagProcessor @Inject()(injector: Injector) {
 
       rewriters flatMap { _.process(source) } foreach { case (tag, newContent) =>
         out.replace(tag, newContent)
+
       }
 
       val initialBufferSize = stream match {

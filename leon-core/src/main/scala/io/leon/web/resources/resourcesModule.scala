@@ -16,6 +16,7 @@ import io.leon.resources.{Resource, ResourceLoader}
 import org.slf4j.LoggerFactory
 import com.google.inject._
 import name.Names
+import io.leon.resources.htmltagsprocessor.LeonTagProcessor
 
 class ResourcesWebModule extends ServletModule {
   override def configureServlets() {
@@ -34,11 +35,11 @@ class ResourcesModule extends AbstractModule {
   }
 }
 
-class ResourcesServlet @Inject()(resourceLoader: ResourceLoader) extends HttpServlet {
+class ResourcesServlet @Inject()(resourceLoader: ResourceLoader, leonTag: LeonTagProcessor) extends HttpServlet {
 
   //private val logger = Logger.getLogger(getClass.getName)
 
-  private val welcomeFiles = List("index.html", "index.xhtml", "index.htm")
+  private val welcomeFiles = List("index.html")
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
     val url = WebUtils.getRequestedResource(req)
@@ -58,8 +59,13 @@ class ResourcesServlet @Inject()(resourceLoader: ResourceLoader) extends HttpSer
 
     resourceOption match {
       case Some(resource) => {
+
+        val resourceTransformed =
+          if(resource.name.endsWith(".html")) leonTag.transform(resource)
+          else resource
+
         setResponseContentType(req, res)
-        val stream = resource.createInputStream()
+        val stream = resourceTransformed.createInputStream()
         val buffer = new Array[Byte](1024)
         var bytesRead = 0
         while (bytesRead != -1) {
