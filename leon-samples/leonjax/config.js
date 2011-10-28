@@ -8,11 +8,7 @@ install(new Packages.io.leon.resources.closure.ClosureTemplatesModule());
 addLocation("./www");
 
 // server-side js files
-loadFile("/io/leon/samples/mixed/person.js");
+loadFile("/leonjax_server.js");
 
 // ajax support
-browser("person").linksToServer("person");
-browser("personService").linksToServer(Packages.io.leon.samples.mixed.PersonService);
-
-// dependency injection
-bind(Packages.io.leon.samples.mixed.PersonService).asEagerSingleton();
+browser("leonJaxService").linksToServer()

@@ -37,11 +37,11 @@ abstract class AbstractLeonConfiguration extends ServletModule {
     exposeUrl(".*html$")
     exposeUrl(".*png$")
     exposeUrl(".*jpg$")
+    exposeUrl(".*jpeg$")
     exposeUrl(".*gif$")
     exposeUrl(".*css$")
     exposeUrl("favicon.ico$")
     exposeUrl(".*/browser/.*js$")
-    exposeUrl(".*/browser/.*css$")
     exposeUrl(".*/browser/.*json$")
 
     config()

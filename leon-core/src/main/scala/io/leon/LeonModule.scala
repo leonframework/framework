@@ -12,6 +12,7 @@ import com.google.inject.AbstractModule
 import javascript.LeonJavaScriptModule
 import resources.ResourcesModule
 import web.ajax.AjaxWebModule
+import web.browser.BrowserWebModule
 import web.comet.CometWebModule
 import web.resources.ResourcesWebModule
 
@@ -22,6 +23,9 @@ class LeonModule extends AbstractModule {
     install(new LeonJavaScriptModule)
     install(new AjaxWebModule)
     install(new CometWebModule)
+    install(new BrowserWebModule)
+
+    // must be at the last position!
     install(new ResourcesWebModule)
   }
 

@@ -11,7 +11,7 @@ package io.leon.resources
 import closure.ClosureTemplatesModule
 import com.google.inject.name.Names
 import freemarker.{LeonFreeMarkerTemplateLoader, FreeMarkerProcessor}
-import leon.LeonTagProcessor
+import htmltagsprocessor.LeonTagProcessor
 import less.LessModule
 import com.google.inject.{Inject, AbstractModule}
 

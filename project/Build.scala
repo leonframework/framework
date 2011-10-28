@@ -19,20 +19,24 @@ which accompanies this distribution, and is available at
 http://www.eclipse.org/legal/epl-v10.html
 """
 
-  val buildSettings = Defaults.defaultSettings ++ licenseSettings ++ Seq (
-    organization := buildOrganization,
-    version      := buildVersion,
-    scalaVersion := buildScalaVersion,
-    license      := licenseText,
+  val buildSettings =
+    Defaults.defaultSettings ++
+    licenseSettings ++
+    Seq(scalacOptions ++= Seq("-unchecked", "-Xfatal-warnings")) ++
+    Seq(
+      organization := buildOrganization,
+      version      := buildVersion,
+      scalaVersion := buildScalaVersion,
+      license      := licenseText,
 
-    // workaround for sbt issue #206 (remove 'watchTransitiveSources' when sbt 0.11.1 is released)
-    // https://github.com/harrah/xsbt/issues/206
-    watchTransitiveSources <<=
-      Defaults.inDependencies[Task[Seq[File]]](
-        watchSources.task, const(std.TaskExtra.constant(Nil)), aggregate = true, includeRoot = true) apply {
-          _.join.map(_.flatten)
-      }
-  )
+      // workaround for sbt issue #206 (remove 'watchTransitiveSources' when sbt 0.11.1 is released)
+      // https://github.com/harrah/xsbt/issues/206
+      watchTransitiveSources <<=
+        Defaults.inDependencies[Task[Seq[File]]](
+          watchSources.task, const(std.TaskExtra.constant(Nil)), aggregate = true, includeRoot = true) apply {
+            _.join.map(_.flatten)
+        }
+    )
 
   val publishSettings = Seq(
     publishTo := Some(Resolver.file("Local Test Repository", Path fileProperty "java.io.tmpdir" asFile)),
@@ -118,9 +122,12 @@ object LeonBuild extends Build {
     "leon",
     file("."),
     settings = buildSettings ++
-      Seq(libraryDependencies += jetty7) ++
-      container.deploy("/" -> samplesMixed)
-  ) aggregate(core,  samplesMixed)
+    Seq(libraryDependencies += jetty7) ++
+    container.deploy(
+      "/mixed" -> samplesMixed,
+      "/leonjax" -> samplesLeonJax
+    )
+    ) aggregate(core,  samplesMixed, samplesLeonJax)
 
   lazy val core = Project(
     "leon-core",
@@ -132,7 +139,16 @@ object LeonBuild extends Build {
   lazy val samplesMixed = Project(
     "leon-samples-mixed",
     file("leon-samples/leon-samples-mixed"),
-    settings = buildSettings ++ webappSettings ++
+    settings = buildSettings ++
+      webappSettings ++
+      Seq(libraryDependencies ++= samplesDeps)
+    ) dependsOn(core)
+
+  lazy val samplesLeonJax = Project(
+    "leonjax",
+    file("leon-samples/leonjax"),
+    settings = buildSettings ++
+      webappSettings ++
       Seq(libraryDependencies ++= samplesDeps)
     ) dependsOn(core)
 

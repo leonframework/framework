@@ -13,7 +13,7 @@ import org.atmosphere.cpr._
 import io.leon.javascript.LeonScriptEngine
 import com.google.inject.{Injector, Inject, AbstractModule}
 import io.leon.web.resources.ExposedUrl
-import io.leon.resources.leon.LeonTagRewriters
+import io.leon.resources.htmltagsprocessor.LeonTagRewriters
 
 class CometWebModule extends ServletModule {
 

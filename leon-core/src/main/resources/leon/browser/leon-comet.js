@@ -93,7 +93,7 @@ leon.comet = (function() {
             if (!isCometActive || force === true) {
                 pageId = id;
                 clearInterval(pollTimer);
-                var url = "/leon/comet/connect" + "?pageId=" + pageId;
+                var url = leon.contextPath + "/leon/comet/connect" + "?pageId=" + pageId;
                 leon.comet.start(url);
             }
         },
@@ -103,7 +103,7 @@ leon.comet = (function() {
         },
 
         updateFilter: function(topicId, key, value) {
-            jQuery.get("/leon/comet/updateFilter", {
+            jQuery.get(leon.contextPath + "/leon/comet/updateFilter", {
                 pageId: pageId,
                 topicId: topicId,
                 key: key,

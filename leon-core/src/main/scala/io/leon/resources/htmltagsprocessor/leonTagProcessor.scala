@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.resources.leon
+package io.leon.resources.htmltagsprocessor
 
 import io.leon.resources.Resource
 import org.slf4j.LoggerFactory
@@ -16,7 +16,7 @@ import net.htmlparser.jericho._
 import java.io._
 
 abstract class LeonTagRewriter {
-  def process(doc: Source): Seq[(Segment, String)]
+  def process(doc: Source): Seq[OutputDocument => Unit]
 }
 
 object LeonTagRewriters {
@@ -35,18 +35,16 @@ class LeonTagProcessor @Inject()(injector: Injector) {
 
   def transform(in: Resource) = new Resource(in.name, () => {
 
-    measureTime(in.name) {
+    println(rewriters.map(_.getClass.getName).mkString(","))
 
-      // TODO by-pass documents which are known to have no server-side tags
+    measureTime(in.name) {
 
       val stream = in.createInputStream()
 
       val source = new Source(stream)
       val out = new OutputDocument(source)
 
-      rewriters flatMap { _.process(source) } foreach { case (tag, newContent) =>
-        out.replace(tag, newContent)
-      }
+      rewriters flatMap { _.process(source) } foreach { func => func(out) }
 
       val initialBufferSize = stream match {
         case buf: ByteArrayInputStream => buf.available() + 512
