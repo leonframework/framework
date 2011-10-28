@@ -12,24 +12,18 @@ import com.google.inject.servlet.ServletModule
 import javax.servlet.http.{HttpServlet, HttpServletResponse, HttpServletRequest}
 import com.google.inject._
 import name.{Named, Names}
-import java.io.{BufferedWriter, BufferedOutputStream}
+import java.io.BufferedOutputStream
 import io.leon.web.resources.ExposedUrl
+import io.leon.web.browser.VirtualLeonJsFileContribution
+import java.lang.StringBuffer
 
 class AjaxWebModule extends ServletModule {
   override def configureServlets() {
-    install(new AjaxModule)
-
+    bind(classOf[AjaxCallServlet]).asEagerSingleton()
     serve("/leon/ajax").`with`(classOf[AjaxCallServlet])
     ExposedUrl.bind(binder(), "/leon/ajax")
 
-    serve("/leon/browser/browser.js").`with`(classOf[BrowserJsFileServlet])
-  }
-}
-
-class AjaxModule extends AbstractModule {
-  def configure() {
-    bind(classOf[AjaxCallServlet]).asEagerSingleton()
-    bind(classOf[BrowserJsFileServlet]).asEagerSingleton()
+    VirtualLeonJsFileContribution.bind(binder(), classOf[AjaxVirtualLeonJsFileContribution])
   }
 }
 
@@ -58,20 +52,17 @@ class AjaxCallServlet @Inject()(injector: Injector) extends HttpServlet {
 
 }
 
-class BrowserJsFileServlet @Inject()(injector: Injector) extends HttpServlet {
+class AjaxVirtualLeonJsFileContribution @Inject()(injector: Injector) extends VirtualLeonJsFileContribution {
 
-  override def service(req: HttpServletRequest, res: HttpServletResponse) {
+  def content() = {
     import scala.collection.JavaConverters._
-
-    res.setContentType("text/javascript")
-    val out = new BufferedWriter(res.getWriter)
-
+    val buffer = new StringBuffer()
     val serverObjects = injector.findBindingsByType(new TypeLiteral[AjaxHandler]() {})
     serverObjects.asScala foreach { o =>
       val browserName = o.getKey.getAnnotation.asInstanceOf[Named].value()
-      out.write(createJavaScriptFunctionDeclaration(browserName))
+      buffer.append(createJavaScriptFunctionDeclaration(browserName))
     }
-    out.close()
+    buffer.toString
   }
 
   private def createJavaScriptFunctionDeclaration(name: String): String = {

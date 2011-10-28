@@ -56,9 +56,3 @@ class HtmlContextPathRewriter @Inject()(requestProvider: Provider[HttpServletReq
   }
 
 }
-
-class HtmlContextPathRewriterModule extends AbstractModule {
-  override def configure() {
-    LeonTagRewriters.bind(binder(), classOf[HtmlContextPathRewriter])
-  }
-}
