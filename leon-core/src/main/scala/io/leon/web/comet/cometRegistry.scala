@@ -15,8 +15,8 @@ import org.atmosphere.util.XSSHtmlFilter
 import com.google.inject.{Inject, Injector}
 import dispatch.json.JsValue
 import io.leon.resources.htmltagsprocessor.LeonTagRewriter
-import net.htmlparser.jericho.{Source, Segment}
 import javax.servlet.http.{HttpSession, HttpServletRequest}
+import net.htmlparser.jericho.{OutputDocument, Source, Segment}
 
 
 class ClientConnection(val clientId: String,
@@ -278,7 +278,7 @@ class CometSubscribeTagRewriter @Inject()(injector: Injector,
 
   private def request = injector.getInstance(classOf[HttpServletRequest])
 
-  def process(doc: Source): Seq[(Segment, String)] = {
+  def process(doc: Source): Seq[OutputDocument => Unit] = {
     import scala.collection.JavaConverters._
 
     val subscribeTags = doc.getAllStartTags("leon:subscribe")
@@ -311,7 +311,7 @@ class CometSubscribeTagRewriter @Inject()(injector: Injector,
         |</script>
         """).stripMargin.format(topicId, handlerFn, pageId)
 
-      subscribeTag -> scriptToInclude
+      out: OutputDocument => out.replace(subscribeTag, scriptToInclude)
     }
   }
 }

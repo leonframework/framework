@@ -8,10 +8,11 @@
  */
 package io.leon.web.browser
 
-import net.htmlparser.jericho.Source
 import com.google.inject.{AbstractModule, Inject, Provider}
 import io.leon.resources.htmltagsprocessor.{LeonTagRewriters, LeonTagRewriter}
 import javax.servlet.http.HttpServletRequest
+import java.util.HashMap
+import net.htmlparser.jericho.{OutputDocument, Source}
 
 class HtmlContextPathRewriter @Inject()(requestProvider: Provider[HttpServletRequest]) extends LeonTagRewriter {
 
@@ -24,6 +25,7 @@ class HtmlContextPathRewriter @Inject()(requestProvider: Provider[HttpServletReq
     "area" -> "href",
     "base" -> "href",
     "input" -> "src")
+
 
   def process(doc: Source) = {
     import scala.collection.JavaConverters._
@@ -38,13 +40,13 @@ class HtmlContextPathRewriter @Inject()(requestProvider: Provider[HttpServletReq
 
         Option(tag.getAttributeValue(attributeName)) flatMap { link =>
           if(link.startsWith("/")) {
+            val attributeMap = new java.util.TreeMap[String, String]()
+            tag.getAttributes.populateMap(attributeMap, false)
 
-            val attrs = tag.getAttributes.asScala filterNot { _.getName == attributeName }
-            val attrOut = attrs map { a => a.getName + "=\"" + a.getValue +  "\"" } mkString " "
+            attributeMap.put(attributeName, contextPath + link)
 
-            val newTag = "<%s %s=%s%s %s>".format(tag.getName, attributeName, contextPath, link, attrOut)
-            println("newTag: " + newTag + ", link = " + link)
-            Some(tag -> newTag)
+            Some((out: OutputDocument) => out.replace(tag.getAttributes, attributeMap))
+
           } else None
         }
       }
