@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.resources.leon
+package io.leon.resources.htmltagsprocessor
 
 import io.leon.resources.Resource
 import org.slf4j.LoggerFactory

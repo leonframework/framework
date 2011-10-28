@@ -10,7 +10,7 @@ package io.leon.resources
 
 import com.google.inject.{TypeLiteral, Injector, Inject}
 import freemarker.FreeMarkerProcessor
-import leon.LeonTagProcessor
+import htmltagsprocessor.LeonTagProcessor
 import scala.collection.mutable
 import java.io.{ByteArrayInputStream, InputStreamReader, BufferedReader, InputStream}
 

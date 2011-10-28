@@ -118,9 +118,12 @@ object LeonBuild extends Build {
     "leon",
     file("."),
     settings = buildSettings ++
-      Seq(libraryDependencies += jetty7) ++
-      container.deploy("/" -> samplesMixed)
-  ) aggregate(core,  samplesMixed)
+    Seq(libraryDependencies += jetty7) ++
+    container.deploy(
+      "/mixed" -> samplesMixed,
+      "/leonjax" -> samplesLeonJax
+    )
+    ) // aggregate(core,  samplesMixed, samplesLeonJax)
 
   lazy val core = Project(
     "leon-core",
@@ -132,10 +135,21 @@ object LeonBuild extends Build {
   lazy val samplesMixed = Project(
     "leon-samples-mixed",
     file("leon-samples/leon-samples-mixed"),
-    settings = buildSettings ++ webappSettings ++
+    settings = buildSettings ++
+      webappSettings ++
+      Seq(libraryDependencies ++= samplesDeps)
+    ) dependsOn(core)
+
+  lazy val samplesLeonJax = Project(
+    "leonjax",
+    file("leon-samples/leonjax"),
+    settings = buildSettings ++
+      webappSettings ++
       Seq(libraryDependencies ++= samplesDeps)
     ) dependsOn(core)
 
 
   lazy val container = Container("container")
+
+  override def projects = Seq(leon, core, samplesMixed, samplesLeonJax)
 }

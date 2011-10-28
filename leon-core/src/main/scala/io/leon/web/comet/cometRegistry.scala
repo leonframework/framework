@@ -14,7 +14,7 @@ import org.atmosphere.cpr.{BroadcastFilter, Meteor}
 import org.atmosphere.util.XSSHtmlFilter
 import com.google.inject.{Inject, Injector}
 import dispatch.json.JsValue
-import io.leon.resources.leon.LeonTagRewriter
+import io.leon.resources.htmltagsprocessor.LeonTagRewriter
 import net.htmlparser.jericho.{Source, Segment}
 import javax.servlet.http.{HttpSession, HttpServletRequest}
 
