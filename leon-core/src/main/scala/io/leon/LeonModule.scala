@@ -23,8 +23,10 @@ class LeonModule extends AbstractModule {
     install(new LeonJavaScriptModule)
     install(new AjaxWebModule)
     install(new CometWebModule)
-    install(new ResourcesWebModule)
     install(new BrowserWebModule)
+
+    // must be at the last position!
+    install(new ResourcesWebModule)
   }
 
 }

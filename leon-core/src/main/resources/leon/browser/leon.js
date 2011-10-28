@@ -9,7 +9,7 @@ var leon = (function() {
 
         call: function(target, args, callback) {
             jQuery.post(
-                "/leon/ajax",
+                leon.contextPath + "/leon/ajax",
                 {
                     pageId: this.pageId,
                     target: target,

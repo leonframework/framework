@@ -17,7 +17,7 @@ object VirtualLeonJsFileContribution {
   def bind(binder: Binder, contribution: Class[_ <: VirtualLeonJsFileContribution]) {
     binder.bind(contribution).asEagerSingleton()
     binder.bind(classOf[VirtualLeonJsFileContribution])
-      .annotatedWith(Names.named(contribution.getClass.getName))
+      .annotatedWith(Names.named(contribution.getName))
       .to(contribution)
   }
 }
@@ -28,21 +28,8 @@ trait VirtualLeonJsFileContribution {
 
 class VirtualLeonJsFile @Inject()(injector: Injector) extends HttpServlet {
 
-  println("äääääääääääääääää")
-  println("äääääääääääääääää")
-  println("äääääääääääääääää")
-  println("äääääääääääääääää")
-  println("äääääääääääääääää")
-  println("äääääääääääääääää")
-  println("äääääääääääääääää")
-
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
     import scala.collection.JavaConverters._
-
-    println("ÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖ")
-    println("ÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖ")
-    println("ÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖÖ")
-
     res.setContentType("text/javascript")
     val out = new BufferedWriter(res.getWriter)
 

@@ -16,6 +16,8 @@ class BrowserWebModule extends ServletModule {
   override def configureServlets() {
     LeonTagRewriters.bind(binder(), classOf[HtmlContextPathRewriter])
 
+    VirtualLeonJsFileContribution.bind(binder(), classOf[ContextPathVirtualLeonJsFileContribution])
+
     bind(classOf[VirtualLeonJsFile]).asEagerSingleton()
     serve("/leon/browser/browser.js").`with`(classOf[VirtualLeonJsFile])
   }
