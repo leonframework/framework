@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.web.html
+package io.leon.web.browser
 
 import net.htmlparser.jericho.Source
 import com.google.inject.{AbstractModule, Inject, Provider}

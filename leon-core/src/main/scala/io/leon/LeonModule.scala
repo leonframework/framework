@@ -13,7 +13,7 @@ import javascript.LeonJavaScriptModule
 import resources.ResourcesModule
 import web.ajax.AjaxWebModule
 import web.comet.CometWebModule
-import web.html.HtmlContextPathRewriterModule
+import web.browser.HtmlContextPathRewriterModule
 import web.resources.ResourcesWebModule
 
 class LeonModule extends AbstractModule {
