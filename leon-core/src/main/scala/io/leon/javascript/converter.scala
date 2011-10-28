@@ -83,7 +83,7 @@ private class PojoConverter extends ConvertUtilsBean with Converter with RawMapC
   private val converter = new BeanUtilsConverter {
     def convert(targetType: Class[_], obj: AnyRef) =  {
       obj match {
-        case map: RawMap => mapToObject(map, targetType.asInstanceOf[Class[AnyRef]])
+        case map: Map[_,_] => mapToObject(map.asInstanceOf[RawMap], targetType.asInstanceOf[Class[AnyRef]])
         case x => Converter.jsToJava(x, targetType.asInstanceOf[Class[AnyRef]])
       }
     }
@@ -173,6 +173,66 @@ private class JCLConverter extends Converter with NativeArrayConversion {
 }
 
 
+// ------------- Java Map support -----------------
+
+private class JavaMapConverter extends Converter {
+  import java.util.{Map => JMap, HashMap => JHashMap}
+  import scala.collection.JavaConverters._
+
+  def javaToJs(obj: AnyRef, scope: Scriptable) = {
+    require(obj.isInstanceOf[JMap[_,_]], "obj is not an instance of java.util.Map but " + obj.getClass.getName)
+
+    val map = obj.asInstanceOf[JMap[String, AnyRef]].asScala
+
+    new ScriptableObject() with Wrapper {
+
+      setParentScope(scope)
+      setPrototype(ScriptableObject.getObjectPrototype(this))
+
+      def getClassName = "JavaMap"
+
+      def unwrap = obj
+
+      map collect {
+        case (k, v) => k -> Converter.javaToJs(v, scope)
+      } foreach { case (k, v) =>
+          defineProperty(k.toString, v, ScriptableObject.PERMANENT)
+      }
+    }
+
+  }
+
+  def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method]) = {
+    require(js.isInstanceOf[ScriptableObject], "js is not an instance of ScriptableObject but " + js.getClass.getName)
+
+    val actualTypes = {
+      val _option = for {
+        method <- methodOption
+        genericType <- method.getGenericParameterTypes.headOption
+        paramType = genericType.asInstanceOf[ParameterizedType]
+      } yield {
+        paramType.getActualTypeArguments map { _.asInstanceOf[Class[AnyRef]] }
+      }
+
+      _option getOrElse Array.empty[Class[AnyRef]]
+    }
+
+    assert(actualTypes.size == 2, "expected two type parameters but got " + actualTypes.size)
+    require(actualTypes(0) == classOf[String], "sorry, only keys of type 'String' are supported")
+
+    val jmap = new JHashMap[String, Object]
+
+    val so = js.asInstanceOf[ScriptableObject]
+    so.getAllIds map { x =>
+      val key = x.asInstanceOf[String]
+      val value = Converter.jsToJava(so.get(key, so), actualTypes(1))
+      jmap.put(key, value)
+    }
+
+    jmap.asInstanceOf[A]
+  }
+}
+
 // ----------- Scala Collection support ---------------
 
 private class ScalaCollectionConverter extends Converter with NativeArrayConversion {
@@ -252,6 +312,7 @@ private[javascript] object Converter extends Converter {
   private val pojoConverter = new PojoConverter
   private val scalaCollectionConverter = new ScalaCollectionConverter
   private val jclConverter = new JCLConverter
+  private val javaMapConverter = new JavaMapConverter
   private val arrayConverter = new ArrayConverter
 
   def javaToJs(obj: AnyRef, scope: Scriptable): AnyRef = {
@@ -271,7 +332,7 @@ private[javascript] object Converter extends Converter {
   }
 
   def getConverterForType(obj: AnyRef, targetType: Class[_]): Converter = {
-    import java.util.{ Collection => JCollection }
+    import java.util.{ Collection => JCollection, Map => JMap }
 
     val conv =
       if(classOf[NativeArray].isAssignableFrom(obj.getClass)) {
@@ -283,14 +344,15 @@ private[javascript] object Converter extends Converter {
       else if(classOf[ScriptableObject].isAssignableFrom(obj.getClass)) {
         // from js object to pojo
         if(classOf[Product].isAssignableFrom(targetType)) sjsonConverter
+        else if(classOf[JMap[_,_]].isAssignableFrom(targetType)) javaMapConverter
         else pojoConverter
       }
       else if(classOf[Scriptable].isAssignableFrom(targetType)) {
         // from pojo to js object
-
         if(obj.getClass.isArray) arrayConverter
         else if(classOf[Iterable[_]].isAssignableFrom(obj.getClass)) scalaCollectionConverter
         else if(classOf[JCollection[_]].isAssignableFrom(obj.getClass)) jclConverter
+        else if(classOf[JMap[_,_]].isAssignableFrom(obj.getClass)) javaMapConverter
         else if(classOf[Product].isAssignableFrom(obj.getClass)) sjsonConverter
         else if(obj.getClass.getName.startsWith("java.lang.")) rhinoConverter
         else pojoConverter
@@ -323,8 +385,6 @@ private trait NativeArrayConversion {
   }
 
   protected def toArray(arg: NativeArray, methodOption: Option[Method] = None): Array[AnyRef] = {
-    // TODO Scala's AnyVal types
-
     val actualType = {
       val _option = for {
         method <- methodOption
@@ -335,9 +395,6 @@ private trait NativeArrayConversion {
 
       _option getOrElse classOf[AnyRef]
     }
-
-//    println("actualType: " + targetType.getName)
-
 
     toArray(arg, actualType)
   }
@@ -368,7 +425,7 @@ private trait RawMapConversion {
       def unwrap = obj
 
       map collect {
-        case (k, v: RawMap) => k -> mapToScriptableObject(v, obj, this)
+        case (k, v: Map[_,_]) => k -> mapToScriptableObject(v.asInstanceOf[RawMap], obj, this)
         case (k, v: List[_]) => k -> Converter.javaToJs(v, scope)
         case x => x
       } foreach { case (k, v) =>
@@ -376,5 +433,4 @@ private trait RawMapConversion {
       }
     }
   }
-
 }

@@ -40,7 +40,7 @@ class HtmlContextPathRewriter @Inject()(requestProvider: Provider[HttpServletReq
 
         Option(tag.getAttributeValue(attributeName)) flatMap { link =>
           if(link.startsWith("/")) {
-            val attributeMap = new java.util.TreeMap[String, String]()
+            val attributeMap = new java.util.LinkedHashMap[String, String]()
             tag.getAttributes.populateMap(attributeMap, false)
 
             attributeMap.put(attributeName, contextPath + link)
