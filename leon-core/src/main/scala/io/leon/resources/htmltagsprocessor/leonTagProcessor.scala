@@ -16,7 +16,7 @@ import net.htmlparser.jericho._
 import java.io._
 
 abstract class LeonTagRewriter {
-  def process(doc: Source): Seq[(Segment, String)]
+  def process(doc: Source): Seq[OutputDocument => Unit]
 }
 
 object LeonTagRewriters {
@@ -44,10 +44,7 @@ class LeonTagProcessor @Inject()(injector: Injector) {
       val source = new Source(stream)
       val out = new OutputDocument(source)
 
-      rewriters flatMap { _.process(source) } foreach { case (tag, newContent) =>
-        out.replace(tag, newContent)
-
-      }
+      rewriters flatMap { _.process(source) } foreach { func => func(out) }
 
       val initialBufferSize = stream match {
         case buf: ByteArrayInputStream => buf.available() + 512
