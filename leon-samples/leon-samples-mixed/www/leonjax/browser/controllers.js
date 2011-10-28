@@ -1,4 +1,5 @@
 function LeonJaxCtrl($xhr) {
+
   self = this;
 
   //messages array is displayed in the html via angular Databinding
