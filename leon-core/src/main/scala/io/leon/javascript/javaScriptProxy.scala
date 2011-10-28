@@ -59,10 +59,10 @@ private class DispatchFunction(name: String, javaMethod: NativeJavaMethod, targe
 
     if(method.isDefined && hasScriptableArg) {
       method map { m =>
-        val paramTypes = m.getParameterTypes.asInstanceOf[Array[AnyRef]]
+        val paramTypes = m.getParameterTypes.asInstanceOf[Array[Class[AnyRef]]]
         val convertedArgs: Array[AnyRef] =
           if (args == null) Array.empty[AnyRef]
-          else (args zip paramTypes) collect { case (obj, argType: Class[AnyRef]) =>
+          else (args zip paramTypes) collect { case (obj, argType: Class[_]) =>
             Converter.jsToJava(obj, argType, Some(m))
           }
         invokeMethod(m, convertedArgs)
