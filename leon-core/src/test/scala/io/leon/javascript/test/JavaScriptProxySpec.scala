@@ -71,6 +71,18 @@ class JavaScriptProxySpec extends Specification {
       success
     }
 
+    "suport method calls with java Map" in {
+      val engine = getLeonScriptEngine
+      engine.invokeFunction("io.leon.javascript.test.Tests.methodWithJavaMap")
+      success
+    }
+
+    "suport method calls with scala Map" in {
+      val engine = getLeonScriptEngine
+      engine.invokeFunction("io.leon.javascript.test.Tests.methodWithScalaMap")
+      success
+    }
+
     "suport method calls with scala seq" in {
       val engine = getLeonScriptEngine
       engine.invokeFunction("io.leon.javascript.test.Tests.methodWithSeq")

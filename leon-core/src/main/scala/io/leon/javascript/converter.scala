@@ -324,10 +324,15 @@ private[javascript] object Converter extends Converter {
   }
 
   def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method] = None) = {
-    if(js == null || targetType.isAssignableFrom(js.getClass)) js.asInstanceOf[A]
+    val obj = js match {
+      case jsProxy: JavaScriptProxy[_] => jsProxy.unwrap()
+      case _ => js
+    }
+
+    if(obj == null || targetType.isAssignableFrom(obj.getClass)) obj.asInstanceOf[A]
     else {
-      val conv = getConverterForType(js, targetType)
-      conv.jsToJava(js, targetType, methodOption)
+      val conv = getConverterForType(obj, targetType)
+      conv.jsToJava(obj, targetType, methodOption)
     }
   }
 

@@ -52,6 +52,14 @@ class TestService {
     list
   }
 
+  def methodWithJavaMap(map: java.util.Map[String, TestBean]) = {
+    map
+  }
+
+  def methodWithScalaMap(map: scala.collection.Map[String, TestBean]) = {
+    map
+  }
+
   def methodWithSeq(seq: Seq[TestBean]) = {
     seq map { e => e.copy(y = e.y + 1) }
   }

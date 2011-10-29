@@ -48,7 +48,7 @@ private class DispatchFunction(name: String, javaMethod: NativeJavaMethod, targe
     }
 
     def hasScriptableArg =
-      argTypes exists { classOf[Scriptable].isAssignableFrom }
+      argTypes filter { _ != null } exists { classOf[Scriptable].isAssignableFrom }
 
     def invokeMethod(method: Method, args: Array[AnyRef]) = {
       val result = method.invoke(targetObject, args: _*)

@@ -71,6 +71,29 @@ io.leon.javascript.test.Tests = (function() {
         if(result[i].x != "test") throw "expected 'test' but got: " + result[i].x;
     },
 
+    methodWithJavaMap: function() {
+      var bean = {
+        "x": "test",
+        "y": 1,
+        "z": { "x": "test" }
+      };
+
+      var x = {
+        a: bean,
+        b: bean
+      }
+      var result = service.methodWithJavaMap(x).toJSON();
+      return result.a.x == "test";
+    },
+
+    methodWithScalaMap: function() {
+      var map = new Packages.scala.collection.mutable.HashMap();
+      map.put("test", null);
+
+      var result = service.methodWithScalaMap(map);
+      return true;
+    },
+
     methodWithSeq: function() {
       var bean = {
         "x": "Hello World",
