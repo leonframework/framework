@@ -42,7 +42,7 @@ class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) ex
 
     // static content
     req.getParameter("env") match {
-      case "desktop" => {
+      case "desktop" | null => {
         writeResource(out, "/leon/browser/jquery-1.6.4.js")
         writeResource(out, "/leon/browser/angular-0.9.19.js")
         writeResource(out, "/leon/browser/leon-browser.js")
@@ -53,7 +53,7 @@ class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) ex
 
       }
       case _ => {
-        sys.error("You must add either '?env=desktop' or '?env=mobile' when loading leon.js.")
+        sys.error("You can add either '?env=desktop' (default) or '?env=mobile' when loading leon.js.")
       }
     }
 
