@@ -10,12 +10,15 @@ function LeonJaxCtrl($xhr) {
     room: ""
   };
 
+  this.$watch("user.room", "updateFilter()");
+
+  this.updateFilter = function() {
+    if(this.user.room)
+      leon.comet.updateFilter("messages", "room", this.user.room.name);
+  };
+
   this.postMessage = function(message) {
-    server.leonJaxService("postMessage")(this.user.name, this.user.room.name, message, function(result) {
-      console.log(result);
-      self.messages.unshift(result.message);
-      self.message = "";
-    });
+    server.leonJaxService("postMessage")(this.user.name, this.user.room.name, message);
   };
 
 }

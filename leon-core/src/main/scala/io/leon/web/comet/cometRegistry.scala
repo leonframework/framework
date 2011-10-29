@@ -224,7 +224,8 @@ class CometRegistry @Inject()(clients: Clients) {
   def clientById(clientId: String): Option[ClientConnection] =
     clients.getByClientId(clientId)
 
-  def publish(topicId: String, filters: Map[String, Any], data: Any) {
+
+  def publish(topicId: String, filters: collection.Map[String, Any], data: Any) {
     val serialized = JsValue.toJson(JsValue(data))
     val message = """$$$MESSAGE$$${
       "type": "publishedEvent",

@@ -8,9 +8,17 @@
     <#include "/io/leon/templates/full.mobile.html" />
     <script src="browser/controllers.js" type="text/javascript"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript">
+       function handleMessage(msg) {
+          $("#messages").prepend("<div class='message'>" + msg + "</div>");
+       }
+     </script>
   </head>
 
   <body class="ui-mobile-viewport" ng:controller="LeonJaxCtrl">
+
+    <leon:subscribe topic="messages" filterOn="room" handlerFn="handleMessage"/>
+
     <!-------------------------- page1 -------------------------->
     <div data-role="page" id="page1" data-title="Enter your name...">
       <!------ header ------>
@@ -55,9 +63,11 @@
           <a ngm:click="postMessage(message)" ng:disabled="{{user.name.length == 0 || message.length == 0 || user.room == null}}" data-role="button" data-inline="false">Submit</a>
         </div>
         <div id="messages">
+          <!--
           <div ng:repeat="message in messages">
             {{message}}
           </div>
+          -->
         </div>
       </div>
       <!------ footer ------>
