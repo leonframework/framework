@@ -10,7 +10,7 @@ if (this.window === undefined) {
 }
 
 // Util functions
-
+var leon = this.leon || {};
 leon.utils = (function() {
     return {
         createVar: function(name) {

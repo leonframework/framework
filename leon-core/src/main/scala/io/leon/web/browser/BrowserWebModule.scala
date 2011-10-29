@@ -10,6 +10,7 @@ package io.leon.web.browser
 
 import io.leon.resources.htmltagsprocessor.LeonTagRewriters
 import com.google.inject.servlet.ServletModule
+import io.leon.web.resources.ExposedUrl
 
 class BrowserWebModule extends ServletModule {
 
@@ -19,7 +20,8 @@ class BrowserWebModule extends ServletModule {
     VirtualLeonJsFileContribution.bind(binder(), classOf[ContextPathVirtualLeonJsFileContribution])
 
     bind(classOf[VirtualLeonJsFile]).asEagerSingleton()
-    serve("/leon/browser/browser.js").`with`(classOf[VirtualLeonJsFile])
+    serve("/leon/leon.js").`with`(classOf[VirtualLeonJsFile])
+    ExposedUrl.bind(binder(), "/leon/leon.js")
   }
 
 }

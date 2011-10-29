@@ -10,9 +10,9 @@ package io.leon.resources.closure
 
 
 import com.google.template.soy.jssrc.SoyJsSrcOptions
-import io.leon.resources.{Resource, ResourceProcessor}
 import com.google.template.soy.{SoyFileSet}
 import collection.JavaConverters
+import io.leon.resources.{ResourceUtils, Resource, ResourceProcessor}
 
 class ClosureTemplatesResourceProcessor ()
   extends ResourceProcessor {
@@ -26,14 +26,14 @@ class ClosureTemplatesResourceProcessor ()
     import JavaConverters._
 
     // Bundle the given Soy file into a SoyFileSet
-    val inStr = inputStreamToString(in.createInputStream())
+    val inStr = ResourceUtils.inputStreamToString(in.createInputStream())
     val sfs = (new SoyFileSet.Builder()).add(inStr,in.name).build()
 
     val res = sfs.compileToJsSrc(new SoyJsSrcOptions(), null)
 
     //println(res.asScala.head)
 
-    stringToInputStream(res.asScala.head)
+    ResourceUtils.stringToInputStream(res.asScala.head)
   })
 
 }
