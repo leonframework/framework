@@ -10,8 +10,8 @@ package io.leon.resources.less
 
 import io.leon.javascript.LeonScriptEngine
 import com.google.inject.{Provider, Inject}
-import io.leon.resources.{Resource, ResourceProcessor}
 import org.slf4j.LoggerFactory
+import io.leon.resources.{ResourceUtils, Resource, ResourceProcessor}
 
 class LessResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScriptEngine])
   extends ResourceProcessor {
@@ -30,10 +30,9 @@ class LessResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScr
 
   def process(in: Resource) = {
     synchronized {
-
-      val inStr = inputStreamToString(in.createInputStream())
+      val inStr = ResourceUtils.inputStreamToString(in.createInputStream())
       val cs = leonScriptEngine.invokeFunction("leon.parseLess", inStr)
-      new Resource(in.name, () => stringToInputStream(cs.toString))
+      new Resource(in.name, () => ResourceUtils.stringToInputStream(cs.toString))
     }
   }
 
