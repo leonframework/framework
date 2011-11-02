@@ -130,7 +130,7 @@ private class PojoConverter extends ConvertUtilsBean with Converter with RawMapC
 
 // ----------- Java Collection support ------------
 
-private class JCLConverter extends Converter with NativeArrayConversion {
+private class JCLConverter extends Converter with NativeArrayConversion with UnsupportedGenericTypes {
   import java.util.{ Collection => JCollection, List => JList, Set => JSet }
   import java.util.{ ArrayList => JArrayList, LinkedList => JLinkedList, Vector => JVector }
   import java.util.{ HashSet => JHashSet, TreeSet => JTreeSet, LinkedHashSet => JLinkedHashSet }
@@ -149,33 +149,36 @@ private class JCLConverter extends Converter with NativeArrayConversion {
   }
 
   def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method] = None) = {
-    require(js.isInstanceOf[NativeArray], "js is not an instance of NativeArray but" + js.getClass.getName)
 
-    val arr = toArray(js.asInstanceOf[NativeArray], methodOption)
+    genericTypeParametersNotSupportedYet(targetType)
 
-    def is(clazz: Class[_]) = targetType.isAssignableFrom(clazz)
-
-    val result =
-      if(is(classOf[JList[_]])) arr.toList.asJava
-      else if (is(classOf[JSet[_]])) arr.toSet.asJava
-      // concrete java.util.Lists
-      else if(is(classOf[JArrayList[_]])) new JArrayList(arr.toList.asJava)
-      else if(is(classOf[JLinkedList[_]])) new JLinkedList(arr.toList.asJava)
-      else if(is(classOf[JVector[_]])) new JVector(arr.toList.asJava)
-      // concrete java.util.Sets
-      else if(is(classOf[JHashSet[_]])) new JHashSet(arr.toList.asJava)
-      else if(is(classOf[JTreeSet[_]])) new JTreeSet(arr.toList.asJava)
-      else if(is(classOf[JLinkedHashSet[_]])) new JLinkedHashSet(arr.toList.asJava)
-      else sys.error("unsupported java collection type: " + targetType.getName)
-
-    result.asInstanceOf[A]
+//    require(js.isInstanceOf[NativeArray], "js is not an instance of NativeArray but" + js.getClass.getName)
+//
+//    val arr = toArray(js.asInstanceOf[NativeArray], methodOption)
+//
+//    def is(clazz: Class[_]) = targetType.isAssignableFrom(clazz)
+//
+//    val result =
+//      if(is(classOf[JList[_]])) arr.toList.asJava
+//      else if (is(classOf[JSet[_]])) arr.toSet.asJava
+//      // concrete java.util.Lists
+//      else if(is(classOf[JArrayList[_]])) new JArrayList(arr.toList.asJava)
+//      else if(is(classOf[JLinkedList[_]])) new JLinkedList(arr.toList.asJava)
+//      else if(is(classOf[JVector[_]])) new JVector(arr.toList.asJava)
+//      // concrete java.util.Sets
+//      else if(is(classOf[JHashSet[_]])) new JHashSet(arr.toList.asJava)
+//      else if(is(classOf[JTreeSet[_]])) new JTreeSet(arr.toList.asJava)
+//      else if(is(classOf[JLinkedHashSet[_]])) new JLinkedHashSet(arr.toList.asJava)
+//      else sys.error("unsupported java collection type: " + targetType.getName)
+//
+//    result.asInstanceOf[A]
   }
 }
 
 
 // ------------- Java Map support -----------------
 
-private class JavaMapConverter extends Converter {
+private class JavaMapConverter extends Converter with UnsupportedGenericTypes {
   import java.util.{Map => JMap, HashMap => JHashMap}
   import scala.collection.JavaConverters._
 
@@ -203,39 +206,42 @@ private class JavaMapConverter extends Converter {
   }
 
   def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method]) = {
-    require(js.isInstanceOf[ScriptableObject], "js is not an instance of ScriptableObject but " + js.getClass.getName)
 
-    val actualTypes = {
-      val _option = for {
-        method <- methodOption
-        genericType <- method.getGenericParameterTypes.headOption
-        paramType = genericType.asInstanceOf[ParameterizedType]
-      } yield {
-        paramType.getActualTypeArguments map { _.asInstanceOf[Class[AnyRef]] }
-      }
+    genericTypeParametersNotSupportedYet(targetType)
 
-      _option getOrElse Array.empty[Class[AnyRef]]
-    }
-
-    assert(actualTypes.size == 2, "expected two type parameters but got " + actualTypes.size)
-    require(actualTypes(0) == classOf[String], "sorry, only keys of type 'String' are supported")
-
-    val jmap = new JHashMap[String, Object]
-
-    val so = js.asInstanceOf[ScriptableObject]
-    so.getAllIds map { x =>
-      val key = x.asInstanceOf[String]
-      val value = Converter.jsToJava(so.get(key, so), actualTypes(1))
-      jmap.put(key, value)
-    }
-
-    jmap.asInstanceOf[A]
+//    require(js.isInstanceOf[ScriptableObject], "js is not an instance of ScriptableObject but " + js.getClass.getName)
+//
+//    val actualTypes = {
+//      val _option = for {
+//        method <- methodOption
+//        genericType <- method.getGenericParameterTypes.headOption
+//        paramType = genericType.asInstanceOf[ParameterizedType]
+//      } yield {
+//        paramType.getActualTypeArguments map { _.asInstanceOf[Class[AnyRef]] }
+//      }
+//
+//      _option getOrElse Array.empty[Class[AnyRef]]
+//    }
+//
+//    assert(actualTypes.size == 2, "expected two type parameters but got " + actualTypes.size)
+//    require(actualTypes(0) == classOf[String], "sorry, only keys of type 'String' are supported")
+//
+//    val jmap = new JHashMap[String, Object]
+//
+//    val so = js.asInstanceOf[ScriptableObject]
+//    so.getAllIds map { x =>
+//      val key = x.asInstanceOf[String]
+//      val value = Converter.jsToJava(so.get(key, so), actualTypes(1))
+//      jmap.put(key, value)
+//    }
+//
+//    jmap.asInstanceOf[A]
   }
 }
 
 // ----------- Scala Collection support ---------------
 
-private class ScalaCollectionConverter extends Converter with NativeArrayConversion {
+private class ScalaCollectionConverter extends Converter with NativeArrayConversion with UnsupportedGenericTypes {
 
   // TODO: Support maps, mutable collections and concrete collection types
 
@@ -249,16 +255,19 @@ private class ScalaCollectionConverter extends Converter with NativeArrayConvers
   }
 
   def jsToJava[A <: AnyRef](js: AnyRef, targetType: Class[A], methodOption: Option[Method] = None) = {
-    require(js.isInstanceOf[NativeArray], "js is not an instance of NativeArray but" + js.getClass.getName)
 
-    val arr = toArray(js.asInstanceOf[NativeArray], methodOption)
+    genericTypeParametersNotSupportedYet(targetType)
 
-    val result =
-      if(targetType.isAssignableFrom(classOf[Seq[_]])) arr.toSeq
-      else if (targetType.isAssignableFrom(classOf[Set[_]])) arr.toSet
-      else sys.error("unsupported scala collection type: " + targetType.getName)
-
-    result.asInstanceOf[A]
+//    require(js.isInstanceOf[NativeArray], "js is not an instance of NativeArray but" + js.getClass.getName)
+//
+//    val arr = toArray(js.asInstanceOf[NativeArray], methodOption)
+//
+//    val result =
+//      if(targetType.isAssignableFrom(classOf[Seq[_]])) arr.toSeq
+//      else if (targetType.isAssignableFrom(classOf[Set[_]])) arr.toSet
+//      else sys.error("unsupported scala collection type: " + targetType.getName)
+//
+//    result.asInstanceOf[A]
   }
 }
 
@@ -389,20 +398,22 @@ private trait NativeArrayConversion {
     seq.toArray[A]
   }
 
-  protected def toArray(arg: NativeArray, methodOption: Option[Method] = None): Array[AnyRef] = {
-    val actualType = {
-      val _option = for {
-        method <- methodOption
-        genericType <- method.getGenericParameterTypes.headOption
-        paramType = genericType.asInstanceOf[ParameterizedType]
-        actualType <- paramType.getActualTypeArguments.headOption
-      } yield actualType.asInstanceOf[Class[AnyRef]]
-
-      _option getOrElse classOf[AnyRef]
-    }
-
-    toArray(arg, actualType)
-  }
+// FIX ME: this implementation does not work, hence conversion of objects with generic type params are not supported yet!
+//
+//  protected def toArray(arg: NativeArray, methodOption: Option[Method] = None): Array[AnyRef] = {
+//    val actualType = {
+//      val _option = for {
+//        method <- methodOption
+//        genericType <- method.getGenericParameterTypes.headOption
+//        paramType = genericType.asInstanceOf[ParameterizedType]
+//        actualType <- paramType.getActualTypeArguments.headOption
+//      } yield actualType.asInstanceOf[Class[AnyRef]]
+//
+//      _option getOrElse classOf[AnyRef]
+//    }
+//
+//    toArray(arg, actualType)
+//  }
 }
 
 private trait RawMapConversion {
@@ -438,4 +449,13 @@ private trait RawMapConversion {
       }
     }
   }
+}
+
+private trait UnsupportedGenericTypes {
+
+  def genericTypeParametersNotSupportedYet(clazz: Class[_]): Nothing = {
+    throw new UnsupportedOperationException("sorry, conversion to java objects with generic type parameters " +
+      "are not supported yet! - %s".format(clazz.getName))
+  }
+
 }
