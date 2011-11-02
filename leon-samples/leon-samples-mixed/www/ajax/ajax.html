@@ -4,6 +4,13 @@
     <title>Test Page</title>
     <#include "/io/leon/templates/full.desktop.html" />
     <script src="browser/controllers.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      <!--
+      angular.element(document).ready(function() {
+       angular.compile(document)().$apply();
+      });
+      -->
+    </script>
 </head>
 <body ng:controller="PersonCtrl">
 
