@@ -10,9 +10,8 @@ package io.leon.resources
 
 import com.google.inject.{TypeLiteral, Injector, Inject}
 import freemarker.FreeMarkerProcessor
-import htmltagsprocessor.LeonTagProcessor
 import scala.collection.mutable
-import java.io.{ByteArrayInputStream, InputStreamReader, BufferedReader, InputStream}
+
 
 trait ResourceProcessor {
 
@@ -24,23 +23,6 @@ trait ResourceProcessor {
 
   def isCachingRequested = false
 
-  protected def inputStreamToString(stream: InputStream): String = {
-      val br = new BufferedReader(new InputStreamReader(stream))
-    val sb = new StringBuilder
-    var line: String = br.readLine()
-
-    while (line != null) {
-      sb.append(line + "\n")
-      line = br.readLine()
-    }
-
-    br.close()
-    sb.toString()
-  }
-
-  protected def stringToInputStream(string: String): InputStream = {
-    new ByteArrayInputStream(string.getBytes)
-  }
 }
 
 class NoOpResourceProcessor @Inject()(freeMarker: FreeMarkerProcessor) extends ResourceProcessor {
