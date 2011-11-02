@@ -29,7 +29,7 @@ class CoffeeScriptResourceProcessor @Inject()(leonScriptEngineProvider: Provider
     synchronized {
       val inStr = inputStreamToString(in.createInputStream())
       val cs = leonScriptEngine.invokeFunction("CoffeeScript.compile", inStr)
-      new Resource(in.name, () => stringToInputStream(cs.toString))
+      new Resource(in.name, in.lastModifiedFunc ,() => stringToInputStream(cs.toString))
     }
   }
 

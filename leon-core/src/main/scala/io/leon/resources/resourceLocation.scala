@@ -54,7 +54,7 @@ class FileSystemResourceLocation(val baseDir: File) extends ResourceLocation {
   }
 }
 
-class Resource(val name: String, lastModifiedFunc: () => Long, streamFunc: () => InputStream) {
+class Resource(val name: String, val lastModifiedFunc: () => Long, streamFunc: () => InputStream) {
 
   def this(name: String, streamFunc: () => InputStream) = this(name, () => 0, streamFunc)
 
