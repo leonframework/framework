@@ -21,6 +21,9 @@
   </head>
 
   <body ng:controller="LeonJaxCtrl">
+
+    <leon:subscribe topic="leonjax.room.messages" filterOn="room" handlerFn="handleMessage"/>
+
     <div class="container">
       <div id="header" class="span-24 last">
         <h2 class="loud">Hello {{user.name}}!</h2>
