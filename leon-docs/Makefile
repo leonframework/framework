@@ -131,16 +131,15 @@ doctest:
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in $(BUILDDIR)/doctest/output.txt."
 	      
-publish: html latexpdf
-	rm -Rf $(BUILDDIR)/leon_gh_page/
+publish: clean html latexpdf
 	$(GIT) clone git@github.com:leonframework/leonframework.github.com.git $(BUILDDIR)/leon_gh_page
 	rm -Rf $(BUILDDIR)/leon_gh_page/doc/latest/*
 	mkdir -p $(BUILDDIR)/leon_gh_page/doc/latest/
 	cp -rf $(BUILDDIR)/html/* $(BUILDDIR)/leon_gh_page/doc/latest/
+	cp $(BUILDDIR)/latex/*.pdf $(BUILDDIR)/leon_gh_page/doc/latest/
 	cd $(BUILDDIR)/leon_gh_page/
 	$(GIT) add .
-	$(GIT) commit -m "updates latest docs"
-	# $(GIT) --git-dir=$(BUILDDIR)/leon_gh_page/ push origin master
-	cd -
+	$(GIT) commit -m "updated docs"
+	#$(GIT) push origin master
   
   
