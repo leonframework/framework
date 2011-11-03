@@ -18,7 +18,7 @@ Documentation
 
 **Note:** We are currently working hard to finish the documentation, getting started guide etc. but please note that Leon is still in beta state.
 
-`http://leonframework.github.com/doc/latest/`_
+`http://leonframework.github.com/doc/latest/ <http://leonframework.github.com/doc/latest/>`_
 
 
 
