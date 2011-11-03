@@ -29,7 +29,7 @@ trait VirtualLeonJsFileContribution {
 
 class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) extends HttpServlet {
 
-  def writeResource(out: Writer, name: String) {
+  private def writeResource(out: Writer, name: String) {
     loader.getResourceOption(name) foreach { r =>
       out.write(ResourceUtils.inputStreamToString(r.createInputStream()))
     }
