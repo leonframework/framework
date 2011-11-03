@@ -135,11 +135,11 @@ publish: clean html latexpdf
 	$(GIT) clone git@github.com:leonframework/leonframework.github.com.git $(BUILDDIR)/leon_gh_page
 	rm -Rf $(BUILDDIR)/leon_gh_page/doc/latest/*
 	mkdir -p $(BUILDDIR)/leon_gh_page/doc/latest/
-	cp -rf $(BUILDDIR)/html/* $(BUILDDIR)/leon_gh_page/doc/latest/
+	cp -Rf $(BUILDDIR)/html/* $(BUILDDIR)/leon_gh_page/doc/latest/
 	cp $(BUILDDIR)/latex/*.pdf $(BUILDDIR)/leon_gh_page/doc/latest/
-	cd $(BUILDDIR)/leon_gh_page/
-	$(GIT) add .
-	$(GIT) commit -m "updated docs"
-	#$(GIT) push origin master
+	touch $(BUILDDIR)/leon_gh_page/.nojekyll
+	cd $(BUILDDIR)/leon_gh_page/ ; $(GIT) add .
+	cd $(BUILDDIR)/leon_gh_page/ ; $(GIT) commit -m "updated docs"
+	cd $(BUILDDIR)/leon_gh_page/ ; $(GIT) push origin master
   
   
