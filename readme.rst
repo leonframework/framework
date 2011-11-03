@@ -1,9 +1,4 @@
-
 .. image:: https://github.com/leonframework/framework/raw/master/leon-docs/img/mascot/Leon_github_header.png
-
-----
-
-**Note:** We are currently working hard to finish the documentation, getting started guide etc. but please note that Leon is still in beta state.
 
 ----
 
@@ -17,6 +12,13 @@ We decided to use the JVM as the development and deployment target instead of e.
 
 Why a chameleon as as mascot, you ask? Well, applications written with Leon *may* utilise Java, Scala, JavaScript, CoffeeScript and Less CSS, programmers *might* start with a Java JAR file providing the application logic or use Leon's HTML form driven approach for rapid CRUD applications. Hence, working with Leon can look quite differently while it's all the same in the end. 
 
+
+Documentation
+-------------
+
+**Note:** We are currently working hard to finish the documentation, getting started guide etc. but please note that Leon is still in beta state.
+
+`http://leonframework.github.com/doc/latest/`_
 
 
 
