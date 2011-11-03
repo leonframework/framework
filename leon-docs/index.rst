@@ -6,6 +6,8 @@
 Welcome to Leon Framework's documentation!
 ==========================================
 
+Version 0.2
+
 Contents:
 
 .. toctree::

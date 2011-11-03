@@ -7,7 +7,7 @@ import WebappPlugin.webappSettings
 
 object BuildSettings {
   val buildOrganization = "io.leon"
-  val buildVersion      = "0.0.1"
+  val buildVersion      = "0.2.0"
   val buildScalaVersion = "2.9.1"
 
   val licenseText =
