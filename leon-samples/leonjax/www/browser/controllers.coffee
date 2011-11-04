@@ -16,3 +16,6 @@
 @handleMessage = (msg) ->
   $("#messages").prepend("<div class='message'>" + msg + "</div>");
 
+@reset = ->
+  $('#messages').html('');
+  $('#messageTextarea').val('');
