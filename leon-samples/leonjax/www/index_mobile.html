@@ -46,11 +46,11 @@
         <div>
           <div data-role="fieldcontain">
             <label for="room" class="select">Room:</label>
-            <select id="room" name="user.room"  ng:options="r.name for r in rooms" data-native-menu="false" data-inline="false" tabindex="-1">
+            <select id="room" name="user.room" ng:options="r.name for r in rooms">
             </select>
           </div>
           <label for="message">Please enter your message and submit...</label>
-          <br/> 
+          <br/>
           <textarea id="message" name="message"></textarea>
           <a ngm:click="postMessage(message)" ng:disabled="{{user.name.length == 0 || message.length == 0 || user.room == null}}" data-role="button" data-inline="true">Submit</a>
         </div>
