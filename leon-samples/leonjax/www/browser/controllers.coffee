@@ -18,4 +18,4 @@
 
 @reset = ->
   $('#messages').html('');
-  $('#messageTextarea').val('');
+  $('#messageTextArea').val('');

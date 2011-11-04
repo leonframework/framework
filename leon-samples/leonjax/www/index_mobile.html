@@ -56,13 +56,14 @@
             </select>
           </div>
           <div data-role="fieldcontain">
-            <label for="messageTextarea">Your message:</label>
-            <textarea id="messageTextarea" name="message"></textarea>
+            <label for="messageTextArea">Your message:</label>
+            <textarea id="messageTextArea" name="message"></textarea>
           </div>
-          <button id="submit" ngm:click="postMessage(message)" ng:disabled="{{message.length == 0 || user.room == null}}" data-inline="true">Post message</button>
+          <button ngm:click="postMessage(message)" ng:disabled="{{message.length == 0 || user.room == null}}" data-inline="true">Post message</button>
         </div>
         <br/>
-        <div id="messages"></div>
+        <div id="messages">
+        </div>
       </div>
       <!------ footer ------>
       <div data-role="footer">

@@ -20,9 +20,9 @@
     <script src="browser/controllers.js" type="text/javascript"></script>
     <script type="text/javascript">
       <!--
-      angular.element(document).ready(function() {
-       angular.compile(document)().$apply();
-      });
+        angular.element(document).ready(function() {
+          angular.compile(document)().$apply();
+        });
       -->
     </script>
   </head>
@@ -44,20 +44,17 @@
 
         <div class="span-17 last">
           <label>Room</label>
-           <select name="user.room" ng:options="r.name for r in rooms" class="nice">
-            <option value="">-- select room --</option>
+           <select name="user.room" ng:options="r.name for r in rooms" onchange="reset()" class="nice">
+            <option value="">Choose room...</option>
           </select>
         </div>
 
         <div class="span-17 last">
-          <textarea id="inputText" name="message"></textarea>
-          <button ng:click="postMessage(message)" ng:disabled="{{user.name.length == 0 || message.length == 0 || user.room == null}}">Submit</button>
+          <textarea id="messageTextArea" name="message"></textarea>
+          <button ng:click="postMessage(message)" ng:disabled="{{message.length == 0 || user.room == null}}">Post message</button>
         </div>
 
         <div id="messages" class="span-17 last prepend-top">
-          <div ng:repeat="message in messages" class="message">
-            {{message}}
-          </div>
         </div>
       </div>
 

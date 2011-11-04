@@ -63,13 +63,13 @@ ul {
   text-align: center;
 }
 
-#inputText {
+#messageTextArea {
   height: 2em;
   padding: 0.2em;
   width: 99%;
   font-size: 20px;
 
-   -moz-border-radius: 0.5em;
+  -moz-border-radius: 0.5em;
   -webkit-border-radius: 0.5em;
 }
 
