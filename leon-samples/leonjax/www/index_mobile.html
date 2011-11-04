@@ -15,11 +15,10 @@
     <leon:subscribe topic="leonjax.room.messages" filterOn="room" handlerFn="handleMessage"/>
 
     <!-------------------------- page1 -------------------------->
-    <div data-role="page" id="page1" data-title="Enter your name...">
+    <div id="page1" data-role="page" data-fullscreen="true" data-title="Step 1: Enter your name...">
       <!------ header ------>
       <div data-role="header">
         <h1>Leon JAX Mobile</h1>
-        <pre>data={{user}}</pre>
       </div>
       <!------ content ------>
       <div data-role="content">
@@ -36,26 +35,24 @@
     </div>
 
     <!-------------------------- page2 -------------------------->
-    <div data-role="page" id="page2">
+    <div id="page2" data-role="page" data-fullscreen="true" data-title="Step 2: Select your room and post your messages!">
       <!------ header ------>
       <div data-role="header">
         <h1>Leon JAX Mobile</h1>
-        <pre>messages={{messages}}</pre>
-        <pre>user={{user}}</pre>
       </div>
       <!------ content ------>
       <div data-role="content">
         <h2>Hello {{user.name}}!</h2>
-        <div data-role="fieldcontain">
-          <label for="room">Room</label>
-          <select id="room" name="user.room" ng:options="r.name for r in rooms" data-native-menu="false" tabindex="-1">
-            <option value="" data-placeholder="true">-- select room --</option>
-          </select>
-        </div>
         <div>
-          <label for="message">Compose Message:</label>
+          <div data-role="fieldcontain">
+            <label for="room" class="select">Room:</label>
+            <select id="room" name="user.room"  ng:options="r.name for r in rooms" data-native-menu="false" data-inline="false" tabindex="-1">
+            </select>
+          </div>
+          <label for="message">Please enter your message and submit...</label>
+          <br/> 
           <textarea id="message" name="message"></textarea>
-          <a ngm:click="postMessage(message)" ng:disabled="{{user.name.length == 0 || message.length == 0 || user.room == null}}" data-role="button" data-inline="false">Submit</a>
+          <a ngm:click="postMessage(message)" ng:disabled="{{user.name.length == 0 || message.length == 0 || user.room == null}}" data-role="button" data-inline="true">Submit</a>
         </div>
         <div id="messages">
           <!--
