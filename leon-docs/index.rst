@@ -18,3 +18,4 @@ Contents:
    core/index
    browser/index
    modules
+   ide/index
