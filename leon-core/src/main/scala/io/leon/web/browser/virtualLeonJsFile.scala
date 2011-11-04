@@ -50,7 +50,7 @@ class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) ex
         writeResource(out, "/leon/browser/leon-comet.js")
       }
       case "mobile" => {
-        writeResource(out, "/leon/browser/jquery-1.6.4.js")
+        writeResource(out, "/leon/browser/jquery-1.5.2.min.js")
         writeResource(out, "/leon/browser/angular-0.9.19.js")
         writeResource(out, "/leon/browser/jquery.mobile-1.0rc2.js")
         writeResource(out, "/leon/browser/jquery-mobile-angular-adapter-1.0.2.js")
