@@ -5,6 +5,11 @@
     name: ""
     room: ""
 
+  server.leonJaxService("getRoomList")((result) =>
+    @rooms = ({name: room} for room in result)
+    @$service('$updateView')()
+  )
+
   @$watch("user.room", "updateFilter()")
 
   @updateFilter = ->

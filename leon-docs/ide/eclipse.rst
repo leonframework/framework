@@ -2,6 +2,7 @@ Leon Eclipse Plugin
 ===================
 
 For Leon we provide an Eclipse plugin including
+
 * a Leon project wizard
 * a project property page, where you can configure the leon configuration file
 * Content assist for the leon configuration file opened in the eclipse java script editor
@@ -10,7 +11,7 @@ For Leon we provide an Eclipse plugin including
 System requirements
 --------------------
 
-Eclipse 7.1 or higher, the ``Eclipse IDE for Java Script Web Developers`` package or another package including the ``JavaScript Development Tools (org.eclipse.wst.jsdt.feature)`` and ``Java Development Tools (org.eclipse.jdt.feature)``.
+Eclipse 3.7 or higher, the ``Eclipse IDE for Java Script Web Developers`` package or another package including the ``JavaScript Development Tools (org.eclipse.wst.jsdt.feature)`` and ``Java Development Tools (org.eclipse.jdt.feature)``.
 Java 1.5 or higher
 
 

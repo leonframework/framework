@@ -7,7 +7,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 package io.leon.web.comet
-
+  
 import com.google.inject.servlet.ServletModule
 import org.atmosphere.cpr._
 import io.leon.javascript.LeonScriptEngine
