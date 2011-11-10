@@ -1,6 +1,7 @@
 
 var leon = (function() {
 
+    var LoggerFactory = Packages.org.slf4j.LoggerFactory;
     var guice = Packages.com.google.inject;
     var Names = Packages.com.google.inject.name.Names;
 
@@ -19,6 +20,10 @@ var leon = (function() {
     };
 
     return {
+
+        getLogger: function(name) {
+            return LoggerFactory.getLogger(name);
+        },
 
         inject: function(clazz, name) {
             if (name === undefined) {
