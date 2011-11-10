@@ -19,7 +19,7 @@
     server.leonJaxService("postMessage")(@user.name, @user.room.name, message)
 
 @handleMessage = (msg) ->
-  $("#messages").prepend("<div class='message'>" + msg + "</div>");
+  $("#messages").prepend("<div class='message'>" + msg.user + ": " + msg.message + "</div>");
 
 @reset = ->
   $('#messages').html('');

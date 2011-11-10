@@ -62,10 +62,12 @@ leon.comet = (function() {
                 for (var i = 0; i < lines.length; i++) {
                     var line = lines[i];
                     if (line.substring(0, messageMarker.length) === messageMarker) {
-                        var message = line.substring(messageMarker.length, line.length);
-                        var json = JSON.parse(message);
-                        if (json.type === "publishedEvent") {
-                            leon.comet.handleEvent(json.topicId, json.data);
+                        var messageRaw = line.substring(messageMarker.length, line.length);
+                        var message = JSON.parse(messageRaw);
+                        var dataParsed = JSON.parse(message.data);
+
+                        if (message.type === "publishedEvent") {
+                            leon.comet.handleEvent(message.topicId, dataParsed);
                         }
                     }
                 }

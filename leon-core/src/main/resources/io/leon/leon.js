@@ -49,7 +49,7 @@ var leon = (function() {
             filterMap.put(key, filter[key]);
           });
 
-          cometRegistry.publish(topic, filterMap, data);
+          cometRegistry.publish(topic, filterMap, JSON.stringify(data));
         },
 
         parseLess: function(lessString) {

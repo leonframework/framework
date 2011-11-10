@@ -1,6 +1,6 @@
 @leonJaxService =
   postMessage: (user, room, message) ->
-    leon.publishMessage("leonjax.room.messages", { "room": room }, message)
+    leon.publishMessage("leonjax.room.messages", { "room": room }, {user: user, message: message } )
 
   getRoomList: ->
     ["München",
