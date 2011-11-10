@@ -16,7 +16,7 @@ public class PojoPerson {
     private String firstName;
     private String lastName;
     private PojoAddress address;
-    private List<String> hobbies;
+    // private List<String> hobbies; (not supported yet :-/)
 
     public String getFirstName() {
         return firstName;
@@ -42,16 +42,16 @@ public class PojoPerson {
         this.address = address;
     }
 
-    public List<String> getHobbies() {
-        if(hobbies == null)
-            hobbies = new ArrayList<String>();
-
-        return hobbies;
-    }
-
-    public void setHobbies(List<String> hobbies) {
-        this.hobbies = hobbies;
-    }
+//    public List<String> getHobbies() {
+//        if(hobbies == null)
+//            hobbies = new ArrayList<String>();
+//
+//        return hobbies;
+//    }
+//
+//    public void setHobbies(List<String> hobbies) {
+//        this.hobbies = hobbies;
+//    }
 
     @Override
     public String toString() {
@@ -59,7 +59,7 @@ public class PojoPerson {
                 "firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", address=" + address +
-                ", hobbies=" + hobbies +
+//                ", hobbies=" + hobbies +
                 '}';
     }
 }
