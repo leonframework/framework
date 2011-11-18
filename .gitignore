@@ -34,9 +34,10 @@ out
 # Pax Runner
 runner
 
-# This project
-scalaee*.log
-
 # Sphinx
 _build
+
+# Various file system browser
+.directory
+
 
