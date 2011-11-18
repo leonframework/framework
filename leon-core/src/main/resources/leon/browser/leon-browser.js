@@ -19,6 +19,15 @@ var leon = (function() {
                 callback);
         },
 
+        displayErrorMessage: function(message) {
+            $('<div></div>').html(message).activebar(
+              {
+                'button': '/leon/browser/images/activebar-closebtn.png',
+                'icon': '/leon/browser/images/activebar-information.png'
+              }
+            );
+        },
+
         alert: function(source, msg) {
             alert(source + ": " + msg);
         }
