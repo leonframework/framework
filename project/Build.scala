@@ -3,7 +3,7 @@ import Keys._
 import com.github.siasia._
 import com.banno.license.Plugin._
 import LicenseKeys._
-import WebappPlugin.webappSettings
+import WebPlugin._
 
 object BuildSettings {
   val buildOrganization = "io.leon"
@@ -115,19 +115,13 @@ object LeonBuild extends Build {
     jerichoHtml,
     h2database)
 
-  val samplesDeps = Seq(servletApi)
+  val samplesDeps = Seq(servletApi, jetty7)
 
 
   lazy val leon = Project(
     "leon",
     file("."),
-    settings = buildSettings ++
-    Seq(libraryDependencies += jetty7) ++
-    container.deploy(
-      "/mixed" -> samplesMixed,
-      "/leonjax" -> samplesLeonJax,
-      "/deviceorientation" -> samplesDeviceOrientation
-    )
+    settings = buildSettings
     ) aggregate(core, samplesMixed, samplesLeonJax, samplesDeviceOrientation)
 
   lazy val core = Project(
@@ -141,7 +135,7 @@ object LeonBuild extends Build {
     "leon-samples-mixed",
     file("leon-samples/leon-samples-mixed"),
     settings = buildSettings ++
-      webappSettings ++
+      webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
     ) dependsOn(core)
 
@@ -149,7 +143,7 @@ object LeonBuild extends Build {
     "leonjax",
     file("leon-samples/leonjax"),
     settings = buildSettings ++
-      webappSettings ++
+      webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
     ) dependsOn(core)
 
@@ -157,10 +151,7 @@ object LeonBuild extends Build {
     "deviceorientation",
     file("leon-samples/deviceorientation"),
     settings = buildSettings ++
-      webappSettings ++
+      webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
     ) dependsOn(core)
-
-
-  lazy val container = Container("container")
 }
