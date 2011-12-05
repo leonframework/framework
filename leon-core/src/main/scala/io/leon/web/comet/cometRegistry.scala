@@ -144,7 +144,7 @@ class CometRegistry @Inject()(clients: Clients) {
 
   private val checkClientsInterval = 1 * 1000
 
-  private val reconnectTimeout = 10 * 1000
+  private val reconnectTimeout = 20 * 1000
 
   private val disconnectTimeout = reconnectTimeout + 60 * 1000
 
@@ -309,7 +309,7 @@ class CometSubscribeTagRewriter @Inject()(injector: Injector,
         ("""
         |<script type="text/javascript">
         |  leon.comet.addHandler("%s", %s);
-        |  leon.comet.connect(%s);
+        |  leon.comet.start(%s);
         |</script>
         """).stripMargin.format(topicId, handlerFn, pageId)
 

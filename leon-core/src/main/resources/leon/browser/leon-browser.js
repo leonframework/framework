@@ -7,6 +7,8 @@ var leon = (function() {
 
     return {
 
+        deploymentMode: "development",
+
         call: function(target, args, callback) {
             jQuery.post(
                 leon.contextPath + "/leon/ajax",
@@ -19,13 +21,10 @@ var leon = (function() {
                 callback);
         },
 
-        displayErrorMessage: function(message) {
-            $('<div></div>').html(message).activebar(
-              {
-                'button': '/leon/browser/images/activebar-closebtn.png',
-                'icon': '/leon/browser/images/activebar-information.png'
-              }
-            );
+        debug: function(msg) {
+            if (leon.deploymentMode === "development") {
+                console.log(msg);
+            }
         },
 
         alert: function(source, msg) {
