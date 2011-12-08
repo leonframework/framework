@@ -11,14 +11,12 @@ package io.leon
 import javascript.{LeonScriptEngine, JavaObjectAjaxHandlerProvider, JavaScriptAjaxHandlerProvider}
 import resources.{FileSystemResourceLocation, ResourceLocation}
 import web.ajax.AjaxHandler
-import web.comet._
 import collection.mutable
 import com.google.inject._
 import name.Names
 import servlet.ServletModule
 import java.io.File
 import web.resources.ExposedUrl
-
 
 abstract class AbstractLeonConfiguration extends ServletModule {
 
@@ -43,7 +41,7 @@ abstract class AbstractLeonConfiguration extends ServletModule {
     exposeUrl("favicon.ico$")
     exposeUrl(".*/browser/.*js$")
     exposeUrl(".*/browser/.*json$")
-
+    
     config()
 
     exposedUrls foreach { url => ExposedUrl.bind(binder(), url) }
@@ -115,4 +113,5 @@ abstract class AbstractLeonConfiguration extends ServletModule {
   override def bind[T](key: Key[T]) = super.bind(key)
 
   override def bind[T](typeLiteral: TypeLiteral[T]) = super.bind(typeLiteral)
+
 }
