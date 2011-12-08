@@ -5,6 +5,8 @@ leon.comet = (function() {
 
     var connectionCheckTimer; // check if we have an active connection
 
+    var disconnectTimer; // force a disconnect
+
     var http;
     var prevDataLength = 0;
     var nextLine = 0;
@@ -36,6 +38,10 @@ leon.comet = (function() {
         },
 
         handleResponse: function() {
+            if (!isCometActive) {
+                leon.debug("handleResponse called without active comet. Ignoring request.");
+                //return; // TODO should be required
+            }
             leon.debug("Http readyState: " + http.readyState + "; Http status: " + http.status);
 
             if (http.readyState != 4 && http.readyState != 3)
@@ -43,10 +49,8 @@ leon.comet = (function() {
             if (http.readyState == 3 && http.status != 200)
                 return;
             if (http.readyState == 4 && http.status != 200) {
-                clearInterval(pollTimer);
-                http.abort();
-                isCometActive = false;
                 leon.debug("Server connection lost.");
+                leon.disconnect();
             }
             // In konqueror http.responseText is sometimes null here...
             if (http.responseText === null) {
@@ -98,6 +102,18 @@ leon.comet = (function() {
             isCometActive = true;
         },
 
+        disconnect: function() {
+            isCometActive = false;
+            leon.debug("Disconnect comet connection.");
+            clearInterval(pollTimer);
+            clearInterval(disconnectTimer);
+            http.abort();
+        },
+
+        stopConnectionCheck: function() {
+            clearInterval(connectionCheckTimer);
+        },
+
         start: function(id, force) {
             if (!isCometActive || force === true) {
                 leon.debug("leon.comet.start() -> starting....");
@@ -108,10 +124,13 @@ leon.comet = (function() {
 
                 clearInterval(connectionCheckTimer);
                 clearInterval(pollTimer);
+                clearInterval(disconnectTimer);
 
                 var url = leon.contextPath + "/leon/comet/connect" + "?pageId=" + pageId;
                 leon.comet.connect(url);
+
                 connectionCheckTimer = setInterval(function() { leon.comet.start(); }, 1 * 1000);
+                disconnectTimer = setTimeout(function() { leon.comet.disconnect(); }, 10 * 1000);
             } else {
                 leon.debug("leon.comet.start() -> already connected.");
             }
