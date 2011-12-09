@@ -145,7 +145,7 @@ class CometRegistry @Inject()(clients: Clients) {
   private val checkClientsInterval = 1 * 1000
 
   // the time, when the server will close the connection to force a reconnect
-  private val reconnectTimeout = 20 * 1000
+  private val reconnectTimeout = 30 * 1000
 
   // after this time, the server will treat the client as disconnected and remove all information
   private val disconnectTimeout = reconnectTimeout + 60 * 1000

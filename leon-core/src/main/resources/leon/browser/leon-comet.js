@@ -38,11 +38,15 @@ leon.comet = (function() {
         },
 
         handleResponse: function() {
-            if (!isCometActive) {
-                leon.debug("handleResponse called without active comet. Ignoring request.");
-                //return; // TODO should be required
+            if (http.readyState == 4 && http.status == 200) {
+                leon.debug("handleResponse: Request done.");
+                return;
+            } else if (!isCometActive) {
+                leon.debug("handleResponse: Called without active comet. Ignoring request.");
+                return;
             }
-            leon.debug("Http readyState: " + http.readyState + "; Http status: " + http.status);
+
+            //leon.debug("Http readyState: " + http.readyState + "; Http status: " + http.status);
 
             if (http.readyState != 4 && http.readyState != 3)
                 return;
@@ -50,7 +54,7 @@ leon.comet = (function() {
                 return;
             if (http.readyState == 4 && http.status != 200) {
                 leon.debug("Server connection lost.");
-                leon.disconnect();
+                leon.comet.disconnect();
             }
             // In konqueror http.responseText is sometimes null here...
             if (http.responseText === null) {
@@ -97,9 +101,9 @@ leon.comet = (function() {
             http = leon.comet.createRequestObject();
             http.open('get', url);
             http.onreadystatechange = leon.comet.handleResponse;
-            http.send(null);
             pollTimer = setInterval(leon.comet.handleResponse, 5 * 1000);
             isCometActive = true;
+            http.send(null);
         },
 
         disconnect: function() {
@@ -116,7 +120,7 @@ leon.comet = (function() {
 
         start: function(id, force) {
             if (!isCometActive || force === true) {
-                leon.debug("leon.comet.start() -> starting....");
+                leon.debug("Starting Comet connection.");
                 if (pageId == undefined) {
                     console.log("pageId not yet defined. Using value: " + id)
                     pageId = id;
@@ -130,9 +134,9 @@ leon.comet = (function() {
                 leon.comet.connect(url);
 
                 connectionCheckTimer = setInterval(function() { leon.comet.start(); }, 1 * 1000);
-                disconnectTimer = setTimeout(function() { leon.comet.disconnect(); }, 10 * 1000);
+                disconnectTimer = setTimeout(function() { leon.comet.disconnect(); }, 20 * 1000);
             } else {
-                leon.debug("leon.comet.start() -> already connected.");
+                //leon.debug("leon.comet.start() -> already connected.");
             }
         },
 
