@@ -10,6 +10,8 @@ package io.leon
 
 import com.google.inject.AbstractModule
 import javascript.LeonJavaScriptModule
+import resources.coffeescript.CoffeeScriptModule
+import resources.less.LessModule
 import resources.ResourcesModule
 import web.ajax.AjaxWebModule
 import web.browser.BrowserWebModule
@@ -24,6 +26,8 @@ class LeonModule extends AbstractModule {
     install(new AjaxWebModule)
     install(new CometWebModule)
     install(new BrowserWebModule)
+    install(new CoffeeScriptModule)
+    install(new LessModule)
 
     // must be at the last position!
     install(new ResourcesWebModule)

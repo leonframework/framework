@@ -1,7 +1,3 @@
-// module definition
-install(new Packages.io.leon.resources.coffeescript.CoffeeScriptModule());
-// install(new Packages.io.leon.resources.less.LessModule());
-
 // location of application files
 addLocation("./www");
 
