@@ -39,8 +39,9 @@ http://www.eclipse.org/legal/epl-v10.html
     )
 
   val publishSettings = Seq(
-    publishTo := Some(Resolver.file("Local Test Repository", Path fileProperty "java.io.tmpdir" asFile)),
-    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
+    publishTo := Some(Resolver.file("Local Test Repository", Path fileProperty "java.io.tmpdir" asFile))
+    //,
+    //credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
   )
 }
 
@@ -132,8 +133,8 @@ object LeonBuild extends Build {
   )
 
   lazy val samplesMixed = Project(
-    "leon-samples-mixed",
-    file("leon-samples/leon-samples-mixed"),
+    "leon-samples-cometping",
+    file("leon-samples/leon-samples-cometping"),
     settings = buildSettings ++
       webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
@@ -153,5 +154,14 @@ object LeonBuild extends Build {
     settings = buildSettings ++
       webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
-    ) dependsOn(core)
+  ) dependsOn(core)
+
+  lazy val samplesCometPing = Project(
+    "cometping",
+    file("leon-samples/cometping"),
+    settings = buildSettings ++
+      webSettings ++
+      Seq(libraryDependencies ++= samplesDeps)
+  ) dependsOn(core)
+
 }

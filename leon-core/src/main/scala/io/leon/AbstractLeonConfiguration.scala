@@ -18,6 +18,7 @@ import servlet.ServletModule
 import java.io.File
 import web.resources.ExposedUrl
 
+
 abstract class AbstractLeonConfiguration extends ServletModule {
 
   //private val logger = Logger.getLogger(getClass.getName)
@@ -88,16 +89,16 @@ abstract class AbstractLeonConfiguration extends ServletModule {
   }
 
   // --- Ajax/Comet DSL -----------------------------------
-
-  def browser(browserName: String) = new {
+  
+  class BrowserServerLink(browserName: String) {
     def linksToServer() {
       linksToServer(browserName)
-    }    
+    }
     def linksToServer(serverName: String) {
       bind(classOf[AjaxHandler]).annotatedWith(Names.named(browserName)).toProvider(
         new JavaScriptAjaxHandlerProvider(serverName)).asEagerSingleton()
     }
-    def linksToServer(clazz: Class[AnyRef]) {
+    def linksToServer[T <: AnyRef](clazz: Class[T]) {
       linksToServer(Key.get(clazz))
     }
     def linksToServer[T <: AnyRef](key: Key[T]) {
@@ -105,6 +106,8 @@ abstract class AbstractLeonConfiguration extends ServletModule {
         new JavaObjectAjaxHandlerProvider(key)).asEagerSingleton()
     }
   }
+
+  def browser(browserName: String) = new BrowserServerLink(browserName)
 
   // -- Dependency injection ----------------------------------
 

@@ -8,9 +8,6 @@
  */
 package io.leon.samples.mixed;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class PojoPerson {
 
     private String firstName;

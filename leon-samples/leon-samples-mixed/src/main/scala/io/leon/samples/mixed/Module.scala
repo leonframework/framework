@@ -1,3 +1,5 @@
+package io.leon.samples.mixed
+
 /*
  * Copyright (c) 2011 WeigleWilczek and others.
  * 
@@ -6,8 +8,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.samples.mixed
-
 import io.leon.AbstractLeonConfiguration
 import io.leon.persistence.mongo.LeonMongoModule
 import io.leon.resources.coffeescript.CoffeeScriptModule

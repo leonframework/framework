@@ -48,8 +48,7 @@ var leon = (function() {
         publishMessage: function(topic, filter, data) {
           var cometRegistry = leon.inject(Packages.io.leon.web.comet.CometRegistry);
 
-          var filterMap = new Packages.scala.collection.mutable.HashMap();
-
+          var filterMap = new Packages.java.util.HashMap();
           filter.properties().forEach(function(key) {
             filterMap.put(key, filter[key]);
           });

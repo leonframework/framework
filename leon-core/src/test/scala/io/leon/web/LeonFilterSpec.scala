@@ -14,14 +14,14 @@ class LeonFilterSpec extends Specification {
     install(new Packages.io.leon.resources.closure.ClosureTemplatesModule());
 
     // location of application files
-    addLocation("leon-samples/leon-samples-mixed/WebContent");
+    addLocation("leon-samples/leon-samples-cometping/WebContent");
 
     // server-side js files
-    loadFile("/io/leon/samples/mixed/person.js");
+    loadFile("/io/leon/samples/cometping/person.js");
 
     // ajax support
     browser("person").linksToServer("person");
-    browser("personService").linksToServer(new Packages.io.leon.samples.mixed.PersonService);
+    browser("personService").linksToServer(new Packages.io.leon.samples.cometping.PersonService);
 
     // comet support
     server("leon.browser").linksToAllPages("leon");
