@@ -1,11 +1,12 @@
 package io.leon.web;
 
-/**
- * Created by IntelliJ IDEA.
- * User: roman
- * Date: 12/9/11
- * Time: 5:26 PM
- * To change this template use File | Settings | File Templates.
- */
+import java.util.Map;
+
+// TODO
 public interface BrowserTopics {
+
+    public void send(String topicId, Map<String, Object> filters, String data);
+
+    public void send(String topicId, String data);
+
 }

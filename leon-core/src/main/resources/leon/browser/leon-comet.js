@@ -3,8 +3,6 @@ leon.comet = (function() {
 
     var pollTimer; // check for new data, connection state, ...
 
-    var connectionCheckTimer; // check if we have an active connection
-
     var disconnectTimer; // force a disconnect
 
     var http;
@@ -39,6 +37,15 @@ leon.comet = (function() {
 
         handleResponse: function() {
             //leon.debug("Http readyState: " + http.readyState + "; Http status: " + http.status + "; done reading: " + (prevDataLength == http.responseText.length));
+            // Documentation
+            // --------------------------------------------
+            // readyState:
+            // 0 UNINITIALIZED open() has not been called yet.
+            // 1 LOADING send() has not been called yet.
+            // 2 LOADED send() has been called, headers and status are available.
+            // 3 INTERACTIVE Downloading, responseText holds the partial data.
+            // 4 COMPLETED Finished with all operations.
+
             if (http.readyState != 4 && http.readyState != 3)
                 return false;
             if (http.readyState == 3 && http.status != 200)
@@ -46,11 +53,9 @@ leon.comet = (function() {
             if (http.readyState == 4 && http.status != 200) {
                 leon.debug("Server connection lost.");
                 leon.comet.disconnect();
-                //leon.comet.connect();
             }
-
             if (http.readyState == 4 && prevDataLength == http.responseText.length) {
-                leon.comet.start(pageId, true);
+                leon.comet.disconnect();
             }
 
             return leon.comet.readBuffer();
@@ -100,19 +105,12 @@ leon.comet = (function() {
             http.onreadystatechange = leon.comet.handleResponse;
             pollTimer = setInterval(leon.comet.handleResponse, 5 * 1000);
 
-            connectionCheckTimer = setInterval(function() {
-
-                // TODO we need to stop the timer to avoid double connection attempts
-
-                leon.comet.connect();
-            }, 1 * 1000);
-
             cometActive = true;
             http.send(null);
         },
 
         isCometActive: function() {
-            return cometActive; // TODO include socket in test and make sure that the cometActive variable is in sync
+            return cometActive;
         },
 
         connect: function(id) {
@@ -127,12 +125,19 @@ leon.comet = (function() {
                 pageId = id;
             }
 
-            clearInterval(connectionCheckTimer);
             clearInterval(pollTimer);
             clearInterval(disconnectTimer);
 
             var url = leon.contextPath + "/leon/comet/connect" + "?pageId=" + pageId;
             leon.comet.openSocket(url);
+
+            // check every second that we have a connection
+            (function connectionCheck() {
+               setTimeout(function() {
+                  leon.comet.connect();
+                  connectionCheck();
+              }, 1000);
+            })();
 
             // close and open the connection every 10 seconds
             disconnectTimer = setTimeout(function() {
@@ -142,13 +147,15 @@ leon.comet = (function() {
 
         disconnect: function() {
             //leon.debug("Disconnect comet connection.");
-            //clearInterval(connectionCheckTimer);
             clearInterval(pollTimer);
             clearInterval(disconnectTimer);
 
-            while (!leon.comet.readBuffer()) {
+            (function clearBuffer() {
                 leon.debug("Reading buffer before closing connection.");
-            }
+                if (!leon.comet.readBuffer()) {
+                    setTimeout(function() { clearBuffer(); }, 500);
+                }
+            })();
 
             http.abort();
             cometActive = false;
