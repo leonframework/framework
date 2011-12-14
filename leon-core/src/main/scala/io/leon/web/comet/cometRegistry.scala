@@ -168,8 +168,8 @@ object Clients {
 
   def generateNewPageId(): String = {
     // TODO check deployment mode to use the appropriate way
-    //System.currentTimeMillis().toString
-    ids.getAndIncrement.toString
+    //System.currentTimeMillis().toString // more save
+    ids.getAndIncrement.toString // useful more debugging
   }
 
   def generateNewClientId(session: HttpSession): String = {
