@@ -133,8 +133,8 @@ object LeonBuild extends Build {
   )
 
   lazy val samplesMixed = Project(
-    "leon-samples-cometping",
-    file("leon-samples/leon-samples-cometping"),
+    "leon-samples-mixed",
+    file("leon-samples/leon-samples-mixed"),
     settings = buildSettings ++
       webSettings ++
       Seq(libraryDependencies ++= samplesDeps)

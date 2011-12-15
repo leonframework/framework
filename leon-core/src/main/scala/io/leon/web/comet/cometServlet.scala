@@ -30,7 +30,7 @@ class CometHandler @Inject()(registry: CometRegistry) extends HttpServlet {
   override def doGet(req: HttpServletRequest, res: HttpServletResponse) {
     // TODO DELME!!!!!!!!!!!!!!!!!!!!!!!!!!
     logger.info("fake slow request")
-    Thread.sleep(2000)
+    Thread.sleep(200)
     // TODO DELME!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     val pageId = req.getParameter("pageId")

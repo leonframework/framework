@@ -57,8 +57,8 @@ class ClientConnection(val clientId: String,
     connectTime = System.currentTimeMillis()
 
     // We need this! Otherwise we loose the first message in the queue after a reconnect.
-    sendStringAndFlush(" ")
-    flushQueue()
+    //sendStringAndFlush(" ")
+    //flushQueue()
   }
   
   def resumeAndRemoveUplink() {
@@ -94,11 +94,11 @@ class ClientConnection(val clientId: String,
     while (nextMessage != null) {
       val success = sendPackage(nextMessage)
       if (success) {
-        queue.remove()
+        val messageSend = queue.remove()
         nextMessage = queue.peek()
-        logger.info("Successfully send message to page: " + clientId)
+        logger.info("Successfully send message [" + messageSend + "] to page: " + clientId)
       } else {
-        logger.info("Error while sending message to page: " + clientId)
+        logger.info("Error while sending message [" + nextMessage + "] to page: " + clientId)
         return false
       }
     }
@@ -267,9 +267,14 @@ class CometRegistry @Inject()(clients: Clients) {
       }
       case Some(cc) => {
         logger.info("Client connection found. Updating existing ClientConnection with new meteor.")
-        cc.uplink = meteor
         meteor.suspend(-1, true)
-        cc.send("\n")
+        val res = meteor.getAtmosphereResource.getResponse
+        val writer = res.getWriter
+        writer.write("\n\n ")
+        writer.flush()
+
+        cc.uplink = meteor
+        //cc.send("\n")
       }
     }
   }

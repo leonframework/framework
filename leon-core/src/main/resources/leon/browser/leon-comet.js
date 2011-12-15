@@ -16,7 +16,9 @@ leon.comet = (function() {
     var cometActive = false;
 
     var handlerFns = {};
- 
+
+    var httpAbortRequested = false;
+
     return {
 
         createRequestObject: function() {
@@ -92,6 +94,10 @@ leon.comet = (function() {
                     }
                 }
             }
+            if (httpAbortRequested) {
+                http.abort();
+                return true;
+            }
             return prevDataLength == http.responseText.length;
         },
 
@@ -125,6 +131,7 @@ leon.comet = (function() {
                 pageId = id;
             }
 
+            httpAbortRequested = false;
             clearInterval(pollTimer);
             clearInterval(disconnectTimer);
 
@@ -157,7 +164,9 @@ leon.comet = (function() {
                 }
             })();
 
-            http.abort();
+            //http.abort();
+            httpAbortRequested = true;
+
             cometActive = false;
         },
 
