@@ -87,6 +87,8 @@ object Dependencies {
   def commonsCollections = "commons-collections" % "commons-collections" % "3.2.1" withSources()
 
   def jerichoHtml = "net.htmlparser.jericho" % "jericho-html" % "3.2" withSources()
+
+  def gson = "com.google.code.gson" % "gson" % "1.7.1" withSources()
 }
 
 object LeonBuild extends Build {
@@ -114,6 +116,7 @@ object LeonBuild extends Build {
     commonsBeanutils,
     commonsCollections,
     jerichoHtml,
+    gson,
     h2database)
 
   val samplesDeps = Seq(servletApi, jetty7)
@@ -164,4 +167,20 @@ object LeonBuild extends Build {
       Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(core)
 
+  lazy val samplesAjaxReverserJavaJs = Project(
+      "samplesAjaxReverserJavaJs",
+      file("leon-samples/ajax/reverser/java_js"),
+      settings = buildSettings ++
+        webSettings ++
+        Seq(libraryDependencies ++= samplesDeps)
+    ) dependsOn(core)
+
+
+  lazy val samplesAjaxReverserWithPojoJavaJs = Project(
+      "samplesAjaxReverserWithPojoJavaJs",
+      file("leon-samples/ajax/reverser-with-pojo/java_js"),
+      settings = buildSettings ++
+        webSettings ++
+        Seq(libraryDependencies ++= samplesDeps)
+    ) dependsOn(core)
 }

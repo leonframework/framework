@@ -28,14 +28,15 @@ class AjaxWebModule extends ServletModule {
 }
 
 trait AjaxHandler {
-  def jsonApply(member: String, args: String): String
+  def jsonApply(member: String, args: Seq[String]): String
 }
 
 class AjaxCallServlet @Inject()(injector: Injector) extends HttpServlet {
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
     val targetName = req.getParameter("target")
-    val args = req.getParameter("args")
+    val argsSize = req.getParameter("argsSize").toInt
+    val args = (0 until argsSize) map { x => req.getParameter("arg" + x) }
 
     val (obj, member) = targetName.splitAt(targetName.lastIndexOf('.'))
 

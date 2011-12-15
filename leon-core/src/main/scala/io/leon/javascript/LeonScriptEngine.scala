@@ -16,8 +16,7 @@ import org.mozilla.javascript.{ScriptableObject, Context, Function => RhinoFunct
 import io.leon.resources.{Resource, ResourceWatcher, ResourceLoader}
 import org.slf4j.LoggerFactory
 
-class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader,
-                                 resourceWatcher: ResourceWatcher, wrapFactory: LeonWrapFactory) {
+class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader, resourceWatcher: ResourceWatcher) {
 
   private val logger = LoggerFactory.getLogger(getClass.getName)
 
@@ -32,7 +31,6 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
 
   private[javascript] def withContext[A](block: Context => A): A = {
     val ctx = Context.enter()
-    ctx.setWrapFactory(wrapFactory)
     val result = block(ctx)
     Context.exit()
     result

@@ -11,6 +11,7 @@ package io.leon.javascript
 import io.leon.web.ajax.AjaxHandler
 import org.mozilla.javascript.BaseFunction
 import com.google.inject.{Key, Injector, Inject, Provider}
+import com.google.gson.Gson
 
 class JavaObjectAjaxHandlerProvider[T <: AnyRef](key: Key[T]) extends Provider[AjaxHandler] {
 
@@ -20,25 +21,30 @@ class JavaObjectAjaxHandlerProvider[T <: AnyRef](key: Key[T]) extends Provider[A
   @Inject
   var engine: LeonScriptEngine = _
 
-  @Inject
-  var converter: Converter = _
-
   private lazy val obj = injector.getInstance(key)
 
-  private lazy val proxyObject = new JavaScriptProxy(engine.rhinoScope, obj, obj.getClass)
-
   private lazy val handler = new AjaxHandler {
-    def jsonApply(member: String, args: String) = {
-      engine.withContext { ctx => 
-        val argsArray = engine.invokeFunction("JSON.parse", args)
-        val argsArrayJava = converter.jsToJava(argsArray, classOf[Array[AnyRef]]).asInstanceOf[Array[AnyRef]]
-      
-        val result = proxyObject.get(member, proxyObject) match {
-          case func: BaseFunction => func.call(ctx, engine.rhinoScope, proxyObject, argsArrayJava)
-          case _ => sys.error(member + " is not a function!")
-        }
-        engine.invokeFunction("JSON.stringify", result).asInstanceOf[String]
+    def jsonApply(member: String, args: Seq[String]) = {
+      val methods = obj.getClass.getMethods
+      val possibleMethods = methods filter { m => m.getName == member && m.getParameterTypes.length == args.length }
+      if(possibleMethods.isEmpty) {
+        sys.error("No method named '%s' with a matching number of arguments (%s) found!".format(member, args.length))
+      } else if(possibleMethods.size > 1) {
+        sys.error("More than one possible methods found. name: %s, argument size: %s".format(member, args.length))
       }
+
+      val gson = new Gson()
+
+      val method = possibleMethods(0)
+
+      val deserialized = args.zipWithIndex map { case (a, i) =>
+        val requiredType = method.getParameterTypes()(i)
+        gson.fromJson(a, requiredType).asInstanceOf[AnyRef]
+      }
+
+      val result = method.invoke(obj, deserialized.toArray: _*)
+
+      gson.toJson(result)
     }
   }
 

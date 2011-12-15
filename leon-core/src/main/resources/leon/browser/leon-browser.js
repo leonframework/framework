@@ -10,14 +10,21 @@ var leon = (function() {
         deploymentMode: "development",
 
         call: function(target, args, callback) {
+
+            var params = {
+                pageId: this.pageId,
+                target: target,
+                argsSize: args.length,
+                dataType: "json"
+            };
+
+            for(var i = 0; i < args.length; i++) {
+                params["arg" + i] = JSON.stringify(args[i]);
+            }
+
             jQuery.post(
                 leon.contextPath + "/leon/ajax",
-                {
-                    pageId: this.pageId,
-                    target: target,
-                    args: JSON.stringify(args),
-                    dataType: "json"
-                },
+                params,
                 callback);
         },
 
