@@ -15,6 +15,7 @@ import java.lang.IllegalArgumentException
 import org.mozilla.javascript.{ScriptableObject, Context, Function => RhinoFunction}
 import io.leon.resources.{Resource, ResourceWatcher, ResourceLoader}
 import org.slf4j.LoggerFactory
+import java.util.Arrays
 
 class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader, resourceWatcher: ResourceWatcher) {
 
@@ -90,7 +91,10 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
         throw new IllegalArgumentException("JavaScript code [%s] does not resolve to a function!".format(name))
       } else {
         val fn = function.asInstanceOf[org.mozilla.javascript.Function]
-        val result = fn.call(ctx, rhinoScope, rhinoScope, args.toArray)
+        val argsWrapped = args map { a => Context.javaToJS(a, rhinoScope) }
+        logger.info("Calling function [%s] with arguments [%s]".format(name, Arrays.toString(argsWrapped.toArray)))
+        val result = fn.call(ctx, rhinoScope, rhinoScope, argsWrapped.toArray)
+        logger.info("Result of calling function [%s] is [%s]".format(name, result))
         Context.jsToJava(result, classOf[Any])
       }
     }

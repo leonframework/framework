@@ -1,6 +1,9 @@
 HttpSession = Packages.javax.servlet.http.HttpSession
 
+logger = leon.getLogger("deviceorientation-coffee")
+
 @leoncomet =
     publishOrientation: (data) ->
-        session = leon.inject(HttpSession)
-        leon.publishMessage("leoncomet.orientation", {}, { clientId: session.id, data: data })
+        httpSession = leon.inject(HttpSession)
+        logger.info("Session ID: " + httpSession.id)
+        leon.publishMessage("leoncomet.orientation", {}, { clientId: "" + httpSession.id, data: data })

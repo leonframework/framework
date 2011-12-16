@@ -1,5 +1,7 @@
-@timestamp = new Date().getTime();
 
+@timestamp = new Date().getTime()
+
+# Receive device orientation for all clients
 @handleMessage = (message) =>
   data = message.data
   clientId = message.clientId
@@ -13,6 +15,7 @@
   $("#"+clientId).css("transform", "rotate(#{tiltLR}deg) rotate3d(1,0,0, #{(tiltFB * -1)}deg)")
 
 
+# Send device orientation
 @handleOrientationChanged = (event) =>
   if new Date().getTime() - @timestamp < 250
     return
@@ -23,7 +26,7 @@
   tiltFB = event.beta
   dir = event.alpha
 
-  server.leoncomet("publishOrientation")({tiltLR: tiltLR, tiltFB: tiltFB, dir: dir}, (result) => )
+  server.leoncomet("publishOrientation")( {tiltLR: tiltLR, tiltFB: tiltFB, dir: dir} )
 
 
 @handleMozOrientationChanged = (event) =>
@@ -31,9 +34,10 @@
   tiltFB = event.y * -90
   dir = null
 
-  server.leoncomet("publishOrientation")({tiltLR: tiltLR, tiltFB: tiltFB, dir: dir}, (result) => )
+  server.leoncomet("publishOrientation")( {tiltLR: tiltLR, tiltFB: tiltFB, dir: dir} )
 
 
+# Setup
 if window.DeviceOrientationEvent
   window.addEventListener("deviceorientation", handleOrientationChanged, true)
   window.addEventListener("MozOrientation", handleMozOrientationChanged, true)

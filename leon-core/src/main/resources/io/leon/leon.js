@@ -54,6 +54,7 @@ var leon = (function() {
           });
 
           cometRegistry.publish(topic, filterMap, JSON.stringify(data));
+          return true;
         },
 
         parseLess: function(lessString) {
