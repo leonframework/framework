@@ -17,18 +17,19 @@ import io.leon.resources.htmltagsprocessor.LeonTagRewriter
 import javax.servlet.http.{HttpSession, HttpServletRequest}
 import net.htmlparser.jericho.{OutputDocument, Source}
 import collection.Iterable
-import java.util.concurrent.{ConcurrentHashMap, ConcurrentLinkedQueue}
-import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.ConcurrentHashMap
 import java.lang.IllegalStateException
+import java.util.ArrayList
+import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 
 
 class ClientConnection(val clientId: String,
-                       private var _uplink: Option[Meteor]) {
+                       var meteor: Option[Meteor]) {
 
   private val logger = Logger.getLogger(getClass.getName)
 
   // message queue
-  private val queue = new ConcurrentLinkedQueue[String]
+  private val queue = new ArrayList[(Int, String)]
 
   // topicID -> list of filters
   private val topicSubscriptions = new ConcurrentHashMap[String, List[String]] 
@@ -36,103 +37,94 @@ class ClientConnection(val clientId: String,
   // topic name#filter name -> filter value
   private val topicActiveFilters = new ConcurrentHashMap[String, String]
 
-  private val setNewUplinkLock = new Object
-  private val flushLock = new Object
+  private val nextMessageId = new AtomicInteger(0)
 
-  // the time when the client connected
+  private val messageSendIndex = new AtomicInteger(0)
+
+  private val lock = new Object
+
   var connectTime = System.currentTimeMillis()
   
-  def uplink: Meteor = _uplink.get
-
-  def uplink_=(meteor: Meteor) = setNewUplinkLock.synchronized {
-    try {
-      _uplink map { m => 
-        logger.info("ClientConnection received a new meteor instance. Resuming the current meteor.")
-        m.resume()
-      }
-    } catch {
-      case e: Exception => logger.warning("Cannot resume existing comet connection.")
-    }
-    _uplink = Some(meteor)
+  def setNewMeteor(lastMessageReceived: Int, newMeteor: Meteor): Unit = lock.synchronized {
+    logger.info("ClientConnection received a new meteor instance. Last message received: " + lastMessageReceived)
+    resumeAndRemoveUplink()
+    meteor = Some(newMeteor)
     connectTime = System.currentTimeMillis()
 
-    // We need this! Otherwise we loose the first message in the queue after a reconnect.
-    //sendStringAndFlush(" ")
-    //flushQueue()
+    // First connect or empty queue. Nothing to do here.
+    val oldSize = queue.size()
+    if (lastMessageReceived != -1) {
+      while (queue.size() > 0 && queue.get(0)._1 != lastMessageReceived) {
+        queue.remove(0)
+      }
+      if (queue.size() > 0) {
+        queue.remove(0)
+      }
+    }
+    messageSendIndex.set(0)
+    logger.info("Message carry forward report: old queue: %s, new queue: %s".format(oldSize, queue.size()))
+
+    flushQueue()
   }
-  
+
   def resumeAndRemoveUplink() {
     try {
-      _uplink map { m =>
+      meteor map { m =>
         logger.info("Removing uplink for ClientConnection")
         m.resume()
       }
     } catch {
       case e: Exception => logger.warning("Cannot resume existing comet connection.")
     }
-    _uplink = None
+    meteor = None
   }
   
-  def hasActiveUplink: Boolean = _uplink.isDefined
-
   /**
    * Add the message to the queue and flush the queue.
    */
-  def send(message: String) {
-    queue.add(message)
+  def enqueue(topicName: String, data: String) = lock.synchronized {
+    val id = nextMessageId.getAndIncrement
+    val message = """$$$MESSAGE$$${
+      "messageId": %s,
+      "topicName": "%s",
+      "data": %s
+    }
+    """.format(id, topicName, data).replace('\n', ' ') + "\n"
+    queue.add(id -> message)
     flushQueue()
   }
 
   /**
    * Send all messages waiting in the queue. 
-   * This method will abort once it failed sending a message.
-   * 
-   * @return true, if all messages have been send successfully, false otherwise. 
    */
-  private def flushQueue(): Boolean = flushLock.synchronized {
-    var nextMessage = queue.peek()
-    while (nextMessage != null) {
-      val success = sendPackage(nextMessage)
-      if (success) {
-        val messageSend = queue.remove()
-        nextMessage = queue.peek()
-        logger.info("Successfully send message [" + messageSend + "] to page: " + clientId)
-      } else {
-        logger.info("Error while sending message [" + nextMessage + "] to page: " + clientId)
-        return false
+  private def flushQueue(): Unit = lock.synchronized {
+    if (meteor.isEmpty) {
+      return
+    }
+    while (queue.size() > messageSendIndex.get()) {
+      val success = sendPackage(queue.get(messageSendIndex.getAndIncrement))
+      if (!success) {
+        logger.info("Error while flushing queue. Aborting and waiting for a new client connection.")
+        meteor = None
+        return
       }
     }
-    true
   }
 
-  private def sendStringAndFlush(msg: String) = synchronized {
-    _uplink map { meteor =>
-      val res = meteor.getAtmosphereResource.getResponse
-      val writer = res.getWriter
-      writer.write(msg.toString)
-      res.flushBuffer()
-    }
-  }
-
-  private def sendPackage(msg: String): Boolean = synchronized {
+  private def sendPackage(msg: (Int, String)): Boolean = {
+    val data = msg._2
     try {
-      _uplink map { meteor =>
+      meteor map { meteor =>
         val res = meteor.getAtmosphereResource.getResponse
         val writer = res.getWriter
-
-        // send message
-        writer.write(msg.toString)
-        res.flushBuffer()
-
-        // make sure connection was/is open
-        writer.write(" ")
+        writer.write(data)
+        logger.info("Sending package: " + data)
         res.flushBuffer()
         true
       } getOrElse false
     } catch {
       case e: Throwable => {
-        logger.info("Could not send comet data: " + e.getMessage)
-        _uplink = None
+        logger.info("Could not send comet message: ID [%s], Error message [%s]".format(msg._1, e.getMessage))
         false
       }
     }
@@ -232,7 +224,7 @@ class CometRegistry @Inject()(clients: Clients) {
           Thread.sleep(checkClientsInterval)
           val now = System.currentTimeMillis
           clients.allClients foreach { client =>
-            if (client.hasActiveUplink) {
+            if (client.meteor.isDefined) {
               if ((now - client.connectTime) > reconnectTimeout) {
                 logger.info("Client connection for [" + client.clientId + "] too old. Forcing reconnect.")
                 client.resumeAndRemoveUplink()
@@ -254,7 +246,7 @@ class CometRegistry @Inject()(clients: Clients) {
     clients.allClients foreach { _.resumeAndRemoveUplink() }
   }
 
-  def registerUplink(req: HttpServletRequest, pageId: String) {
+  def registerUplink(req: HttpServletRequest, pageId: String, lastMessageId: Int) {
     val meteor = createMeteor(req)
     val clientId = Clients.generateExistingClientId(req.getSession, pageId)
     logger.info("Registering meteor for client [" + clientId + "]")
@@ -270,11 +262,9 @@ class CometRegistry @Inject()(clients: Clients) {
         meteor.suspend(-1, true)
         val res = meteor.getAtmosphereResource.getResponse
         val writer = res.getWriter
-        writer.write("\n\n ")
+        writer.write("\n")
         writer.flush()
-
-        cc.uplink = meteor
-        //cc.send("\n")
+        cc.setNewMeteor(lastMessageId, meteor)
       }
     }
   }
@@ -282,15 +272,7 @@ class CometRegistry @Inject()(clients: Clients) {
   def publish(topicName: String, filters: java.util.Map[String, Any], data: String) {
     import scala.collection.JavaConverters._
 
-    val dataSerialized = JsValue.toJson(JsValue(data))
-
-    val message = """$$$MESSAGE$$${
-      "type": "publishedEvent",
-      "topicName": "%s",
-      "data": %s
-    }
-    """.format(topicName, dataSerialized).replace('\n', ' ') + "\n"
-
+    val dataSerialized = JsValue.toJson(JsValue(data)) // TODO use gson
     val requiredFilters = filters.asScala
     val matchingClients = clients.allClients filter { c =>
       requiredFilters forall { case (filterName, filterValue) =>
@@ -304,7 +286,7 @@ class CometRegistry @Inject()(clients: Clients) {
       logger.info("Found [%s] clients for filter map [%s].".format(matchingClients.size, requiredFilters))
     }
 
-    matchingClients foreach { _.send(message) }
+    matchingClients foreach { _.enqueue(topicName, dataSerialized) }
   }
 
   def updateClientFilter(topicId: String, clientId: String, filterName: String, filterValue: String) {

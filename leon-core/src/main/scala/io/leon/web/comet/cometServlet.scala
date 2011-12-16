@@ -29,14 +29,15 @@ class CometHandler @Inject()(registry: CometRegistry) extends HttpServlet {
 
   override def doGet(req: HttpServletRequest, res: HttpServletResponse) {
     // TODO DELME!!!!!!!!!!!!!!!!!!!!!!!!!!
-    logger.info("fake slow request")
-    Thread.sleep(200)
+    //logger.info("fake slow request")
+    //Thread.sleep(2000)
     // TODO DELME!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     val pageId = req.getParameter("pageId")
-    //logger.info("Comet connection request from client: " + sessionId + "__" + pageId)
+    val lastMessageId = req.getParameter("lastMessageId").toInt
+
     res.setCharacterEncoding("utf-8")
-    registry.registerUplink(req, pageId)
+    registry.registerUplink(req, pageId, lastMessageId)
   }
 
 }

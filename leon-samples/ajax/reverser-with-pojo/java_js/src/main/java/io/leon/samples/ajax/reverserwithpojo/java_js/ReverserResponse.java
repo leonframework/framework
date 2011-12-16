@@ -1,18 +1,18 @@
 package io.leon.samples.ajax.reverserwithpojo.java_js;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class ReverserResponse {
 
-    private String reversed;
+    private List<String> wordsReversed = new LinkedList<String>();
 
-    public ReverserResponse(String reversed) {
-        this.reversed = reversed;
+    public List<String> getWordsReversed() {
+        return wordsReversed;
     }
 
-    public String getReversed() {
-        return reversed;
+    public void setWordsReversed(List<String> wordsReversed) {
+        this.wordsReversed = wordsReversed;
     }
 
-    public void setReversed(String reversed) {
-        this.reversed = reversed;
-    }
 }

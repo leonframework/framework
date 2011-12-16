@@ -1,13 +1,23 @@
 package io.leon.samples.ajax.reverserwithpojo.java_js;
 
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class ReverserService {
 
-    public ReverserResponse reverse(ReverserRequest request) {
-        String reversed = new StringBuffer(request.getText()).reverse().toString();
-        if (request.isToUpperCase())
-            return new ReverserResponse(reversed.toUpperCase());
-        else
-            return new ReverserResponse(reversed);
+    public List<String> reverse(ReverserRequest request) {
+        List<String> wordsReversed = new LinkedList<String>();
+        for (Word w : request.getWords()) {
+            String reversed = new StringBuffer(w.getText()).reverse().toString();
+            if (w.isToUpperCase()) {
+                wordsReversed.add(reversed.toUpperCase());
+            }
+            else {
+                wordsReversed.add(reversed);
+            }
+        }
+        return wordsReversed;
     }
+
 }

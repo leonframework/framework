@@ -1,5 +1,3 @@
-// location of application files
-addLocation("./www");
 
 // server-side js files
 loadFile("/server.js");

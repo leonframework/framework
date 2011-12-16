@@ -1,23 +1,18 @@
 package io.leon.samples.ajax.reverserwithpojo.java_js;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class ReverserRequest {
 
-    private String text;
-    private boolean toUpperCase;
+    private List<Word> words = new LinkedList<Word>();
 
-    public String getText() {
-        return text;
+    public List<Word> getWords() {
+        return words;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setWords(List<Word> words) {
+        this.words = words;
     }
 
-    public boolean isToUpperCase() {
-        return toUpperCase;
-    }
-
-    public void setToUpperCase(boolean toUpperCase) {
-        this.toUpperCase = toUpperCase;
-    }
 }

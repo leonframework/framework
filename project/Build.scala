@@ -175,6 +175,14 @@ object LeonBuild extends Build {
         Seq(libraryDependencies ++= samplesDeps)
     ) dependsOn(core)
 
+  lazy val samplesAjaxReverserJsJs = Project(
+      "samplesAjaxReverserJsJs",
+      file("leon-samples/ajax/reverser/js_js"),
+      settings = buildSettings ++
+        webSettings ++
+        Seq(libraryDependencies ++= samplesDeps)
+    ) dependsOn(core)
+
 
   lazy val samplesAjaxReverserWithPojoJavaJs = Project(
       "samplesAjaxReverserWithPojoJavaJs",

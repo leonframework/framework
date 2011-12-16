@@ -12,13 +12,16 @@
 
 <body ng:controller="ReverserServiceCtrl">
 <div>
-    <h1>Ajax Reverser Sample</h1>
+    <h1>Ajax Reverser With POJO Sample</h1>
     <hr />
-    Text: <input type="text" name="text" /> <br />
-    To upper case? <input type="checkbox" name="toUpperCase" />
+    Text 1: <input type="text" name="text1" /> To upper case? <input type="checkbox" name="toUpperCase1" /> <br />
+    Text 2: <input type="text" name="text2" /> To upper case? <input type="checkbox" name="toUpperCase2" /> <br />
+    Text 3: <input type="text" name="text3" /> To upper case? <input type="checkbox" name="toUpperCase3" /> <br />
     <hr />
-    <a href="#" ng:click="reverse()">Reverse text</a> <br/>
-    Reverse: {{reversed}}
+    <a href="#" ng:click="reverse()">Reverse texts</a> <br/>
+    Reverse 1: {{reversed1}} <br />
+    Reverse 2: {{reversed2}} <br />
+    Reverse 3: {{reversed3}} <br />
 </div>
 </body>
 </html>

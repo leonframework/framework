@@ -17,18 +17,6 @@ public class PingService {
     }
 
     public void ping(final int start) {
-        /*
-        System.out.println("------------------------------");
-        Person p1 = new Person();
-        p1.setFirstname("Roman");
-        p1.setLastname("Roelofsen");
-
-        final String p1out = JsonUtils.object2Json(p1);
-
-        System.out.println(p1out);
-        System.out.println("------------------------------");
-        */
-
         // TODO threads rauf und runter zählen
         // thread nummer übertragen
         // eventuell muss der client gelockt werden beim senden

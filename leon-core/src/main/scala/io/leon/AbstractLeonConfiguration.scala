@@ -8,9 +8,9 @@
  */
 package io.leon
 
-import javascript.{LeonScriptEngine, JavaObjectAjaxHandlerProvider, JavaScriptAjaxHandlerProvider}
+import web.ajax.{JavaObjectAjaxHandlerProvider, AjaxHandler}
+import javascript.{LeonScriptEngine, JavaScriptAjaxHandlerProvider}
 import resources.{FileSystemResourceLocation, ResourceLocation}
-import web.ajax.AjaxHandler
 import collection.mutable
 import com.google.inject._
 import name.Names

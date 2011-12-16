@@ -6,12 +6,19 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.javascript
+/*
+ * Copyright (c) 2011 WeigleWilczek and others.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+package io.leon.web.ajax
 
-import io.leon.web.ajax.AjaxHandler
-import org.mozilla.javascript.BaseFunction
 import com.google.inject.{Key, Injector, Inject, Provider}
 import com.google.gson.Gson
+import io.leon.javascript.LeonScriptEngine
 
 class JavaObjectAjaxHandlerProvider[T <: AnyRef](key: Key[T]) extends Provider[AjaxHandler] {
 
@@ -38,8 +45,8 @@ class JavaObjectAjaxHandlerProvider[T <: AnyRef](key: Key[T]) extends Provider[A
       val method = possibleMethods(0)
 
       val deserialized = args.zipWithIndex map { case (a, i) =>
-        val requiredType = method.getParameterTypes()(i)
-        gson.fromJson(a, requiredType).asInstanceOf[AnyRef]
+        val requiredType = method.getGenericParameterTypes.apply(i)
+        gson.fromJson(a, requiredType): AnyRef
       }
 
       val result = method.invoke(obj, deserialized.toArray: _*)
