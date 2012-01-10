@@ -14,9 +14,10 @@ import com.google.inject.{Inject, Provider}
 class ContextPathVirtualLeonJsFileContribution @Inject()(httpRequestProvider: Provider[HttpServletRequest])
   extends VirtualLeonJsFileContribution {
 
-  def content() =
-    """
-    leon.contextPath = "%s";
-    """.format(httpRequestProvider.get().getContextPath)
+  def content(): String = {
+    val script = """ leon.contextPath = "%s"; """
+    val cp = httpRequestProvider.get().getContextPath
+    script.format(cp)
+  }
 
 }

@@ -34,6 +34,10 @@ class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) ex
       out.write(ResourceUtils.inputStreamToString(r.createInputStream()))
     }
   }
+  
+  private def writeString(out: Writer,  string: String) {
+    out.write(string + "\n")
+  }
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
     import scala.collection.JavaConverters._
@@ -41,6 +45,8 @@ class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) ex
     val out = new BufferedWriter(res.getWriter)
 
     // static content
+    writeString(out, "\"use strict\";")
+
     req.getParameter("env") match {
       case "desktop" | null => {
         writeResource(out, "/leon/browser/jquery-1.5.2.min.js")

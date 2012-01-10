@@ -1,6 +1,6 @@
 
 // Set top-level global var to be independent from browser or server side
-
+var global;
 if (this.window === undefined) {
     // Server
     global = this;

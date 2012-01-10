@@ -20,6 +20,7 @@ target
 .project
 .scala_dependencies
 .settings
+.target
 
 # IntelliJ
 .idea
