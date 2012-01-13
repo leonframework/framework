@@ -28,6 +28,7 @@ target
 *.ipr
 *.iws
 out
+.cache
 
 # TextMate
 *.tmproj
