@@ -5,11 +5,6 @@ var leon = (function() {
     var guice = Packages.com.google.inject;
     var Names = Packages.com.google.inject.name.Names;
 
-    Object.prototype.asJavaObject = function(clazz) {
-        var converter = leon.inject(Packages.io.leon.javascript.Converter);
-        return converter.jsToJava(this, clazz);
-    };
-
     Object.prototype.properties = function() {
       var result = [];
       for (var property in this) {
