@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.lang.IllegalStateException
 import java.util.ArrayList
 import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
+import com.google.gson.Gson
 
 
 class ClientConnection(val clientId: String,
@@ -272,7 +273,6 @@ class CometRegistry @Inject()(clients: Clients) {
   def publish(topicName: String, filters: java.util.Map[String, Any], data: String) {
     import scala.collection.JavaConverters._
 
-    val dataSerialized = JsValue.toJson(JsValue(data)) // TODO use gson
     val requiredFilters = filters.asScala
     val matchingClients = clients.allClients filter { c =>
       requiredFilters forall { case (filterName, filterValue) =>
@@ -285,6 +285,9 @@ class CometRegistry @Inject()(clients: Clients) {
     } else {
       logger.info("Found [%s] clients for filter map [%s].".format(matchingClients.size, requiredFilters))
     }
+
+    //val dataSerialized = JsValue.toJson(JsValue(data)) // TODO use gson
+    val dataSerialized = new Gson().toJson(data)
 
     matchingClients foreach { _.enqueue(topicName, dataSerialized) }
   }
