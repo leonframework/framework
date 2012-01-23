@@ -7,9 +7,6 @@ var ReverserService = (function() {
 
     return {
         reverse: function(text, toUpperCase) {
-
-            logger.info("#####" + JSON.stringify({"a": new Packages.java.lang.String("bla")}) + "#####");
-
             var sb = new StringBuffer(text);
             var reversed = sb.reverse().toString();
             if (toUpperCase) {

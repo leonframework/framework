@@ -25,6 +25,10 @@ var leon = (function() {
             return LoggerFactory.getLogger("JS: " + name);
         },
 
+        getInjector: function() {
+            return injector;
+        },
+
         inject: function(clazz, name) {
             if (name === undefined) {
                 return injector.getInstance(clazz);
@@ -46,15 +50,17 @@ var leon = (function() {
         },
 
         publishMessage: function(topic, filter, data) {
-          var cometRegistry = leon.inject(Packages.io.leon.web.comet.CometRegistry);
+            var cometRegistry = leon.inject(Packages.io.leon.web.comet.CometRegistry);
 
-          var filterMap = new Packages.java.util.HashMap();
-          filter.properties().forEach(function(key) {
-            filterMap.put(key, filter[key]);
-          });
+            var filterMap = new Packages.java.util.HashMap();
+            filter.properties().forEach(function(key) {
+                filterMap.put(key, filter[key]);
+            });
 
-          cometRegistry.publish(topic, filterMap, JSON.stringify(data));
-          return true;
+            var gson = leon.inject(Packages.com.google.gson.Gson);
+            var datastring = gson.toJson(data);
+            cometRegistry.publish(topic, filterMap, datastring);
+            return true;
         },
 
         parseLess: function(lessString) {

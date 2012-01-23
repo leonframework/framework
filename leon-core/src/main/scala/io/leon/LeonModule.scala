@@ -9,7 +9,7 @@
 package io.leon
 
 import com.google.inject.AbstractModule
-import javascript.LeonJavaScriptModule
+import javascript.{GsonModule, LeonJavaScriptModule}
 import resources.coffeescript.CoffeeScriptModule
 import resources.less.LessModule
 import resources.ResourcesModule
@@ -22,6 +22,7 @@ class LeonModule extends AbstractModule {
 
   def configure() {
     install(new ResourcesModule)
+    install(new GsonModule)
     install(new LeonJavaScriptModule)
     install(new AjaxWebModule)
     install(new CometWebModule)
