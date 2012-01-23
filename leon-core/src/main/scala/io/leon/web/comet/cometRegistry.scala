@@ -52,7 +52,6 @@ class ClientConnection(val clientId: String,
     connectTime = System.currentTimeMillis()
 
     // First connect or empty queue. Nothing to do here.
-    val oldSize = queue.size()
     if (lastMessageReceived != -1) {
       while (queue.size() > 0 && queue.get(0)._1 != lastMessageReceived) {
         queue.remove(0)
@@ -62,8 +61,6 @@ class ClientConnection(val clientId: String,
       }
     }
     messageSendIndex.set(0)
-    logger.info("Message carry forward report: old queue: %s, new queue: %s".format(oldSize, queue.size()))
-
     flushQueue()
   }
 
@@ -118,7 +115,7 @@ class ClientConnection(val clientId: String,
         val res = meteor.getAtmosphereResource.getResponse
         val writer = res.getWriter
         writer.write(data)
-        logger.info("Sending package: " + data)
+        //logger.info("Sending package: " + data)
         res.flushBuffer()
         true
       } getOrElse false
