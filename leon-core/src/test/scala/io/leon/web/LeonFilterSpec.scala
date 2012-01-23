@@ -38,7 +38,7 @@ class LeonFilterSpec extends Specification {
     "load a module configuration from javascript" in {
       val filter = new LeonFilter
 
-      filter.createAndLoadModuleClass("<LeonFilterSpec>", JsConfig, new File("test"))
+      filter.createAndLoadModuleClass(JsConfig)
       success
     }
 
