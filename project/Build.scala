@@ -52,7 +52,7 @@ object Dependencies {
 
   def jetty7 = "org.eclipse.jetty" % "jetty-webapp" % "7.0.2.v20100331" % "container" withSources()
 
-  def rhino = "rhino" % "js" % "1.7R2" withSources()
+  def rhino = "org.mozilla" % "rhino" % "1.7R3" withSources()
 
   def sjson = "net.debasishg" %% "sjson" % "0.15" withSources()
 
