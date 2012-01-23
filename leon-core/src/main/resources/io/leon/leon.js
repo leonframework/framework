@@ -22,7 +22,7 @@ var leon = (function() {
     return {
 
         getLogger: function(name) {
-            return LoggerFactory.getLogger(name);
+            return LoggerFactory.getLogger("JS: " + name);
         },
 
         inject: function(clazz, name) {
