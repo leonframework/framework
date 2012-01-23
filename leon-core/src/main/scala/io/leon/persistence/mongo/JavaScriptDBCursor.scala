@@ -52,7 +52,7 @@ private[mongo] class JavaScriptDBCursor(dbCursor: MongoCursor) extends Scriptabl
     new JavaScriptDBCursor(dbCursor.sort(orderBy))
   }
 
-  def size() = {
+  override def size() = {
     dbCursor.size
   }
 
