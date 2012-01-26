@@ -25,7 +25,6 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
   put("injector", injector)
 
   // Load Leon core modules
-  loadResource("/io/leon/json2.js")
   loadResource("/io/leon/leon.js")
   loadResource("/leon/browser/leon-shared.js")
 

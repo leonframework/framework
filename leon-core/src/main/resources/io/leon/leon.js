@@ -42,7 +42,7 @@ var leon = (function() {
             return function(methodName) {
                 return function() {
                     var args = Array.prototype.slice.call(arguments);
-                    var json = JSON.stringify(args);
+                    var json = leon.getGson().toJson(args);
                     ref.jsonApply(methodName, json);
                 };
             };
@@ -56,7 +56,7 @@ var leon = (function() {
                 filterMap.put(key, filter[key]);
             });
 
-            var datastring = getGson().toJson(data);
+            var datastring = leon.getGson().toJson(data);
             cometRegistry.publish(topic, filterMap, datastring);
             return true;
         },
