@@ -1,45 +1,49 @@
 package io.leon.javascript
 
 import org.specs2.mutable.Specification
-import java.io.File
+import com.google.inject.{Guice, AbstractModule}
+import io.leon.resources.ResourcesModule
+import org.mozilla.javascript.NativeJavaObject
 
 
 class GsonRhinoSupportSpec extends Specification {
 
-  val JsConfig =
-    """
-    // module definition
-    install(new Packages.io.leon.persistence.mongo.LeonMongoModule());
-    install(new Packages.io.leon.resources.coffeescript.CoffeeScriptModule());
-    install(new Packages.io.leon.resources.closure.ClosureTemplatesModule());
-
-    // location of application files
-    addLocation("leon-samples/leon-samples-cometping/WebContent");
-
-    // server-side js files
-    loadFile("/io/leon/samples/cometping/person.js");
-
-    // ajax support
-    browser("person").linksToServer("person");
-    browser("personService").linksToServer(new Packages.io.leon.samples.cometping.PersonService);
-
-    // comet support
-    server("leon.browser").linksToAllPages("leon");
-
-    // some javascript expressions
-    var func = function(a) {
-      return a;
+  private val module = new AbstractModule {
+    def configure() {
+      install(new LeonJavaScriptModule)
+      install(new GsonModule)
+      install(new ResourcesModule)
     }
-    """
+  }
 
+  private val injector = Guice.createInjector(module)
 
-  "A LeonFilter " should {
+  private val leonScriptEngine = injector.getInstance(classOf[LeonScriptEngine])
 
-    "load a module configuration from javascript" in {
-      val filter = new LeonFilter
+  "Gson Rhino support" should {
 
-      filter.createAndLoadModuleClass(JsConfig)
-      success
+    "serialize Rhino's JavaScript types to JSON" in {
+      val js = """
+        var string = "string";
+        var number = 123.4;
+        var array = [1, 2, 3, string, number];
+        var data = { a: string, b: number, c: array };
+        leon.getGson().toJson(data);
+        """
+
+      val result = leonScriptEngine.eval(js).asInstanceOf[NativeJavaObject].unwrap()
+      val expected = """{"a":"string","b":123.4,"c":[1.0,2,3,"string",123.4]}"""
+      result must_== expected
+    }
+
+    "serialize Java types used in a JavaScript context to JSON" in {
+      val js = """
+        var s = Packages.java.lang.String.valueOf(3.0);
+        leon.getGson().toJson(s);
+        """
+      val result = leonScriptEngine.eval(js).asInstanceOf[NativeJavaObject].unwrap()
+      val expected = "\"3.0\""
+      result must_== expected
     }
 
   }
