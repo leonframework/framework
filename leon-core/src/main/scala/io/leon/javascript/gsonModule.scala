@@ -11,7 +11,7 @@ package io.leon.javascript
 import java.lang.reflect.Type
 import com.google.gson._
 import com.google.inject.{Inject, Injector, AbstractModule}
-import org.mozilla.javascript.{NativeJavaObject, NativeObject}
+import org.mozilla.javascript.{NativeArray, NativeJavaObject, NativeObject}
 
 
 class NativeObjectSerializer extends JsonSerializer[NativeObject] {
@@ -46,6 +46,19 @@ class NativeJavaObjectSerializer extends JsonSerializer[NativeJavaObject] {
 
 }
 
+class NativeArraySerializer extends JsonSerializer[NativeArray] {
+
+  @Inject
+  var injector: Injector = _
+
+  private def getGson() = injector.getInstance(classOf[Gson])
+
+  def serialize(src: NativeArray, typeOfSrc: Type, context: JsonSerializationContext) = {
+    getGson().toJsonTree(src.toArray)
+  }
+
+}
+
 
 class GsonModule extends AbstractModule {
 
@@ -59,6 +72,10 @@ class GsonModule extends AbstractModule {
     val nativeJavaObjectSerializer = new NativeJavaObjectSerializer
     requestInjection(nativeJavaObjectSerializer)
     gsonBuilder.registerTypeAdapter(classOf[NativeJavaObject], nativeJavaObjectSerializer)
+
+    val nativeArraySerializer = new NativeArraySerializer
+    requestInjection(nativeArraySerializer)
+    gsonBuilder.registerTypeAdapter(classOf[NativeArray], nativeArraySerializer)
 
     val gson = gsonBuilder.create()
     bind(classOf[Gson]).toInstance(gson)
