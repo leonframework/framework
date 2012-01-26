@@ -17,18 +17,13 @@ public class PingService {
     }
 
     public void ping(final int start) {
-        // TODO threads rauf und runter zählen
-        // thread nummer übertragen
-        // eventuell muss der client gelockt werden beim senden
-
         new Thread() {
             @Override
             public void run() {
                 int i = start;
                 int requestNo = ++requests;
-                while (i++ < start + (5 * 10)) {
+                while (i++ < start + (10)) {
                     cometRegistry.publish("ping", new HashMap<String, Object>(), String.valueOf(i));
-                    //cometRegistry.publish("ping", new HashMap<String, Object>(), p1out);
                     try {
                         Thread.sleep(200);
                     } catch (InterruptedException e) {

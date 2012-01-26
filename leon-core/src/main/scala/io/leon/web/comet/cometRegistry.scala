@@ -283,9 +283,7 @@ class CometRegistry @Inject()(clients: Clients) {
       logger.info("Found [%s] clients for filter map [%s].".format(matchingClients.size, requiredFilters))
     }
 
-    //val dataSerialized = JsValue.toJson(JsValue(data)) // TODO use gson
     val dataSerialized = new Gson().toJson(data)
-
     matchingClients foreach { _.enqueue(topicName, dataSerialized) }
   }
 
