@@ -10,7 +10,7 @@
         <async-supported>true</async-supported>
         <init-param>
             <param-name>module</param-name>
-            <param-value>leon-samples/leonjax/config.js</param-value>
+            <param-value>module.js</param-value>
         </init-param>
     </filter>
 
