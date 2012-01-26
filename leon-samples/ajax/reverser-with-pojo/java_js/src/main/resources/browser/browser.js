@@ -33,9 +33,9 @@ function ReverserServiceCtrl() {
         }
 
         server.reverserService("reverse")(request, function(result) {
-            self.reversed1 = result[0];
-            self.reversed2 = result[1];
-            self.reversed3 = result[2];
+            self.reversed1 = result.wordsReversed[0];
+            self.reversed2 = result.wordsReversed[1];
+            self.reversed3 = result.wordsReversed[2];
 
             self.$service('$updateView')();
         });

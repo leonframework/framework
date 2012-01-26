@@ -6,18 +6,19 @@ import java.util.List;
 
 public class ReverserService {
 
-    public List<String> reverse(ReverserRequest request) {
+    public ReverserResponse reverse(ReverserRequest request) {
         List<String> wordsReversed = new LinkedList<String>();
         for (Word w : request.getWords()) {
             String reversed = new StringBuffer(w.getText()).reverse().toString();
             if (w.isToUpperCase()) {
                 wordsReversed.add(reversed.toUpperCase());
-            }
-            else {
+            } else {
                 wordsReversed.add(reversed);
             }
         }
-        return wordsReversed;
+        ReverserResponse rr = new ReverserResponse();
+        rr.setWordsReversed(wordsReversed);
+        return rr;
     }
 
 }
