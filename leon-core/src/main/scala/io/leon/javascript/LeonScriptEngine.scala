@@ -106,14 +106,6 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
     }
   }
 
-  def evalToJson(script: String): String = {
-    withContext { ctx =>
-      val result = eval(script)
-      val json = invokeFunction("JSON.stringify", result)
-      json.asInstanceOf[String]
-    }
-  }
-
   def put(key: String, value: Any) {
     withContext { ctx =>
       val wrapped = Context.javaToJS(value, rhinoScope);
