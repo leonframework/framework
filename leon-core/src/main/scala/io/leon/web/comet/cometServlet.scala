@@ -61,12 +61,11 @@ class CometUpdateFilterServlet @Inject()(cometRegisty: CometRegistry) extends Ht
 
   override def doGet(req: HttpServletRequest, resp: HttpServletResponse) {
     val pageId = req.getParameter("pageId")
-    val topicId = req.getParameter("topicName")
+    val topicId = req.getParameter("topicId")
     val key = req.getParameter("key")
     val value = req.getParameter("value")
 
     cometRegisty.updateClientFilter(topicId, req.getSession.getId + "__" + pageId, key, value)
-    
   }
 
 }
