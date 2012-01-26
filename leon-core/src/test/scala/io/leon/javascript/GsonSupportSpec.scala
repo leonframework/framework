@@ -6,7 +6,7 @@ import io.leon.resources.ResourcesModule
 import org.mozilla.javascript.NativeJavaObject
 
 
-class GsonRhinoSupportSpec extends Specification {
+class GsonSupportSpec extends Specification {
 
   private val module = new AbstractModule {
     def configure() {
@@ -20,7 +20,7 @@ class GsonRhinoSupportSpec extends Specification {
 
   private val leonScriptEngine = injector.getInstance(classOf[LeonScriptEngine])
 
-  "Gson Rhino support" should {
+  "Gson Rhino adapters" should {
 
     "serialize Rhino's JavaScript types to JSON" in {
       val js = """
