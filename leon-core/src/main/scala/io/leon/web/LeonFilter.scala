@@ -9,7 +9,6 @@
 package io.leon.web
 
 import com.google.inject.servlet.GuiceFilter
-import javax.servlet.FilterConfig
 import scala.io.Source
 import org.mozilla.javascript.{NativeJavaObject, Context}
 import io.leon.{AbstractLeonConfiguration, LeonModule}
@@ -18,6 +17,7 @@ import com.google.inject.{Injector, Guice}
 import io.leon.resources.ResourceWatcher
 import org.slf4j.LoggerFactory
 import java.io.InputStream
+import javax.servlet.{FilterChain, ServletResponse, ServletRequest, FilterConfig}
 
 
 class LeonFilter extends GuiceFilter {
