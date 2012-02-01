@@ -12,7 +12,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-public class LeonBrowserTest {
+public class LeonBrowserTestUtil {
 
     private final Class<? extends AbstractLeonConfiguration> config;
 
@@ -20,8 +20,15 @@ public class LeonBrowserTest {
 
     private WebDriver webDriver;
 
-    public LeonBrowserTest(Class<? extends AbstractLeonConfiguration> config) {
+    private int port;
+
+    public LeonBrowserTestUtil(Class<? extends AbstractLeonConfiguration> config) {
+        this(config, 51234);
+    }
+
+    public LeonBrowserTestUtil(Class<? extends AbstractLeonConfiguration> config, int port) {
         this.config = config;
+        this.port = port;
     }
 
     public void start() {
@@ -34,7 +41,7 @@ public class LeonBrowserTest {
 
         Thread taskJetty = new Thread(new Runnable() {
             public void run() {
-                server = new Server(8080);
+                server = new Server(port);
                 ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
                 context.setContextPath("/");
                 server.setHandler(context);
@@ -71,8 +78,10 @@ public class LeonBrowserTest {
         return webDriver;
     }
 
-    public void get(String url) {
-        webDriver.get(url);
+    public void openPage(String url) {
+        // Possible Selenium bug: Opening e.g. http://localhost:8080// causes a RuntimeException
+        String _url = url == "/" ? "" : url;
+        webDriver.get("http://localhost:" + port + "/" + _url);
     }
 
     public int getAjaxCallsCount() {

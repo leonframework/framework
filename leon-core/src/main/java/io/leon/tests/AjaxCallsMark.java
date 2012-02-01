@@ -6,10 +6,10 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class AjaxCallsMark {
 
-    private LeonBrowserTest leonBrowserTest;
+    private LeonBrowserTestUtil leonBrowserTest;
     private int ajaxCallsCount;
 
-    public AjaxCallsMark(LeonBrowserTest leonBrowserTest) {
+    public AjaxCallsMark(LeonBrowserTestUtil leonBrowserTest) {
         this.leonBrowserTest = leonBrowserTest;
         this.ajaxCallsCount = leonBrowserTest.getAjaxCallsCount();
     }

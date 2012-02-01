@@ -10,7 +10,7 @@
         <async-supported>true</async-supported>
         <init-param>
             <param-name>module</param-name>
-            <param-value>io.leon.samples.ajax.reverser.java_js.Module</param-value>
+            <param-value>io.leon.samples.ajax.reverser.java_js.Config</param-value>
         </init-param>
     </filter>
 

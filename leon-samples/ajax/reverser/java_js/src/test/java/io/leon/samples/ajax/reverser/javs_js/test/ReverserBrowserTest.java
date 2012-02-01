@@ -1,9 +1,9 @@
 package io.leon.samples.ajax.reverser.javs_js.test;
 
-import io.leon.samples.ajax.reverser.java_js.Module;
+import io.leon.samples.ajax.reverser.java_js.Config;
 import io.leon.tests.AjaxCallsMark;
 import io.leon.tests.AsyncTest;
-import io.leon.tests.LeonBrowserTest;
+import io.leon.tests.LeonBrowserTestUtil;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -14,11 +14,11 @@ import org.openqa.selenium.WebElement;
 
 public class ReverserBrowserTest {
 
-    private static LeonBrowserTest LEON;
+    private static LeonBrowserTestUtil LEON;
 
     @BeforeClass
     public static void init() throws Exception {
-        LEON = new LeonBrowserTest(Module.class);
+        LEON = new LeonBrowserTestUtil(Config.class);
         LEON.start();
     }
 
@@ -29,7 +29,7 @@ public class ReverserBrowserTest {
 
     @Test
     public void testReverseText() throws InterruptedException {
-        LEON.get("http://localhost:8080");
+        LEON.openPage("/");
         WebElement text = LEON.findElementByName("text");
         text.clear();
         text.sendKeys("abc");
@@ -50,7 +50,7 @@ public class ReverserBrowserTest {
 
     @Test
     public void testReverseTextUppercase() throws InterruptedException {
-        LEON.get("http://localhost:8080");
+        LEON.openPage("/");
         WebElement text = LEON.findElementByName("text");
         text.clear();
         text.sendKeys("abc");
