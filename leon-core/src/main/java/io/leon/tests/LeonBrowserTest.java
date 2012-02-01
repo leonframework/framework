@@ -5,9 +5,12 @@ import io.leon.web.LeonFilter;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.*;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class LeonBrowserTest {
 
@@ -72,6 +75,11 @@ public class LeonBrowserTest {
         webDriver.get(url);
     }
 
+    public int getAjaxCallsCount() {
+        JavascriptExecutor jse = (JavascriptExecutor) webDriver;
+        return Integer.parseInt(jse.executeScript("return leon.getAjaxCallsCount()").toString());
+    }
+
     public WebElement findElementById(String id) {
         return webDriver.findElement(By.id(id));
     }
@@ -80,7 +88,31 @@ public class LeonBrowserTest {
         return webDriver.findElement(By.name(name));
     }
 
-    public void doXXX() {
+    public AjaxCallsMark createAjaxCallsMark() {
+        return new AjaxCallsMark(this);
+    }
+
+    public void doAjaxTest(int requiredAjaxOperations, final AsyncTest asyncTest) {
+        int startCount = getAjaxCallsCount();
+        long startTime = System.currentTimeMillis();
+        asyncTest.init();
+        while ((startCount + requiredAjaxOperations) > getAjaxCallsCount()) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            if ((startTime + 10000) < System.currentTimeMillis()) {
+                throw new RuntimeException("Timeout while waiting for AJAX call results.");
+            }
+        }
+
+        (new WebDriverWait(webDriver, 10)).until(new ExpectedCondition<Boolean>() {
+            public Boolean apply(WebDriver d) {
+                asyncTest.callback(d);
+                return true;
+            }
+        });
     }
 
 
