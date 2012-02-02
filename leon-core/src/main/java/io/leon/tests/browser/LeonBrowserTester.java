@@ -10,28 +10,69 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+
 public class LeonBrowserTester {
 
-    private static boolean RUNNING = false;
-
     private final Class<? extends AbstractLeonConfiguration> config;
+
+    private ServerSocket lockSocket;
 
     private Server server;
 
     private WebDriver webDriver;
 
-    private int port;
+    private int httpPort = 51000;
+
+    private int lockPort = 51001;
 
     public LeonBrowserTester(Class<? extends AbstractLeonConfiguration> config) {
-        this(config, 51234);
+        this.config = config;
     }
 
-    public LeonBrowserTester(Class<? extends AbstractLeonConfiguration> config, int port) {
-        this.config = config;
-        this.port = port;
+    public int getHttpPort() {
+        return httpPort;
+    }
+
+    public void setHttpPort(int httpPort) {
+        this.httpPort = httpPort;
+    }
+
+    public int getLockPort() {
+        return lockPort;
+    }
+
+    public void setLockPort(int lockPort) {
+        this.lockPort = lockPort;
     }
 
     public void start() {
+        try {
+            lockSocket = new ServerSocket();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        int numberOfFails = 0;
+        while (!lockSocket.isBound()) {
+            try {
+                lockSocket.bind(new InetSocketAddress(lockPort));
+            } catch (Exception e) {
+                numberOfFails++;
+                if (numberOfFails >= 500) {
+                    numberOfFails = 0;
+                    System.out.println("Could not bind LOCK socket. Waiting...");
+                }
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e1) {
+                    throw new RuntimeException(e1);
+                }
+            }
+        }
+
         Thread taskFirefox = new Thread(new Runnable() {
             public void run() {
                 webDriver = new FirefoxDriver();
@@ -41,7 +82,7 @@ public class LeonBrowserTester {
 
         Thread taskJetty = new Thread(new Runnable() {
             public void run() {
-                server = new Server(port);
+                server = new Server(httpPort);
                 ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
                 context.setContextPath("/");
                 server.setHandler(context);
@@ -52,14 +93,10 @@ public class LeonBrowserTester {
 
                 ServletHolder servletHolder = new ServletHolder(new DefaultServlet());
                 context.addServlet(servletHolder, "/*");
+
                 try {
-
-                    
-
-                    RUNNING = true;
                     server.start();
                 } catch (Exception e) {
-                    RUNNING = false;
                     throw new RuntimeException(e);
                 }
             }
@@ -77,7 +114,7 @@ public class LeonBrowserTester {
     public void stop() throws Exception {
         server.stop();
         webDriver.quit();
-        RUNNING = false;
+        lockSocket.close();
     }
 
     public WebDriver getWebDriver() {
@@ -87,7 +124,7 @@ public class LeonBrowserTester {
     public void openPage(String url) {
         // Possible Selenium bug: Opening e.g. http://localhost:8080// causes a RuntimeException
         String _url = url == "/" ? "" : url;
-        webDriver.get("http://localhost:" + port + "/" + _url);
+        webDriver.get("http://localhost:" + httpPort + "/" + _url);
     }
 
     public int getAjaxCallsCount() {
