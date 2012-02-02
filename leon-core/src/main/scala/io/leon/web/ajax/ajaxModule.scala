@@ -16,6 +16,7 @@ import java.io.BufferedOutputStream
 import io.leon.web.resources.ExposedUrl
 import io.leon.web.browser.VirtualLeonJsFileContribution
 import java.lang.StringBuffer
+import org.slf4j.LoggerFactory
 
 class AjaxWebModule extends ServletModule {
   override def configureServlets() {
@@ -33,6 +34,8 @@ trait AjaxHandler {
 
 class AjaxCallServlet @Inject()(injector: Injector) extends HttpServlet {
 
+  private val logger = LoggerFactory.getLogger(getClass)
+
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
     val targetName = req.getParameter("target")
     val argsSize = req.getParameter("argsSize").toInt
@@ -46,9 +49,13 @@ class AjaxCallServlet @Inject()(injector: Injector) extends HttpServlet {
     res.setContentType("application/json")
     res.setCharacterEncoding("utf-8")
 
-    val out = new BufferedOutputStream(res.getOutputStream)
-    out.write(result.getBytes("utf-8"))
-    out.close()
+    try {
+      val out = new BufferedOutputStream(res.getOutputStream)
+      out.write(result.getBytes("utf-8"))
+      out.close()
+    } catch {
+      case e: Exception => logger.info(e.toString + " " + e.getMessage + " (Could not flush/close OutputStream)")
+    }
   }
 
 }
