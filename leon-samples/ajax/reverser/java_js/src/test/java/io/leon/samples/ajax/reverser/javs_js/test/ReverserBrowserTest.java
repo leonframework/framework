@@ -3,7 +3,7 @@ package io.leon.samples.ajax.reverser.javs_js.test;
 import io.leon.samples.ajax.reverser.java_js.Config;
 import io.leon.tests.AjaxCallsMark;
 import io.leon.tests.AsyncTest;
-import io.leon.tests.LeonBrowserTestUtil;
+import io.leon.tests.LeonBrowserTester;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -14,11 +14,11 @@ import org.openqa.selenium.WebElement;
 
 public class ReverserBrowserTest {
 
-    private static LeonBrowserTestUtil LEON;
+    private static LeonBrowserTester LEON;
 
     @BeforeClass
     public static void init() throws Exception {
-        LEON = new LeonBrowserTestUtil(Config.class);
+        LEON = new LeonBrowserTester(Config.class);
         LEON.start();
     }
 
@@ -30,20 +30,18 @@ public class ReverserBrowserTest {
     @Test
     public void testReverseText() throws InterruptedException {
         LEON.openPage("/");
-        WebElement text = LEON.findElementByName("text");
-        text.clear();
-        text.sendKeys("abc");
+        LEON.setTextForElementWithName("text", "abc");
+        LEON.setOffForElementWithName("toUpperCase");
 
         LEON.doAjaxTest(1, new AsyncTest() {
             @Override
             public void init() {
-                WebElement submit = LEON.findElementById("reverse");
-                submit.click();
+                LEON.findElementById("reverse").click();
             }
+
             @Override
             public void callback(WebDriver webDriver) {
-                WebElement textReversed = webDriver.findElement(By.id("text_reversed"));
-                Assert.assertEquals("cba", textReversed.getText());
+                Assert.assertEquals("cba", webDriver.findElement(By.id("text_reversed")).getText());
             }
         });
     }
@@ -51,19 +49,13 @@ public class ReverserBrowserTest {
     @Test
     public void testReverseTextUppercase() throws InterruptedException {
         LEON.openPage("/");
-        WebElement text = LEON.findElementByName("text");
-        text.clear();
-        text.sendKeys("abc");
+        LEON.setTextForElementWithName("text", "abc");
+        LEON.setOnForElementWithName("toUpperCase");
 
-        WebElement toUpperCase = LEON.findElementByName("toUpperCase");
-        toUpperCase.click();
-
-        WebElement submit = LEON.findElementById("reverse");
         AjaxCallsMark mark = LEON.createAjaxCallsMark();
-        submit.click();
+        LEON.findElementById("reverse").click();
         mark.waitForAjaxCalls(1);
-        WebElement textReversed = LEON.findElementById("text_reversed");
-        Assert.assertEquals("CBA", textReversed.getText());
+        Assert.assertEquals("CBA", LEON.findElementById("text_reversed").getText());
     }
 
 }

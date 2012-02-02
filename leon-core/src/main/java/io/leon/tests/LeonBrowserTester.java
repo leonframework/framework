@@ -12,7 +12,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-public class LeonBrowserTestUtil {
+public class LeonBrowserTester {
 
     private final Class<? extends AbstractLeonConfiguration> config;
 
@@ -22,11 +22,11 @@ public class LeonBrowserTestUtil {
 
     private int port;
 
-    public LeonBrowserTestUtil(Class<? extends AbstractLeonConfiguration> config) {
+    public LeonBrowserTester(Class<? extends AbstractLeonConfiguration> config) {
         this(config, 51234);
     }
 
-    public LeonBrowserTestUtil(Class<? extends AbstractLeonConfiguration> config, int port) {
+    public LeonBrowserTester(Class<? extends AbstractLeonConfiguration> config, int port) {
         this.config = config;
         this.port = port;
     }
@@ -95,6 +95,46 @@ public class LeonBrowserTestUtil {
 
     public WebElement findElementByName(String name) {
         return webDriver.findElement(By.name(name));
+    }
+
+    public void setTextForElementWithId(String id, String text) {
+        WebElement e = findElementById(id);
+        e.clear();
+        e.sendKeys(text);
+    }
+
+    public void setTextForElementWithName(String name, String text) {
+        WebElement e = findElementByName(name);
+        e.clear();
+        e.sendKeys(text);
+    }
+
+    public void setOnForElement(WebElement element) {
+        if (!element.isSelected()) {
+            element.click();
+        }
+    }
+
+    public void setOffForElement(WebElement element) {
+        if (element.isSelected()) {
+            element.click();
+        }
+    }
+
+    public void setOnForElementWithId(String id) {
+        setOnForElement(findElementById(id));
+    }
+
+    public void setOffForElementWithId(String id) {
+        setOffForElement(findElementById(id));
+    }
+
+    public void setOnForElementWithName(String name) {
+        setOnForElement(findElementByName(name));
+    }
+
+    public void setOffForElementWithName(String name) {
+        setOffForElement(findElementByName(name));
     }
 
     public AjaxCallsMark createAjaxCallsMark() {
