@@ -1,4 +1,4 @@
-package io.leon.tests;
+package io.leon.tests.browser;
 
 import io.leon.AbstractLeonConfiguration;
 import io.leon.web.LeonFilter;

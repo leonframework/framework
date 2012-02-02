@@ -1,4 +1,4 @@
-package io.leon.tests;
+package io.leon.tests.browser;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;

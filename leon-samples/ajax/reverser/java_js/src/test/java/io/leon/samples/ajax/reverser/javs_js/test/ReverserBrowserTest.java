@@ -1,16 +1,15 @@
 package io.leon.samples.ajax.reverser.javs_js.test;
 
 import io.leon.samples.ajax.reverser.java_js.Config;
-import io.leon.tests.AjaxCallsMark;
-import io.leon.tests.AsyncTest;
-import io.leon.tests.LeonBrowserTester;
+import io.leon.tests.browser.AjaxCallsMark;
+import io.leon.tests.browser.AsyncTest;
+import io.leon.tests.browser.LeonBrowserTester;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 
 public class ReverserBrowserTest {
 
