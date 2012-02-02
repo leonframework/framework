@@ -141,7 +141,7 @@ object LeonBuild extends Build {
       samplesAjaxReverserJavaJs,
       samplesAjaxReverserJsJs,
       samplesAjaxReverserWithPojoJavaJs,
-      samplesCometPingJavaJs
+      samplesCometPingJavaCoffee
       //samplesMixed,
       //samplesLeonJax,
       //samplesDeviceOrientation
@@ -183,9 +183,9 @@ object LeonBuild extends Build {
       Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(core)
 
-  lazy val samplesCometPingJavaJs = Project(
-    "samplesCometPingJavaJs",
-    file("leon-samples/comet/ping/java_js"),
+  lazy val samplesCometPingJavaCoffee = Project(
+    "samplesCometPingJavaCoffee",
+    file("leon-samples/comet/ping/java_coffee"),
     settings = buildSettings ++
       webSettings ++
       Seq(libraryDependencies ++= samplesDeps)

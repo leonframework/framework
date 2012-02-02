@@ -9,10 +9,10 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class LeonBrowserTester {
+
+    private static boolean RUNNING = false;
 
     private final Class<? extends AbstractLeonConfiguration> config;
 
@@ -53,8 +53,13 @@ public class LeonBrowserTester {
                 ServletHolder servletHolder = new ServletHolder(new DefaultServlet());
                 context.addServlet(servletHolder, "/*");
                 try {
+
+                    
+
+                    RUNNING = true;
                     server.start();
                 } catch (Exception e) {
+                    RUNNING = false;
                     throw new RuntimeException(e);
                 }
             }
@@ -72,6 +77,7 @@ public class LeonBrowserTester {
     public void stop() throws Exception {
         server.stop();
         webDriver.quit();
+        RUNNING = false;
     }
 
     public WebDriver getWebDriver() {
@@ -87,6 +93,11 @@ public class LeonBrowserTester {
     public int getAjaxCallsCount() {
         JavascriptExecutor jse = (JavascriptExecutor) webDriver;
         return Integer.parseInt(jse.executeScript("return leon.getAjaxCallsCount()").toString());
+    }
+
+    public int getCometCallsCount() {
+        JavascriptExecutor jse = (JavascriptExecutor) webDriver;
+        return Integer.parseInt(jse.executeScript("return leon.comet.getCometCallsCount()").toString());
     }
 
     public WebElement findElementById(String id) {
@@ -141,28 +152,8 @@ public class LeonBrowserTester {
         return new AjaxCallsMark(this);
     }
 
-    public void doAjaxTest(int requiredAjaxOperations, final AsyncTest asyncTest) {
-        int startCount = getAjaxCallsCount();
-        long startTime = System.currentTimeMillis();
-        asyncTest.init();
-        while ((startCount + requiredAjaxOperations) > getAjaxCallsCount()) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            if ((startTime + 10000) < System.currentTimeMillis()) {
-                throw new RuntimeException("Timeout while waiting for AJAX call results.");
-            }
-        }
-
-        (new WebDriverWait(webDriver, 10)).until(new ExpectedCondition<Boolean>() {
-            public Boolean apply(WebDriver d) {
-                asyncTest.callback(d);
-                return true;
-            }
-        });
+    public CometCallsMark createCometCallsMark() {
+        return new CometCallsMark(this);
     }
-
 
 }

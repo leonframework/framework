@@ -1,4 +1,4 @@
-package io.leon.samples.cometping;
+package io.leon.samples.cometping.java_js;
 
 import com.google.inject.Inject;
 import io.leon.web.comet.CometRegistry;
@@ -25,13 +25,13 @@ public class PingService {
                 while (i++ < start + (10)) {
                     cometRegistry.publish("ping", new HashMap<String, Object>(), String.valueOf(i));
                     try {
-                        Thread.sleep(200);
+                        Thread.sleep(1);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
             }
-        }.run();
+        }.start();
     }
 
 }

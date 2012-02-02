@@ -2,14 +2,11 @@ package io.leon.samples.ajax.reverser.javs_js.test;
 
 import io.leon.samples.ajax.reverser.java_js.Config;
 import io.leon.tests.browser.AjaxCallsMark;
-import io.leon.tests.browser.AsyncTest;
 import io.leon.tests.browser.LeonBrowserTester;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 
 public class ReverserBrowserTest {
 
@@ -32,17 +29,10 @@ public class ReverserBrowserTest {
         LEON.setTextForElementWithName("text", "abc");
         LEON.setOffForElementWithName("toUpperCase");
 
-        LEON.doAjaxTest(1, new AsyncTest() {
-            @Override
-            public void init() {
-                LEON.findElementById("reverse").click();
-            }
-
-            @Override
-            public void callback(WebDriver webDriver) {
-                Assert.assertEquals("cba", webDriver.findElement(By.id("text_reversed")).getText());
-            }
-        });
+        AjaxCallsMark mark = LEON.createAjaxCallsMark();
+        LEON.findElementById("reverse").click();
+        mark.waitForCalls(1);
+        Assert.assertEquals("cba", LEON.findElementById("text_reversed").getText());
     }
 
     @Test
@@ -53,7 +43,7 @@ public class ReverserBrowserTest {
 
         AjaxCallsMark mark = LEON.createAjaxCallsMark();
         LEON.findElementById("reverse").click();
-        mark.waitForAjaxCalls(1);
+        mark.waitForCalls(1);
         Assert.assertEquals("CBA", LEON.findElementById("text_reversed").getText());
     }
 
