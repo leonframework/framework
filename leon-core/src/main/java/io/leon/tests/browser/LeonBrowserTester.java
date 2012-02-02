@@ -61,9 +61,9 @@ public class LeonBrowserTester {
                 lockSocket.bind(new InetSocketAddress(lockPort));
             } catch (Exception e) {
                 numberOfFails++;
-                if (numberOfFails >= 500) {
+                if (numberOfFails >= 500) { // every 5 seconds
                     numberOfFails = 0;
-                    System.out.println("Could not bind LOCK socket. Waiting...");
+                    System.out.println("Could not bind lock socket for test synchronisation. Waiting...");
                 }
                 try {
                     Thread.sleep(10);
