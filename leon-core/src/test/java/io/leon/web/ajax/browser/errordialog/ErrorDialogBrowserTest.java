@@ -1,7 +1,9 @@
 package io.leon.web.ajax.browser.errordialog;
 
+import io.leon.tests.browser.AjaxCallsMark;
 import io.leon.tests.browser.LeonBrowserTester;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -21,19 +23,13 @@ public class ErrorDialogBrowserTest {
     }
 
     @Test
-    public void testReverseText() throws InterruptedException {
+    public void testNoError() throws InterruptedException {
         LEON.openPage(Config.class.getPackage().getName().replace('.', '/') + "/index.html");
 
-        /*
-        LEON.setTextForElementWithName("text", "abc");
-        LEON.setOffForElementWithName("toUpperCase");
-
         AjaxCallsMark mark = LEON.createAjaxCallsMark();
-        LEON.findElementById("reverse").click();
+        LEON.findElementById("withoutError").click();
         mark.waitForCalls(1);
-        Assert.assertEquals("cba", LEON.findElementById("text_reversed").getText());
-        */
-
+        Assert.assertEquals("throwError==false", LEON.findElementById("result").getText());
     }
 
 }
