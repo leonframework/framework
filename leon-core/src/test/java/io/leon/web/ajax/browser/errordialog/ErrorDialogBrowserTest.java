@@ -23,12 +23,24 @@ public class ErrorDialogBrowserTest {
     }
 
     @Test
-    public void testNoError() throws InterruptedException {
+    public void testWithoutError() throws InterruptedException {
         LEON.openPage(Config.class.getPackage().getName().replace('.', '/') + "/index.html");
 
         AjaxCallsMark mark = LEON.createAjaxCallsMark();
         LEON.findElementById("withoutError").click();
         mark.waitForCalls(1);
+        Assert.assertEquals("throwError==false", LEON.findElementById("result").getText());
+    }
+
+    @Test
+    public void testWithError() throws InterruptedException {
+        LEON.openPage(Config.class.getPackage().getName().replace('.', '/') + "/index.html");
+
+        AjaxCallsMark mark = LEON.createAjaxCallsMark();
+        LEON.findElementById("withError").click();
+        mark.waitForCalls(1);
+
+        // TODO implement test
         Assert.assertEquals("throwError==false", LEON.findElementById("result").getText());
     }
 
