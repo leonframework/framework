@@ -9,6 +9,7 @@
 package io.leon.resources
 
 import java.io.{FileInputStream, File, InputStream}
+import java.net.URL
 
 
 trait ResourceLocation {
@@ -16,20 +17,12 @@ trait ResourceLocation {
   def getResource(fileName: String): Option[Resource]
 }
 
-class ClassLoaderResourceLocation extends ResourceLocation {
+class DelegatingResourceLocation(loaderFn: (String) => URL) extends ResourceLocation {
 
   def getResource(fileName: String): Option[Resource] = {
-    val try1 = Thread.currentThread().getContextClassLoader.getResource(fileName)
-    if (try1 != null) {
-      return Some(new Resource(fileName, () => try1.openStream()))
-    }
-    val try2 = getClass.getResource(fileName)
-    if (try2 != null) {
-      return Some(new Resource(fileName, () => try2.openStream()))
-    }
-    val try3 = getClass.getClassLoader.getResource(fileName)
-    if (try3 != null) {
-      return Some(new Resource(fileName, () => try3.openStream()))
+    val r = loaderFn(fileName)
+    if (r != null) {
+      return Some(new Resource(fileName, () => r.openStream()))
     }
     None
   }

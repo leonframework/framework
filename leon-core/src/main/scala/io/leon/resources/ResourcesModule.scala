@@ -18,13 +18,23 @@ import com.google.inject.{Inject, AbstractModule}
 
 class ResourcesModule extends AbstractModule {
 
-  private def addLocation(clazz: Class[_ <: ResourceLocation]) {
-    bind(classOf[ResourceLocation]).annotatedWith(Names.named(clazz.getName)).to(clazz).asEagerSingleton()
-  }
-  
   def configure() {
     bind(classOf[ResourceLoader]).asEagerSingleton()
-    addLocation(classOf[ClassLoaderResourceLocation])
+
+    // --- Default classloader-based ResourceLocations ---
+
+    val clCore = new DelegatingResourceLocation((name) => getClass.getClassLoader.getResource(name))
+    val clCoreName = clCore.getClass.getName + "- Leon core classloader"
+    bind(classOf[ResourceLocation]).annotatedWith(Names.named(clCoreName)).toInstance(clCore)
+
+    val clClass = new DelegatingResourceLocation((name) => getClass.getResource(name))
+    val clClassName = clClass.getClass.getName + "- Leon class-based classloader"
+    bind(classOf[ResourceLocation]).annotatedWith(Names.named(clClassName)).toInstance(clClass)
+
+    val clThread = new DelegatingResourceLocation((name) => Thread.currentThread().getContextClassLoader.getResource(name))
+    val clThreadName = clThread.getClass.getName + "- Thread local context classloader"
+    bind(classOf[ResourceLocation]).annotatedWith(Names.named(clThreadName)).toInstance(clThread)
+
 
     bind(classOf[LessModule]).asEagerSingleton()
     bind(classOf[ClosureTemplatesModule]).asEagerSingleton()

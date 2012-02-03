@@ -8,9 +8,9 @@
  */
 package io.leon
 
+import resources.{DelegatingResourceLocation, FileSystemResourceLocation, ResourceLocation}
 import web.ajax.{JavaObjectAjaxHandlerProvider, AjaxHandler}
 import javascript.{LeonScriptEngine, JavaScriptAjaxHandlerProvider}
-import resources.{FileSystemResourceLocation, ResourceLocation}
 import collection.mutable
 import com.google.inject._
 import name.Names
@@ -29,7 +29,12 @@ abstract class AbstractLeonConfiguration extends ServletModule {
 
   var baseDirOption: Option[File] = None
 
-  def config()
+  def exposeUrl(regex: String) {
+    // We first use a list instead of directly creating a binding so that
+    // users can change the default configuration
+    exposedUrls.append(regex)
+  }
+
 
   override def configureServlets() {
     exposeUrl(".*/$")
@@ -57,10 +62,11 @@ abstract class AbstractLeonConfiguration extends ServletModule {
 
   // --- Resources ----------------------------------------
 
-  def setBaseDir(baseDir: String) {
-    baseDirOption = Some(new File(baseDir).getAbsoluteFile)
-  }
+  //def setBaseDir(baseDir: String) {
+  //  baseDirOption = Some(new File(baseDir).getAbsoluteFile)
+  //}
 
+  /*
   def addLocation(path: String) {
     val name = "%s[%s]".format(classOf[FileSystemResourceLocation].getName, path)
 
@@ -73,22 +79,15 @@ abstract class AbstractLeonConfiguration extends ServletModule {
 
     bind(classOf[ResourceLocation]).annotatedWith(Names.named(name)).toInstance(res)
   }
+  */
 
-  // --- Expose URL methods -----------------------------
-
-  def exposeUrl(regex: String) {
-    // We first use a list instead of directly creating a binding so that
-    // users can change the default configuration
-    exposedUrls.append(regex)
-  }
-
-  // --- JavaScript methods -------------------------------
+  // --- JavaScript methods ---
 
   def loadFile(fileName: String) {
     javaScriptFilesToLoad.append(fileName)
   }
 
-  // --- Ajax/Comet DSL -----------------------------------
+  // --- Ajax/Comet DSL ---
   
   class BrowserServerLink(browserName: String) {
     def linksToServer() {
@@ -109,12 +108,16 @@ abstract class AbstractLeonConfiguration extends ServletModule {
 
   def browser(browserName: String) = new BrowserServerLink(browserName)
 
-  // -- Dependency injection ----------------------------------
+  // --- Dependency injection ---
 
   override def bind[T](clazz: Class[T]) = super.bind(clazz)
 
   override def bind[T](key: Key[T]) = super.bind(key)
 
   override def bind[T](typeLiteral: TypeLiteral[T]) = super.bind(typeLiteral)
+
+  // --- Abstract methods ---
+
+  def config()
 
 }
