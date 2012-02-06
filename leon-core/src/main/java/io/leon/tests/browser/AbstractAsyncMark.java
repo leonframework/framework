@@ -20,7 +20,7 @@ public abstract class AbstractAsyncMark {
     }
 
     public WebDriver waitForCalls(int numberOfCalls) {
-        return waitForCalls(numberOfCalls, 10000);
+        return waitForCalls(numberOfCalls, 10 * 1000);
     }
 
     public WebDriver waitForCalls(int numberOfCalls, int timeOutMillis) {

@@ -40,8 +40,8 @@ public class ErrorDialogBrowserTest {
         LEON.findElementById("withError").click();
         mark.waitForCalls(1);
 
-        // TODO implement test
-        Assert.assertEquals("throwError==false", LEON.findElementById("result").getText());
+        // TODO improve test
+        Assert.assertEquals("", LEON.findElementById("result").getText());
     }
 
 }

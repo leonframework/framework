@@ -24,9 +24,9 @@ public class LeonBrowserTester {
 
     private WebDriver webDriver;
 
-    private int httpPort = 51000;
+    private int httpPort = 8090;
 
-    private int lockPort = 51001;
+    private int lockPort = 8091;
 
     public LeonBrowserTester(Class<? extends AbstractLeonConfiguration> config) {
         this.config = config;
@@ -63,7 +63,9 @@ public class LeonBrowserTester {
                 numberOfFails++;
                 if (numberOfFails >= 500) { // every 5 seconds
                     numberOfFails = 0;
-                    System.out.println("Could not bind lock socket for test synchronisation. Waiting...");
+                    System.out.println("Could not bind lock socket for test synchronisation ("
+                            + e.getClass().getName() + ":" + e.getMessage()
+                            + "). Waiting...");
                 }
                 try {
                     Thread.sleep(10);

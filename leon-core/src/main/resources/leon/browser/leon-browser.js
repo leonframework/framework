@@ -30,7 +30,7 @@ var leon = (function() {
 
             var handler = function(result) {
                 if (result.leonAjaxError) {
-                    //alert(result.errorMessage);
+                    console.log("Server-side error while executing AJAX call. Check the console for more information.");
                     console.log(result);
                 } else {
                     callback(result);
