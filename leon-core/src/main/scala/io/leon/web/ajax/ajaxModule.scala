@@ -12,11 +12,12 @@ import com.google.inject.servlet.ServletModule
 import javax.servlet.http.{HttpServlet, HttpServletResponse, HttpServletRequest}
 import com.google.inject._
 import name.{Named, Names}
-import java.io.BufferedOutputStream
 import io.leon.web.resources.ExposedUrl
 import io.leon.web.browser.VirtualLeonJsFileContribution
 import java.lang.StringBuffer
 import org.slf4j.LoggerFactory
+import java.io.{PrintWriter, BufferedOutputStream}
+import com.google.gson.Gson
 
 class AjaxWebModule extends ServletModule {
   override def configureServlets() {
@@ -32,29 +33,41 @@ trait AjaxHandler {
   def jsonApply(member: String, args: Seq[String]): String
 }
 
-class AjaxCallServlet @Inject()(injector: Injector) extends HttpServlet {
+class AjaxCallServlet @Inject()(injector: Injector, gson: Gson) extends HttpServlet {
 
   private val logger = LoggerFactory.getLogger(getClass)
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
-    val targetName = req.getParameter("target")
-    val argsSize = req.getParameter("argsSize").toInt
-    val args = (0 until argsSize) map { x => req.getParameter("arg" + x) }
-
-    val (obj, member) = targetName.splitAt(targetName.lastIndexOf('.'))
-
-    val handler = injector.getInstance(Key.get(classOf[AjaxHandler], Names.named(obj)))
-    val result = handler.jsonApply(member.substring(1), args)
-
+    res.setStatus(200)
     res.setContentType("application/json")
     res.setCharacterEncoding("utf-8")
 
+    val out = new BufferedOutputStream(res.getOutputStream)
+    val targetName = req.getParameter("target")
     try {
-      val out = new BufferedOutputStream(res.getOutputStream)
+      val argsSize = req.getParameter("argsSize").toInt
+      val args = (0 until argsSize) map { x => req.getParameter("arg" + x) }
+      val (obj, member) = targetName.splitAt(targetName.lastIndexOf('.'))
+
+      val handler = injector.getInstance(Key.get(classOf[AjaxHandler], Names.named(obj)))
+      val result = handler.jsonApply(member.substring(1), args)
+
+
       out.write(result.getBytes("utf-8"))
       out.close()
     } catch {
-      case e: Exception => logger.info(e.toString + " " + e.getMessage + " (Could not flush/close OutputStream)")
+      case e: Exception => {
+        logger.warn("Error while handling AJAX request. Target: " + targetName)
+
+        val errorResult = new java.util.HashMap[String, Any]()
+        errorResult.put("leonAjaxError", true)
+        errorResult.put("errorClass", e.getCause.getClass.getName)
+        errorResult.put("errorMessage", e.getMessage)
+        errorResult.put("errorStackTrace", e.getStackTrace)
+        val errorString = gson.toJson(errorResult)
+        out.write(errorString.getBytes("utf-8"))
+        out.close()
+      }
     }
   }
 

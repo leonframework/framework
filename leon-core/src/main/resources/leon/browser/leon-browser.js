@@ -29,7 +29,12 @@ var leon = (function() {
             }
 
             var handler = function(result) {
-                callback(result);
+                if (result.leonAjaxError) {
+                    //alert(result.errorMessage);
+                    console.log(result);
+                } else {
+                    callback(result);
+                }
                 ajaxCallsCount = ajaxCallsCount + 1;
             }
 
@@ -45,8 +50,13 @@ var leon = (function() {
             }
         },
 
-        alert: function(source, msg) {
-            alert(source + ": " + msg);
+        // TODO delete
+        //alert: function(source, msg) {
+        //    alert(source + ": " + msg);
+        //},
+
+        displayMessageBox: function(div) {
+            alert("foobar");
         }
 
     };

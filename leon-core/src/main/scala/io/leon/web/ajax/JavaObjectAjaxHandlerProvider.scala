@@ -28,6 +28,9 @@ class JavaObjectAjaxHandlerProvider[T <: AnyRef](key: Key[T]) extends Provider[A
   @Inject
   var engine: LeonScriptEngine = _
 
+  @Inject
+  var gson: Gson = _
+
   private lazy val obj = injector.getInstance(key)
 
   private lazy val handler = new AjaxHandler {
@@ -39,8 +42,6 @@ class JavaObjectAjaxHandlerProvider[T <: AnyRef](key: Key[T]) extends Provider[A
       } else if(possibleMethods.size > 1) {
         sys.error("More than one possible methods found. name: %s, argument size: %s".format(member, args.length))
       }
-
-      val gson = new Gson()
 
       val method = possibleMethods(0)
 
