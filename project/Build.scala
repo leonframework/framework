@@ -96,6 +96,12 @@ object Dependencies {
   def jerichoHtml = "net.htmlparser.jericho" % "jericho-html" % "3.2" withSources()
 
   def gson = "com.google.code.gson" % "gson" % "1.7.1" withSources()
+
+  // Apache HBase
+  // currently added as unmanaged dependencies
+  //def hadoop = "org.apache.hadoop" % "hadoop-core" % "0.20.append-r1056497" withSources()
+  //def hbase = "org.apache.hbase" % "hbase" % "0.92.0-20111220.024317-8" withSources()
+
 }
 
 object LeonBuild extends Build {
@@ -105,7 +111,11 @@ object LeonBuild extends Build {
   resolvers ++= Seq(
     "Sonatype OSS Repo" at "http://oss.sonatype.org/content/repositories/releases",
     "Scala Tools Releases Repo" at "http://scala-tools.org/repo-releases",
-    "Official Maven2 Repo" at "http://repo2.maven.org/maven2")
+    "Official Maven2 Repo" at "http://repo2.maven.org/maven2",
+    "Apache Release" at "https://repository.apache.org/content/repositories/releases",
+    "Apache Rawson (was required for HBase/Hadoop" at "http://people.apache.org/~rawson/repo/",
+    "Apache Public" at "https://repository.apache.org/content/repositories/public",
+    "Apache Snapshots" at "https://repository.apache.org/content/repositories/snapshots")
 
   val coreDeps = Seq(
     specs2,
@@ -137,7 +147,7 @@ object LeonBuild extends Build {
     file("."),
     settings = buildSettings
     ) aggregate(
-      core,
+      leon_core,
       samplesAjaxReverserJavaJs,
       samplesAjaxReverserJsJs,
       samplesAjaxReverserWithPojoJavaJs,
@@ -147,11 +157,18 @@ object LeonBuild extends Build {
       //samplesDeviceOrientation
     )
 
-  lazy val core = Project(
+  lazy val leon_core = Project(
     "leon-core",
     file("leon-core"),
     settings = buildSettings ++ publishSettings ++
       Seq(libraryDependencies ++= coreDeps)
+  )
+
+  lazy val leon_hbase = Project(
+    "leon-hbase",
+    file("leon-hbase"),
+    settings = buildSettings ++ publishSettings ++
+      Seq(libraryDependencies ++= (/* hadoop +: hbase +: */ coreDeps))
   )
 
   // ------------------------------------------------------
@@ -164,7 +181,7 @@ object LeonBuild extends Build {
     settings = buildSettings ++
       webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
-  ) dependsOn(core)
+  ) dependsOn(leon_core)
 
   lazy val samplesAjaxReverserJsJs = Project(
     "samplesAjaxReverserJsJs",
@@ -172,7 +189,7 @@ object LeonBuild extends Build {
     settings = buildSettings ++
       webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
-  ) dependsOn(core)
+  ) dependsOn(leon_core)
 
 
   lazy val samplesAjaxReverserWithPojoJavaJs = Project(
@@ -181,7 +198,7 @@ object LeonBuild extends Build {
     settings = buildSettings ++
       webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
-  ) dependsOn(core)
+  ) dependsOn(leon_core)
 
   lazy val samplesCometPingJavaCoffee = Project(
     "samplesCometPingJavaCoffee",
@@ -189,7 +206,7 @@ object LeonBuild extends Build {
     settings = buildSettings ++
       webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
-  ) dependsOn(core)
+  ) dependsOn(leon_core)
 
   /*
   lazy val samplesMixed = Project(
