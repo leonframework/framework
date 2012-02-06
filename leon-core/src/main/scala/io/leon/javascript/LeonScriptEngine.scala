@@ -16,8 +16,7 @@ import org.mozilla.javascript.{ScriptableObject, Context, Function => RhinoFunct
 import io.leon.resources.{Resource, ResourceWatcher, ResourceLoader}
 import org.slf4j.LoggerFactory
 
-class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader,
-                                 resourceWatcher: ResourceWatcher, wrapFactory: LeonWrapFactory) {
+class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader, resourceWatcher: ResourceWatcher) {
 
   private val logger = LoggerFactory.getLogger(getClass.getName)
 
@@ -26,20 +25,18 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
   put("injector", injector)
 
   // Load Leon core modules
-  loadResource("/io/leon/json2.js")
   loadResource("/io/leon/leon.js")
   loadResource("/leon/browser/leon-shared.js")
 
   private[javascript] def withContext[A](block: Context => A): A = {
     val ctx = Context.enter()
-    ctx.setWrapFactory(wrapFactory)
     val result = block(ctx)
     Context.exit()
     result
   }
 
   def loadResource(fileName: String) {
-
+    logger.info("Loading resource: " + fileName)
     def _loadResource(resource: Resource) {
       withContext { ctx =>
         val reader = new InputStreamReader(resource.createInputStream())
@@ -92,7 +89,10 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
         throw new IllegalArgumentException("JavaScript code [%s] does not resolve to a function!".format(name))
       } else {
         val fn = function.asInstanceOf[org.mozilla.javascript.Function]
-        val result = fn.call(ctx, rhinoScope, rhinoScope, args.toArray)
+        val argsWrapped = args map { a => Context.javaToJS(a, rhinoScope) }
+        //logger.info("Calling function [%s] with arguments [%s]".format(name, Arrays.toString(argsWrapped.toArray)))
+        val result = fn.call(ctx, rhinoScope, rhinoScope, argsWrapped.toArray)
+        //logger.info("Result of calling function [%s] is [%s]".format(name, result))
         Context.jsToJava(result, classOf[Any])
       }
     }
@@ -100,16 +100,8 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
 
   def eval(script: String): AnyRef = {
     withContext { ctx =>
-      logger.debug("Eval [{}]", script)
+      //logger.debug("Eval [{}]", script)
       ctx.evaluateString(rhinoScope, script, "LeonScriptEngine.eval(...)", 1, null)
-    }
-  }
-
-  def evalToJson(script: String): String = {
-    withContext { ctx =>
-      val result = eval(script)
-      val json = invokeFunction("JSON.stringify", result)
-      json.asInstanceOf[String]
     }
   }
 

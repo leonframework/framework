@@ -46,13 +46,20 @@ http://www.eclipse.org/legal/epl-v10.html
 }
 
 object Dependencies {
+
   val specs2 = "org.specs2" %% "specs2" % "1.6.1" % "test" withSources()
+
+  def sbtJunitInterface = "com.novocode" % "junit-interface" % "0.8" % "test"
+
+  def selenium = "org.seleniumhq.selenium" % "selenium-java" % "2.16.1" //% "test"
 
   def servletApi = "org.mortbay.jetty" % "servlet-api" % "2.5-20081211" % "provided"
 
-  def jetty7 = "org.eclipse.jetty" % "jetty-webapp" % "7.0.2.v20100331" % "container" withSources()
+  def jettyRuntime = "org.eclipse.jetty" % "jetty-webapp" % "7.0.2.v20100331" % "container" withSources()
 
-  def rhino = "rhino" % "js" % "1.7R2" withSources()
+  def jetty = "org.eclipse.jetty" % "jetty-webapp" % "7.0.2.v20100331" withSources()
+
+  def rhino = "org.mozilla" % "rhino" % "1.7R3" withSources()
 
   def sjson = "net.debasishg" %% "sjson" % "0.15" withSources()
 
@@ -87,6 +94,8 @@ object Dependencies {
   def commonsCollections = "commons-collections" % "commons-collections" % "3.2.1" withSources()
 
   def jerichoHtml = "net.htmlparser.jericho" % "jericho-html" % "3.2" withSources()
+
+  def gson = "com.google.code.gson" % "gson" % "1.7.1" withSources()
 }
 
 object LeonBuild extends Build {
@@ -100,6 +109,9 @@ object LeonBuild extends Build {
 
   val coreDeps = Seq(
     specs2,
+    sbtJunitInterface,
+    jetty,
+    selenium,
     logback_classic,
     logback_core,
     servletApi,
@@ -114,16 +126,26 @@ object LeonBuild extends Build {
     commonsBeanutils,
     commonsCollections,
     jerichoHtml,
+    gson,
     h2database)
 
-  val samplesDeps = Seq(servletApi, jetty7)
+  val samplesDeps = Seq(servletApi, jettyRuntime, jetty, sbtJunitInterface, selenium)
 
 
   lazy val leon = Project(
     "leon",
     file("."),
     settings = buildSettings
-    ) aggregate(core, samplesMixed, samplesLeonJax, samplesDeviceOrientation)
+    ) aggregate(
+      core,
+      samplesAjaxReverserJavaJs,
+      samplesAjaxReverserJsJs,
+      samplesAjaxReverserWithPojoJavaJs,
+      samplesCometPingJavaCoffee
+      //samplesMixed,
+      //samplesLeonJax,
+      //samplesDeviceOrientation
+    )
 
   lazy val core = Project(
     "leon-core",
@@ -132,14 +154,54 @@ object LeonBuild extends Build {
       Seq(libraryDependencies ++= coreDeps)
   )
 
+  // ------------------------------------------------------
+  // Examples
+  // ------------------------------------------------------
+
+  lazy val samplesAjaxReverserJavaJs = Project(
+    "samplesAjaxReverserJavaJs",
+    file("leon-samples/ajax/reverser/java_js"),
+    settings = buildSettings ++
+      webSettings ++
+      Seq(libraryDependencies ++= samplesDeps)
+  ) dependsOn(core)
+
+  lazy val samplesAjaxReverserJsJs = Project(
+    "samplesAjaxReverserJsJs",
+    file("leon-samples/ajax/reverser/js_js"),
+    settings = buildSettings ++
+      webSettings ++
+      Seq(libraryDependencies ++= samplesDeps)
+  ) dependsOn(core)
+
+
+  lazy val samplesAjaxReverserWithPojoJavaJs = Project(
+    "samplesAjaxReverserWithPojoJavaJs",
+    file("leon-samples/ajax/reverser-with-pojo/java_js"),
+    settings = buildSettings ++
+      webSettings ++
+      Seq(libraryDependencies ++= samplesDeps)
+  ) dependsOn(core)
+
+  lazy val samplesCometPingJavaCoffee = Project(
+    "samplesCometPingJavaCoffee",
+    file("leon-samples/comet/ping/java_coffee"),
+    settings = buildSettings ++
+      webSettings ++
+      Seq(libraryDependencies ++= samplesDeps)
+  ) dependsOn(core)
+
+  /*
   lazy val samplesMixed = Project(
-    "leon-samples-cometping",
-    file("leon-samples/leon-samples-cometping"),
+    "leon-samples-mixed",
+    file("leon-samples/leon-samples-mixed"),
     settings = buildSettings ++
       webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
     ) dependsOn(core)
+  */
 
+  /*
   lazy val samplesLeonJax = Project(
     "leonjax",
     file("leon-samples/leonjax"),
@@ -147,7 +209,9 @@ object LeonBuild extends Build {
       webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
     ) dependsOn(core)
+  */
 
+  /*
   lazy val samplesDeviceOrientation = Project(
     "deviceorientation",
     file("leon-samples/deviceorientation"),
@@ -155,13 +219,6 @@ object LeonBuild extends Build {
       webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(core)
-
-  lazy val samplesCometPing = Project(
-    "cometping",
-    file("leon-samples/cometping"),
-    settings = buildSettings ++
-      webSettings ++
-      Seq(libraryDependencies ++= samplesDeps)
-  ) dependsOn(core)
+  */
 
 }

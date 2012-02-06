@@ -5,11 +5,6 @@ var leon = (function() {
     var guice = Packages.com.google.inject;
     var Names = Packages.com.google.inject.name.Names;
 
-    Object.prototype.asJavaObject = function(clazz) {
-        var converter = leon.inject(Packages.io.leon.javascript.Converter);
-        return converter.jsToJava(this, clazz);
-    };
-
     Object.prototype.properties = function() {
       var result = [];
       for (var property in this) {
@@ -22,7 +17,11 @@ var leon = (function() {
     return {
 
         getLogger: function(name) {
-            return LoggerFactory.getLogger(name);
+            return LoggerFactory.getLogger("JS: " + name);
+        },
+
+        getInjector: function() {
+            return injector;
         },
 
         inject: function(clazz, name) {
@@ -33,27 +32,33 @@ var leon = (function() {
             }
         },
 
+        getGson: function() {
+            return leon.inject(Packages.com.google.gson.Gson);
+        },
+
         getBrowserObject: function(name) {
             var BrowserObject = Packages.io.leon.web.comet.BrowserObject;
             var ref = this.inject(BrowserObject, name);
             return function(methodName) {
                 return function() {
                     var args = Array.prototype.slice.call(arguments);
-                    var json = JSON.stringify(args);
+                    var json = leon.getGson().toJson(args);
                     ref.jsonApply(methodName, json);
                 };
             };
         },
 
         publishMessage: function(topic, filter, data) {
-          var cometRegistry = leon.inject(Packages.io.leon.web.comet.CometRegistry);
+            var cometRegistry = leon.inject(Packages.io.leon.web.comet.CometRegistry);
 
-          var filterMap = new Packages.java.util.HashMap();
-          filter.properties().forEach(function(key) {
-            filterMap.put(key, filter[key]);
-          });
+            var filterMap = new Packages.java.util.HashMap();
+            filter.properties().forEach(function(key) {
+                filterMap.put(key, filter[key]);
+            });
 
-          cometRegistry.publish(topic, filterMap, JSON.stringify(data));
+            var datastring = leon.getGson().toJson(data);
+            cometRegistry.publish(topic, filterMap, datastring);
+            return true;
         },
 
         parseLess: function(lessString) {

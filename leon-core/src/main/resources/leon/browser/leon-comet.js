@@ -5,18 +5,20 @@ leon.comet = (function() {
 
     var disconnectTimer; // force a disconnect
 
+    var cometCallsCount = 0;
+
     var http;
     var prevDataLength = 0;
     var nextLine = 0;
 
-    var messageMarker = " $$$MESSAGE$$$"; // leading space required
+    var messageMarker = "$$$MESSAGE$$$";
+
+    var lastMessageId = -1;
 
     var pageId = undefined; // gets defined during the first connect(...) call
 
-    var cometActive = false;
-
     var handlerFns = {};
- 
+
     return {
 
         createRequestObject: function() {
@@ -32,7 +34,12 @@ leon.comet = (function() {
         },
 
         handleEvent: function(topicId, data) {
+            cometCallsCount = cometCallsCount + 1;
             handlerFns[topicId](data);
+        },
+
+        getCometCallsCount: function() {
+            return cometCallsCount;
         },
 
         handleResponse: function() {
@@ -47,24 +54,17 @@ leon.comet = (function() {
             // 4 COMPLETED Finished with all operations.
 
             if (http.readyState != 4 && http.readyState != 3)
-                return false;
+                return;
             if (http.readyState == 3 && http.status != 200)
-                return false;
-            if (http.readyState == 4 && http.status != 200) {
-                leon.debug("Server connection lost.");
-                leon.comet.disconnect();
-            }
-            if (http.readyState == 4 && prevDataLength == http.responseText.length) {
-                leon.comet.disconnect();
-            }
+                return;
 
-            return leon.comet.readBuffer();
+            leon.comet.readBuffer();
         },
 
         readBuffer: function() {
             // In konqueror http.responseText is sometimes null here...
             if (http.responseText === null) {
-                return true;
+                return;
             }
 
             while (prevDataLength != http.responseText.length) {
@@ -85,14 +85,15 @@ leon.comet = (function() {
                         var messageRaw = line.substring(messageMarker.length, line.length);
                         var message = JSON.parse(messageRaw);
                         var dataParsed = JSON.parse(message.data);
-
-                        if (message.type === "publishedEvent") {
+                        lastMessageId = message.messageId;
+                        try {
                             leon.comet.handleEvent(message.topicName, dataParsed);
+                        } catch (err) {
+                            leon.debug("Error in user comet handler code: " + err.description);
                         }
                     }
                 }
             }
-            return prevDataLength == http.responseText.length;
         },
 
         openSocket: function(url) {
@@ -104,13 +105,11 @@ leon.comet = (function() {
             http.open('get', url);
             http.onreadystatechange = leon.comet.handleResponse;
             pollTimer = setInterval(leon.comet.handleResponse, 5 * 1000);
-
-            cometActive = true;
             http.send(null);
         },
 
         isCometActive: function() {
-            return cometActive;
+            return http && http.readyState != 4 && http.readyState != 0;
         },
 
         connect: function(id) {
@@ -128,7 +127,7 @@ leon.comet = (function() {
             clearInterval(pollTimer);
             clearInterval(disconnectTimer);
 
-            var url = leon.contextPath + "/leon/comet/connect" + "?pageId=" + pageId;
+            var url = leon.contextPath + "/leon/comet/connect" + "?pageId=" + pageId + "&lastMessageId=" + lastMessageId;
             leon.comet.openSocket(url);
 
             // check every second that we have a connection
@@ -141,24 +140,8 @@ leon.comet = (function() {
 
             // close and open the connection every 10 seconds
             disconnectTimer = setTimeout(function() {
-                leon.comet.disconnect();
+                http.abort();
             }, 10 * 1000);
-        },
-
-        disconnect: function() {
-            //leon.debug("Disconnect comet connection.");
-            clearInterval(pollTimer);
-            clearInterval(disconnectTimer);
-
-            (function clearBuffer() {
-                leon.debug("Reading buffer before closing connection.");
-                if (!leon.comet.readBuffer()) {
-                    setTimeout(function() { clearBuffer(); }, 500);
-                }
-            })();
-
-            http.abort();
-            cometActive = false;
         },
 
         addHandler: function(topicId, handlerFn) {

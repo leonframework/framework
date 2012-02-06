@@ -1,0 +1,73 @@
+<html xmlns:ng="http://angularjs.org">
+
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+    <title>---------Leon Rocks!-----------</title>
+
+    <!-- Framework CSS -->
+    <link rel="stylesheet" href="/css/screen.css" type="text/css" media="screen, projection"/>
+    <link rel="stylesheet" href="/css/print.css" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link rel="stylesheet" href="/css/ie.css" type="text/css" media="screen, projection"/><![endif]-->
+
+    <!-- Import fancy-type plugin. -->
+    <link rel="stylesheet" href="/css/plugins/fancy-type/screen.css" type="text/css" media="screen, projection"/>
+
+    <link rel="stylesheet" href="/css/leonjax.css" type="text/css" media="screen, projection"/>
+    <link rel="stylesheet" href="/css/leon.css" type="text/css" media="screen, projection"/>
+
+    <script src="/leon/leon.js?env=desktop" type="text/javascript"></script>
+    <script src="browser/controllers.js" type="text/javascript"></script>
+    <script src="/leon/browser/chosen.jquery.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        angular.element(document).ready(function() {
+            // $("#select_room").chosen(); // seems not to work with angular
+
+            angular.compile(document)();
+        });
+    </script>
+  </head>
+
+  <body ng:controller="LeonJaxCtrl">
+
+    <leon:subscribe topic="leonjax.room.messages" filterOn="room" handlerFn="handleMessage"/>
+
+    <div class="container">
+      <div id="header" class="span-24 last">
+        <h2 class="loud">Hello {{user.name}}!</h2>
+      </div>
+
+      <div class="span-17 colborder" id="content">
+        <div class="span-17 last">
+          <label>Name</label>
+          <input type="text" name="user.name" class="nice"/>
+        </div>
+
+        <div class="span-17 last">
+          <label>Room</label>
+           <select id="select_room" name="user.room" ng:options="r.name for r in rooms" onchange="reset()" class="nice">
+            <option value="">Choose room...</option>
+          </select>
+        </div>
+
+        <div class="span-17 last">
+          <textarea id="messageTextArea" name="message"></textarea>
+          <button ng:click="postMessage(message)" ng:disabled="{{message.length == 0 || user.room == null}}">Post message</button>
+        </div>
+
+        <div id="messages" class="span-17 last prepend-top">
+        </div>
+      </div>
+
+      <div class="span-5 last" id="sidebar">
+        <div>
+          <h3 class="caps">side header</h3>
+          <div class="box">
+            <a href="#" class="quiet">link</a>
+            <div class="quiet">desc</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
