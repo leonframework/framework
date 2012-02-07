@@ -1,6 +1,8 @@
 package io.leon.persistence.hbase;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
+import io.leon.unitofwork.UOWManager;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.HTablePool;
 
@@ -23,6 +25,9 @@ public class ThreadLocalLeonHBaseTableProxy implements InvocationHandler {
 
     private Injector injector;
 
+    @Inject
+    private UOWManager uowManager;
+
     private final ThreadLocal<LeonHBaseTable> threadLocal = new ThreadLocal<LeonHBaseTable>() {
         @Override
         protected LeonHBaseTable initialValue() {
@@ -32,6 +37,7 @@ public class ThreadLocalLeonHBaseTableProxy implements InvocationHandler {
         @Override
         public void remove() {
             get().close();
+            super.remove();
         }
     };
 
@@ -39,17 +45,27 @@ public class ThreadLocalLeonHBaseTableProxy implements InvocationHandler {
         this.pool = pool;
         this.tableName = tableName;
         this.injector = injector;
+        injector.injectMembers(this);
+    }
+
+    private HBaseUOWListener getThreadLocalHBaseUOWListener() {
+        return uowManager.getThreadLocalListenerByType(HBaseUOWListener.class);
     }
 
     private LeonHBaseTable createNewInstance() {
         HTableInterface tableInterface = pool.getTable(tableName);
         LeonHBaseTableImpl leonHBaseTable = new LeonHBaseTableImpl(tableName, tableInterface);
         injector.injectMembers(leonHBaseTable);
+        getThreadLocalHBaseUOWListener().addLeonHBaseTableUsage(leonHBaseTable);
         return leonHBaseTable;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        // Make sure that we are inside of an unit of work
+        getThreadLocalHBaseUOWListener();
+
+        // Delegate call
         return method.invoke(threadLocal.get(), args);
     }
 

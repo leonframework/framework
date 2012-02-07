@@ -67,4 +67,23 @@ public class LeonHBaseTableImpl implements LeonHBaseTable {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public String toString() {
+        return "LeonHBaseTableImpl[" + tableName + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        return tableName.hashCode() * table.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof LeonHBaseTableImpl)) {
+            return false;
+        }
+        LeonHBaseTableImpl that = (LeonHBaseTableImpl) obj;
+        return tableName.equals(that.tableName) && table.equals(that.table);
+    }
 }
