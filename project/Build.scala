@@ -79,6 +79,8 @@ object Dependencies {
 
   def guice = "com.google.inject" % "guice" % "3.0" withSources()
 
+  def guava = "com.google.guava" % "guava" % "11.0.1" withSources()
+
   def guiceServlet = "com.google.inject.extensions" % "guice-servlet" % "3.0" withSources()
 
   def mysql = "mysql" % "mysql-connector-java" % "5.1.16"
@@ -129,6 +131,7 @@ object LeonBuild extends Build {
     rhino,
     atmosphere_runtime,
     guice,
+    guava,
     guiceServlet,
     sjson,
     snakeYaml,
@@ -148,6 +151,7 @@ object LeonBuild extends Build {
     settings = buildSettings
     ) aggregate(
       leon_core,
+      leon_hbase,
       samplesAjaxReverserJavaJs,
       samplesAjaxReverserJsJs,
       samplesAjaxReverserWithPojoJavaJs,
