@@ -13,11 +13,12 @@ import scala.io.Source
 import org.mozilla.javascript.{NativeJavaObject, Context}
 import io.leon.{AbstractLeonConfiguration, LeonModule}
 import java.lang.reflect.Method
-import com.google.inject.{Injector, Guice}
 import io.leon.resources.ResourceWatcher
 import org.slf4j.LoggerFactory
 import java.io.InputStream
 import javax.servlet.{FilterChain, ServletResponse, ServletRequest, FilterConfig}
+import com.google.inject.{Inject, Injector, Guice}
+import io.leon.unitofwork.UOWManager
 
 
 class LeonFilter extends GuiceFilter {
@@ -27,6 +28,9 @@ class LeonFilter extends GuiceFilter {
   private val classLoader = Thread.currentThread.getContextClassLoader
 
   private var injector: Injector = _
+
+  @Inject
+  private var uowManager: UOWManager = _
 
   override def init(filterConfig: FilterConfig) {
     val moduleName = filterConfig.getInitParameter("module")
@@ -38,7 +42,15 @@ class LeonFilter extends GuiceFilter {
         classLoader.loadClass(moduleName).asInstanceOf[Class[AbstractLeonConfiguration]].newInstance()
 
     injector = Guice.createInjector(new LeonModule, module)
+    injector.injectMembers(this)
     super.init(filterConfig)
+  }
+
+
+  override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) {
+    uowManager.begin()
+    super.doFilter(servletRequest, servletResponse, filterChain)
+    uowManager.commit()
   }
 
   override def destroy() {
