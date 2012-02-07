@@ -7,7 +7,7 @@ public class UOWModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(UOWManager.class).to(UOWManager.class).in(Scopes.SINGLETON);
+        bind(UOWManager.class).in(Scopes.SINGLETON);
     }
 
 }

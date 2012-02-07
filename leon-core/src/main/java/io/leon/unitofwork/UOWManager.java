@@ -9,11 +9,11 @@ import java.util.List;
 
 public class UOWManager {
 
-    @Inject
     private Injector injector;
 
     private List<Binding<UOWListener>> listener;
 
+    @Inject
     public UOWManager(Injector injector) {
         this.injector = injector;
         listener = injector.findBindingsByType(new TypeLiteral<UOWListener>() {});
