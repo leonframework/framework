@@ -52,6 +52,7 @@ public class LeonHBaseTableImpl implements LeonHBaseTable {
     @Override
     public void close() {
         try {
+            logger.info("Closing table [{}].", tableName);
             table.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
