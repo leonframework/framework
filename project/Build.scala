@@ -173,7 +173,7 @@ object LeonBuild extends Build {
     file("leon-hbase"),
     settings = buildSettings ++ publishSettings ++
       Seq(libraryDependencies ++= (/* hadoop +: hbase +: */ coreDeps))
-  )
+  ) dependsOn(leon_core)
 
   // ------------------------------------------------------
   // Examples
