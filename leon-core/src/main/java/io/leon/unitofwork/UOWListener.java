@@ -2,8 +2,8 @@ package io.leon.unitofwork;
 
 public interface UOWListener {
 
-    void begin();
+    void begin(Object o);
 
-    void commit();
+    void commit(Object o);
 
 }
