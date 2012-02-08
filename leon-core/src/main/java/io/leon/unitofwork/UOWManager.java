@@ -33,6 +33,16 @@ public class UOWManager {
         listener = GuiceUtils.getAllBindingsForType(injector, UOWListener.class);
     }
 
+    /**
+     * Start a unit of work (UOW) for this thread. If a UOW was already started for this thread,
+     * an {@code IllegalStateException} will be thrown.
+     *
+     * @param context The object that should be associated with this UOW.
+     *                Typical types are HttpServletRequest, ActionEvent, etc.
+     *                Can be null.
+     *
+     * @throws IllegalStateException In case that a UOW was already started for this thread
+     */
     public void begin(Object context) {
         // Check if the UOW was not started yet
         if (threadLocalContext.get() != null) {
@@ -59,9 +69,14 @@ public class UOWManager {
         }
     }
 
+    /**
+     * Commit the unit of work (UOW) associated with this thread.
+     *
+     * @throws NoActiveUnitOfWorkException If no UOW was started for this thread
+     */
     public void commit() {
         // Check if the UOW was started
-        if (threadLocalContext.get() == null) {
+        if (!threadHasActiveUnitOfWork()) {
             throw new NoActiveUnitOfWorkException();
         }
 
@@ -75,10 +90,21 @@ public class UOWManager {
         threadLocalContext.remove();
     }
 
+    /**
+     * Returns {@code true} if a unit of work was started for this thread.
+     *
+     * @return {@code true} if a unit of work was started for this thread
+     */
     public boolean threadHasActiveUnitOfWork() {
         return threadLocalContext.get() != null;
     }
 
+    /**
+     * Returns the listener instance that is used in the current unit of work.
+     *
+     * @param key The {@code Key} used for the Guice binding.
+     * @return The listener instance
+     */
     public <T extends UOWListener> UOWListener getThreadLocalListenerByKey(Key<T> key) {
         if (!threadHasActiveUnitOfWork()) {
             throw new NoActiveUnitOfWorkException();
