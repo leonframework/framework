@@ -7,8 +7,11 @@ import io.leon.persistence.hbase.LeonHBaseTable;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class AbstractLeonHBaseTest {
+
+    private final AtomicLong id = new AtomicLong();
 
     protected HBaseAdmin getAdmin(Injector injector) {
         return injector.getInstance(HBaseAdmin.class);
@@ -28,5 +31,13 @@ public class AbstractLeonHBaseTest {
             throw new RuntimeException(e);
         }
     }
+
+    protected String getRandomTableName(String name) {
+        String cn = getClass().getName().replace('.', '_');
+        long time = System.currentTimeMillis();
+        long newId = id.getAndIncrement();
+        return "LeonUnitTest_" + name + "_" + cn + time + newId;
+    }
+
 
 }

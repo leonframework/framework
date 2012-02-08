@@ -17,28 +17,26 @@ public class LeonHBaseTableManagementTest extends AbstractLeonHBaseTest {
 
     @Test
     public void testAutomaticTableCreationAndDeletionApi() throws IOException {
-        // Delete person table in case it already exists
-        Injector i = Guice.createInjector(new LeonHBaseModule());
-        deleteTable(i, "person");
+        final String personTableName = getRandomTableName("person");
 
-        // Create a fresh module for testing
-        i = Guice.createInjector(new LeonHBaseModule() {
+        // Create a module for testing
+        Injector i = Guice.createInjector(new LeonHBaseModule() {
             @Override
             protected void configure() {
                 super.configure();
                 install(new UOWModule());
-                addTable("person", "data", "cf1");
+                addTable(personTableName, "data", "cf1");
             }
         });
         Assert.assertFalse(
                 "Table should not be created before the LeonHBaseTable instance is requested.",
-                getAdmin(i).tableExists("person"));
+                getAdmin(i).tableExists(personTableName));
 
         // Force table creation
-        LeonHBaseTable personTable = getTable(i, "person");
+        LeonHBaseTable personTable = getTable(i, personTableName);
         Assert.assertTrue(
                 "Table should be created when the LeonHBaseTable istance is requested.",
-                getAdmin(i).tableExists("person"));
+                getAdmin(i).tableExists(personTableName));
 
         // Delete table
         UOWManager manager = i.getInstance(UOWManager.class);
@@ -46,29 +44,27 @@ public class LeonHBaseTableManagementTest extends AbstractLeonHBaseTest {
         personTable.delete();
         manager.commit();
         Assert.assertFalse(
-                "Table should have been deleted.", getAdmin(i).tableExists("person"));
+                "Table should have been deleted.", getAdmin(i).tableExists(personTableName));
     }
 
     @Test
     public void testColumnFamiliesManagement() throws IOException {
-        // Delete person table in case it already exists
-        Injector i = Guice.createInjector(new LeonHBaseModule());
-        deleteTable(i, "person");
+        final String personTableName = getRandomTableName("person");
 
-        // Create a fresh module for testing
-        i = Guice.createInjector(new LeonHBaseModule() {
+        // Create a module for testing
+        Injector i = Guice.createInjector(new LeonHBaseModule() {
             @Override
             protected void configure() {
                 super.configure();
-                addTable("person", "cf1", "cf2");
+                addTable(personTableName, "cf1", "cf2");
             }
         });
 
         // Force table creation
-        getTable(i, "person");
+        getTable(i, personTableName);
 
         // Test column families
-        HTableDescriptor desc = getAdmin(i).getTableDescriptor("person".getBytes());
+        HTableDescriptor desc = getAdmin(i).getTableDescriptor(personTableName.getBytes());
         Set<byte[]> fKeys = desc.getFamiliesKeys();
         Assert.assertTrue("Person table should have column family cf1", fKeys.contains("cf1".getBytes()));
         Assert.assertTrue("Person table should have column family cf2", fKeys.contains("cf2".getBytes()));
@@ -79,22 +75,22 @@ public class LeonHBaseTableManagementTest extends AbstractLeonHBaseTest {
             @Override
             protected void configure() {
                 super.configure();
-                addTable("person", "cf1", "cf2", "cf3");
+                addTable(personTableName, "cf1", "cf2", "cf3");
             }
         });
 
         // Force table creation
-        getTable(i, "person");
+        getTable(i, personTableName);
 
         // Test column families
-        desc = getAdmin(i).getTableDescriptor("person".getBytes());
+        desc = getAdmin(i).getTableDescriptor(personTableName.getBytes());
         fKeys = desc.getFamiliesKeys();
         Assert.assertTrue("Person table should have column family cf1", fKeys.contains("cf1".getBytes()));
         Assert.assertTrue("Person table should have column family cf2", fKeys.contains("cf2".getBytes()));
         Assert.assertTrue("Person table should have column family cf3", fKeys.contains("cf3".getBytes()));
 
         // Clean up
-        deleteTable(i, "person");
+        deleteTable(i, personTableName);
     }
 
 }

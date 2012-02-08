@@ -14,21 +14,26 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
 
     @Test
     public void testThreadSeperation() {
+        synchronized (this) {
+
+        System.out.println("######################################### 1 start " + hashCode());
+        final String personTableName = getRandomTableName("person");
+
         // Create a module for testing
         final Injector i = Guice.createInjector(new LeonHBaseModule() {
             @Override
             protected void configure() {
                 super.configure();
                 install(new UOWModule());
-                addTable("person", "cf1", "cf2");
+                addTable(personTableName, "cf1", "cf2");
             }
         });
         final UOWManager manager = i.getInstance(UOWManager.class);
 
         // Test behaviour in one thread
         manager.begin(this);
-        HTableInterface person1 = getTable(i, "person").getHTableInterface();
-        HTableInterface person2 = getTable(i, "person").getHTableInterface();
+        HTableInterface person1 = getTable(i, personTableName).getHTableInterface();
+        HTableInterface person2 = getTable(i, personTableName).getHTableInterface();
         Assert.assertSame("A thread should only have one HTable instance.", person1, person2);
         manager.commit();
 
@@ -41,7 +46,7 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
                 manager.begin(this);
 
                 // Remember the instance used in this thread
-                instances[0] = getTable(i, "person").getHTableInterface();
+                instances[0] = getTable(i, personTableName).getHTableInterface();
                 // Wait for the other thread
                 try {
                     while (instances[1] == null) {
@@ -61,7 +66,7 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
                 manager.begin(this);
 
                 // Remember the instance used in this thread
-                instances[1] = getTable(i, "person").getHTableInterface();
+                instances[1] = getTable(i, personTableName).getHTableInterface();
                 // Wait for the other thread
                 try {
                     while (instances[0] == null) {
@@ -84,44 +89,70 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
             throw new RuntimeException(e);
         }
         Assert.assertNotSame("Two threads should have different HTable instances.", instances[0], instances[1]);
+
+        System.out.println("######################################### 1 ende " + hashCode());
+
+        }
     }
 
     @Test(expected = NoActiveUnitOfWorkException.class)
-    public void hbaseSupportCanNotBeUsedWithoutActiveUnitOfWork() throws InterruptedException {
-        // Create a module for testing
-        final Injector i = Guice.createInjector(new LeonHBaseModule() {
-            @Override
-            protected void configure() {
-                super.configure();
-                addTable("person", "cf1", "cf2");
-            }
-        });
-        getTable(i, "person").getTableName();
+    public synchronized void hbaseSupportCanNotBeUsedWithoutActiveUnitOfWork() throws InterruptedException {
+        synchronized (this) {
+
+        System.out.println("######################################### 2 start " + hashCode());
+        final String personTableName = getRandomTableName("person");
+
+        Injector i = null;
+        try {
+            // Create a module for testing
+            i = Guice.createInjector(new LeonHBaseModule() {
+                @Override
+                protected void configure() {
+                    super.configure();
+                    addTable(personTableName, "cf1", "cf2");
+                }
+            });
+            getTable(i, personTableName).getTableName();
+        } finally {
+            deleteTable(i, personTableName);
+        }
+        System.out.println("######################################### 2 ende " + hashCode());
+
+        }
     }
 
     @Test
-    public void hbaseSupportCanNotBeUsedAfterActiveUnitOfWorkCommit() throws InterruptedException {
+    public synchronized void hbaseSupportCanNotBeUsedAfterActiveUnitOfWorkCommit() throws InterruptedException {
+        synchronized (this) {
+
+        System.out.println("######################################### 3 start " + hashCode());
+
+        final String personTableName = getRandomTableName("person");
+
         // Create a module for testing
         final Injector i = Guice.createInjector(new LeonHBaseModule() {
             @Override
             protected void configure() {
                 super.configure();
                 install(new UOWModule());
-                addTable("person", "cf1", "cf2");
+                addTable(personTableName, "cf1", "cf2");
             }
         });
         UOWManager uowManager = i.getInstance(UOWManager.class);
         uowManager.begin(this);
-        getTable(i, "person").getTableName();
+        getTable(i, personTableName).getTableName();
         uowManager.commit();
 
         boolean gotException = false;
         try {
-            getTable(i, "person").getTableName();
+            getTable(i, personTableName).getTableName();
         } catch (NoActiveUnitOfWorkException e) {
             gotException = true;
         }
         Assert.assertTrue("Usage without UOW must throw an NoActiveUnitOfWorkException.", gotException);
+        System.out.println("######################################### 3 ende " + hashCode());
+
+        }
     }
 
 

@@ -164,14 +164,22 @@ object LeonBuild extends Build {
   lazy val leon_core = Project(
     "leon-core",
     file("leon-core"),
-    settings = buildSettings ++ publishSettings ++
-      Seq(libraryDependencies ++= coreDeps)
+    settings = buildSettings ++ publishSettings ++ Seq(libraryDependencies ++= coreDeps)
   )
 
+  /*
   lazy val leon_hbase = Project(
     "leon-hbase",
     file("leon-hbase"),
     settings = buildSettings ++ publishSettings ++
+      Seq(libraryDependencies ++= (/* hadoop +: hbase +: */ coreDeps))
+  ) dependsOn(leon_core)
+  */
+
+  lazy val leon_hbase = Project(
+    "leon-hbase",
+    file("leon-hbase"),
+    settings = buildSettings ++ publishSettings ++ Seq(parallelExecution in Test := false) ++
       Seq(libraryDependencies ++= (/* hadoop +: hbase +: */ coreDeps))
   ) dependsOn(leon_core)
 
