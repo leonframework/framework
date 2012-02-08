@@ -2,6 +2,9 @@ package io.leon.persistence.hbase;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Key;
+import io.leon.guice.GuiceUtils;
+import io.leon.unitofwork.UOWListener;
 import io.leon.unitofwork.UOWManager;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.HTablePool;
@@ -49,7 +52,8 @@ public class ThreadLocalLeonHBaseTableProxy implements InvocationHandler {
     }
 
     private HBaseUOWListener getThreadLocalHBaseUOWListener() {
-        return uowManager.getThreadLocalListenerByType(HBaseUOWListener.class);
+        Key<UOWListener> k = GuiceUtils.getKeyWithInterfaceAndClassName(UOWListener.class, HBaseUOWListener.class);
+        return (HBaseUOWListener) uowManager.getThreadLocalListenerByKey(k);
     }
 
     private LeonHBaseTable createNewInstance() {
@@ -62,7 +66,7 @@ public class ThreadLocalLeonHBaseTableProxy implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        // Make sure that we are inside of an unit of work
+        // Make sure that we are inside of a unit of work
         getThreadLocalHBaseUOWListener();
 
         // Delegate call

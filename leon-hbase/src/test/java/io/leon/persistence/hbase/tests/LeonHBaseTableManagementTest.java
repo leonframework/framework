@@ -4,6 +4,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.leon.persistence.hbase.LeonHBaseModule;
 import io.leon.persistence.hbase.LeonHBaseTable;
+import io.leon.unitofwork.UOWManager;
+import io.leon.unitofwork.UOWModule;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.junit.Assert;
 import org.junit.Test;
@@ -24,6 +26,7 @@ public class LeonHBaseTableManagementTest extends AbstractLeonHBaseTest {
             @Override
             protected void configure() {
                 super.configure();
+                install(new UOWModule());
                 addTable("person", "data", "cf1");
             }
         });
@@ -38,7 +41,10 @@ public class LeonHBaseTableManagementTest extends AbstractLeonHBaseTest {
                 getAdmin(i).tableExists("person"));
 
         // Delete table
+        UOWManager manager = i.getInstance(UOWManager.class);
+        manager.begin(this);
         personTable.delete();
+        manager.commit();
         Assert.assertFalse(
                 "Table should have been deleted.", getAdmin(i).tableExists("person"));
     }
