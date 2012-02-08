@@ -6,7 +6,7 @@ import io.leon.persistence.hbase.LeonHBaseFeatureModule;
 import io.leon.persistence.hbase.LeonHBaseUserModule;
 import io.leon.unitofwork.NoActiveUnitOfWorkException;
 import io.leon.unitofwork.UOWManager;
-import io.leon.unitofwork.UOWModule;
+import io.leon.unitofwork.UOWFeatureModule;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
             @Override
             protected void configure() {
                 install(new LeonHBaseFeatureModule());
-                install(new UOWModule());
+                install(new UOWFeatureModule());
                 addTable(personTableName, "cf1", "cf2");
             }
         });
@@ -135,7 +135,7 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
             @Override
             protected void configure() {
                 install(new LeonHBaseFeatureModule());
-                install(new UOWModule());
+                install(new UOWFeatureModule());
                 addTable(personTableName, "cf1", "cf2");
             }
         });

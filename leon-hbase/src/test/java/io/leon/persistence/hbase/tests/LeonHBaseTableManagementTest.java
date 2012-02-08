@@ -6,7 +6,7 @@ import io.leon.persistence.hbase.LeonHBaseFeatureModule;
 import io.leon.persistence.hbase.LeonHBaseTable;
 import io.leon.persistence.hbase.LeonHBaseUserModule;
 import io.leon.unitofwork.UOWManager;
-import io.leon.unitofwork.UOWModule;
+import io.leon.unitofwork.UOWFeatureModule;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class LeonHBaseTableManagementTest extends AbstractLeonHBaseTest {
             @Override
             protected void configure() {
                 install(new LeonHBaseFeatureModule());
-                install(new UOWModule());
+                install(new UOWFeatureModule());
                 addTable(personTableName, "data", "cf1");
             }
         });

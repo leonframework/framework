@@ -13,7 +13,7 @@ import javascript.{GsonModule, LeonJavaScriptModule}
 import resources.coffeescript.CoffeeScriptModule
 import resources.less.LessModule
 import resources.ResourcesModule
-import unitofwork.UOWModule
+import unitofwork.UOWFeatureModule
 import web.ajax.AjaxWebModule
 import web.browser.BrowserWebModule
 import web.comet.CometWebModule
@@ -22,7 +22,7 @@ import web.resources.ResourcesWebModule
 class LeonModule extends AbstractModule {
 
   def configure() {
-    install(new UOWModule)
+    install(new UOWFeatureModule)
     install(new ResourcesModule)
     install(new GsonModule)
     install(new LeonJavaScriptModule)
