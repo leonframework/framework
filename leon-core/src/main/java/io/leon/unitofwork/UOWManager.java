@@ -1,10 +1,8 @@
 package io.leon.unitofwork;
 
 import com.google.common.collect.Maps;
-import com.google.inject.Binding;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.TypeLiteral;
+import com.google.inject.*;
+import io.leon.guice.GuiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,10 +19,10 @@ public class UOWManager {
 
     private ThreadLocal<Object> threadLocalContext = new ThreadLocal<Object>();
 
-    private ThreadLocal<Map<Class<? extends UOWListener>, UOWListener>> threadLocalListener =
-            new ThreadLocal<Map<Class<? extends UOWListener>, UOWListener>>() {
+    private ThreadLocal<Map<Key<? extends UOWListener>, UOWListener>> threadLocalListener =
+            new ThreadLocal<Map<Key<? extends UOWListener>, UOWListener>>() {
         @Override
-        protected Map<Class<? extends UOWListener>, UOWListener> initialValue() {
+        protected Map<Key<? extends UOWListener>, UOWListener> initialValue() {
             return Maps.newHashMap();
         }
     };
@@ -32,7 +30,7 @@ public class UOWManager {
     @Inject
     public UOWManager(Injector injector) {
         this.injector = injector;
-        listener = injector.findBindingsByType(new TypeLiteral<UOWListener>() {});
+        listener = GuiceUtils.getAllBindingsForType(injector, UOWListener.class);
     }
 
     public void begin(Object context) {
@@ -49,14 +47,15 @@ public class UOWManager {
 
         // Notify all listener and add them to the thread local listener list
         for (Binding<UOWListener> listenerBinding : listener) {
-            UOWListener instance = injector.getInstance(listenerBinding.getKey());
+            Key<UOWListener> key = listenerBinding.getKey();
+            UOWListener instance = injector.getInstance(key);
+
             // check for duplicates
-            if (threadLocalListener.get().containsKey(instance.getClass())) {
-                throw new IllegalStateException(
-                        "The class [" + instance.getClass().getName() + "] is already in use as a UOWListener.");
+            if (threadLocalListener.get().containsKey(key)) {
+                throw new IllegalStateException("The key " + key + " is used twice. Should not happen, potential bug.");
             }
             instance.begin(threadLocalContext.get());
-            threadLocalListener.get().put(instance.getClass(), instance);
+            threadLocalListener.get().put(key, instance);
         }
     }
 
@@ -80,11 +79,11 @@ public class UOWManager {
         return threadLocalContext.get() != null;
     }
 
-    public <T extends UOWListener> T getThreadLocalListenerByType(Class<T> listenerType) {
+    public <T extends UOWListener> UOWListener getThreadLocalListenerByKey(Key<T> key) {
         if (!threadHasActiveUnitOfWork()) {
             throw new NoActiveUnitOfWorkException();
         }
-        return listenerType.cast(threadLocalListener.get().get(listenerType));
+        return threadLocalListener.get().get(key);
     }
 
 }

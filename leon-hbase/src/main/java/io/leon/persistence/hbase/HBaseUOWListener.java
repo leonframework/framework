@@ -11,7 +11,7 @@ public class HBaseUOWListener implements UOWListener {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Queue<LeonHBaseTable> queue = new ConcurrentLinkedQueue<LeonHBaseTable>();
+    private final Queue<LeonHBaseTable> usedTables = new ConcurrentLinkedQueue<LeonHBaseTable>();
 
     @Override
     public void begin(Object o) {
@@ -20,7 +20,7 @@ public class HBaseUOWListener implements UOWListener {
     @Override
     public void commit(Object o) {
         logger.info("Closing all tables used in this thread.");
-        for (LeonHBaseTable leonHBaseTable : queue) {
+        for (LeonHBaseTable leonHBaseTable : usedTables) {
             logger.info("Closing [{}].", leonHBaseTable);
             leonHBaseTable.close();
         }
@@ -28,6 +28,6 @@ public class HBaseUOWListener implements UOWListener {
 
     public void addLeonHBaseTableUsage(LeonHBaseTable leonHBaseTable) {
         logger.info("Adding [{}] to the list of tables used in this thread [{}]", leonHBaseTable, Thread.currentThread());
-        queue.add(leonHBaseTable);
+        usedTables.add(leonHBaseTable);
     }
 }
