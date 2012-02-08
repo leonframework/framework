@@ -48,7 +48,7 @@ class LeonFilter extends GuiceFilter {
 
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) {
-    uowManager.begin()
+    uowManager.begin(servletRequest)
     super.doFilter(servletRequest, servletResponse, filterChain)
     uowManager.commit()
   }
