@@ -2,7 +2,8 @@ package io.leon.persistence.hbase.tests;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import io.leon.persistence.hbase.LeonHBaseModule;
+import io.leon.persistence.hbase.LeonHBaseFeatureModule;
+import io.leon.persistence.hbase.LeonHBaseUserModule;
 import io.leon.unitofwork.NoActiveUnitOfWorkException;
 import io.leon.unitofwork.UOWManager;
 import io.leon.unitofwork.UOWModule;
@@ -20,10 +21,10 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
         final String personTableName = getRandomTableName("person");
 
         // Create a module for testing
-        final Injector i = Guice.createInjector(new LeonHBaseModule() {
+        final Injector i = Guice.createInjector(new LeonHBaseUserModule() {
             @Override
             protected void configure() {
-                super.configure();
+                install(new LeonHBaseFeatureModule());
                 install(new UOWModule());
                 addTable(personTableName, "cf1", "cf2");
             }
@@ -105,10 +106,10 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
         Injector i = null;
         try {
             // Create a module for testing
-            i = Guice.createInjector(new LeonHBaseModule() {
+            i = Guice.createInjector(new LeonHBaseUserModule() {
                 @Override
                 protected void configure() {
-                    super.configure();
+                    install(new LeonHBaseFeatureModule());
                     addTable(personTableName, "cf1", "cf2");
                 }
             });
@@ -130,10 +131,10 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
         final String personTableName = getRandomTableName("person");
 
         // Create a module for testing
-        final Injector i = Guice.createInjector(new LeonHBaseModule() {
+        final Injector i = Guice.createInjector(new LeonHBaseUserModule() {
             @Override
             protected void configure() {
-                super.configure();
+                install(new LeonHBaseFeatureModule());
                 install(new UOWModule());
                 addTable(personTableName, "cf1", "cf2");
             }

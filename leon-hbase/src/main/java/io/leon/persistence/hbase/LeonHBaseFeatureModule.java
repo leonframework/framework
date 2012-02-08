@@ -1,8 +1,6 @@
 package io.leon.persistence.hbase;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Scopes;
-import com.google.inject.name.Names;
 import io.leon.guice.GuiceUtils;
 import io.leon.unitofwork.UOWListener;
 import org.apache.hadoop.conf.Configuration;
@@ -10,15 +8,15 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTablePool;
 
-public class LeonHBaseModule extends AbstractModule {
+public class LeonHBaseFeatureModule extends AbstractModule {
 
     private final Configuration configuration;
 
-    public LeonHBaseModule() {
+    public LeonHBaseFeatureModule() {
         this(HBaseConfiguration.create());
     }
 
-    public LeonHBaseModule(Configuration configuration) {
+    public LeonHBaseFeatureModule(Configuration configuration) {
         this.configuration = configuration;
     }
 
@@ -32,12 +30,6 @@ public class LeonHBaseModule extends AbstractModule {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void addTable(String tableName, String... columnFamilies) {
-        bind(LeonHBaseTable.class)
-                .annotatedWith(Names.named(tableName))
-                .toProvider(new LeonHBaseTableProvider(tableName, columnFamilies)).in(Scopes.SINGLETON);
     }
 
 }
