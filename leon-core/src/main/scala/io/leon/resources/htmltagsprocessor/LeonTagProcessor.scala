@@ -10,28 +10,18 @@ package io.leon.resources.htmltagsprocessor
 
 import io.leon.resources.Resource
 import org.slf4j.LoggerFactory
-import com.google.inject.{Binder, TypeLiteral, Injector, Inject}
-import com.google.inject.name.Names
+import com.google.inject.{Injector, Inject}
 import net.htmlparser.jericho._
 import java.io._
-
-abstract class LeonTagRewriter {
-  def process(doc: Source): Seq[OutputDocument => Unit]
-}
-
-object LeonTagRewriters {
-  def bind[A <: LeonTagRewriter](binder: Binder, clazz:Class[A]) {
-    binder.bind(classOf[LeonTagRewriter]).annotatedWith(Names.named(clazz.getName)).to(clazz).asEagerSingleton()
-  }
-}
+import io.leon.guice.GuiceUtils
 
 class LeonTagProcessor @Inject()(injector: Injector) {
   import scala.collection.JavaConverters._
 
   private val logger = LoggerFactory.getLogger(getClass)
 
-  private lazy val rewriters = injector.findBindingsByType(new TypeLiteral[LeonTagRewriter]() {}).asScala map { _.getProvider.get() }
-
+  private lazy val rewriters = GuiceUtils.getAllBindingsForType(
+    injector, classOf[LeonTagRewriter]).asScala map { _.getProvider.get() }
 
   def transform(in: Resource) = new Resource(in.name, () => {
 

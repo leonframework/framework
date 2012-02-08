@@ -8,20 +8,29 @@
  */
 package io.leon.web.browser
 
-import io.leon.resources.htmltagsprocessor.LeonTagRewriters
 import com.google.inject.servlet.ServletModule
-import io.leon.web.resources.ExposedUrl
+import io.leon.web.resources.ResourcesWebUserModule
+import io.leon.resources.htmltagsprocessor.HtmlTagsProcessorUserModule
 
-class BrowserWebModule extends ServletModule {
+class BrowserWebFeatureModule extends ServletModule {
 
   override def configureServlets() {
-    LeonTagRewriters.bind(binder(), classOf[HtmlContextPathRewriter])
+    install(new HtmlTagsProcessorUserModule {
+      def configure() {
+        addTagRewriter(classOf[HtmlContextPathRewriter])
+      }
+    })
 
     VirtualLeonJsFileContribution.bind(binder(), classOf[ContextPathVirtualLeonJsFileContribution])
 
     bind(classOf[VirtualLeonJsFile]).asEagerSingleton()
     serve("/leon/leon.js").`with`(classOf[VirtualLeonJsFile])
-    ExposedUrl.bind(binder(), "/leon/leon.js")
+
+    install(new ResourcesWebUserModule {
+      def configure() {
+        exposeUrl("/leon/leon.js")
+      }
+    })
   }
 
 }

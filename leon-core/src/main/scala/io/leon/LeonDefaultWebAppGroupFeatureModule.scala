@@ -10,30 +10,30 @@ package io.leon
 
 import com.google.inject.AbstractModule
 import javascript.{GsonModule, LeonJavaScriptModule}
-import resources.coffeescript.CoffeeScriptModule
-import resources.less.LessModule
+import resources.coffeescript.CoffeeScriptFeatureModule
+import resources.less.LessFeatureModule
 import resources.ResourcesModule
 import unitofwork.UOWFeatureModule
-import web.ajax.AjaxWebModule
-import web.browser.BrowserWebModule
-import web.comet.CometWebModule
-import web.resources.ResourcesWebModule
+import web.ajax.AjaxFeatureModule
+import web.browser.BrowserWebFeatureModule
+import web.comet.CometFeatureModule
+import web.resources.ResourcesWebFeatureModule
 
-class LeonModule extends AbstractModule {
+class LeonDefaultWebAppGroupFeatureModule extends AbstractModule {
 
   def configure() {
     install(new UOWFeatureModule)
     install(new ResourcesModule)
     install(new GsonModule)
     install(new LeonJavaScriptModule)
-    install(new AjaxWebModule)
-    install(new CometWebModule)
-    install(new BrowserWebModule)
-    install(new CoffeeScriptModule)
-    install(new LessModule)
+    install(new AjaxFeatureModule)
+    install(new CometFeatureModule)
+    install(new BrowserWebFeatureModule)
+    install(new CoffeeScriptFeatureModule)
+    install(new LessFeatureModule)
 
     // must be at the last position!
-    install(new ResourcesWebModule)
+    install(new ResourcesWebFeatureModule)
   }
 
 }

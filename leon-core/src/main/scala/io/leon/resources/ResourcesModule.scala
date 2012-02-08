@@ -8,11 +8,11 @@
  */
 package io.leon.resources
 
-import closure.ClosureTemplatesModule
+import closure.ClosureTemplatesFeatureModule
 import com.google.inject.name.Names
 import freemarker.{LeonFreeMarkerTemplateLoader, FreeMarkerProcessor}
 import htmltagsprocessor.LeonTagProcessor
-import less.LessModule
+import less.LessFeatureModule
 import com.google.inject.{Inject, AbstractModule}
 
 
@@ -36,11 +36,11 @@ class ResourcesModule extends AbstractModule {
     bind(classOf[ResourceLocation]).annotatedWith(Names.named(clThreadName)).toInstance(clThread)
 
 
-    bind(classOf[LessModule]).asEagerSingleton()
-    bind(classOf[ClosureTemplatesModule]).asEagerSingleton()
-    bind(classOf[FreeMarkerProcessor]).asEagerSingleton()
-    bind(classOf[LeonFreeMarkerTemplateLoader]).asEagerSingleton()
+    //bind(classOf[FreeMarkerProcessor]).asEagerSingleton()
+    //bind(classOf[LeonFreeMarkerTemplateLoader]).asEagerSingleton()
+
     bind(classOf[LeonTagProcessor]).asEagerSingleton()
+
     bind(classOf[NoOpResourceProcessor]).asEagerSingleton()
     bind(classOf[ResourceProcessorRegistry]).asEagerSingleton()
     bind(classOf[ResourceWatcher]).asEagerSingleton()

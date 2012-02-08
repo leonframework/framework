@@ -16,8 +16,6 @@ import io.leon.resources.{ResourceUtils, Resource, ResourceProcessor}
 class LessResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScriptEngine])
   extends ResourceProcessor {
 
-  private val logger = LoggerFactory.getLogger(getClass.getName)
-
   private lazy val leonScriptEngine = {
     val lse = leonScriptEngineProvider.get()
     lse.loadResource("/io/leon/less-rhino-1.1.3.js", 9)
@@ -37,4 +35,5 @@ class LessResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScr
   }
 
   override def isCachingRequested = true
+
 }

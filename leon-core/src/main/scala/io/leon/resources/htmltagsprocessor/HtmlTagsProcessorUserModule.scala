@@ -6,15 +6,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.resources.less
+package io.leon.resources.htmltagsprocessor
 
-import com.google.inject.{Key, AbstractModule}
-import io.leon.resources.ResourceProcessor
+import com.google.inject.{Binder, AbstractModule}
 import com.google.inject.name.Names
 
-class LessModule extends AbstractModule {
-  def configure() {
-    bind(Key.get(classOf[ResourceProcessor], Names.named(classOf[LessResourceProcessor].getName))).
-      to(classOf[LessResourceProcessor]).asEagerSingleton()
+
+abstract class HtmlTagsProcessorUserModule extends AbstractModule {
+
+  def addTagRewriter[A <: LeonTagRewriter](clazz:Class[A]) {
+    binder.bind(classOf[LeonTagRewriter]).annotatedWith(Names.named(clazz.getName)).to(clazz).asEagerSingleton()
   }
+
 }

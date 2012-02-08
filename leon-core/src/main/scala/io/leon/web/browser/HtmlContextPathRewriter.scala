@@ -8,10 +8,9 @@
  */
 package io.leon.web.browser
 
-import com.google.inject.{AbstractModule, Inject, Provider}
-import io.leon.resources.htmltagsprocessor.{LeonTagRewriters, LeonTagRewriter}
+import com.google.inject.{Inject, Provider}
+import io.leon.resources.htmltagsprocessor.LeonTagRewriter
 import javax.servlet.http.HttpServletRequest
-import java.util.HashMap
 import net.htmlparser.jericho.{OutputDocument, Source}
 
 class HtmlContextPathRewriter @Inject()(requestProvider: Provider[HttpServletRequest]) extends LeonTagRewriter {

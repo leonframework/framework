@@ -12,7 +12,7 @@ public class GuiceUtils {
         return binder.bind(getKeyWithInterfaceAndClassName(iface, clazz)).to(clazz);
     }
 
-    public static <T>Key<T> getKeyWithInterfaceAndClassName(Class<T> iface, Class<? extends T> clazz) {
+    public static <T> Key<T> getKeyWithInterfaceAndClassName(Class<T> iface, Class<? extends T> clazz) {
         return Key.get(iface, Names.named(clazz.getName()));
     }
 

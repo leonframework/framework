@@ -10,30 +10,10 @@ package io.leon.web.resources
 
 import javax.servlet._
 import http.{HttpServletResponse, HttpServletRequest, HttpServlet}
-import com.google.inject.servlet.ServletModule
 import io.leon.web.WebUtils
 import io.leon.resources.{Resource, ResourceLoader}
-import org.slf4j.LoggerFactory
 import com.google.inject._
-import name.Names
 import io.leon.resources.htmltagsprocessor.LeonTagProcessor
-
-class ResourcesWebModule extends ServletModule {
-  override def configureServlets() {
-    install(new ResourcesModule)
-
-    bind(classOf[ExposedUrlCheckFilter]).in(Scopes.SINGLETON)
-    filter("/*").through(classOf[ExposedUrlCheckFilter])
-
-    serve("/*").`with`(classOf[ResourcesServlet])
-  }
-}
-
-class ResourcesModule extends AbstractModule {
-  def configure() {
-    bind(classOf[ResourcesServlet]).asEagerSingleton()
-  }
-}
 
 class ResourcesServlet @Inject()(resourceLoader: ResourceLoader, leonTag: LeonTagProcessor) extends HttpServlet {
 
@@ -86,43 +66,3 @@ class ResourcesServlet @Inject()(resourceLoader: ResourceLoader, leonTag: LeonTa
   }
   
 }
-
-object ExposedUrl {
-  def bind(binder: Binder, url: String) {
-    binder.bind(classOf[ExposedUrl]).annotatedWith(Names.named(url)).toInstance(new ExposedUrl(url))
-  }
-}
-
-class ExposedUrl(val urlRegex: String)
-
-class ExposedUrlCheckFilter @Inject()(injector: Injector) extends Filter {
-
-  import scala.collection.JavaConverters._
-
-  private val logger = LoggerFactory.getLogger(getClass.getName)
-
-  private def exposedUrls = injector.findBindingsByType(new TypeLiteral[ExposedUrl]() {}).asScala
-
-  private def exposedUrlsRegex = exposedUrls map { _.getProvider.get().urlRegex.r }
-
-  def init(config: FilterConfig) {}
-
-  def destroy() {}
-
-  def doFilter(_req: ServletRequest, _res: ServletResponse, chain: FilterChain) {
-    val req = _req.asInstanceOf[HttpServletRequest]
-    val res = _res.asInstanceOf[HttpServletResponse]
-
-    val requestUrl = WebUtils.getRequestedResource(req)
-    val isPublic = exposedUrlsRegex exists { _.findFirstIn(requestUrl).isDefined }
-    if (isPublic) {
-      logger.debug("Requested exposed URL {}", requestUrl)
-      chain.doFilter(_req, _res)
-    } else {
-      logger.debug("Requested *private* URL {}", requestUrl)
-      res.setStatus(403)
-    }
-  }
-
-}
-
