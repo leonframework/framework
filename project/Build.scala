@@ -51,6 +51,16 @@ object Dependencies {
 
   def sbtJunitInterface = "com.novocode" % "junit-interface" % "0.8" % "test"
 
+
+
+  def scalatest = "org.scalatest" %% "scalatest" % "1.7.1" % "test" withSources()
+
+  def testng = "org.testng" % "testng" % "6.1.1" % "test" withSources()
+
+  def sbt_testng_interface = "de.johoop" % "sbt-testng-interface" % "1.0.0" % "test"
+
+
+
   def selenium = "org.seleniumhq.selenium" % "selenium-java" % "2.16.1" //% "test"
 
   def servletApi = "org.mortbay.jetty" % "servlet-api" % "2.5-20081211" % "provided"
@@ -122,6 +132,9 @@ object LeonBuild extends Build {
   val coreDeps = Seq(
     specs2,
     sbtJunitInterface,
+    scalatest,
+    testng,
+    sbt_testng_interface,
     jetty,
     selenium,
     logback_classic,
@@ -145,6 +158,10 @@ object LeonBuild extends Build {
   val samplesDeps = Seq(servletApi, jettyRuntime, jetty, sbtJunitInterface, selenium)
 
 
+
+
+
+
   lazy val leon = Project(
     "leon",
     file("."),
@@ -164,8 +181,16 @@ object LeonBuild extends Build {
   lazy val leon_core = Project(
     "leon-core",
     file("leon-core"),
-    settings = buildSettings ++ publishSettings ++ Seq(libraryDependencies ++= coreDeps)
-  )
+    settings =
+      buildSettings
+      ++ publishSettings
+      ++ (testFrameworks += new TestFramework("de.johoop.testng.TestNGFramework"))
+      ++ (testOptions <+= (crossTarget, resourceDirectory in Test) map { (target, testResources) =>
+        Tests.Argument(
+          "-d", (target / "testng").absolutePath,
+          (testResources / "testng.xml").absolutePath)
+      })
+      ++ Seq(libraryDependencies ++= coreDeps))
 
   /*
   lazy val leon_hbase = Project(
