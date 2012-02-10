@@ -6,15 +6,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.persistence.sql
+package io.leon.resourceloading.processor
 
-import com.google.inject.{Scopes, AbstractModule}
+import io.leon.resourceloading.Resource
 
+class NoOpResourceProcessor extends ResourceProcessor {
 
-class
-LeonSqlModule(config: LeonSqlConfig) extends AbstractModule {
-  def configure() {
-    bind(classOf[LeonSqlManager]).toProvider(new LeonSqlManagerFactory(config)).in(Scopes.SINGLETON)
-  }
+  def fromFileEnding = ""
+
+  def toFileEnding = ""
+
+  def process(in: Resource) = in
 
 }

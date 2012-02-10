@@ -19,6 +19,8 @@ public class LeonHBaseTableManagementTest extends AbstractLeonHBaseTest {
 
     @Test
     public void testAutomaticTableCreationAndDeletionApi() throws IOException {
+        System.out.println("######################################### 10 start");
+
         final String personTableName = getRandomTableName("person");
 
         // Create a module for testing
@@ -47,10 +49,14 @@ public class LeonHBaseTableManagementTest extends AbstractLeonHBaseTest {
         manager.commit();
         Assert.assertFalse(
                 "Table should have been deleted.", getAdmin(i).tableExists(personTableName));
+
+        System.out.println("######################################### 10 ende");
     }
 
     @Test
     public void testColumnFamiliesManagement() throws IOException {
+        System.out.println("######################################### 11 start");
+
         final String personTableName = getRandomTableName("person");
 
         // Create a module for testing
@@ -93,6 +99,8 @@ public class LeonHBaseTableManagementTest extends AbstractLeonHBaseTest {
 
         // Clean up
         deleteTable(i, personTableName);
+
+        System.out.println("######################################### 11 ende");
     }
 
 }

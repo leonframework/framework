@@ -1,11 +1,11 @@
-package io.leon.javascript
+package io.leon.gson
 
 import org.specs2.mutable.Specification
 import com.google.inject.{Guice, AbstractModule}
-import io.leon.resources.ResourcesModule
+import io.leon.resourceloading.ResourceLoadingModule
 import org.mozilla.javascript.NativeJavaObject
 import com.google.gson.JsonParser
-
+import io.leon.javascript.{LeonScriptEngine, LeonJavaScriptModule}
 
 class GsonSupportSpec extends Specification {
 
@@ -13,7 +13,7 @@ class GsonSupportSpec extends Specification {
     def configure() {
       install(new LeonJavaScriptModule)
       install(new GsonModule)
-      install(new ResourcesModule)
+      install(new ResourceLoadingModule)
     }
   }
 

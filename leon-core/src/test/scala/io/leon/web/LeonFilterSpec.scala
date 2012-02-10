@@ -1,8 +1,6 @@
 package io.leon.web
 
 import org.specs2.mutable.Specification
-import java.io.File
-
 
 class LeonFilterSpec extends Specification {
 

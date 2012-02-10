@@ -11,9 +11,9 @@ package io.leon.web.resources
 import javax.servlet._
 import http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import io.leon.web.WebUtils
-import io.leon.resources.{Resource, ResourceLoader}
+import io.leon.resourceloading.{ResourceLoader, Resource}
 import com.google.inject._
-import io.leon.resources.htmltagsprocessor.LeonTagProcessor
+import io.leon.web.htmltagsprocessor.LeonTagProcessor
 
 class ResourcesServlet @Inject()(resourceLoader: ResourceLoader, leonTag: LeonTagProcessor) extends HttpServlet {
 

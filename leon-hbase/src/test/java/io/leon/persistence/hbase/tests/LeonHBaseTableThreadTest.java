@@ -16,9 +16,7 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
 
     @Test
     public void testThreadSeperation() {
-        //synchronized (this) {
-
-        System.out.println("######################################### 1 start " + hashCode());
+        System.out.println("######################################### 1 start");
         final String personTableName = getRandomTableName("person");
 
         // Create a module for testing
@@ -92,16 +90,13 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
         }
         Assert.assertNotSame("Two threads should have different HTable instances.", instances[0], instances[1]);
 
-        System.out.println("######################################### 1 ende " + hashCode());
-
-        //}
+        System.out.println("######################################### 1 ende");
     }
 
     @Test(expected = NoActiveUnitOfWorkException.class)
     public synchronized void hbaseSupportCanNotBeUsedWithoutActiveUnitOfWork() throws InterruptedException {
-        //synchronized (this) {
+        System.out.println("######################################### 2 start");
 
-        System.out.println("######################################### 2 start " + hashCode());
         final String personTableName = getRandomTableName("person");
 
         Injector i = null;
@@ -117,17 +112,13 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
             getTable(i, personTableName).getTableName();
         } finally {
             deleteTable(i, personTableName);
-            System.out.println("######################################### 2 ende " + hashCode());
+            System.out.println("######################################### 2 ende");
         }
-
-        //}
     }
 
     @Test
     public synchronized void hbaseSupportCanNotBeUsedAfterActiveUnitOfWorkCommit() throws InterruptedException {
-        //synchronized (this) {
-
-        System.out.println("######################################### 3 start " + hashCode());
+        System.out.println("######################################### 3 start");
 
         final String personTableName = getRandomTableName("person");
 
@@ -152,9 +143,7 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
             gotException = true;
         }
         Assert.assertTrue("Usage without UOW must throw an NoActiveUnitOfWorkException.", gotException);
-        System.out.println("######################################### 3 ende " + hashCode());
-
-        //}
+        System.out.println("######################################### 3 ende");
     }
 
 

@@ -6,13 +6,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.resources.htmltagsprocessor
+package io.leon.persistence.sql
 
-import net.htmlparser.jericho.{OutputDocument, Source}
+import java.sql.Connection
 
+class LeonSqlConfig {
 
-trait LeonTagRewriter {
-
-  def process(doc: Source): Seq[OutputDocument => Unit]
+  var configFilePath: String = _
+  var connectionFactory: () => Connection = _
+  var autoCommit = false
 
 }

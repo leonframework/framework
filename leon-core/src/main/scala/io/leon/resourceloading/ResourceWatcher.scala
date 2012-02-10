@@ -6,12 +6,19 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.resources
+/*
+ * Copyright (c) 2011 WeigleWilczek and others.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+package io.leon.resourceloading
 
 import com.google.inject.Inject
 import collection.mutable
 import org.slf4j.LoggerFactory
-
 
 class ResourceWatcher @Inject()(resourceLoader: ResourceLoader) {
 
@@ -32,22 +39,22 @@ class ResourceWatcher @Inject()(resourceLoader: ResourceLoader) {
   private var lastModificationFound = -1L
 
   def watch(res: Resource, action: Action) {
-    watchedResources += ((res, res.lastModified, action))
+    watchedResources += ((res, res.lastModified(), action))
   }
 
   def start() {
-    if(!running) {
+    if (!running) {
       running = true
       new Thread(new Runnable() {
         def run() {
           logger.debug("ResourceWatcher is running now!")
 
-          while(running) {
+          while (running) {
             doWatchFiles()
             Thread.sleep(interval)
 
             val timeSinceLastModification = System.currentTimeMillis() - lastModificationFound
-            if(lastModificationFound > 0 & timeSinceLastModification > threshold)
+            if (lastModificationFound > 0 & timeSinceLastModification > threshold)
               executePendingActions()
           }
 
@@ -57,11 +64,13 @@ class ResourceWatcher @Inject()(resourceLoader: ResourceLoader) {
     }
   }
 
-  def stop() { running = false }
+  def stop() {
+    running = false
+  }
 
   private def doWatchFiles() {
     for (((resource, timestamp, action), index) <- watchedResources.zipWithIndex) {
-      val lastModified = resource.lastModified
+      val lastModified = resource.lastModified()
       if (lastModified > timestamp) {
 
         logger.debug("Resource {} has been modified ...", resource.name)
@@ -77,7 +86,9 @@ class ResourceWatcher @Inject()(resourceLoader: ResourceLoader) {
     logger.debug("Executing {} pending action(s)", pendingActions.size)
 
     // make sure we execute all actions in the same order they were added.
-    val sortedActions = pendingActions sortWith { _._3 < _._3 }
+    val sortedActions = pendingActions sortWith {
+      _._3 < _._3
+    }
     for ((resource, action, index) <- sortedActions) {
       try {
         action(resource)

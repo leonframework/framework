@@ -6,15 +6,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.persistence.sql
+package io.leon.web.htmltagsprocessor
 
-import com.google.inject.{Scopes, AbstractModule}
+import net.htmlparser.jericho.{OutputDocument, Source}
 
 
-class
-LeonSqlModule(config: LeonSqlConfig) extends AbstractModule {
-  def configure() {
-    bind(classOf[LeonSqlManager]).toProvider(new LeonSqlManagerFactory(config)).in(Scopes.SINGLETON)
-  }
+trait LeonTagRewriter {
+
+  def process(doc: Source): Seq[OutputDocument => Unit]
 
 }

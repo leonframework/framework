@@ -8,7 +8,6 @@
  */
 package io.leon
 
-import resources.{DelegatingResourceLocation, FileSystemResourceLocation, ResourceLocation}
 import web.ajax.{JavaObjectAjaxHandlerProvider, AjaxHandler}
 import javascript.{LeonScriptEngine, JavaScriptAjaxHandlerProvider}
 import collection.mutable
@@ -16,8 +15,7 @@ import com.google.inject._
 import name.Names
 import servlet.ServletModule
 import java.io.File
-import web.resources.{WebResourcesBinder, ExposedUrl}
-
+import web.resources.WebResourcesBinder
 
 abstract class AbstractLeonConfiguration extends ServletModule {
 

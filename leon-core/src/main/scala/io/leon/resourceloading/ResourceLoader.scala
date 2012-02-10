@@ -6,11 +6,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.resources
+package io.leon.resourceloading
 
 import com.google.inject._
 import java.lang.RuntimeException
+import location.ResourceLocation
 import org.slf4j.LoggerFactory
+import io.leon.resourceloading.processor.ResourceProcessorRegistry
 
 class ResourceLoader @Inject()(injector: Injector,
                                resourceProcessorRegistry: ResourceProcessorRegistry) {
@@ -52,7 +54,7 @@ class ResourceLoader @Inject()(injector: Injector,
     None
   }
 
-/*
+  /*
   private def getOrTransformResource(res: Resource, fileNameForProcessor: String, cacheLocation: String, processor: ResourceProcessor): File = {
     val cachedFile = new File(cacheLocation, fileNameForProcessor)
 

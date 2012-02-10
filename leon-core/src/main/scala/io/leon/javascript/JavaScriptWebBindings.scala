@@ -8,27 +8,8 @@
  */
 package io.leon.javascript
 
-import org.mozilla.javascript.{Scriptable, ScriptableObject}
 import com.google.inject.{Injector, Inject}
-import javax.servlet.http.HttpServletRequest
 
-class HttpSessionObject(injector: Injector) extends ScriptableObject {
-
-  def getClassName = getClass.getName
-
-  private def request = injector.getInstance(classOf[HttpServletRequest])
-
-  private def session = request.getSession
-
-  override def get(name: String, start: Scriptable): AnyRef = {
-    session.getAttribute(name)
-  }
-
-  override def put(name: String, start: Scriptable, value: AnyRef) {
-    session.setAttribute(name, value)
-  }
-
-}
 
 class JavaScriptWebBindings @Inject()(injector: Injector, leonScriptEngine: LeonScriptEngine) {
 

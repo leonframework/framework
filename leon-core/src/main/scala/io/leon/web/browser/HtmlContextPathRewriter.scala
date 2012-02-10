@@ -9,7 +9,7 @@
 package io.leon.web.browser
 
 import com.google.inject.{Inject, Provider}
-import io.leon.resources.htmltagsprocessor.LeonTagRewriter
+import io.leon.web.htmltagsprocessor.LeonTagRewriter
 import javax.servlet.http.HttpServletRequest
 import net.htmlparser.jericho.{OutputDocument, Source}
 

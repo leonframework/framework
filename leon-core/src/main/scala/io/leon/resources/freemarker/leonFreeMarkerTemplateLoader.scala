@@ -9,7 +9,7 @@
 package io.leon.resources.freemarker
 
 import freemarker.cache.TemplateLoader
-import io.leon.resources.ResourceLoader
+import io.leon.resourceloading.ResourceLoader
 import com.google.inject.{Provider, Inject}
 import java.io.{InputStreamReader, InputStream, Reader}
 import java.lang.IllegalArgumentException

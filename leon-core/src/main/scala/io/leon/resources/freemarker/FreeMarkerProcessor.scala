@@ -11,7 +11,7 @@ package io.leon.resources.freemarker
 import com.google.inject.Inject
 import freemarker.template.{Template, Configuration}
 import java.io._
-import io.leon.resources.Resource
+import io.leon.resourceloading.Resource
 
 class FreeMarkerProcessor @Inject()(templateLoader: LeonFreeMarkerTemplateLoader) {
   import scala.collection.JavaConverters._

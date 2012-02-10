@@ -13,7 +13,7 @@ import java.io.InputStreamReader
 import java.lang.IllegalArgumentException
 
 import org.mozilla.javascript.{ScriptableObject, Context, Function => RhinoFunction}
-import io.leon.resources.{Resource, ResourceWatcher, ResourceLoader}
+import io.leon.resourceloading.{ResourceWatcher, ResourceLoader, Resource}
 import org.slf4j.LoggerFactory
 
 class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader, resourceWatcher: ResourceWatcher) {

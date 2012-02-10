@@ -12,7 +12,7 @@ import com.google.inject.AbstractModule
 import com.google.inject.servlet.ServletModule
 import org.atmosphere.cpr.AtmosphereServlet
 import io.leon.web.resources.WebResourcesBinder
-import io.leon.resources.htmltagsprocessor.HtmlTagsProcessorBinder
+import io.leon.web.htmltagsprocessor.HtmlTagsProcessorBinder
 
 class CometModule extends AbstractModule {
 

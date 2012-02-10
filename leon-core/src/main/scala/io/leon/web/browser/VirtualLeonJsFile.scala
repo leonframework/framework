@@ -9,11 +9,9 @@
 package io.leon.web.browser
 
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
-import com.google.inject.{Binder, TypeLiteral, Injector, Inject}
-import com.google.inject.name.Names
-import io.leon.resources.{ResourceUtils, ResourceLoader}
+import com.google.inject.{TypeLiteral, Injector, Inject}
+import io.leon.resourceloading.{ResourceUtils, ResourceLoader}
 import java.io.{Writer, BufferedWriter}
-
 
 class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) extends HttpServlet {
 

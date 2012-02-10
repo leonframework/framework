@@ -13,7 +13,6 @@ import name.Named
 import io.leon.web.browser.VirtualLeonJsFileContribution
 import java.lang.StringBuffer
 
-
 class AjaxVirtualLeonJsFileContribution @Inject()(injector: Injector) extends VirtualLeonJsFileContribution {
 
   def content() = {

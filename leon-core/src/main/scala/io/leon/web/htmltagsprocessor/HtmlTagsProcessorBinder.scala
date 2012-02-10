@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.resources.htmltagsprocessor
+package io.leon.web.htmltagsprocessor
 
 import com.google.inject.Binder
 import com.google.inject.name.Names

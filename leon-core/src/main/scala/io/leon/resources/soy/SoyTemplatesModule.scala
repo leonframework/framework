@@ -9,13 +9,14 @@
 package io.leon.resources.soy
 
 import com.google.inject.{Key, AbstractModule}
-import io.leon.resources.ResourceProcessor
-import com.google.inject.name.Names
+import io.leon.resourceloading.processor.ResourceProcessor
+import io.leon.guice.GuiceUtils
 
 class SoyTemplatesModule extends AbstractModule {
-  def configure() {
 
-    bind(Key.get(classOf[ResourceProcessor], Names.named(classOf[SoyTemplatesResourceProcessor].getName))).
-      to(classOf[SoyTemplatesResourceProcessor]).asEagerSingleton()
+  def configure() {
+    GuiceUtils.bindClassWithName(
+      binder(), classOf[ResourceProcessor], classOf[SoyTemplatesResourceProcessor]).asEagerSingleton()
   }
+
 }

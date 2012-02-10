@@ -9,14 +9,14 @@
 package io.leon.resources.less
 
 import com.google.inject.{Key, AbstractModule}
-import io.leon.resources.ResourceProcessor
-import com.google.inject.name.Names
+import io.leon.resourceloading.processor.ResourceProcessor
+import io.leon.guice.GuiceUtils
 
 class LessModule extends AbstractModule {
 
   def configure() {
-    bind(Key.get(classOf[ResourceProcessor], Names.named(classOf[LessResourceProcessor].getName))).
-      to(classOf[LessResourceProcessor]).asEagerSingleton()
+    GuiceUtils.bindClassWithName(
+      binder(), classOf[ResourceProcessor], classOf[LessResourceProcessor]).asEagerSingleton()
   }
 
 }

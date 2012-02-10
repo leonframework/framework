@@ -9,10 +9,13 @@
 package io.leon
 
 import com.google.inject.AbstractModule
-import javascript.{GsonModule, LeonJavaScriptModule}
+import gson.GsonModule
+import javascript.LeonJavaScriptModule
+import resourceloading.ResourceLoadingModule
 import resources.coffeescript.CoffeeScriptModule
+import resources.soy.SoyTemplatesModule
+import web.htmltagsprocessor.HtmlTagsProcessorModule
 import resources.less.LessModule
-import resources.ResourcesModule
 import unitofwork.UOWModule
 import web.ajax.AjaxModule
 import web.browser.BrowserModule
@@ -23,7 +26,8 @@ class LeonDefaultWebAppGroupingModule extends AbstractModule {
 
   def configure() {
     install(new UOWModule)
-    install(new ResourcesModule)
+    install(new ResourceLoadingModule(true)) // TODO true/false depends on deployment mode
+    install(new HtmlTagsProcessorModule)
     install(new GsonModule)
     install(new LeonJavaScriptModule)
     install(new AjaxModule)
@@ -31,6 +35,9 @@ class LeonDefaultWebAppGroupingModule extends AbstractModule {
     install(new BrowserModule)
     install(new CoffeeScriptModule)
     install(new LessModule)
+    install(new SoyTemplatesModule)
+    //install(new FreeMarkerModule)
+
 
     // must be at the last position!
     install(new WebResourcesModule)

@@ -6,52 +6,24 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.resources
+package io.leon.resourceloading.processor
 
 import com.google.inject.{TypeLiteral, Injector, Inject}
-import freemarker.FreeMarkerProcessor
 import scala.collection.mutable
 
-
-trait ResourceProcessor {
-
-  def fromFileEnding: String
-
-  def toFileEnding: String
-
-  def process(in: Resource): Resource
-
-  def isCachingRequested = false
-
-}
-
-class NoOpResourceProcessor @Inject()(freeMarker: FreeMarkerProcessor) extends ResourceProcessor {
-
-  def fromFileEnding = ""
-
-  def toFileEnding = ""
-
-  def process(in: Resource) = {
-    if (in.name.endsWith("html")) {
-      freeMarker.transform(in)
-    } else {
-      in
-    }
-  }
-
-}
-
 class ResourceProcessorRegistry @Inject()(injector: Injector, noOpProcessor: NoOpResourceProcessor) {
+
   import scala.collection.JavaConverters._
 
   private val resourceProcessors: Map[String, mutable.ListBuffer[ResourceProcessor]] = {
     val processors = new mutable.HashMap[String, mutable.ListBuffer[ResourceProcessor]]
 
     val rps = injector.findBindingsByType(new TypeLiteral[ResourceProcessor]() {}).asScala
-    rps foreach { binding =>
-      val processor = binding.getProvider.get()
-      val list = processors.getOrElseUpdate(processor.toFileEnding, new mutable.ListBuffer[ResourceProcessor])
-      list.append(processor)
+    rps foreach {
+      binding =>
+        val processor = binding.getProvider.get()
+        val list = processors.getOrElseUpdate(processor.toFileEnding, new mutable.ListBuffer[ResourceProcessor])
+        list.append(processor)
     }
     processors.toMap
   }

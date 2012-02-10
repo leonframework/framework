@@ -8,11 +8,11 @@
  */
 package io.leon.resources.soy
 
-
 import com.google.template.soy.jssrc.SoyJsSrcOptions
 import com.google.template.soy.{SoyFileSet}
 import collection.JavaConverters
-import io.leon.resources.{ResourceUtils, Resource, ResourceProcessor}
+import io.leon.resourceloading.processor.ResourceProcessor
+import io.leon.resourceloading.{ResourceUtils, Resource}
 
 class SoyTemplatesResourceProcessor ()
   extends ResourceProcessor {

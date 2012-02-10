@@ -6,15 +6,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.resources.coffeescript
+package io.leon.resources.freemarker
 
 import com.google.inject.AbstractModule
-import io.leon.resourceloading.processor.ResourceProcessor
-import io.leon.guice.GuiceUtils
 
-class CoffeeScriptModule extends AbstractModule {
+class FreeMarkerModule extends AbstractModule {
+
   def configure() {
-    GuiceUtils.bindClassWithName(
-      binder(), classOf[ResourceProcessor], classOf[CoffeeScriptResourceProcessor]).asEagerSingleton()
+    bind(classOf[FreeMarkerProcessor]).asEagerSingleton()
+    bind(classOf[LeonFreeMarkerTemplateLoader]).asEagerSingleton()
   }
+
 }

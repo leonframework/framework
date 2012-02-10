@@ -13,13 +13,12 @@ import scala.io.Source
 import org.mozilla.javascript.{NativeJavaObject, Context}
 import io.leon.{AbstractLeonConfiguration, LeonDefaultWebAppGroupingModule}
 import java.lang.reflect.Method
-import io.leon.resources.ResourceWatcher
+import io.leon.resourceloading.ResourceWatcher
 import org.slf4j.LoggerFactory
 import java.io.InputStream
 import javax.servlet.{FilterChain, ServletResponse, ServletRequest, FilterConfig}
 import com.google.inject.{Inject, Injector, Guice}
 import io.leon.unitofwork.UOWManager
-
 
 class LeonFilter extends GuiceFilter {
 

@@ -10,7 +10,8 @@ package io.leon.resources.coffeescript
 
 import io.leon.javascript.LeonScriptEngine
 import com.google.inject.{Provider, Inject}
-import io.leon.resources.{ResourceUtils, Resource, ResourceProcessor}
+import io.leon.resourceloading.processor.ResourceProcessor
+import io.leon.resourceloading.{ResourceUtils, Resource}
 
 class CoffeeScriptResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScriptEngine])
   extends ResourceProcessor {

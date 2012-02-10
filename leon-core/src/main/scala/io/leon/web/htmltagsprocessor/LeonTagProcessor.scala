@@ -6,9 +6,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.resources.htmltagsprocessor
+package io.leon.web.htmltagsprocessor
 
-import io.leon.resources.Resource
+import io.leon.resourceloading.Resource
 import org.slf4j.LoggerFactory
 import com.google.inject.{Injector, Inject}
 import net.htmlparser.jericho._

@@ -13,12 +13,6 @@ import java.sql.Connection
 import org.yaml.snakeyaml.Yaml
 import java.util.logging.Logger
 
-class LeonSqlConfig {
-  var configFilePath: String = _
-  var connectionFactory: () => Connection = _
-  var autoCommit = false
-}
-
 class LeonSqlManagerFactory(config: LeonSqlConfig) extends Provider[LeonSqlManager] {
 
   import scala.collection.JavaConverters._

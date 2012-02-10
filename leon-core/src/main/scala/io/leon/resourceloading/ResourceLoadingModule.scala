@@ -6,14 +6,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.resources
+package io.leon.resourceloading
 
 import com.google.inject.name.Names
-import htmltagsprocessor.LeonTagProcessor
 import com.google.inject.{Inject, AbstractModule}
+import io.leon.resourceloading.processor.{NoOpResourceProcessor, ResourceProcessorRegistry}
+import location.{ResourceLocation, DelegatingResourceLocation}
 
+class ResourceLoadingModule(startResourceWatcher: Boolean) extends AbstractModule {
 
-class ResourcesModule extends AbstractModule {
+  def this() = this(false)
 
   def configure() {
     bind(classOf[ResourceLoader]).asEagerSingleton()
@@ -32,21 +34,17 @@ class ResourcesModule extends AbstractModule {
     val clThreadName = clThread.getClass.getName + "- Thread local context classloader"
     bind(classOf[ResourceLocation]).annotatedWith(Names.named(clThreadName)).toInstance(clThread)
 
-
-    //bind(classOf[FreeMarkerProcessor]).asEagerSingleton()
-    //bind(classOf[LeonFreeMarkerTemplateLoader]).asEagerSingleton()
-
-    bind(classOf[LeonTagProcessor]).asEagerSingleton()
-
-    bind(classOf[NoOpResourceProcessor]).asEagerSingleton()
     bind(classOf[ResourceProcessorRegistry]).asEagerSingleton()
-    bind(classOf[ResourceWatcher]).asEagerSingleton()
+    bind(classOf[NoOpResourceProcessor]).asEagerSingleton()
 
-    requestInjection(new Object {
-      @Inject def init(watcher: ResourceWatcher) {
-        watcher.start()
-      }
-    })
+    bind(classOf[ResourceWatcher]).asEagerSingleton()
+    if (startResourceWatcher) {
+      requestInjection(new Object {
+        @Inject def init(watcher: ResourceWatcher) {
+          watcher.start()
+        }
+      })
+    }
   }
 }
 

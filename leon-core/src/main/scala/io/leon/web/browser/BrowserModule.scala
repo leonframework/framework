@@ -10,7 +10,7 @@ package io.leon.web.browser
 
 import com.google.inject.servlet.ServletModule
 import io.leon.web.resources.WebResourcesBinder
-import io.leon.resources.htmltagsprocessor.HtmlTagsProcessorBinder
+import io.leon.web.htmltagsprocessor.HtmlTagsProcessorBinder
 
 class BrowserModule extends ServletModule {
 
