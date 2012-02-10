@@ -16,9 +16,6 @@ import com.google.gson.{JsonSerializationContext, Gson, JsonSerializer}
 class NativeJavaObjectSerializer extends JsonSerializer[NativeJavaObject] {
 
   @Inject
-  var injector: Injector = _
-
-  @Inject
   var gson: Gson = _
 
   def serialize(src: NativeJavaObject, typeOfSrc: Type, context: JsonSerializationContext) = {
