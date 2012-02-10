@@ -16,7 +16,7 @@ import com.google.inject._
 import name.Names
 import servlet.ServletModule
 import java.io.File
-import web.resources.{ResourcesWebUserModule, ExposedUrl}
+import web.resources.{WebResourcesBinder, ExposedUrl}
 
 
 abstract class AbstractLeonConfiguration extends ServletModule {
@@ -50,11 +50,8 @@ abstract class AbstractLeonConfiguration extends ServletModule {
     
     config()
 
-    install(new ResourcesWebUserModule {
-      def configure() {
-        exposedUrls foreach exposeUrl
-        }
-      })
+    val rb = new WebResourcesBinder(binder())
+    exposedUrls foreach rb.exposeUrl
 
     requestInjection(new Object {
       @Inject def init(injector: Injector, engine: LeonScriptEngine) {

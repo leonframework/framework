@@ -18,13 +18,13 @@ package io.leon.samples.mixed
  */
 import io.leon.AbstractLeonConfiguration
 import io.leon.persistence.mongo.LeonMongoModule
-import io.leon.resources.coffeescript.CoffeeScriptFeatureModule
+import io.leon.resources.coffeescript.CoffeeScriptModule
 
 class Module extends AbstractLeonConfiguration {
 
   def config() {
     install(new LeonMongoModule)
-    install(new CoffeeScriptFeatureModule)
+    install(new CoffeeScriptModule)
 
     loadFile("/io/leon/samples/mixed/person.js")
 

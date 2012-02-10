@@ -1,12 +1,13 @@
 package io.leon.persistence.hbase.tests;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import io.leon.persistence.hbase.HBaseBinder;
 import io.leon.persistence.hbase.LeonHBaseFeatureModule;
-import io.leon.persistence.hbase.LeonHBaseUserModule;
 import io.leon.unitofwork.NoActiveUnitOfWorkException;
+import io.leon.unitofwork.UOWModule;
 import io.leon.unitofwork.UOWManager;
-import io.leon.unitofwork.UOWFeatureModule;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,18 +16,18 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
 
     @Test
     public void testThreadSeperation() {
-        synchronized (this) {
+        //synchronized (this) {
 
         System.out.println("######################################### 1 start " + hashCode());
         final String personTableName = getRandomTableName("person");
 
         // Create a module for testing
-        final Injector i = Guice.createInjector(new LeonHBaseUserModule() {
+        final Injector i = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
                 install(new LeonHBaseFeatureModule());
-                install(new UOWFeatureModule());
-                addTable(personTableName, "cf1", "cf2");
+                install(new UOWModule());
+                new HBaseBinder(binder()).addTable(personTableName, "cf1", "cf2");
             }
         });
         final UOWManager manager = i.getInstance(UOWManager.class);
@@ -93,12 +94,12 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
 
         System.out.println("######################################### 1 ende " + hashCode());
 
-        }
+        //}
     }
 
     @Test(expected = NoActiveUnitOfWorkException.class)
     public synchronized void hbaseSupportCanNotBeUsedWithoutActiveUnitOfWork() throws InterruptedException {
-        synchronized (this) {
+        //synchronized (this) {
 
         System.out.println("######################################### 2 start " + hashCode());
         final String personTableName = getRandomTableName("person");
@@ -106,37 +107,37 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
         Injector i = null;
         try {
             // Create a module for testing
-            i = Guice.createInjector(new LeonHBaseUserModule() {
+            i = Guice.createInjector(new AbstractModule() {
                 @Override
                 protected void configure() {
                     install(new LeonHBaseFeatureModule());
-                    addTable(personTableName, "cf1", "cf2");
+                    new HBaseBinder(binder()).addTable(personTableName, "cf1", "cf2");
                 }
             });
             getTable(i, personTableName).getTableName();
         } finally {
             deleteTable(i, personTableName);
+            System.out.println("######################################### 2 ende " + hashCode());
         }
-        System.out.println("######################################### 2 ende " + hashCode());
 
-        }
+        //}
     }
 
     @Test
     public synchronized void hbaseSupportCanNotBeUsedAfterActiveUnitOfWorkCommit() throws InterruptedException {
-        synchronized (this) {
+        //synchronized (this) {
 
         System.out.println("######################################### 3 start " + hashCode());
 
         final String personTableName = getRandomTableName("person");
 
         // Create a module for testing
-        final Injector i = Guice.createInjector(new LeonHBaseUserModule() {
+        final Injector i = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
                 install(new LeonHBaseFeatureModule());
-                install(new UOWFeatureModule());
-                addTable(personTableName, "cf1", "cf2");
+                install(new UOWModule());
+                new HBaseBinder(binder()).addTable(personTableName, "cf1", "cf2");
             }
         });
         UOWManager uowManager = i.getInstance(UOWManager.class);
@@ -153,7 +154,7 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
         Assert.assertTrue("Usage without UOW must throw an NoActiveUnitOfWorkException.", gotException);
         System.out.println("######################################### 3 ende " + hashCode());
 
-        }
+        //}
     }
 
 

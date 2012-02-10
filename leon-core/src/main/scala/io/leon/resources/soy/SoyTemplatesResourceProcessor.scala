@@ -6,7 +6,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.resources.closure
+package io.leon.resources.soy
 
 
 import com.google.template.soy.jssrc.SoyJsSrcOptions
@@ -14,7 +14,7 @@ import com.google.template.soy.{SoyFileSet}
 import collection.JavaConverters
 import io.leon.resources.{ResourceUtils, Resource, ResourceProcessor}
 
-class ClosureTemplatesResourceProcessor ()
+class SoyTemplatesResourceProcessor ()
   extends ResourceProcessor {
 
   def fromFileEnding = "soy"

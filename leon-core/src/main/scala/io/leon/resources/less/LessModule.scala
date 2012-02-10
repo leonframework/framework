@@ -6,16 +6,17 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.resources.closure
+package io.leon.resources.less
 
 import com.google.inject.{Key, AbstractModule}
 import io.leon.resources.ResourceProcessor
 import com.google.inject.name.Names
 
-class ClosureTemplatesFeatureModule extends AbstractModule {
-  def configure() {
+class LessModule extends AbstractModule {
 
-    bind(Key.get(classOf[ResourceProcessor], Names.named(classOf[ClosureTemplatesResourceProcessor].getName))).
-      to(classOf[ClosureTemplatesResourceProcessor]).asEagerSingleton()
+  def configure() {
+    bind(Key.get(classOf[ResourceProcessor], Names.named(classOf[LessResourceProcessor].getName))).
+      to(classOf[LessResourceProcessor]).asEagerSingleton()
   }
+
 }

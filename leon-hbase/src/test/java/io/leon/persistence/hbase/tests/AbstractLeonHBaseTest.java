@@ -34,9 +34,9 @@ public class AbstractLeonHBaseTest {
 
     protected String getRandomTableName(String name) {
         String cn = getClass().getName().replace('.', '_');
-        long time = System.currentTimeMillis();
-        long newId = id.getAndIncrement();
-        return "LeonUnitTest_" + name + "_" + cn + time + newId;
+        //long time = System.currentTimeMillis();
+        //long newId = id.getAndIncrement();
+        return "LeonUnitTest_" + name + "_" + cn;
     }
 
 

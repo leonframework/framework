@@ -12,7 +12,7 @@ import com.google.inject.{Key, AbstractModule}
 import io.leon.resources.ResourceProcessor
 import com.google.inject.name.Names
 
-class CoffeeScriptFeatureModule extends AbstractModule {
+class CoffeeScriptModule extends AbstractModule {
   def configure() {
     bind(Key.get(classOf[ResourceProcessor], Names.named(classOf[CoffeeScriptResourceProcessor].getName))).
       to(classOf[CoffeeScriptResourceProcessor]).asEagerSingleton()

@@ -9,28 +9,23 @@
 package io.leon.web.browser
 
 import com.google.inject.servlet.ServletModule
-import io.leon.web.resources.ResourcesWebUserModule
-import io.leon.resources.htmltagsprocessor.HtmlTagsProcessorUserModule
+import io.leon.web.resources.WebResourcesBinder
+import io.leon.resources.htmltagsprocessor.HtmlTagsProcessorBinder
 
-class BrowserWebFeatureModule extends ServletModule {
+class BrowserModule extends ServletModule {
 
   override def configureServlets() {
-    install(new HtmlTagsProcessorUserModule {
-      def configure() {
-        addTagRewriter(classOf[HtmlContextPathRewriter])
-      }
-    })
+    val htpb = new HtmlTagsProcessorBinder(binder())
+    htpb.addTagRewriter(classOf[HtmlContextPathRewriter])
 
-    VirtualLeonJsFileContribution.bind(binder(), classOf[ContextPathVirtualLeonJsFileContribution])
+    val vljs = new VirtualLeonJsFileBinder(binder())
+    vljs.bindAndAddContribution(classOf[ContextPathVirtualLeonJsFileContribution])
 
     bind(classOf[VirtualLeonJsFile]).asEagerSingleton()
     serve("/leon/leon.js").`with`(classOf[VirtualLeonJsFile])
 
-    install(new ResourcesWebUserModule {
-      def configure() {
-        exposeUrl("/leon/leon.js")
-      }
-    })
+    val rwb = new WebResourcesBinder(binder())
+    rwb.exposeUrl("/leon/leon.js")
   }
 
 }

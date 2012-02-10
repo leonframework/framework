@@ -8,11 +8,8 @@
  */
 package io.leon.resources
 
-import closure.ClosureTemplatesFeatureModule
 import com.google.inject.name.Names
-import freemarker.{LeonFreeMarkerTemplateLoader, FreeMarkerProcessor}
 import htmltagsprocessor.LeonTagProcessor
-import less.LessFeatureModule
 import com.google.inject.{Inject, AbstractModule}
 
 

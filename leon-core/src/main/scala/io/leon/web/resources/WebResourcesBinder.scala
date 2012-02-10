@@ -6,16 +6,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.resources.htmltagsprocessor
+package io.leon.web.resources
 
-import com.google.inject.{Binder, AbstractModule}
 import com.google.inject.name.Names
+import com.google.inject.Binder
 
+class WebResourcesBinder(binder: Binder) {
 
-abstract class HtmlTagsProcessorUserModule extends AbstractModule {
-
-  def addTagRewriter[A <: LeonTagRewriter](clazz:Class[A]) {
-    binder.bind(classOf[LeonTagRewriter]).annotatedWith(Names.named(clazz.getName)).to(clazz).asEagerSingleton()
+  def exposeUrl(url: String) {
+    binder.bind(classOf[ExposedUrl]).annotatedWith(Names.named(url)).toInstance(ExposedUrl(url))
   }
 
 }

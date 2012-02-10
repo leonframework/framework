@@ -10,8 +10,8 @@ class LeonFilterSpec extends Specification {
     """
     // module definition
     install(new Packages.io.leon.persistence.mongo.LeonMongoModule());
-    install(new Packages.io.leon.resources.coffeescript.CoffeeScriptFeatureModule());
-    install(new Packages.io.leon.resources.closure.ClosureTemplatesFeatureModule());
+    install(new Packages.io.leon.resources.coffeescript.CoffeeScriptModule());
+    install(new Packages.io.leon.resources.soy.SoyTemplatesModule());
 
     // location of application files
     addLocation("leon-samples/leon-samples-cometping/WebContent");

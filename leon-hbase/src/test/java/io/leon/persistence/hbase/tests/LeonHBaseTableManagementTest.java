@@ -1,12 +1,13 @@
 package io.leon.persistence.hbase.tests;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import io.leon.persistence.hbase.HBaseBinder;
 import io.leon.persistence.hbase.LeonHBaseFeatureModule;
 import io.leon.persistence.hbase.LeonHBaseTable;
-import io.leon.persistence.hbase.LeonHBaseUserModule;
+import io.leon.unitofwork.UOWModule;
 import io.leon.unitofwork.UOWManager;
-import io.leon.unitofwork.UOWFeatureModule;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.junit.Assert;
 import org.junit.Test;
@@ -21,12 +22,12 @@ public class LeonHBaseTableManagementTest extends AbstractLeonHBaseTest {
         final String personTableName = getRandomTableName("person");
 
         // Create a module for testing
-        Injector i = Guice.createInjector(new LeonHBaseUserModule() {
+        Injector i = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
                 install(new LeonHBaseFeatureModule());
-                install(new UOWFeatureModule());
-                addTable(personTableName, "data", "cf1");
+                install(new UOWModule());
+                new HBaseBinder(binder()).addTable(personTableName, "data", "cf1");
             }
         });
         Assert.assertFalse(
@@ -53,11 +54,11 @@ public class LeonHBaseTableManagementTest extends AbstractLeonHBaseTest {
         final String personTableName = getRandomTableName("person");
 
         // Create a module for testing
-        Injector i = Guice.createInjector(new LeonHBaseUserModule() {
+        Injector i = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
                 install(new LeonHBaseFeatureModule());
-                addTable(personTableName, "cf1", "cf2");
+                new HBaseBinder(binder()).addTable(personTableName, "cf1", "cf2");
             }
         });
 
@@ -72,11 +73,11 @@ public class LeonHBaseTableManagementTest extends AbstractLeonHBaseTest {
         Assert.assertFalse("Person table should not yet have column family cf3", fKeys.contains("cf3".getBytes()));
 
         // Add a 3rd column familiy
-        i = Guice.createInjector(new LeonHBaseUserModule() {
+        i = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
                 install(new LeonHBaseFeatureModule());
-                addTable(personTableName, "cf1", "cf2", "cf3");
+                new HBaseBinder(binder()).addTable(personTableName, "cf1", "cf2", "cf3");
             }
         });
 

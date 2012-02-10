@@ -11,7 +11,7 @@ package io.leon.web
 import com.google.inject.servlet.GuiceFilter
 import scala.io.Source
 import org.mozilla.javascript.{NativeJavaObject, Context}
-import io.leon.{AbstractLeonConfiguration, LeonDefaultWebAppGroupFeatureModule}
+import io.leon.{AbstractLeonConfiguration, LeonDefaultWebAppGroupingModule}
 import java.lang.reflect.Method
 import io.leon.resources.ResourceWatcher
 import org.slf4j.LoggerFactory
@@ -41,7 +41,7 @@ class LeonFilter extends GuiceFilter {
       else
         classLoader.loadClass(moduleName).asInstanceOf[Class[AbstractLeonConfiguration]].newInstance()
 
-    injector = Guice.createInjector(new LeonDefaultWebAppGroupFeatureModule, module)
+    injector = Guice.createInjector(new LeonDefaultWebAppGroupingModule, module)
     injector.injectMembers(this)
     super.init(filterConfig)
   }

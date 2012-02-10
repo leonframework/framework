@@ -14,18 +14,6 @@ import com.google.inject.name.Names
 import io.leon.resources.{ResourceUtils, ResourceLoader}
 import java.io.{Writer, BufferedWriter}
 
-object VirtualLeonJsFileContribution {
-  def bind(binder: Binder, contribution: Class[_ <: VirtualLeonJsFileContribution]) {
-    binder.bind(contribution).asEagerSingleton()
-    binder.bind(classOf[VirtualLeonJsFileContribution])
-      .annotatedWith(Names.named(contribution.getName))
-      .to(contribution)
-  }
-}
-
-trait VirtualLeonJsFileContribution {
-  def content(): String
-}
 
 class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) extends HttpServlet {
 

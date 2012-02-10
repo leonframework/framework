@@ -6,17 +6,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.resources.less
+package io.leon.resources.soy
 
 import com.google.inject.{Key, AbstractModule}
 import io.leon.resources.ResourceProcessor
 import com.google.inject.name.Names
 
-class LessFeatureModule extends AbstractModule {
-
+class SoyTemplatesModule extends AbstractModule {
   def configure() {
-    bind(Key.get(classOf[ResourceProcessor], Names.named(classOf[LessResourceProcessor].getName))).
-      to(classOf[LessResourceProcessor]).asEagerSingleton()
-  }
 
+    bind(Key.get(classOf[ResourceProcessor], Names.named(classOf[SoyTemplatesResourceProcessor].getName))).
+      to(classOf[SoyTemplatesResourceProcessor]).asEagerSingleton()
+  }
 }

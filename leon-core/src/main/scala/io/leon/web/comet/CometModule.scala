@@ -11,10 +11,10 @@ package io.leon.web.comet
 import com.google.inject.AbstractModule
 import com.google.inject.servlet.ServletModule
 import org.atmosphere.cpr.AtmosphereServlet
-import io.leon.web.resources.ResourcesWebUserModule
-import io.leon.resources.htmltagsprocessor.HtmlTagsProcessorUserModule
+import io.leon.web.resources.WebResourcesBinder
+import io.leon.resources.htmltagsprocessor.HtmlTagsProcessorBinder
 
-class CometFeatureModule extends AbstractModule {
+class CometModule extends AbstractModule {
 
   def configure() {
     bind(classOf[CometRegistry]).asEagerSingleton()
@@ -33,20 +33,15 @@ class CometFeatureModule extends AbstractModule {
 
         serve("/leon/comet/connect*").`with`(classOf[CometConnectionServlet], meteorParams)
         serve("/leon/comet/updateFilter").`with`(classOf[UpdateSubscriptionServlet])
-        install(new ResourcesWebUserModule {
-          def configure() {
-            exposeUrl("/leon/comet/connect")
-            exposeUrl("/leon/comet/updateFilter")
-          }
-        })
+
+        val rwb = new WebResourcesBinder(binder())
+        rwb.exposeUrl("/leon/comet/connect")
+        rwb.exposeUrl("/leon/comet/updateFilter")
       }
     })
 
-    install(new HtmlTagsProcessorUserModule {
-      def configure() {
-        addTagRewriter(classOf[CometSubscribeTagRewriter])
-      }
-    })
+    val htpb = new HtmlTagsProcessorBinder(binder())
+    htpb.addTagRewriter(classOf[CometSubscribeTagRewriter])
   }
 
 }

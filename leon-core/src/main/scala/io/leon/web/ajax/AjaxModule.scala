@@ -9,22 +9,20 @@
 package io.leon.web.ajax
 
 import com.google.inject.servlet.ServletModule
-import io.leon.web.browser.VirtualLeonJsFileContribution
-import io.leon.web.resources.ResourcesWebUserModule
+import io.leon.web.resources.WebResourcesBinder
+import io.leon.web.browser.VirtualLeonJsFileBinder
 
-class AjaxFeatureModule extends ServletModule {
+class AjaxModule extends ServletModule {
 
   override def configureServlets() {
     bind(classOf[AjaxCallServlet]).asEagerSingleton()
     serve("/leon/ajax").`with`(classOf[AjaxCallServlet])
 
-    install(new ResourcesWebUserModule {
-      def configure() {
-        exposeUrl("/leon/ajax")
-      }
-    })
+    val rwb = new WebResourcesBinder(binder())
+    rwb.exposeUrl("/leon/ajax")
 
-    VirtualLeonJsFileContribution.bind(binder(), classOf[AjaxVirtualLeonJsFileContribution])
+    val vljs = new VirtualLeonJsFileBinder(binder())
+    vljs.bindAndAddContribution(classOf[AjaxVirtualLeonJsFileContribution])
   }
 
 }

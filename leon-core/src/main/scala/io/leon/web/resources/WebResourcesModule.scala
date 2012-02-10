@@ -11,7 +11,7 @@ package io.leon.web.resources
 import com.google.inject.Scopes
 import com.google.inject.servlet.ServletModule
 
-class ResourcesWebFeatureModule extends ServletModule {
+class WebResourcesModule extends ServletModule {
 
   override def configureServlets() {
     bind(classOf[ResourcesServlet]).asEagerSingleton()
