@@ -1,4 +1,4 @@
-package io.leon.testngdummytestsj;
+package io.leon.testng;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

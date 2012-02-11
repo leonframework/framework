@@ -1,16 +1,26 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="Suite1" verbose="1" >
+<suite name="Suite1" verbose="3">
 
-    <test name="java">
+    <test name="tests_that_require_jetty_server" parallel="false">
+        <groups>
+            <run>
+                <include name="requires_jetty_server" />
+            </run>
+        </groups>
         <packages>
-            <package name="io.leon.testngdummytestsj" />
+            <package name="io.leon.testng.*" />
         </packages>
     </test>
 
-    <test name="scala">
+    <test name="normal_tests" parallel="true">
+        <groups>
+            <run>
+                <exclude name="requires_jetty_server" />
+            </run>
+        </groups>
         <packages>
-            <package name="io.leon.testngdummytestss" />
+            <package name="io.leon.testng.*" />
         </packages>
     </test>
 
