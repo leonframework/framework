@@ -9,7 +9,6 @@ public class NG2Java {
     public void test1jetty() {
         System.out.println("###### 3-1 start ###### (jetty)");
         NGUtils.sleep(2000);
-        Assert.assertTrue(false);
         System.out.println("###### 3-1 ende ###### (jetty)");
     }
 

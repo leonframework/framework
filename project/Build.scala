@@ -39,8 +39,11 @@ http://www.eclipse.org/legal/epl-v10.html
     ) ++
       (testFrameworks += new TestFramework("de.johoop.testng.TestNGFramework")) ++
       (testOptions <+= (crossTarget, resourceDirectory in Test) map { (target, testResources) =>
-        Tests.Argument("-d", (target / "testng").absolutePath,
-          (testResources / "testng.xml").absolutePath)
+        Tests.Argument(
+          "-d",
+          (target / "testng").absolutePath,
+          "project/testng.xml"
+        )
       })
 
   val publishSettings = Seq(

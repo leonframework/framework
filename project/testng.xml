@@ -1,6 +1,6 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="leon" verbose="2" parallel="tests">
+<suite name="leon" verbose="1" parallel="tests">
 
     <test name="tests_that_require_jetty_server" parallel="false">
         <groups>
@@ -15,7 +15,7 @@
 
     <test name="tests_that_require_hbase" parallel="false">
         <packages>
-            <package name="io.leon.*"/>
+            <package name="io.leon.persistence.hbase.*"/>
         </packages>
     </test>
 
