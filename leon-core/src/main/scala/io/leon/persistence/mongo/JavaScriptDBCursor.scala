@@ -8,17 +8,20 @@
  */
 package io.leon.persistence.mongo
 
-import com.mongodb.casbah.MongoCursor
 import org.mozilla.javascript.{Scriptable, ScriptableObject, Context, Function => RhinoFunction }
+import com.mongodb.{DBObject, DBCursor}
 
-private[mongo] class JavaScriptDBCursor(dbCursor: MongoCursor) extends ScriptableObject {
+private[mongo] class JavaScriptDBCursor(dbCursor: DBCursor) extends ScriptableObject {
   import MongoUtils._
 
   private val jsFunctionNames = Array(
     "toArray", "next", "hasNext", "skip", "limit", "sort",
     "size", "length", "count", "close", "forEach", "map")
 
-  private lazy val list = dbCursor.toList map dbObjectToScriptable
+  private lazy val list = {
+    import scala.collection.JavaConverters._
+    dbCursor.toArray.asScala map dbObjectToScriptable
+  }
 
   defineFunctionProperties(jsFunctionNames, getClass, ScriptableObject.READONLY)
 

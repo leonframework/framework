@@ -5,6 +5,7 @@ import io.leon.javascript.{LeonScriptEngine, LeonJavaScriptModule}
 import io.leon.persistence.mongo.{LeonMongoManager, LeonMongoModule}
 import com.google.inject.{Inject, Guice, AbstractModule}
 import io.leon.resourceloading.ResourceLoadingModule
+import com.mongodb.BasicDBObject
 
 class MongoSpecification extends Specification {
 
@@ -33,6 +34,12 @@ class MongoSpecification extends Specification {
     val engine = getLeonScriptEngine
 
     engine.invokeFunction("io.leon.persistence.mongo.test." + func).asInstanceOf[Boolean]
+  }
+
+  def dbObject(data: (String, Any)*) = {
+    import scala.collection.JavaConverters._
+    val map = Map(data: _*)
+    new BasicDBObject(map.asJava)
   }
 }
 

@@ -22,7 +22,7 @@ http://www.eclipse.org/legal/epl-v10.html
   val buildSettings =
     Defaults.defaultSettings ++
     licenseSettings ++
-    Seq(scalacOptions ++= Seq("-unchecked", "-Xfatal-warnings")) ++
+    Seq(scalacOptions ++= Seq("-unchecked", "-Xfatal-warnings", "-deprecation")) ++
     Seq(
       organization := buildOrganization,
       version      := buildVersion,
@@ -87,7 +87,7 @@ object Dependencies {
 
   def snakeYaml = "org.yaml" % "snakeyaml" % "1.8" withSources()
 
-  def casbah_core = "com.mongodb.casbah" %% "casbah-core" % "2.1.5-1" withSources()
+  def mongo = "org.mongodb" % "mongo-java-driver" % "2.7.2" withSources()
 
   def jerichoHtml = "net.htmlparser.jericho" % "jericho-html" % "3.2" withSources()
 
@@ -128,7 +128,7 @@ object LeonBuild extends Build {
     guava,
     guiceServlet,
     snakeYaml,
-    casbah_core,
+    mongo,
     jerichoHtml,
     gson,
     h2database)

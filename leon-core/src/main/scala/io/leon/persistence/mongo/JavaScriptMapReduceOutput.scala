@@ -9,7 +9,6 @@
 package io.leon.persistence.mongo
 
 import com.mongodb.MapReduceOutput
-import com.mongodb.casbah.MongoCollection
 
 class JavaScriptMapReduceOutput(output: MapReduceOutput) {
   import scala.collection.JavaConverters._
@@ -17,12 +16,9 @@ class JavaScriptMapReduceOutput(output: MapReduceOutput) {
 
   def drop() { output.drop() }
 
-  def getOutputCollection = new JavaScriptDBCollection(new MongoCollection(output.getOutputCollection))
+  def getOutputCollection = new JavaScriptDBCollection(output.getOutputCollection)
 
   def getCommand = dbObjectToScriptable(output.getCommand)
 
-  def getRaw = dbObjectToScriptable(output.getRaw)
-
-  def results = arrayToNativeArray(output.results.asScala.toArray map { dbObjectToScriptable })
-
+  def results = arrayToNativeArray(output.results.asScala.toArray map dbObjectToScriptable)
 }

@@ -126,8 +126,9 @@ io.leon.persistence.mongo.test = (function() {
             if(person.firstName != "Firstname10")
                 throw "expected Firstname10 but got " + person.firstName;
 
+            result = spec_test.find().skip(10).limit(5);
             var arr = result.toArray();
-            if(arr.length != result.size() - 1) // size - 'first fetch'
+            if(arr.length != result.size())
                 throw "unexpected size of array - expected " + (result.size() - 1) + " but was " + arr.length;
 
             if(result.size() != 5)

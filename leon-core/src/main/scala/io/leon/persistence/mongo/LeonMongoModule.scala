@@ -10,7 +10,7 @@ package io.leon.persistence.mongo
 
 import io.leon.javascript.LeonScriptEngine
 import com.google.inject._
-import com.mongodb.casbah.{MongoDB, MongoConnection}
+import com.mongodb.{DB, Mongo}
 
 class LeonMongoConfig {
   var host: String = "127.0.0.1"
@@ -22,21 +22,16 @@ class LeonMongoModule(config: LeonMongoConfig) extends AbstractModule {
 
   def this() = this(new LeonMongoConfig())
 
-  private lazy val mongoConnection = MongoConnection(config.host, config.port)
+  private lazy val mongo = new Mongo(config.host, config.port)
 
   @Provides
-  def getMongoConnection() = {
-    mongoConnection
-  }
-
-  @Provides
-  def getJavaMongo() = {
-    getMongoConnection().underlying
+  def getMongo() = {
+    mongo
   }
 
   @Provides
   def createMongoDB() = {
-    mongoConnection(config.db)
+    mongo.getDB(config.db)
   }
 
   def configure() {
@@ -46,7 +41,7 @@ class LeonMongoModule(config: LeonMongoConfig) extends AbstractModule {
   }
 }
 
-class LeonMongoManager @Inject() (val conn: MongoConnection,  val mongo: MongoDB)
+class LeonMongoManager @Inject() (val mongo: Mongo,  val db: DB)
 
 class MongoModuleInit @Inject()(engine: LeonScriptEngine) {
   engine.loadResource("/io/leon/persistence/mongo/mongo.js")
