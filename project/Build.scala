@@ -36,7 +36,12 @@ http://www.eclipse.org/legal/epl-v10.html
           watchSources.task, const(std.TaskExtra.constant(Nil)), aggregate = true, includeRoot = true) apply {
             _.join.map(_.flatten)
         }
-    )
+    ) ++
+      (testFrameworks += new TestFramework("de.johoop.testng.TestNGFramework")) ++
+      (testOptions <+= (crossTarget, resourceDirectory in Test) map { (target, testResources) =>
+        Tests.Argument("-d", (target / "testng").absolutePath,
+          (testResources / "testng.xml").absolutePath)
+      })
 
   val publishSettings = Seq(
     publishTo := Some(Resolver.file("Local Test Repository", Path fileProperty "java.io.tmpdir" asFile))
@@ -47,15 +52,11 @@ http://www.eclipse.org/legal/epl-v10.html
 
 object Dependencies {
 
-  val specs2 = "org.specs2" %% "specs2" % "1.6.1" % "test" withSources()
-
-  def sbtJunitInterface = "com.novocode" % "junit-interface" % "0.8" % "test"
-
-
+  //val specs2 = "org.specs2" %% "specs2" % "1.6.1" % "test" withSources()
 
   def scalatest = "org.scalatest" %% "scalatest" % "1.7.1" % "test" withSources()
 
-  def testng = "org.testng" % "testng" % "6.1.1" % "test" withSources()
+  def testng = "org.testng" % "testng" % "6.1.1" withSources()
 
   def sbt_testng_interface = "de.johoop" % "sbt-testng-interface" % "1.0.0" % "test"
 
@@ -122,18 +123,15 @@ object LeonBuild extends Build {
 
   resolvers ++= Seq(
     "Sonatype OSS Repo" at "http://oss.sonatype.org/content/repositories/releases",
-    "Scala Tools Releases Repo" at "http://scala-tools.org/repo-releases",
     "Official Maven2 Repo" at "http://repo2.maven.org/maven2",
     "Apache Release" at "https://repository.apache.org/content/repositories/releases",
-    "Apache Rawson (was required for HBase/Hadoop" at "http://people.apache.org/~rawson/repo/",
     "Apache Public" at "https://repository.apache.org/content/repositories/public",
     "Apache Snapshots" at "https://repository.apache.org/content/repositories/snapshots")
 
   val coreDeps = Seq(
-    specs2,
-    sbtJunitInterface,
-    scalatest,
+    //specs2,
     testng,
+    scalatest,
     sbt_testng_interface,
     jetty,
     selenium,
@@ -155,24 +153,18 @@ object LeonBuild extends Build {
     gson,
     h2database)
 
-  val samplesDeps = Seq(servletApi, jettyRuntime, jetty, sbtJunitInterface, selenium)
+  val samplesDeps = Seq(servletApi, jettyRuntime, jetty, selenium)
 
-
-
-
-
-
-  lazy val leon = Project(
+  lazy val leon: Project = Project(
     "leon",
     file("."),
-    settings = buildSettings
-    ) aggregate(
+    settings = buildSettings) aggregate(
       leon_core,
-      leon_hbase,
-      samplesAjaxReverserJavaJs,
-      samplesAjaxReverserJsJs,
-      samplesAjaxReverserWithPojoJavaJs,
-      samplesCometPingJavaCoffee
+      leon_hbase
+      //samplesAjaxReverserJavaJs,
+      //samplesAjaxReverserJsJs,
+      //samplesAjaxReverserWithPojoJavaJs,
+      //samplesCometPingJavaCoffee
       //samplesMixed,
       //samplesLeonJax,
       //samplesDeviceOrientation
@@ -181,30 +173,13 @@ object LeonBuild extends Build {
   lazy val leon_core = Project(
     "leon-core",
     file("leon-core"),
-    settings =
-      buildSettings
-      ++ publishSettings
-      ++ (testFrameworks += new TestFramework("de.johoop.testng.TestNGFramework"))
-      ++ (testOptions <+= (crossTarget, resourceDirectory in Test) map { (target, testResources) =>
-        Tests.Argument(
-          "-d", (target / "testng").absolutePath,
-          (testResources / "testng.xml").absolutePath)
-      })
-      ++ Seq(libraryDependencies ++= coreDeps))
+    settings = buildSettings ++ publishSettings ++
+      Seq(libraryDependencies ++= coreDeps))
 
-  /*
   lazy val leon_hbase = Project(
     "leon-hbase",
     file("leon-hbase"),
     settings = buildSettings ++ publishSettings ++
-      Seq(libraryDependencies ++= (/* hadoop +: hbase +: */ coreDeps))
-  ) dependsOn(leon_core)
-  */
-
-  lazy val leon_hbase = Project(
-    "leon-hbase",
-    file("leon-hbase"),
-    settings = buildSettings ++ publishSettings ++ Seq(parallelExecution in Test := true ) ++
       Seq(libraryDependencies ++= (/* hadoop +: hbase +: */ coreDeps))
   ) dependsOn(leon_core)
 
@@ -215,16 +190,14 @@ object LeonBuild extends Build {
   lazy val samplesAjaxReverserJavaJs = Project(
     "samplesAjaxReverserJavaJs",
     file("leon-samples/ajax/reverser/java_js"),
-    settings = buildSettings ++
-      webSettings ++
+    settings = buildSettings ++ webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(leon_core)
 
   lazy val samplesAjaxReverserJsJs = Project(
     "samplesAjaxReverserJsJs",
     file("leon-samples/ajax/reverser/js_js"),
-    settings = buildSettings ++
-      webSettings ++
+    settings = buildSettings ++ webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(leon_core)
 
@@ -232,16 +205,14 @@ object LeonBuild extends Build {
   lazy val samplesAjaxReverserWithPojoJavaJs = Project(
     "samplesAjaxReverserWithPojoJavaJs",
     file("leon-samples/ajax/reverser-with-pojo/java_js"),
-    settings = buildSettings ++
-      webSettings ++
+    settings = buildSettings ++ webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(leon_core)
 
   lazy val samplesCometPingJavaCoffee = Project(
     "samplesCometPingJavaCoffee",
     file("leon-samples/comet/ping/java_coffee"),
-    settings = buildSettings ++
-      webSettings ++
+    settings = buildSettings ++ webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(leon_core)
 
@@ -249,8 +220,7 @@ object LeonBuild extends Build {
   lazy val samplesMixed = Project(
     "leon-samples-mixed",
     file("leon-samples/leon-samples-mixed"),
-    settings = buildSettings ++
-      webSettings ++
+    settings = buildSettings ++ webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
     ) dependsOn(core)
   */
@@ -259,8 +229,7 @@ object LeonBuild extends Build {
   lazy val samplesLeonJax = Project(
     "leonjax",
     file("leon-samples/leonjax"),
-    settings = buildSettings ++
-      webSettings ++
+    settings = buildSettings ++ webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
     ) dependsOn(core)
   */
@@ -269,8 +238,7 @@ object LeonBuild extends Build {
   lazy val samplesDeviceOrientation = Project(
     "deviceorientation",
     file("leon-samples/deviceorientation"),
-    settings = buildSettings ++
-      webSettings ++
+    settings = buildSettings ++ webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(core)
   */

@@ -1,26 +1,32 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="Suite1" verbose="3">
+<suite name="leon" verbose="2" parallel="tests">
 
     <test name="tests_that_require_jetty_server" parallel="false">
         <groups>
             <run>
-                <include name="requires_jetty_server" />
+                <include name="requires_jetty_server"/>
             </run>
         </groups>
         <packages>
-            <package name="io.leon.testng.*" />
+            <package name="io.leon.*"/>
+        </packages>
+    </test>
+
+    <test name="tests_that_require_hbase" parallel="false">
+        <packages>
+            <package name="io.leon.*"/>
         </packages>
     </test>
 
     <test name="normal_tests" parallel="true">
         <groups>
             <run>
-                <exclude name="requires_jetty_server" />
+                <exclude name="nodefault"/>
             </run>
         </groups>
         <packages>
-            <package name="io.leon.testng.*" />
+            <package name="io.leon.*"/>
         </packages>
     </test>
 
