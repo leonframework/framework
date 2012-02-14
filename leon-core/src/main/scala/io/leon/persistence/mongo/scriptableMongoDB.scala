@@ -22,7 +22,8 @@ class ScriptableMongoDB @Inject()(db: DB, engine: LeonScriptEngine) extends Scri
     "collectionExists",
     "authenticate",
     "getStats",
-    "runCommand")
+    "runCommand",
+    "getLastError")
 
   defineFunctionProperties(jsFunctionNames, getClass, ScriptableObject.READONLY)
 
@@ -44,7 +45,7 @@ class ScriptableMongoDB @Inject()(db: DB, engine: LeonScriptEngine) extends Scri
 
   def getStats = runCommand(new BasicDBObject("dbstats", true))
 
-  def getLastError = new JavaScriptCommandResult(db.getLastError())
+  def getLastError = Option(db.getLastError()) map { err => new JavaScriptCommandResult(err) } getOrElse null
 
   def runCommand(cmd: ScriptableObject): ScriptableObject = {
     val dbo = scriptableToDbObject(cmd)
