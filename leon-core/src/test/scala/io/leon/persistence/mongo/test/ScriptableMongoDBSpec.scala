@@ -55,5 +55,9 @@ class ScriptableMongoDBSpec extends MongoSpecification {
     "getStats" in {
       invokeJsTest("getStats") must beTrue
     }
+
+    "setWriteConcern" in {
+      invokeJsTest("setWriteConcern") must beTrue
+    }
   }
 }

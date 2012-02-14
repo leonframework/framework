@@ -17,6 +17,8 @@ io.leon.persistence.mongo.test = (function() {
 
     return {
         insert: function() {
+            leon.mongo.setWriteConcern({ "w": 1, "fsync": true });
+
             var spec_test = leon.mongo.spec_test;
             spec_test.drop();
 
@@ -276,6 +278,16 @@ io.leon.persistence.mongo.test = (function() {
         getStats: function() {
           var stats = leon.mongo.getStats();
           return stats.ok();
+        },
+
+        setWriteConcern: function() {
+           leon.mongo.setWriteConcern();
+           leon.mongo.setWriteConcern({ "w": 1 });
+           leon.mongo.setWriteConcern({ "w": 1, "wtimeout": 0 });
+           leon.mongo.setWriteConcern({ "w": 1, "wtimeout": 10, "fsync": false });
+           leon.mongo.setWriteConcern({ "w": 2, "wtimeout": 500, "fsync": true, "j": true });
+
+           return true;
         }
     }
 })();

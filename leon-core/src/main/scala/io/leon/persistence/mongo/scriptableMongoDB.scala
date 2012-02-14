@@ -11,7 +11,7 @@ package io.leon.persistence.mongo
 import io.leon.javascript.LeonScriptEngine
 import com.google.inject.Inject
 import org.mozilla.javascript._
-import com.mongodb.{DB, BasicDBObject}
+import com.mongodb.{WriteConcern, DB, BasicDBObject}
 
 
 class ScriptableMongoDB @Inject()(db: DB, engine: LeonScriptEngine) extends ScriptableObject {
@@ -23,7 +23,8 @@ class ScriptableMongoDB @Inject()(db: DB, engine: LeonScriptEngine) extends Scri
     "authenticate",
     "getStats",
     "runCommand",
-    "getLastError")
+    "getLastError",
+    "setWriteConcern")
 
   defineFunctionProperties(jsFunctionNames, getClass, ScriptableObject.READONLY)
 
@@ -53,5 +54,23 @@ class ScriptableMongoDB @Inject()(db: DB, engine: LeonScriptEngine) extends Scri
 
     new JavaScriptCommandResult(result)
   }
+  
+  def setWriteConcern(concern: ScriptableObject) {
+    def toInt(any: Any): Int = any match {
+      case i:Int => i
+      case d:Double => d.toInt
+      case s: String => s.toInt
+    }
 
+    if(concern == null) {
+      db.setWriteConcern(WriteConcern.NORMAL)
+    } else {
+      val w = Option(concern.get("w")).map(toInt) getOrElse 0
+      val wtimeout = Option(concern.get("wtimeout")).map(toInt) getOrElse 0
+      val fsync = Option(concern.get("fsync").asInstanceOf[Boolean]) getOrElse false
+      val j = Option(concern.get("j").asInstanceOf[Boolean]) getOrElse false
+
+      db.setWriteConcern(new WriteConcern(w, wtimeout, fsync, j))
+    }
+  }
 }
