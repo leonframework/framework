@@ -8,6 +8,12 @@
         </packages>
     </test>
 
+    <test name="mongodb-tests" parallel="false">
+        <packages>
+            <package name="io.leon.persistence.mongo.*"/>
+        </packages>
+    </test>
+
     <test name="normal_tests" parallel="true">
         <groups>
             <run>
