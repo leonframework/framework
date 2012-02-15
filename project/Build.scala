@@ -27,24 +27,15 @@ http://www.eclipse.org/legal/epl-v10.html
       organization := buildOrganization,
       version      := buildVersion,
       scalaVersion := buildScalaVersion,
-      license      := licenseText,
-
-      // workaround for sbt issue #206 (remove 'watchTransitiveSources' when sbt 0.11.1 is released)
-      // https://github.com/harrah/xsbt/issues/206
-      watchTransitiveSources <<=
-        Defaults.inDependencies[Task[Seq[File]]](
-          watchSources.task, const(std.TaskExtra.constant(Nil)), aggregate = true, includeRoot = true) apply {
-            _.join.map(_.flatten)
-        }
-    ) ++
-      (testFrameworks += new TestFramework("de.johoop.testng.TestNGFramework")) ++
-      (testOptions <+= (crossTarget, resourceDirectory in Test) map { (target, testResources) =>
-        Tests.Argument(
-          "-d",
-          (target / "testng").absolutePath,
-          (testResources / "testng.xml").absolutePath
-        )
-      })
+      license      := licenseText) ++
+    (testFrameworks += new TestFramework("de.johoop.testng.TestNGFramework")) ++
+    (testOptions <+= (crossTarget, resourceDirectory in Test) map { (target, testResources) =>
+      Tests.Argument(
+        "-d",
+        (target / "testng").absolutePath,
+        (testResources / "testng.xml").absolutePath
+      )
+    })
 
   val publishSettings = Seq(
     publishTo := Some(Resolver.file("Local Test Repository", Path fileProperty "java.io.tmpdir" asFile))
