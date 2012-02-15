@@ -3,13 +3,8 @@
 <suite name="leon" verbose="2" parallel="tests">
 
     <test name="tests_that_require_jetty_server" parallel="false">
-        <groups>
-            <run>
-                <include name="requires_jetty_server"/>
-            </run>
-        </groups>
         <packages>
-            <package name="io.leon.*"/>
+            <package name="io.leon.web.ajax.browser.errordialog.*"/>
         </packages>
     </test>
 
