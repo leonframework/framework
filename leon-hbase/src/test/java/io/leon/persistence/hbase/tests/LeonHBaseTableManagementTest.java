@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.util.Set;
 
-@Test(groups = "nodefault")
+@Test(groups = {"nodefault", "hbase"})
 public class LeonHBaseTableManagementTest extends AbstractLeonHBaseTest {
 
     public void testAutomaticTableCreationAndDeletionApi() throws IOException {

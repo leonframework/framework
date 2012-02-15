@@ -1,6 +1,5 @@
 package io.leon.testng;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class NG1Java {

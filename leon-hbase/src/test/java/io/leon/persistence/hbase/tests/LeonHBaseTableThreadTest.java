@@ -12,7 +12,7 @@ import org.apache.hadoop.hbase.client.HTableInterface;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-@Test(groups = "nodefault")
+@Test(groups = {"nodefault", "hbase"})
 public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
 
     public void testThreadSeperation() {

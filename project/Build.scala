@@ -42,7 +42,7 @@ http://www.eclipse.org/legal/epl-v10.html
         Tests.Argument(
           "-d",
           (target / "testng").absolutePath,
-          "project/testng.xml"
+          (testResources / "testng.xml").absolutePath
         )
       })
 
