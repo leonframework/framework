@@ -12,8 +12,7 @@ import org.mozilla.javascript._
 import org.mozilla.javascript.regexp.NativeRegExp
 import org.bson.types.ObjectId
 import java.util.regex.Pattern
-import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.{BasicDBList, DBObject}
+import com.mongodb.{BasicDBObject, BasicDBList, DBObject}
 
 private[mongo] object MongoUtils {
   import scala.collection.JavaConverters._
@@ -22,7 +21,7 @@ private[mongo] object MongoUtils {
     case regex: NativeRegExp => nativeRegExpToPattern(regex)
     case array: NativeArray => nativeArrayToArray(array)
     case func: BaseFunction => Context.getCurrentContext.decompileFunction(func, 2)
-    case so: ScriptableObject => scriptableToDBObject(so)
+    case so: ScriptableObject => scriptableToDbObject(so)
     case x => x
   }
 
@@ -42,7 +41,9 @@ private[mongo] object MongoUtils {
       }
     }
 
-  implicit def scriptableToDBObject(obj: ScriptableObject): DBObject = {
+  implicit def scriptableToDbObject(obj: ScriptableObject): DBObject = {
+    import scala.collection.JavaConverters._
+
     val tuples =
       obj.getAllIds.toList map {
         id =>
@@ -53,7 +54,7 @@ private[mongo] object MongoUtils {
 
           (id.toString -> value)
       }
-    MongoDBObject(tuples)
+    new BasicDBObject(tuples.toMap.asJava)
   }
 
   def arrayToNativeArray(arr: Array[AnyRef]): NativeArray = {

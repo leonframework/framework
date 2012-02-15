@@ -22,7 +22,7 @@ http://www.eclipse.org/legal/epl-v10.html
   val buildSettings =
     Defaults.defaultSettings ++
     licenseSettings ++
-    Seq(scalacOptions ++= Seq("-unchecked", "-Xfatal-warnings")) ++
+    Seq(scalacOptions ++= Seq("-unchecked", "-Xfatal-warnings", "-deprecation")) ++
     Seq(
       organization := buildOrganization,
       version      := buildVersion,
@@ -75,8 +75,6 @@ object Dependencies {
 
   def rhino = "org.mozilla" % "rhino" % "1.7R3" withSources()
 
-  def sjson = "net.debasishg" %% "sjson" % "0.15" withSources()
-
   def freemarker = "org.freemarker" % "freemarker" % "2.3.18" withSources()
 
   def atmosphere_version = "0.7.1"
@@ -103,11 +101,7 @@ object Dependencies {
 
   def snakeYaml = "org.yaml" % "snakeyaml" % "1.8" withSources()
 
-  def casbah_core = "com.mongodb.casbah" %% "casbah-core" % "2.1.5-1" withSources()
-
-  def commonsBeanutils = "commons-beanutils" % "commons-beanutils" % "1.8.3" withSources()
-
-  def commonsCollections = "commons-collections" % "commons-collections" % "3.2.1" withSources()
+  def mongo = "org.mongodb" % "mongo-java-driver" % "2.7.2" withSources()
 
   def jerichoHtml = "net.htmlparser.jericho" % "jericho-html" % "3.2" withSources()
 
@@ -147,11 +141,8 @@ object LeonBuild extends Build {
     guice,
     guava,
     guiceServlet,
-    sjson,
     snakeYaml,
-    casbah_core,
-    commonsBeanutils,
-    commonsCollections,
+    mongo,
     jerichoHtml,
     gson,
     h2database)

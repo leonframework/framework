@@ -9,7 +9,7 @@
 package io.leon.persistence.mongo
 
 import com.mongodb.CommandResult
-import org.mozilla.javascript.ScriptableObject
+import org.mozilla.javascript.{Undefined, ScriptableObject}
 
 
 private[mongo] class JavaScriptCommandResult(result: CommandResult) extends ScriptableObject {
@@ -17,8 +17,11 @@ private[mongo] class JavaScriptCommandResult(result: CommandResult) extends Scri
 
   private val jsFunctionNames = Array("ok", "getErrorMessage", "getException", "throwOnError")
 
-  result.toMap.asScala foreach { case (k: String, v: AnyRef) =>
-    defineProperty(k, MongoUtils.javaToJs(v), ScriptableObject.PERMANENT)
+  result.toMap.asScala foreach { case (k: String, v) =>
+    v match {
+      case value: AnyRef => defineProperty(k, MongoUtils.javaToJs(value), ScriptableObject.PERMANENT)
+      case null => defineProperty(k, Undefined.instance, ScriptableObject.PERMANENT)
+    }
   }
 
   defineFunctionProperties(jsFunctionNames, getClass, ScriptableObject.PERMANENT)

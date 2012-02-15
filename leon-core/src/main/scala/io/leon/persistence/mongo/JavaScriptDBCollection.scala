@@ -8,116 +8,138 @@
  */
 package io.leon.persistence.mongo
 
-import com.mongodb.casbah.MongoCollection
 import org.mozilla.javascript.{Context, BaseFunction, ScriptableObject}
-import com.mongodb.BasicDBObject
+import com.mongodb.{DBCollection, BasicDBObject}
 
-private[mongo] class JavaScriptDBCollection(coll: MongoCollection) {
+
+private[mongo] class JavaScriptDBCollection(collection: DBCollection) {
   import MongoUtils._
 
-   def insert(obj: ScriptableObject) {
-    val dbo = scriptableToDBObject(obj)
-    coll.insert(dbo)
+  def insert(obj: ScriptableObject) {
+    val dbo = scriptableToDbObject(obj)
+    collection.insert(dbo)
 
     obj.put("_id", obj, dbo.get("_id").toString)
   }
 
   def save(obj: ScriptableObject) {
-    val dbo = scriptableToDBObject(obj)
-    coll.save(dbo)
+    val dbo = scriptableToDbObject(obj)
+    collection.save(dbo)
 
     obj.put("_id", obj, dbo.get("_id").toString)
 
   }
 
-  // -- find ---
+  // --- find ---
 
-  def find = new JavaScriptDBCursor(coll.find())
+  def find = new JavaScriptDBCursor(collection.find())
 
-  def find(ref: ScriptableObject) = new JavaScriptDBCursor(coll.find(ref))
+  def find(ref: ScriptableObject) = new JavaScriptDBCursor(collection.find(ref))
 
-  def find(ref: ScriptableObject, keys: ScriptableObject) = new JavaScriptDBCursor(coll.find(ref, keys))
+  def find(ref: ScriptableObject, keys: ScriptableObject) = new JavaScriptDBCursor(collection.find(ref, keys))
 
-  // -- findAndModify ---
+  // --- findAndModify ---
 
   def findAndModify(query: ScriptableObject, update: ScriptableObject) = {
-    coll.findAndModify(query, update) map { dbObjectToScriptable } getOrElse null
+    val result = collection.findAndModify(query, update)
+    Option(result) map { dbObjectToScriptable } getOrElse null
   }
 
   def findAndModify(query: ScriptableObject, sort: ScriptableObject, update: ScriptableObject) = {
-    coll.findAndModify(query, sort, update) map { dbObjectToScriptable } getOrElse null
+    val result = collection.findAndModify(query, sort, update)
+    Option(result) map { dbObjectToScriptable } getOrElse null
   }
 
   def findAndModify(query: ScriptableObject, fields: ScriptableObject, sort: ScriptableObject,
                     remove: Boolean, update: ScriptableObject, returnNew: Boolean, upsert: Boolean) = {
-    coll.findAndModify(query, fields, sort, remove, update, returnNew, upsert) map { dbObjectToScriptable } getOrElse null
+    val result = collection.findAndModify(query, fields, sort, remove, update, returnNew, upsert)
+    Option(result) map { dbObjectToScriptable } getOrElse null
   }
 
   // -- findAndRemove --
 
   def findAndRemove(query: ScriptableObject) = {
-    coll.findAndRemove(query) map { dbObjectToScriptable } getOrElse null
+    val result = collection.findAndRemove(query)
+    Option(result) map { dbObjectToScriptable } getOrElse null
   }
 
   // -- findOne --
 
-  def findOne = coll.findOne map dbObjectToScriptable getOrElse null
+  def findOne = Option(collection.findOne) map dbObjectToScriptable getOrElse null
 
-  def findOne(obj: ScriptableObject) = coll.findOne(obj) map { dbObjectToScriptable } getOrElse null
+  def findOne(obj: ScriptableObject) = {
+    val query = scriptableToDbObject(obj)
+    val result = collection.findOne(query)
+    Option(result) map { dbObjectToScriptable } getOrElse null
+  }
 
-  def findOne(obj: ScriptableObject, fields: ScriptableObject) = coll.findOne(obj, fields) map { dbObjectToScriptable } getOrElse null
+  def findOne(obj: ScriptableObject, fields: ScriptableObject) = {
+    val query = scriptableToDbObject(obj)
+    val result = collection.findOne(query, fields)
+    Option(result) map { dbObjectToScriptable } getOrElse null
+  }
 
-  def findOne(id: String) = coll.findOneByID(id) map { dbObjectToScriptable } getOrElse null
+  def findOne(id: String) = {
+    import scala.collection.JavaConverters._
 
-  def findOne(id: String, fields: ScriptableObject) = coll.findOneByID(id, fields) map { dbObjectToScriptable } getOrElse null
+    val query = new BasicDBObject(Map("_id" -> id).asJava)
+    Option(collection.findOne(query)) map { dbObjectToScriptable } getOrElse null
+  }
+
+  def findOne(id: String, fields: ScriptableObject) = {
+    import scala.collection.JavaConverters._
+
+    val query = new BasicDBObject(Map("_id" -> id).asJava)
+    Option(collection.findOne(query, fields)) map { dbObjectToScriptable } getOrElse null
+  }
 
   // -- remove --
 
-  def remove(obj: ScriptableObject) { coll.remove(obj) }
+  def remove(obj: ScriptableObject) { collection.remove(obj) }
 
   // -- count ---
 
-  def count = coll.count
+  def count = collection.count
 
-  def count(obj: ScriptableObject) = coll.count(obj)
+  def count(obj: ScriptableObject) = collection.count(obj)
 
-  def drop() { coll.drop() }
+  def drop() { collection.drop() }
 
   // -- create- /drop- /ensureIndex(s) --
 
-  def createIndex(keys: ScriptableObject) { coll.createIndex(keys) }
+  def createIndex(keys: ScriptableObject) { collection.createIndex(keys) }
 
-  def createIndex(keys: ScriptableObject, options: ScriptableObject) { coll.createIndex(keys, options) }
+  def createIndex(keys: ScriptableObject, options: ScriptableObject) { collection.createIndex(keys, options) }
 
-  def ensureIndex(keys: ScriptableObject) { coll.ensureIndex(keys) }
+  def ensureIndex(keys: ScriptableObject) { collection.ensureIndex(keys) }
 
-  def ensureIndex(keys: ScriptableObject, name: String) { coll.ensureIndex(keys, name) }
+  def ensureIndex(keys: ScriptableObject, name: String) { collection.ensureIndex(keys, name) }
 
-  def ensureIndex(keys: ScriptableObject, name: String, unique: Boolean) { coll.ensureIndex(keys, name, unique) }
+  def ensureIndex(keys: ScriptableObject, name: String, unique: Boolean) { collection.ensureIndex(keys, name, unique) }
 
-  def ensureIndex(name: String) { coll.ensureIndex(name) }
+  def ensureIndex(name: String) { collection.ensureIndex(name) }
 
-  def dropIndex(keys: ScriptableObject) { coll.dropIndex(keys) }
+  def dropIndex(keys: ScriptableObject) { collection.dropIndex(keys) }
 
-  def dropIndex(name: String) { coll.dropIndex(name) }
+  def dropIndex(name: String) { collection.dropIndex(name) }
 
-  def dropIndexes() { coll.dropIndexes() }
+  def dropIndexes() { collection.dropIndexes() }
 
-  def dropIndexes(name: String) { coll.dropIndexes(name) }
+  def dropIndexes(name: String) { collection.dropIndexes(name) }
 
   // -- update --
 
-  def update(query: ScriptableObject, obj: ScriptableObject) = coll.update(query, obj)
+  def update(query: ScriptableObject, obj: ScriptableObject) = collection.update(query, obj)
 
-  def update(query: ScriptableObject, obj: ScriptableObject, upsert: Boolean, multi: Boolean) = coll.update(query, obj, upsert, multi)
+  def update(query: ScriptableObject, obj: ScriptableObject, upsert: Boolean, multi: Boolean) = collection.update(query, obj, upsert, multi)
 
-  def updateMulti(query: ScriptableObject, obj: ScriptableObject) = coll.updateMulti(query, obj)
+  def updateMulti(query: ScriptableObject, obj: ScriptableObject) = collection.updateMulti(query, obj)
 
   // -- distinct --
 
-  def distinct(key: String) = arrayToNativeArray(coll.distinct(key).asInstanceOf[List[AnyRef]].toArray)
+  def distinct(key: String) = arrayToNativeArray(collection.distinct(key).asInstanceOf[List[AnyRef]].toArray)
 
-  def distinct(key: String, query: ScriptableObject) = arrayToNativeArray(coll.distinct(key, query).asInstanceOf[List[AnyRef]].toArray)
+  def distinct(key: String, query: ScriptableObject) = arrayToNativeArray(collection.distinct(key, query).asInstanceOf[List[AnyRef]].toArray)
 
   // -- mapReduce --
 
@@ -127,12 +149,12 @@ private[mongo] class JavaScriptDBCollection(coll: MongoCollection) {
     val reduce = ctx.decompileFunction(reduceFunc, 2)
 
     val cmd = new BasicDBObject()
-    cmd.put("mapreduce", coll.getName())
+    cmd.put("mapreduce", collection.getName())
     cmd.put("map", map)
     cmd.put("reduce", reduce)
     cmd.putAll(options)
 
-    val output = coll.underlying.mapReduce(cmd)
+    val output = collection.mapReduce(cmd)
 
     new JavaScriptMapReduceOutput(output)
   }

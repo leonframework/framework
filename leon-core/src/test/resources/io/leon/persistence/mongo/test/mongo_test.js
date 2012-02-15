@@ -17,6 +17,8 @@ io.leon.persistence.mongo.test = (function() {
 
     return {
         insert: function() {
+            leon.mongo.setWriteConcern({ "w": 1, "fsync": true });
+
             var spec_test = leon.mongo.spec_test;
             spec_test.drop();
 
@@ -126,8 +128,9 @@ io.leon.persistence.mongo.test = (function() {
             if(person.firstName != "Firstname10")
                 throw "expected Firstname10 but got " + person.firstName;
 
+            result = spec_test.find().skip(10).limit(5);
             var arr = result.toArray();
-            if(arr.length != result.size() - 1) // size - 'first fetch'
+            if(arr.length != result.size())
                 throw "unexpected size of array - expected " + (result.size() - 1) + " but was " + arr.length;
 
             if(result.size() != 5)
@@ -275,6 +278,16 @@ io.leon.persistence.mongo.test = (function() {
         getStats: function() {
           var stats = leon.mongo.getStats();
           return stats.ok();
+        },
+
+        setWriteConcern: function() {
+           leon.mongo.setWriteConcern();
+           leon.mongo.setWriteConcern({ "w": 1 });
+           leon.mongo.setWriteConcern({ "w": 1, "wtimeout": 0 });
+           leon.mongo.setWriteConcern({ "w": 1, "wtimeout": 10, "fsync": false });
+           leon.mongo.setWriteConcern({ "w": 2, "wtimeout": 500, "fsync": true, "j": true });
+
+           return true;
         }
     }
 })();

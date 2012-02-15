@@ -10,40 +10,67 @@ package io.leon.persistence.mongo
 
 import io.leon.javascript.LeonScriptEngine
 import com.google.inject.Inject
-import com.mongodb.casbah.MongoDB
 import org.mozilla.javascript._
-import com.mongodb.BasicDBObject
+import com.mongodb.{WriteConcern, DB, BasicDBObject}
 
 
-class ScriptableMongoDB @Inject()(mongo: MongoDB, engine: LeonScriptEngine) extends ScriptableObject {
+class ScriptableMongoDB @Inject()(db: DB, engine: LeonScriptEngine) extends ScriptableObject {
   import MongoUtils._
 
-  private val jsFunctionNames = Array("getCollectionNames", "collectionExists", "authenticate", "getStats", "runCommand")
+  private val jsFunctionNames = Array(
+    "getCollectionNames",
+    "collectionExists",
+    "authenticate",
+    "getStats",
+    "runCommand",
+    "getLastError",
+    "setWriteConcern")
 
   defineFunctionProperties(jsFunctionNames, getClass, ScriptableObject.READONLY)
 
   def getClassName = getClass.getName
 
   override def get(name: String, start: Scriptable): AnyRef = {
-    if(jsFunctionNames.contains(name)) super.get(name, start)
-    else new JavaScriptDBCollection(mongo(name))
+    if (jsFunctionNames.contains(name)) {
+      super.get(name, start)
+    } else {
+      new JavaScriptDBCollection(db.getCollection(name))
+    }
   }
 
-  def getCollectionNames = arrayToNativeArray(mongo.getCollectionNames().toArray)
+  def getCollectionNames = arrayToNativeArray(db.getCollectionNames().toArray)
 
-  def collectionExists(name: String) = mongo.collectionExists(name)
+  def collectionExists(name: String) = db.collectionExists(name)
 
-  def authenticate(username: String,  password: String) = mongo.authenticate(username, password)
+  def authenticate(username: String,  password: String) = db.authenticate(username, password.toArray)
 
   def getStats = runCommand(new BasicDBObject("dbstats", true))
 
-  def getLastError = new JavaScriptCommandResult(mongo.getLastError())
+  def getLastError = Option(db.getLastError()) map { err => new JavaScriptCommandResult(err) } getOrElse null
 
   def runCommand(cmd: ScriptableObject): ScriptableObject = {
-    val dbo = scriptableToDBObject(cmd)
-    val result = mongo.command(dbo, 0)
+    val dbo = scriptableToDbObject(cmd)
+    val result = db.command(dbo, 0)
 
     new JavaScriptCommandResult(result)
   }
+  
+  def setWriteConcern(concern: ScriptableObject) {
+    def toInt(any: Any): Int = any match {
+      case i:Int => i
+      case d:Double => d.toInt
+      case s: String => s.toInt
+    }
 
+    if(concern == null) {
+      db.setWriteConcern(WriteConcern.NORMAL)
+    } else {
+      val w = Option(concern.get("w")).map(toInt) getOrElse 0
+      val wtimeout = Option(concern.get("wtimeout")).map(toInt) getOrElse 0
+      val fsync = Option(concern.get("fsync").asInstanceOf[Boolean]) getOrElse false
+      val j = Option(concern.get("j").asInstanceOf[Boolean]) getOrElse false
+
+      db.setWriteConcern(new WriteConcern(w, wtimeout, fsync, j))
+    }
+  }
 }
