@@ -59,19 +59,19 @@ object Dependencies {
 
   def scalatest = "org.scalatest" %% "scalatest" % "1.7.1" % "test" withSources()
 
-  def testng = "org.testng" % "testng" % "6.1.1" withSources()
+  def testng = "org.testng" % "testng" % "6.1.1" % "test" withSources()
 
   def sbt_testng_interface = "de.johoop" % "sbt-testng-interface" % "1.0.0" % "test"
 
 
 
-  def selenium = "org.seleniumhq.selenium" % "selenium-java" % "2.16.1" //% "test"
+  def selenium = "org.seleniumhq.selenium" % "selenium-java" % "2.16.1" % "provided"
 
   def servletApi = "org.mortbay.jetty" % "servlet-api" % "2.5-20081211" % "provided"
 
   def jettyRuntime = "org.eclipse.jetty" % "jetty-webapp" % "7.0.2.v20100331" % "container" withSources()
 
-  def jetty = "org.eclipse.jetty" % "jetty-webapp" % "7.0.2.v20100331" withSources()
+  def jetty = "org.eclipse.jetty" % "jetty-webapp" % "7.0.2.v20100331" % "provided" withSources()
 
   def rhino = "org.mozilla" % "rhino" % "1.7R3" withSources()
 
