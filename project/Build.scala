@@ -46,14 +46,11 @@ http://www.eclipse.org/legal/epl-v10.html
 
 object Dependencies {
 
-  //val specs2 = "org.specs2" %% "specs2" % "1.6.1" % "test" withSources()
-
   def scalatest = "org.scalatest" %% "scalatest" % "1.7.1" % "test" withSources()
 
   def testng = "org.testng" % "testng" % "6.1.1" % "test" withSources()
 
   def sbt_testng_interface = "de.johoop" % "sbt-testng-interface" % "1.0.0" % "test"
-
 
 
   def selenium = "org.seleniumhq.selenium" % "selenium-java" % "2.16.1" % "provided"
@@ -75,8 +72,6 @@ object Dependencies {
   def logback_classic = "ch.qos.logback" % "logback-classic" % "0.9.24"
 
   def logback_core = "ch.qos.logback" % "logback-core" % "0.9.24"
-
-  //def slf4s = "com.weiglewilczek.slf4s" %% "slf4s" % "1.0.2" withSources
 
   //def slf4jLog4j(scope: String) = "org.slf4j" % "slf4j-log4j12" % "1.6.1" % scope
 
@@ -117,7 +112,6 @@ object LeonBuild extends Build {
     "Apache Snapshots" at "https://repository.apache.org/content/repositories/snapshots")
 
   val coreDeps = Seq(
-    //specs2,
     testng,
     scalatest,
     sbt_testng_interface,
@@ -172,6 +166,8 @@ object LeonBuild extends Build {
   // Examples
   // ------------------------------------------------------
 
+  /*
+
   lazy val samplesAjaxReverserJavaJs = Project(
     "samplesAjaxReverserJavaJs",
     file("leon-samples/ajax/reverser/java_js"),
@@ -200,6 +196,7 @@ object LeonBuild extends Build {
     settings = buildSettings ++ webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(leon_core)
+  */
 
   /*
   lazy val samplesMixed = Project(
