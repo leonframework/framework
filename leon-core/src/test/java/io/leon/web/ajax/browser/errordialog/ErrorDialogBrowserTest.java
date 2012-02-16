@@ -10,37 +10,37 @@ import org.testng.annotations.Test;
 @Test(groups = "nodefault")
 public class ErrorDialogBrowserTest {
 
-    private static LeonBrowserTester LEON;
+    private LeonBrowserTester leon;
 
     @BeforeClass
     public void beforeClass() throws Exception {
-        LEON = new LeonBrowserTester(Config.class);
-        LEON.start();
+        leon = new LeonBrowserTester(Config.class);
+        leon.start();
     }
 
     @AfterClass
     public void afterClass() throws Exception {
-        LEON.stop();
+        leon.stop();
     }
 
     public void testWithoutError() throws InterruptedException {
-        LEON.openPage(Config.class.getPackage().getName().replace('.', '/') + "/index.html");
+        leon.openPage(Config.class.getPackage().getName().replace('.', '/') + "/index.html");
 
-        AjaxCallsMark mark = LEON.createAjaxCallsMark();
-        LEON.findElementById("withoutError").click();
+        AjaxCallsMark mark = leon.createAjaxCallsMark();
+        leon.findElementById("withoutError").click();
         mark.waitForCalls(1);
-        Assert.assertEquals("throwError==false", LEON.findElementById("result").getText());
+        Assert.assertEquals("throwError==false", leon.findElementById("result").getText());
     }
 
     public void testWithError() throws InterruptedException {
-        LEON.openPage(Config.class.getPackage().getName().replace('.', '/') + "/index.html");
+        leon.openPage(Config.class.getPackage().getName().replace('.', '/') + "/index.html");
 
-        AjaxCallsMark mark = LEON.createAjaxCallsMark();
-        LEON.findElementById("withError").click();
+        AjaxCallsMark mark = leon.createAjaxCallsMark();
+        leon.findElementById("withError").click();
         mark.waitForCalls(1);
 
         // TODO improve test
-        Assert.assertEquals("", LEON.findElementById("result").getText());
+        Assert.assertEquals("", leon.findElementById("result").getText());
     }
 
 }
