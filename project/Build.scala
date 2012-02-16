@@ -1,4 +1,5 @@
 import sbt._
+import sbt.Project.Initialize
 import Keys._
 import com.github.siasia._
 import com.banno.license.Plugin._
@@ -7,8 +8,9 @@ import WebPlugin._
 
 object BuildSettings {
   val buildOrganization = "io.leon"
-  val buildVersion      = "0.2.0"
+  val buildVersion      = "0.2.0-SNAPSHOT"
   val buildScalaVersion = "2.9.1"
+  val buildDescription  = "JVM web framework for building data-driven web applications"
 
   val licenseText =
 """Copyright (c) 2011 WeigleWilczek and others.
@@ -25,10 +27,13 @@ http://www.eclipse.org/legal/epl-v10.html
     Seq(scalacOptions ++= Seq("-unchecked", "-Xfatal-warnings", "-deprecation")) ++
     Seq(
       organization := buildOrganization,
+      description  := buildDescription,
       version      := buildVersion,
       scalaVersion := buildScalaVersion,
       license      := licenseText,
-
+      licenses     := Seq("Eclipse Public License - v 1.0" -> url("http://www.eclipse.org/legal/epl-v10.html")),
+      homepage     := Some(url("http://leon.io")),
+      crossPaths   := false,
       // workaround for sbt issue #206 (remove 'watchTransitiveSources' when sbt 0.11.1 is released)
       // https://github.com/harrah/xsbt/issues/206
       watchTransitiveSources <<=
@@ -38,11 +43,62 @@ http://www.eclipse.org/legal/epl-v10.html
         }
     )
 
+  def leonArtifactName =
+    (config: String, module: ModuleID, artifact: Artifact) =>
+        module.name + "-" + module.revision + "." + artifact.extension
+
+}
+
+object Publish {
+
+  val developers =
+    ("blank", "Daniela Blank") ::
+    ("blankenhorn", "Jan Blankenhorn") ::
+    ("burgmer", "Philipp Burgmer") ::
+    ("hohenbichler", "Johannes Hohenbichler") ::
+    ("mricog", "Marco Rico Gomez") ::
+    ("romanroe", "Roman Roelofsen") ::
+    ("thurow", "Alexander Thurow") :: Nil
+
   val publishSettings = Seq(
-    publishTo := Some(Resolver.file("Local Test Repository", Path fileProperty "java.io.tmpdir" asFile))
-    //,
-    //credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
+    pomExtra := leonPomExtra,
+    pomIncludeRepository := { _ => false }, // omit <repositories/> section.
+    organizationName := "Leon Framework",
+    organizationHomepage := Some(url("http://leon.io")),
+    publishTo <<= sonatype,
+    // publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository"))),
+    publishMavenStyle := true,
+    publishArtifact in Test := false,
+    credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
   )
+
+  def leonPomExtra = {
+    <inceptionYear>2011</inceptionYear>
+    <scm>
+      <url>git@github.com:leonframework/framework.git</url>
+      <connection>scm:git:git@github.com:leonframework/framework.git</connection>
+    </scm>
+    <developers>
+      {
+        developers sortBy { _._1 } map { case (id, name) =>
+          <developer>
+            <id>{ id }</id>
+            <name>{ name }</name>
+          </developer>
+        }
+      }
+    </developers>
+  }
+
+  def sonatype: Initialize[Option[Resolver]] = {
+    (version) { version: String =>
+      val nexus = "https://oss.sonatype.org/"
+        if (version.trim.endsWith("SNAPSHOT"))
+          Some("snapshots" at nexus + "content/repositories/snapshots")
+        else
+          Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+    }
+  }
 }
 
 object Dependencies {
@@ -102,6 +158,7 @@ object Dependencies {
 
 object LeonBuild extends Build {
   import BuildSettings._
+  import Publish._
   import Dependencies._
 
   resolvers ++= Seq(
