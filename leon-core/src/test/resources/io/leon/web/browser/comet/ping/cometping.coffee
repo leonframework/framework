@@ -6,5 +6,5 @@
     if data.number
         $("#result").prepend(data.number + "<br/>")
     else if data.done
-        $("#isDone").prepend("true")
+        $("#isDone").text("true")
 
