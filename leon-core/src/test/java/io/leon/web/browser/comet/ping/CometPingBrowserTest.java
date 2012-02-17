@@ -25,34 +25,12 @@ public class CometPingBrowserTest {
     public void testPingService() throws InterruptedException {
         leon.openPage(getClass(), "/");
 
-        CometCallsMark mark = leon.createCometCallsMark();
         leon.findElementById("sendPing").click();
-        mark.waitForCalls(10);
+
+        leon.waitForExpectedValue("isDone", "true", 5);
 
         String pingResult = leon.findElementById("result").getText().replace("\n", "");
         Assert.assertEquals(pingResult, "10987654321");
-    }
-
-    public void testSimultaneousPingServiceRequests() throws InterruptedException {
-        leon.openPage(getClass(), "/");
-
-        CometCallsMark mark = leon.createCometCallsMark();
-        leon.findElementById("sendPing").click();
-        leon.findElementById("sendPing").click();
-        leon.findElementById("sendPing").click();
-        mark.waitForCalls(30);
-
-        String pingResult = leon.findElementById("result").getText().replace("\n", "");
-        Assert.assertTrue(pingResult.matches(".*10.*10.*10.*"));
-        Assert.assertTrue(pingResult.matches(".*9.*9.*9.*"));
-        Assert.assertTrue(pingResult.matches(".*8.*8.*8.*"));
-        Assert.assertTrue(pingResult.matches(".*7.*7.*7.*"));
-        Assert.assertTrue(pingResult.matches(".*6.*6.*6.*"));
-        Assert.assertTrue(pingResult.matches(".*5.*5.*5.*"));
-        Assert.assertTrue(pingResult.matches(".*4.*4.*4.*"));
-        Assert.assertTrue(pingResult.matches(".*3.*3.*3.*"));
-        Assert.assertTrue(pingResult.matches(".*2.*2.*2.*"));
-        Assert.assertTrue(pingResult.matches(".*1.*1.*1.*"));
     }
 
 }
