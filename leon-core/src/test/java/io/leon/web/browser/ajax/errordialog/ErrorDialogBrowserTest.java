@@ -1,4 +1,4 @@
-package io.leon.web.ajax.browser.errordialog;
+package io.leon.web.browser.ajax.errordialog;
 
 import io.leon.tests.browser.AjaxCallsMark;
 import io.leon.tests.browser.LeonBrowserTester;
@@ -14,7 +14,7 @@ public class ErrorDialogBrowserTest {
 
     @BeforeClass
     public void beforeClass() throws Exception {
-        leon = new LeonBrowserTester(Config.class);
+        leon = new LeonBrowserTester(ErrorDialogModule.class);
         leon.start();
     }
 
@@ -24,7 +24,7 @@ public class ErrorDialogBrowserTest {
     }
 
     public void testWithoutError() throws InterruptedException {
-        leon.openPage(Config.class.getPackage().getName().replace('.', '/') + "/index.html");
+        leon.openPage(getClass(), "index.html");
 
         AjaxCallsMark mark = leon.createAjaxCallsMark();
         leon.findElementById("withoutError").click();
@@ -33,7 +33,7 @@ public class ErrorDialogBrowserTest {
     }
 
     public void testWithError() throws InterruptedException {
-        leon.openPage(Config.class.getPackage().getName().replace('.', '/') + "/index.html");
+        leon.openPage(getClass(), "index.html");
 
         AjaxCallsMark mark = leon.createAjaxCallsMark();
         leon.findElementById("withError").click();

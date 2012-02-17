@@ -1,6 +1,7 @@
 <html xmlns:ng="http://angularjs.org">
+
 <head>
-    <title>Comet Ping example</title>
+    <title>Ajax Test</title>
     <script src="/leon/leon.js?env=desktop" type="text/javascript"></script>
     <script src="browser.js" type="text/javascript"></script>
     <script type="text/javascript">
@@ -11,8 +12,9 @@
 </head>
 
 <body ng:controller="AjaxServiceCtrl">
-<a id="withoutError" href="#" ng:click="withoutError()">Without error</a> <br/>
-<a id="withError" href="#" ng:click="withError()">With error</a> <br/>
-<span id="result">{{result}}</span>
+    <a id="method1" href="#" ng:click="method1()">method1</a> <br/>
+
+    <span id="result">{{result}}</span>
 </body>
+
 </html>

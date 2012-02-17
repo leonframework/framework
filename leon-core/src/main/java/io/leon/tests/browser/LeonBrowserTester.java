@@ -80,6 +80,10 @@ public class LeonBrowserTester {
         return webDriver;
     }
 
+    public void openPage(Class<?> basePackage, String name) {
+        openPage(basePackage.getPackage().getName().replace('.', '/') + "/" + name);
+    }
+
     public void openPage(String url) {
         // Possible Selenium bug: Opening e.g. http://localhost:8080// causes a RuntimeException
         String _url = url.equals("/") ? "" : url;

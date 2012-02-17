@@ -15,33 +15,47 @@ var leon = (function() {
             return ajaxCallsCount;
         },
 
-        call: function(target, args, callback) {
+        service: function(url) {
+            return {
+                call: function() {
+                    // convert arguments to array
+                    var args = Array.prototype.slice.call(arguments);
+                    var methodName = args[0];
 
-            var params = {
-                pageId: this.pageId,
-                target: target,
-                argsSize: args.length,
-                dataType: "json"
-            };
+                    // check if last argument is a callback function
+                    var params = [];
+                    var callback = args[args.length - 1];
+                    if (typeof callback === 'function') {
+                        params = args.slice(1, args.length - 1);
+                    } else {
+                        params = args.slice(1, args.length);
+                        callback = function() {};
+                    }
 
-            for(var i = 0; i < args.length; i++) {
-                params["arg" + i] = JSON.stringify(args[i]);
-            }
+                    var request = {
+                        pageId: this.pageId,
+                        member: methodName,
+                        argsSize: params.length,
+                        dataType: "json"
+                    };
 
-            var handler = function(result) {
-                if (result.leonAjaxError) {
-                    console.log("Server-side error while executing AJAX call. Check the console for more information.");
-                    console.log(result);
-                } else {
-                    callback(result);
+                    for(var i = 0; i < params.length; i++) {
+                        request["arg" + i] = JSON.stringify(params[i]);
+                    }
+
+                    var handler = function(result) {
+                        if (result != null && result.leonAjaxError) {
+                            console.log("Server-side error while executing AJAX call. Check the console for more information.");
+                            console.log(result);
+                        } else {
+                            callback(result);
+                        }
+                        ajaxCallsCount = ajaxCallsCount + 1;
+                    }
+
+                    jQuery.post(url, request, handler);
                 }
-                ajaxCallsCount = ajaxCallsCount + 1;
-            }
-
-            jQuery.post(
-                leon.contextPath + "/leon/ajax",
-                params,
-                handler);
+            };
         },
 
         debug: function(msg) {
