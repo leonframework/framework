@@ -1,8 +1,10 @@
 package io.leon.web
 
-import org.specs2.mutable.Specification
+import org.testng.annotations.Test
+import org.scalatest.Assertions
+import org.testng.Assert
 
-class LeonFilterSpec extends Specification {
+class LeonFilterSpec extends Assertions {
 
   val JsConfig =
     """
@@ -30,16 +32,10 @@ class LeonFilterSpec extends Specification {
     }
     """
 
-
-  "A LeonFilter " should {
-
-    "load a module configuration from javascript" in {
-      val filter = new LeonFilter
-
-      filter.createAndLoadModuleClass(JsConfig)
-      success
-    }
-
+  @Test def aLeonFilterShouldLoadAModuleConfigurationFromJavaScript() {
+    val filter = new LeonFilter
+    val alc = filter.createAndLoadModuleClass(JsConfig)
+    Assert.assertNotNull(alc, "LeonFilter created module.")
   }
 
 }

@@ -33,15 +33,15 @@ http://www.eclipse.org/legal/epl-v10.html
       license      := licenseText,
       licenses     := Seq("Eclipse Public License - v 1.0" -> url("http://www.eclipse.org/legal/epl-v10.html")),
       homepage     := Some(url("http://leon.io")),
-      crossPaths   := false,
-      // workaround for sbt issue #206 (remove 'watchTransitiveSources' when sbt 0.11.1 is released)
-      // https://github.com/harrah/xsbt/issues/206
-      watchTransitiveSources <<=
-        Defaults.inDependencies[Task[Seq[File]]](
-          watchSources.task, const(std.TaskExtra.constant(Nil)), aggregate = true, includeRoot = true) apply {
-            _.join.map(_.flatten)
-        }
-    )
+      crossPaths   := false) ++      
+    (testFrameworks += new TestFramework("de.johoop.testng.TestNGFramework")) ++
+    (testOptions <+= (crossTarget, resourceDirectory in Test) map { (target, testResources) =>
+      Tests.Argument(
+        "-d",
+        (target / "testng").absolutePath,
+        (testResources / "testng.xml").absolutePath
+      )
+    })
 
   def leonArtifactName =
     (config: String, module: ModuleID, artifact: Artifact) =>
@@ -103,17 +103,20 @@ object Publish {
 
 object Dependencies {
 
-  val specs2 = "org.specs2" %% "specs2" % "1.6.1" % "test" withSources()
+  def scalatest = "org.scalatest" %% "scalatest" % "1.7.1" % "test" withSources()
 
-  def sbtJunitInterface = "com.novocode" % "junit-interface" % "0.8" % "test"
+  def testng = "org.testng" % "testng" % "6.1.1" % "test" withSources()
 
-  def selenium = "org.seleniumhq.selenium" % "selenium-java" % "2.16.1" //% "test"
+  def sbt_testng_interface = "de.johoop" % "sbt-testng-interface" % "1.0.0" % "test"
+
+
+  def selenium = "org.seleniumhq.selenium" % "selenium-java" % "2.16.1" % "provided"
 
   def servletApi = "org.mortbay.jetty" % "servlet-api" % "2.5-20081211" % "provided"
 
   def jettyRuntime = "org.eclipse.jetty" % "jetty-webapp" % "7.0.2.v20100331" % "container" withSources()
 
-  def jetty = "org.eclipse.jetty" % "jetty-webapp" % "7.0.2.v20100331" withSources()
+  def jetty = "org.eclipse.jetty" % "jetty-webapp" % "7.0.2.v20100331" % "provided" withSources()
 
   def rhino = "org.mozilla" % "rhino" % "1.7R3" withSources()
 
@@ -126,8 +129,6 @@ object Dependencies {
   def logback_classic = "ch.qos.logback" % "logback-classic" % "0.9.24"
 
   def logback_core = "ch.qos.logback" % "logback-core" % "0.9.24"
-
-  //def slf4s = "com.weiglewilczek.slf4s" %% "slf4s" % "1.0.2" withSources
 
   //def slf4jLog4j(scope: String) = "org.slf4j" % "slf4j-log4j12" % "1.6.1" % scope
 
@@ -163,16 +164,15 @@ object LeonBuild extends Build {
 
   resolvers ++= Seq(
     "Sonatype OSS Repo" at "http://oss.sonatype.org/content/repositories/releases",
-    "Scala Tools Releases Repo" at "http://scala-tools.org/repo-releases",
     "Official Maven2 Repo" at "http://repo2.maven.org/maven2",
     "Apache Release" at "https://repository.apache.org/content/repositories/releases",
-    "Apache Rawson (was required for HBase/Hadoop" at "http://people.apache.org/~rawson/repo/",
     "Apache Public" at "https://repository.apache.org/content/repositories/public",
     "Apache Snapshots" at "https://repository.apache.org/content/repositories/snapshots")
 
   val coreDeps = Seq(
-    specs2,
-    sbtJunitInterface,
+    testng,
+    scalatest,
+    sbt_testng_interface,
     jetty,
     selenium,
     logback_classic,
@@ -190,20 +190,18 @@ object LeonBuild extends Build {
     gson,
     h2database)
 
-  val samplesDeps = Seq(servletApi, jettyRuntime, jetty, sbtJunitInterface, selenium)
+  val samplesDeps = Seq(servletApi, jettyRuntime, jetty, selenium)
 
-
-  lazy val leon = Project(
+  lazy val leon: Project = Project(
     "leon",
     file("."),
-    settings = buildSettings
-    ) aggregate(
+    settings = buildSettings) aggregate(
       leon_core,
-      leon_hbase,
-      samplesAjaxReverserJavaJs,
-      samplesAjaxReverserJsJs,
-      samplesAjaxReverserWithPojoJavaJs,
-      samplesCometPingJavaCoffee
+      leon_hbase
+      //samplesAjaxReverserJavaJs,
+      //samplesAjaxReverserJsJs,
+      //samplesAjaxReverserWithPojoJavaJs,
+      //samplesCometPingJavaCoffee
       //samplesMixed,
       //samplesLeonJax,
       //samplesDeviceOrientation
@@ -212,22 +210,13 @@ object LeonBuild extends Build {
   lazy val leon_core = Project(
     "leon-core",
     file("leon-core"),
-    settings = buildSettings ++ publishSettings ++ Seq(libraryDependencies ++= coreDeps)
-  )
+    settings = buildSettings ++ publishSettings ++
+      Seq(libraryDependencies ++= coreDeps))
 
-  /*
   lazy val leon_hbase = Project(
     "leon-hbase",
     file("leon-hbase"),
     settings = buildSettings ++ publishSettings ++
-      Seq(libraryDependencies ++= (/* hadoop +: hbase +: */ coreDeps))
-  ) dependsOn(leon_core)
-  */
-
-  lazy val leon_hbase = Project(
-    "leon-hbase",
-    file("leon-hbase"),
-    settings = buildSettings ++ publishSettings ++ Seq(parallelExecution in Test := true ) ++
       Seq(libraryDependencies ++= (/* hadoop +: hbase +: */ coreDeps))
   ) dependsOn(leon_core)
 
@@ -235,19 +224,19 @@ object LeonBuild extends Build {
   // Examples
   // ------------------------------------------------------
 
+  /*
+
   lazy val samplesAjaxReverserJavaJs = Project(
     "samplesAjaxReverserJavaJs",
     file("leon-samples/ajax/reverser/java_js"),
-    settings = buildSettings ++
-      webSettings ++
+    settings = buildSettings ++ webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(leon_core)
 
   lazy val samplesAjaxReverserJsJs = Project(
     "samplesAjaxReverserJsJs",
     file("leon-samples/ajax/reverser/js_js"),
-    settings = buildSettings ++
-      webSettings ++
+    settings = buildSettings ++ webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(leon_core)
 
@@ -255,25 +244,23 @@ object LeonBuild extends Build {
   lazy val samplesAjaxReverserWithPojoJavaJs = Project(
     "samplesAjaxReverserWithPojoJavaJs",
     file("leon-samples/ajax/reverser-with-pojo/java_js"),
-    settings = buildSettings ++
-      webSettings ++
+    settings = buildSettings ++ webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(leon_core)
 
   lazy val samplesCometPingJavaCoffee = Project(
     "samplesCometPingJavaCoffee",
     file("leon-samples/comet/ping/java_coffee"),
-    settings = buildSettings ++
-      webSettings ++
+    settings = buildSettings ++ webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(leon_core)
+  */
 
   /*
   lazy val samplesMixed = Project(
     "leon-samples-mixed",
     file("leon-samples/leon-samples-mixed"),
-    settings = buildSettings ++
-      webSettings ++
+    settings = buildSettings ++ webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
     ) dependsOn(core)
   */
@@ -282,8 +269,7 @@ object LeonBuild extends Build {
   lazy val samplesLeonJax = Project(
     "leonjax",
     file("leon-samples/leonjax"),
-    settings = buildSettings ++
-      webSettings ++
+    settings = buildSettings ++ webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
     ) dependsOn(core)
   */
@@ -292,8 +278,7 @@ object LeonBuild extends Build {
   lazy val samplesDeviceOrientation = Project(
     "deviceorientation",
     file("leon-samples/deviceorientation"),
-    settings = buildSettings ++
-      webSettings ++
+    settings = buildSettings ++ webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(core)
   */

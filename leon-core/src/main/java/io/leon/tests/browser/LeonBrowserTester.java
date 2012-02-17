@@ -10,23 +10,15 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-
 public class LeonBrowserTester {
 
     private final Class<? extends AbstractLeonConfiguration> config;
-
-    private ServerSocket lockSocket;
 
     private Server server;
 
     private WebDriver webDriver;
 
     private int httpPort = 8090;
-
-    private int lockPort = 8091;
 
     public LeonBrowserTester(Class<? extends AbstractLeonConfiguration> config) {
         this.config = config;
@@ -40,41 +32,7 @@ public class LeonBrowserTester {
         this.httpPort = httpPort;
     }
 
-    public int getLockPort() {
-        return lockPort;
-    }
-
-    public void setLockPort(int lockPort) {
-        this.lockPort = lockPort;
-    }
-
     public void start() {
-        try {
-            lockSocket = new ServerSocket();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        int numberOfFails = 0;
-        while (!lockSocket.isBound()) {
-            try {
-                lockSocket.bind(new InetSocketAddress(lockPort));
-            } catch (Exception e) {
-                numberOfFails++;
-                if (numberOfFails >= 500) { // every 5 seconds
-                    numberOfFails = 0;
-                    System.out.println("Could not bind lock socket for test synchronisation ("
-                            + e.getClass().getName() + ":" + e.getMessage()
-                            + "). Waiting...");
-                }
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e1) {
-                    throw new RuntimeException(e1);
-                }
-            }
-        }
-
         Thread taskFirefox = new Thread(new Runnable() {
             public void run() {
                 webDriver = new FirefoxDriver();
@@ -116,7 +74,6 @@ public class LeonBrowserTester {
     public void stop() throws Exception {
         server.stop();
         webDriver.quit();
-        lockSocket.close();
     }
 
     public WebDriver getWebDriver() {
@@ -125,7 +82,7 @@ public class LeonBrowserTester {
 
     public void openPage(String url) {
         // Possible Selenium bug: Opening e.g. http://localhost:8080// causes a RuntimeException
-        String _url = url == "/" ? "" : url;
+        String _url = url.equals("/") ? "" : url;
         webDriver.get("http://localhost:" + httpPort + "/" + _url);
     }
 
