@@ -1,8 +1,6 @@
 package io.leon.web.browser.ajax.basic;
 
-import io.leon.tests.browser.AjaxCallsMark;
 import io.leon.tests.browser.LeonBrowserTester;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -25,10 +23,8 @@ public class AjaxTest {
 
     public void method1() throws InterruptedException {
         leon.openPage(getClass(), "index.html");
-        AjaxCallsMark mark = leon.createAjaxCallsMark();
         leon.findElementById("method1").click();
-        mark.waitForCalls(1);
-        Assert.assertEquals("method1", leon.findElementById("result").getText());
+        leon.waitForExpectedValue("result", "method1", 5);
     }
 
 }

@@ -5,8 +5,6 @@ leon.comet = (function() {
 
     var disconnectTimer; // force a disconnect
 
-    var cometCallsCount = 0;
-
     var http;
     var prevDataLength = 0;
     var nextLine = 0;
@@ -34,12 +32,7 @@ leon.comet = (function() {
         },
 
         handleEvent: function(topicId, data) {
-            cometCallsCount = cometCallsCount + 1;
             handlerFns[topicId](data);
-        },
-
-        getCometCallsCount: function() {
-            return cometCallsCount;
         },
 
         handleResponse: function() {

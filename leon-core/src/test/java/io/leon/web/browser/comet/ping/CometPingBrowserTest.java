@@ -1,6 +1,5 @@
 package io.leon.web.browser.comet.ping;
 
-import io.leon.tests.browser.CometCallsMark;
 import io.leon.tests.browser.LeonBrowserTester;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;

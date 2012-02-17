@@ -5,15 +5,9 @@ jQuery.fn.toObject = function() {
 
 var leon = (function() {
 
-    var ajaxCallsCount = 0;
-
     return {
 
         deploymentMode: "development",
-
-        getAjaxCallsCount: function() {
-            return ajaxCallsCount;
-        },
 
         service: function(url) {
             return {
@@ -50,7 +44,6 @@ var leon = (function() {
                         } else {
                             callback(result);
                         }
-                        ajaxCallsCount = ajaxCallsCount + 1;
                     }
 
                     jQuery.post(url, request, handler);

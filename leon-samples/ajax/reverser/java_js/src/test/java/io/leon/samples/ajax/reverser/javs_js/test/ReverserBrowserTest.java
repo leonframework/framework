@@ -1,7 +1,6 @@
 package io.leon.samples.ajax.reverser.javs_js.test;
 
 import io.leon.samples.ajax.reverser.java_js.Config;
-import io.leon.tests.browser.AjaxCallsMark;
 import io.leon.tests.browser.LeonBrowserTester;
 import org.junit.AfterClass;
 import org.junit.Assert;
