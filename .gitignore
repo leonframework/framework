@@ -7,6 +7,9 @@ test/project/plugins/project
 local_glassfish.properties
 .history
 
+# TestNG
+test-output
+
 # Maven
 target
 

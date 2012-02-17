@@ -1,0 +1,28 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="leon" verbose="2" parallel="tests">
+
+    <test name="tests_that_require_jetty_server" parallel="false">
+        <packages>
+            <package name="io.leon.web.ajax.browser.errordialog.*"/>
+        </packages>
+    </test>
+
+    <test name="mongodb-tests" parallel="false">
+        <packages>
+            <package name="io.leon.persistence.mongo.*"/>
+        </packages>
+    </test>
+
+    <test name="normal_tests" parallel="true">
+        <groups>
+            <run>
+                <exclude name="nodefault"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="io.leon.*"/>
+        </packages>
+    </test>
+
+</suite>

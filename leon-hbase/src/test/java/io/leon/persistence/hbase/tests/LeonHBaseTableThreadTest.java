@@ -6,17 +6,16 @@ import com.google.inject.Injector;
 import io.leon.persistence.hbase.HBaseBinder;
 import io.leon.persistence.hbase.LeonHBaseFeatureModule;
 import io.leon.unitofwork.NoActiveUnitOfWorkException;
-import io.leon.unitofwork.UOWModule;
 import io.leon.unitofwork.UOWManager;
+import io.leon.unitofwork.UOWModule;
 import org.apache.hadoop.hbase.client.HTableInterface;
-import org.junit.Assert;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
+@Test
 public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
 
-    @Test
     public void testThreadSeperation() {
-        System.out.println("######################################### 1 start");
         final String personTableName = getRandomTableName("person");
 
         // Create a module for testing
@@ -34,7 +33,8 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
         manager.begin(this);
         HTableInterface person1 = getTable(i, personTableName).getHTableInterface();
         HTableInterface person2 = getTable(i, personTableName).getHTableInterface();
-        Assert.assertSame("A thread should only have one HTable instance.", person1, person2);
+        Assert.assertSame(person1, person2, "A thread should only have one HTable instance.");
+
         manager.commit();
 
         // Test behaviour with two threads
@@ -88,15 +88,11 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        Assert.assertNotSame("Two threads should have different HTable instances.", instances[0], instances[1]);
-
-        System.out.println("######################################### 1 ende");
+        Assert.assertNotSame(instances[0], instances[1], "Two threads should have different HTable instances.");
     }
 
-    @Test(expected = NoActiveUnitOfWorkException.class)
-    public synchronized void hbaseSupportCanNotBeUsedWithoutActiveUnitOfWork() throws InterruptedException {
-        System.out.println("######################################### 2 start");
-
+    @Test(expectedExceptions = NoActiveUnitOfWorkException.class)
+    public void hbaseSupportCanNotBeUsedWithoutActiveUnitOfWork() throws InterruptedException {
         final String personTableName = getRandomTableName("person");
 
         Injector i = null;
@@ -112,14 +108,10 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
             getTable(i, personTableName).getTableName();
         } finally {
             deleteTable(i, personTableName);
-            System.out.println("######################################### 2 ende");
         }
     }
 
-    @Test
-    public synchronized void hbaseSupportCanNotBeUsedAfterActiveUnitOfWorkCommit() throws InterruptedException {
-        System.out.println("######################################### 3 start");
-
+    public void hbaseSupportCanNotBeUsedAfterActiveUnitOfWorkCommit() throws InterruptedException {
         final String personTableName = getRandomTableName("person");
 
         // Create a module for testing
@@ -142,8 +134,7 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
         } catch (NoActiveUnitOfWorkException e) {
             gotException = true;
         }
-        Assert.assertTrue("Usage without UOW must throw an NoActiveUnitOfWorkException.", gotException);
-        System.out.println("######################################### 3 ende");
+        Assert.assertTrue(gotException, "Usage without UOW must throw an NoActiveUnitOfWorkException.");
     }
 
 
