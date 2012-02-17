@@ -66,7 +66,7 @@ object Publish {
     organizationName := "Leon Framework",
     organizationHomepage := Some(url("http://leon.io")),
     publishTo <<= sonatype,
-    // publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository"))),
+//    publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository"))),
     publishMavenStyle := true,
     publishArtifact in Test := false,
     credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
