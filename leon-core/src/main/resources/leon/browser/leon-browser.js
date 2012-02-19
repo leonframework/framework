@@ -9,20 +9,18 @@ var leon = (function() {
 
         deploymentMode: "development",
 
-        service: function(url) {
+        service: function(url, methodName) {
             return {
                 call: function() {
-                    // convert arguments to array
                     var args = Array.prototype.slice.call(arguments);
-                    var methodName = args[0];
 
                     // check if last argument is a callback function
                     var params = [];
                     var callback = args[args.length - 1];
                     if (typeof callback === 'function') {
-                        params = args.slice(1, args.length - 1);
+                        params = args.slice(0, args.length - 1);
                     } else {
-                        params = args.slice(1, args.length);
+                        params = args.slice(0, args.length);
                         callback = function() {};
                     }
 
@@ -56,11 +54,6 @@ var leon = (function() {
                 console.log(msg);
             }
         },
-
-        // TODO delete
-        //alert: function(source, msg) {
-        //    alert(source + ": " + msg);
-        //},
 
         displayMessageBox: function(div) {
             alert("foobar");

@@ -4,7 +4,7 @@ function AjaxServiceCtrl() {
     this.result = "";
 
     this.method1 = function() {
-        leon.service("/ajaxService").call("method1", function(result) {
+        leon.service("/ajaxService", "method1").call(function(result) {
             self.result = result;
             self.$service('$updateView')();
         });

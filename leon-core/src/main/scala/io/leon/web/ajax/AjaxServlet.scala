@@ -39,7 +39,7 @@ class AjaxServlet(ajaxHandler: AjaxHandler) extends HttpServlet {
       out.close()
     } catch {
       case e: Exception => {
-        logger.warn("Error while handling AJAX request. Target: " + ajaxHandler)
+        logger.error("Error while handling AJAX request. Target: " + ajaxHandler, e)
 
         val errorResult = new java.util.HashMap[String, Any]()
         errorResult.put("leonAjaxError", true)
