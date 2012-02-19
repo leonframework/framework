@@ -14,6 +14,8 @@ import javascript.LeonJavaScriptModule
 import resourceloading.ResourceLoadingModule
 import resources.coffeescript.CoffeeScriptModule
 import resources.soy.SoyTemplatesModule
+import web.angular.AngularModule
+import web.cockpit.CockpitModule
 import web.htmltagsprocessor.HtmlTagsProcessorModule
 import resources.less.LessModule
 import unitofwork.UOWModule
@@ -27,6 +29,7 @@ class LeonDefaultWebAppGroupingModule extends AbstractModule {
   def configure() {
     install(new UOWModule)
     install(new ResourceLoadingModule(true)) // TODO true/false depends on deployment mode
+    install(new AngularModule)
     install(new HtmlTagsProcessorModule)
     install(new GsonModule)
     install(new LeonJavaScriptModule)
@@ -36,6 +39,7 @@ class LeonDefaultWebAppGroupingModule extends AbstractModule {
     install(new CoffeeScriptModule)
     install(new LessModule)
     install(new SoyTemplatesModule)
+    install(new CockpitModule)
     //install(new FreeMarkerModule)
 
 
