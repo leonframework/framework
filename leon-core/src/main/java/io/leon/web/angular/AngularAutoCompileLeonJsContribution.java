@@ -11,7 +11,9 @@ public class AngularAutoCompileLeonJsContribution implements VirtualLeonJsFileCo
         if ("false".equals(params.get("angularAutoCompile"))) {
             return "";
         } else {
-            return "angular.element(document).ready(function(){angular.compile(document)();});";
+            return "angular.element(document).ready(function(){" +
+                    "leon.angularDocument = angular.compile(document)();" +
+                    "});";
         }
     }
 

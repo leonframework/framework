@@ -13,6 +13,7 @@ import com.google.inject.{TypeLiteral, Injector, Inject}
 import io.leon.resourceloading.{ResourceUtils, ResourceLoader}
 import java.io.{Writer, BufferedWriter}
 import org.slf4j.LoggerFactory
+import io.leon.guice.GuiceUtils
 
 class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) extends HttpServlet {
 
@@ -65,7 +66,7 @@ class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) ex
     }).asJava
 
     // dynamic content
-    val contributions = injector.findBindingsByType(new TypeLiteral[VirtualLeonJsFileContribution]() {})
+    val contributions = GuiceUtils.getAllBindingsForType(injector, classOf[VirtualLeonJsFileContribution])
     contributions.asScala foreach { binding =>
       try {
         val content = binding.getProvider.get().content(requestMap)

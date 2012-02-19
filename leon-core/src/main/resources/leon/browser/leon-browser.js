@@ -41,6 +41,9 @@ var leon = (function() {
                             console.log(result);
                         } else {
                             callback(result);
+                            if (!(typeof leon.angularDocument === 'undefined')) {
+                                leon.angularDocument.$service("$updateView")();
+                            }
                         }
                     }
 
