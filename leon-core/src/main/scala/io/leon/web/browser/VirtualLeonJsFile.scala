@@ -12,8 +12,11 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import com.google.inject.{TypeLiteral, Injector, Inject}
 import io.leon.resourceloading.{ResourceUtils, ResourceLoader}
 import java.io.{Writer, BufferedWriter}
+import org.slf4j.LoggerFactory
 
 class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) extends HttpServlet {
+
+  private val logger = LoggerFactory.getLogger(getClass)
 
   private def writeResource(out: Writer, name: String) {
     loader.getResourceOption(name) foreach { r =>
@@ -55,11 +58,23 @@ class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) ex
       }
     }
 
+    // Convert request map from "String->Array[String]" to "String->String" by only
+    // using the first value in the array
+    val requestMap = (req.getParameterMap.asScala map { e =>
+      e._1.asInstanceOf[String] -> e._2.asInstanceOf[Array[String]](0)
+    }).asJava
+
     // dynamic content
     val contributions = injector.findBindingsByType(new TypeLiteral[VirtualLeonJsFileContribution]() {})
     contributions.asScala foreach { binding =>
-      val content = binding.getProvider.get().content()
-      out.write(content)
+      try {
+        val content = binding.getProvider.get().content(requestMap)
+        out.write(content + "\n")
+      } catch {
+        case e: Exception => {
+          logger.error("VirtualLeonJsFileContribution threw error: " + e)
+        }
+      }
     }
     out.close()
   }

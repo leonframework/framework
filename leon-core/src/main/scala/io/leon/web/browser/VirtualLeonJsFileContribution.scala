@@ -10,6 +10,6 @@ package io.leon.web.browser
 
 trait VirtualLeonJsFileContribution {
 
-  def content(): String
+  def content(params: java.util.Map[String, String]): String
 
 }

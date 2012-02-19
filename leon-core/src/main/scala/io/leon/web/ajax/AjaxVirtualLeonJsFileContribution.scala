@@ -16,7 +16,7 @@ import io.leon.guice.GuiceUtils
 
 class AjaxVirtualLeonJsFileContribution @Inject()(injector: Injector) extends VirtualLeonJsFileContribution {
 
-  def content() = {
+  def content(params: java.util.Map[String, String]) = {
     import scala.collection.JavaConverters._
     val buffer = new StringBuffer()
     val serverObjects = GuiceUtils.getAllBindingsForType(injector, classOf[AjaxHandler])
