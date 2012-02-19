@@ -197,7 +197,8 @@ object LeonBuild extends Build {
     file("."),
     settings = buildSettings) aggregate(
       leon_core,
-      leon_hbase
+      leon_hbase,
+      leon_dummyapp
       //samplesAjaxReverserJavaJs,
       //samplesAjaxReverserJsJs,
       //samplesAjaxReverserWithPojoJavaJs,
@@ -218,6 +219,13 @@ object LeonBuild extends Build {
     file("leon-hbase"),
     settings = buildSettings ++ publishSettings ++
       Seq(libraryDependencies ++= (/* hadoop +: hbase +: */ coreDeps))
+  ) dependsOn(leon_core)
+
+  lazy val leon_dummyapp = Project(
+    "leon-dummyapp",
+    file("leon-dummyapp"),
+    settings = buildSettings ++ webSettings ++
+      Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(leon_core)
 
   // ------------------------------------------------------
