@@ -25,22 +25,22 @@ public class ConfigReader {
     private static final Logger logger = LoggerFactory.getLogger(ConfigReader.class);
 
     /**
-     * Calls {readEnvironment(env)} with System.getEnv().
+     * Calls {@link ConfigReader#readEnvironment(java.util.Map)} with <code>System.getEnv()</code>.
      *
-     * @return the {ConfigMap}
+     * @return the {@link ConfigMap}
      */
     public ConfigMap readEnvironment() {
         return readEnvironment(System.getenv());
     }
 
     /**
-     * Creates a {ConfigMap} containing all system environment variables.
+     * Creates a {@link ConfigMap} containing all system environment variables.
      *
      * Variable names prefixed with 'LEON_' will be transformed to camel case
      * (e.g. LEON_APPLICATION_NAME becomes leon.applicationName).
      *
      * @param env the entries to read
-     * @return the {ConfigMap}
+     * @return the {@link ConfigMap}
      */
     public ConfigMap readEnvironment(Map<String, String> env) {
         ConfigMap configMap = new ConfigMap();
@@ -58,11 +58,11 @@ public class ConfigReader {
 
     /**
      * Loads the JVM arguments and the properties from the optional '/leon.properties' file into
-     * a {ConfigMap}.
+     * a {@link ConfigMap}.
      *
      * JVM arguments overrides properties from the leon.properties file.
      *
-     * @return the {ConfigMap}
+     * @return the {@link ConfigMap}
      */
     @SuppressWarnings("unchecked")
     public ConfigMap readProperties() {
@@ -97,9 +97,9 @@ public class ConfigReader {
     }
 
     /**
-     * Creates a {ConfigMap} with all init parameters in {filterConfig}
-     * @param filterConfig the {FilterConfig} to read the parameters from.
-     * @return {ConfigMap}
+     * Creates a {@link ConfigMap} with all init parameters in <code>filterConfig</code>
+     * @param filterConfig the FilterConfig to read the parameters from.
+     * @return {@link ConfigMap}
      */
     @SuppressWarnings("unchecked")
     public ConfigMap readFilterConfig(FilterConfig filterConfig) {
@@ -117,11 +117,11 @@ public class ConfigReader {
     }
 
     /**
-     * Creates a {ConfigMap} with all module configuration parameters.
+     * Creates a {@link ConfigMap} with all module configuration parameters.
      *
-     * @see {ConfigBinder}
-     * @param injector the {Injector} to look up for bindings.
-     * @return the {ConfigMap}
+     * @see ConfigBinder#configValue(String, String)
+     * @param injector the {@link Injector} to look up for bindings.
+     * @return the {@link ConfigMap}
      */
     public ConfigMap readModuleParameters(Injector injector) {
         ConfigMap configMap = new ConfigMap();

@@ -2,6 +2,31 @@ package io.leon.config;
 
 import java.util.*;
 
+/**
+ * The ConfigMap holds all configuration parameters of a LEON application.
+ *
+ * Parameters are read from the following places and priority:
+ * <ol>
+ *     <li>System environment</li>
+ *     <li>JVM Properties</li>
+ *     <li>/leon.properties file in classpath (optional)</li>
+ *     <li>LeonFilter init parameters in web.xml</li>
+ *     <li>Module configuration parameters</li>
+ * </ol>
+ *
+ * To get a reference of the {@link ConfigMap} use one of the following ways:
+ * <ul>
+ *     <li>Let it inject (preferred way)</li>
+ *     <li>call <code>ConfigMapHolder.getInstance().getConfigMap()</code></li>
+ * </ul>
+ *
+ * To bind your own configuration parameters in a module use {@link ConfigBinder}:
+ * <code><pre>
+ * ConfigBinder configBinder = new ConfigBinder(binder());
+ * configBinder.configValue("yourConfigKey", "yourConfigValue");
+ * </pre></code>
+ *
+ */
 public class ConfigMap extends Hashtable<String, String> {
 
     public static final String APPLICATION_NAME_KEY = "leon.applicationName";
@@ -19,8 +44,8 @@ public class ConfigMap extends Hashtable<String, String> {
     }
 
     /**
-     * Imports entries from the given {configMap} without overriding existing entries.
-     * @param configMap the {ConfigMap} to import.
+     * Imports entries from the given <code>configMap</code> without overriding existing entries.
+     * @param configMap the {@link ConfigMap} to import.
      */
     public void importConfigMap(ConfigMap configMap) {
         for (Map.Entry<String, String> entry : configMap.entrySet()) {

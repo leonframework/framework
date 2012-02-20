@@ -13,7 +13,7 @@ public class ConfigBinder {
     }
 
     /**
-     * Bind a configuration parameter to the {ConfigMap}.
+     * Bind a configuration parameter to the {@link ConfigMap}.
      *
      * @param key the key
      * @param value the value

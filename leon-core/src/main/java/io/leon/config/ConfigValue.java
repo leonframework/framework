@@ -3,7 +3,7 @@ package io.leon.config;
 /**
  * Value object to hold a configuration parameter.
  *
- * @see {ConfigBinder}
+ * @see ConfigBinder#configValue(String, String)
  */
 public class ConfigValue {
 

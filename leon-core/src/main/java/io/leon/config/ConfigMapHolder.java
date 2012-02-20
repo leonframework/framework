@@ -1,9 +1,9 @@
 package io.leon.config;
 
 /**
- * A singleton which holds an instance of {ConfigMap}.
+ * A singleton which holds an instance of {@link ConfigMap}.
  *
- * The {ConfigMap} gets bound to Guice during application startup.
+ * The {@link ConfigMap} gets bound to Guice during application startup.
  */
 public class ConfigMapHolder {
 
