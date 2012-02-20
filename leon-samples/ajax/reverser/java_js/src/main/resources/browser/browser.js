@@ -7,9 +7,8 @@ function ReverserServiceCtrl() {
     this.toUpperCase = false;
 
     this.reverse = function() {
-        server.reverserService("reverse")(this.text, this.toUpperCase, function(result) {
+        leon.service("/reverserService", "reverse").call(this.text, this.toUpperCase, function(result) {
             self.reversed = result;
-            self.$service('$updateView')();
         });
     }
 }

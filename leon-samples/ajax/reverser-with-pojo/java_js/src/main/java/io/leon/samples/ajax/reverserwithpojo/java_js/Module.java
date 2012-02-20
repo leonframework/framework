@@ -1,12 +1,14 @@
 package io.leon.samples.ajax.reverserwithpojo.java_js;
 
 import io.leon.AbstractLeonConfiguration;
+import io.leon.web.ajax.AjaxBinder;
 
 public class Module extends AbstractLeonConfiguration {
 
     @Override
     public void config() {
-        browser("reverserService").linksToServer(ReverserService.class);
+        AjaxBinder ajaxBinder = new AjaxBinder(super.binder());
+        ajaxBinder.exposeJavaService("/reverserService", ReverserService.class);
     }
 
 }

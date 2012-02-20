@@ -1,11 +1,12 @@
 package io.leon.samples.ajax.reverser.javs_js.test;
 
 import com.google.inject.Injector;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
+@Test
 public class ReverserServiceTest {
 
     private static Injector INJECTOR;
@@ -27,12 +28,10 @@ public class ReverserServiceTest {
     public static void destroy() throws Exception {
     }
 
-    @Test
     public void testReverseText() throws InterruptedException {
         Assert.assertEquals("a", "a");
     }
 
-    @Test
     public void testReverseTextUppercase() throws InterruptedException {
     }
 
