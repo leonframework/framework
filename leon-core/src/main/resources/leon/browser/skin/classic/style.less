@@ -1,4 +1,13 @@
 
+// links
+@color1: #0e4592;
+
+// input borders
+@color2: #f1b23a;
+
+// input background on focus
+@color3: #FDFFBB;
+
 html {
 	height: 100%;
 }
@@ -14,7 +23,7 @@ body {
 
 a {
     text-decoration: none;
-    color: #0e4592;
+    color: @color1;
     background-color: transparent;
 }
 
@@ -23,7 +32,7 @@ a:hover {
 }
 
 a:visited {
-    color: #0e4592;
+    color: @color1;
     background-color: transparent;
 }
 
@@ -34,7 +43,7 @@ img {
 hr {
     clear: both;
     height: 1px;
-    color: #f1b23a;
+    color: @color2;
     background-color: transparent;
 }
 
@@ -47,7 +56,7 @@ form {
 input {
     font: normal 100% Verdana, Helvetica, Arial, sans-serif;
     color: Black;
-    border: 1px solid #f1b23a;
+    border: 1px solid @color2;
     vertical-align: middle;
     margin-bottom: 1px; /* IE bug fix */
 }
@@ -55,19 +64,19 @@ input {
 textarea {
     font: normal 100% Verdana, Helvetica, Arial, sans-serif;
     color: Black;
-    border: 1px solid #f1b23a;
+    border: 1px solid @color2;
     margin-bottom: 1px; /* IE bug fix */
 }
 
 input:focus {
-    background: #F6F6FF;
+    background: @color3;
 }
 
 select {
     font: normal 100% Verdana, Helvetica, Arial, sans-serif;
     color: Black;
     vertical-align: middle;
-    border: 1px solid #f1b23a;
+    border: 1px solid @color2;
     margin-bottom: 1px;
 }
 
