@@ -1,20 +1,20 @@
 package io.leon.config;
 
 
-public class ConfigParameter {
+public class ConfigValue {
 
     private final String key;
-    private final Object value;
+    private final String value;
 
     public String getKey() {
         return key;
     }
 
-    public Object getValue() {
+    public String getValue() {
         return value;
     }
 
-    public ConfigParameter(String key, Object value) {
+    public ConfigValue(String key, String value) {
         this.key = key;
         this.value = value;
     }

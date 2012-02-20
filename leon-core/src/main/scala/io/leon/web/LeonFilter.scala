@@ -19,6 +19,7 @@ import java.io.InputStream
 import javax.servlet.{FilterChain, ServletResponse, ServletRequest, FilterConfig}
 import com.google.inject.{Inject, Injector, Guice}
 import io.leon.unitofwork.UOWManager
+import io.leon.config.ConfigMapBuilder
 
 class LeonFilter extends GuiceFilter {
 

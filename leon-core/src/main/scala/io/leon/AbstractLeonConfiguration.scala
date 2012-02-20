@@ -8,6 +8,7 @@
  */
 package io.leon
 
+import config.{ConfigMap, ConfigMapBuilder}
 import web.ajax.{JavaObjectAjaxHandlerProvider, AjaxHandler}
 import javascript.{LeonScriptEngine, JavaScriptAjaxHandlerProvider}
 import collection.mutable
@@ -15,11 +16,18 @@ import com.google.inject._
 import name.Names
 import servlet.ServletModule
 import java.io.File
+import web.LeonFilter
 import web.resources.WebResourcesBinder
+import javax.servlet.{ServletContext, ServletConfig}
 
 abstract class AbstractLeonConfiguration extends ServletModule {
 
   //private val logger = Logger.getLogger(getClass.getName)
+
+  val configMap: ConfigMap = new ConfigMapBuilder()
+    .readProperties()
+    .readEnvironment()
+    .create()
 
   val javaScriptFilesToLoad = mutable.ArrayBuffer[String]()
 
@@ -48,13 +56,17 @@ abstract class AbstractLeonConfiguration extends ServletModule {
     
     config()
 
+    bind(classOf[ConfigMap]).toInstance(configMap)
+
     val rb = new WebResourcesBinder(binder())
     exposedUrls foreach rb.exposeUrl
+
 
     requestInjection(new Object {
       @Inject def init(injector: Injector, engine: LeonScriptEngine) {
         // Loading JavaScript files
         engine.loadResources(javaScriptFilesToLoad.toList)
+
       }
     })
   }

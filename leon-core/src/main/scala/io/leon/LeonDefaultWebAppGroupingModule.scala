@@ -8,7 +8,6 @@
  */
 package io.leon
 
-import config.{ConfigParameter, LeonConfigModule}
 import gson.GsonModule
 import javascript.LeonJavaScriptModule
 import resourceloading.ResourceLoadingModule
@@ -21,13 +20,11 @@ import web.ajax.AjaxModule
 import web.browser.BrowserModule
 import web.comet.CometModule
 import web.resources.WebResourcesModule
-import javax.servlet.ServletContext
-import com.google.inject.{Inject, AbstractModule}
+import com.google.inject.AbstractModule
 
 class LeonDefaultWebAppGroupingModule extends AbstractModule {
 
   def configure() {
-    install(new LeonConfigModule);
     install(new UOWModule)
     install(new ResourceLoadingModule(true)) // TODO true/false depends on deployment mode
     install(new HtmlTagsProcessorModule)
@@ -40,19 +37,6 @@ class LeonDefaultWebAppGroupingModule extends AbstractModule {
     install(new LessModule)
     install(new SoyTemplatesModule)
     //install(new FreeMarkerModule)
-
-    binder().requestInjection(new {
-      @Inject
-      def initParameters(servletContext: ServletContext) {
-        import scala.collection.JavaConverters._
-        val parametersNames = servletContext.getInitParameterNames.asScala.asInstanceOf[Iterator[String]]
-        parametersNames foreach { paramName =>
-          val paramValue = servletContext.getInitParameter(paramName)
-          bind(classOf[ConfigParameter]).toInstance(new ConfigParameter(paramName, paramValue))
-        }
-      }
-
-    })
 
     // must be at the last position!
     install(new WebResourcesModule)
