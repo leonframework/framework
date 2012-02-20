@@ -1,7 +1,6 @@
 package io.leon.samples.cometping.java_js.test;
 
 import io.leon.samples.cometping.java_js.Config;
-import io.leon.tests.browser.CometCallsMark;
 import io.leon.tests.browser.LeonBrowserTester;
 import org.junit.AfterClass;
 import org.junit.Assert;

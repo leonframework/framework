@@ -36,18 +36,6 @@ var leon = (function() {
             return leon.inject(Packages.com.google.gson.Gson);
         },
 
-        getBrowserObject: function(name) {
-            var BrowserObject = Packages.io.leon.web.comet.BrowserObject;
-            var ref = this.inject(BrowserObject, name);
-            return function(methodName) {
-                return function() {
-                    var args = Array.prototype.slice.call(arguments);
-                    var json = leon.getGson().toJson(args);
-                    ref.jsonApply(methodName, json);
-                };
-            };
-        },
-
         publishMessage: function(topic, filter, data) {
             var cometRegistry = leon.inject(Packages.io.leon.web.comet.CometRegistry);
 

@@ -8,17 +8,15 @@
  */
 package io.leon
 
+
 import config.{ConfigMap, ConfigMapBuilder}
-import web.ajax.{JavaObjectAjaxHandlerProvider, AjaxHandler}
-import javascript.{LeonScriptEngine, JavaScriptAjaxHandlerProvider}
+import javascript.LeonScriptEngine
 import collection.mutable
 import com.google.inject._
-import name.Names
 import servlet.ServletModule
 import java.io.File
-import web.LeonFilter
 import web.resources.WebResourcesBinder
-import javax.servlet.{ServletContext, ServletConfig}
+
 
 abstract class AbstractLeonConfiguration extends ServletModule {
 
@@ -97,27 +95,6 @@ abstract class AbstractLeonConfiguration extends ServletModule {
   def loadFile(fileName: String) {
     javaScriptFilesToLoad.append(fileName)
   }
-
-  // --- Ajax/Comet DSL ---
-  
-  class BrowserServerLink(browserName: String) {
-    def linksToServer() {
-      linksToServer(browserName)
-    }
-    def linksToServer(serverName: String) {
-      bind(classOf[AjaxHandler]).annotatedWith(Names.named(browserName)).toProvider(
-        new JavaScriptAjaxHandlerProvider(serverName)).asEagerSingleton()
-    }
-    def linksToServer[T <: AnyRef](clazz: Class[T]) {
-      linksToServer(Key.get(clazz))
-    }
-    def linksToServer[T <: AnyRef](key: Key[T]) {
-      bind(classOf[AjaxHandler]).annotatedWith(Names.named(browserName)).toProvider(
-        new JavaObjectAjaxHandlerProvider(key)).asEagerSingleton()
-    }
-  }
-
-  def browser(browserName: String) = new BrowserServerLink(browserName)
 
   // --- Dependency injection ---
 

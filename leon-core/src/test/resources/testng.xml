@@ -4,7 +4,7 @@
 
     <test name="tests_that_require_jetty_server" parallel="false">
         <packages>
-            <package name="io.leon.web.ajax.browser.errordialog.*"/>
+            <package name="io.leon.web.browser.*"/>
         </packages>
     </test>
 

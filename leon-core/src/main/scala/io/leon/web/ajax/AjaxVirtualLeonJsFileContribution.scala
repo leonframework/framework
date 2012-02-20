@@ -12,13 +12,14 @@ import com.google.inject._
 import name.Named
 import io.leon.web.browser.VirtualLeonJsFileContribution
 import java.lang.StringBuffer
+import io.leon.guice.GuiceUtils
 
 class AjaxVirtualLeonJsFileContribution @Inject()(injector: Injector) extends VirtualLeonJsFileContribution {
 
-  def content() = {
+  def content(params: java.util.Map[String, String]) = {
     import scala.collection.JavaConverters._
     val buffer = new StringBuffer()
-    val serverObjects = injector.findBindingsByType(new TypeLiteral[AjaxHandler]() {})
+    val serverObjects = GuiceUtils.getAllBindingsForType(injector, classOf[AjaxHandler])
     serverObjects.asScala foreach { o =>
       val browserName = o.getKey.getAnnotation.asInstanceOf[Named].value()
       buffer.append(createJavaScriptFunctionDeclaration(browserName))

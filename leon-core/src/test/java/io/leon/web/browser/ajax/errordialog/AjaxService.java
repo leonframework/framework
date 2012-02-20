@@ -1,4 +1,4 @@
-package io.leon.web.ajax.browser.errordialog;
+package io.leon.web.browser.ajax.errordialog;
 
 
 public class AjaxService {

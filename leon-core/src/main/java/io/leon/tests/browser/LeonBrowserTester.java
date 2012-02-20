@@ -5,7 +5,6 @@ import io.leon.web.LeonFilter;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.*;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -80,20 +79,14 @@ public class LeonBrowserTester {
         return webDriver;
     }
 
+    public void openPage(Class<?> basePackage, String name) {
+        openPage(basePackage.getPackage().getName().replace('.', '/') + "/" + name);
+    }
+
     public void openPage(String url) {
         // Possible Selenium bug: Opening e.g. http://localhost:8080// causes a RuntimeException
         String _url = url.equals("/") ? "" : url;
         webDriver.get("http://localhost:" + httpPort + "/" + _url);
-    }
-
-    public int getAjaxCallsCount() {
-        JavascriptExecutor jse = (JavascriptExecutor) webDriver;
-        return Integer.parseInt(jse.executeScript("return leon.getAjaxCallsCount()").toString());
-    }
-
-    public int getCometCallsCount() {
-        JavascriptExecutor jse = (JavascriptExecutor) webDriver;
-        return Integer.parseInt(jse.executeScript("return leon.comet.getCometCallsCount()").toString());
     }
 
     public WebElement findElementById(String id) {
@@ -144,12 +137,23 @@ public class LeonBrowserTester {
         setOffForElement(findElementByName(name));
     }
 
-    public AjaxCallsMark createAjaxCallsMark() {
-        return new AjaxCallsMark(this);
+    public void waitForExpectedValue(String id, String expectedValue, int timeOutSeconds) {
+        long startTime = System.currentTimeMillis();
+        while (!findElementById(id).getText().equals(expectedValue)) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            if ((startTime + (timeOutSeconds * 1000)) < System.currentTimeMillis()) {
+                throw new RuntimeException("Timeout while waiting for the value ["
+                        + expectedValue
+                        + "] in element ["
+                        + id
+                        + "]");
+            }
+        }
     }
 
-    public CometCallsMark createCometCallsMark() {
-        return new CometCallsMark(this);
-    }
 
 }

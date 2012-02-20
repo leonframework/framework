@@ -8,17 +8,17 @@
  */
 package io.leon.web.comet
 
-import java.util.logging.Logger
 import org.atmosphere.cpr.{BroadcastFilter, Meteor}
 import org.atmosphere.util.XSSHtmlFilter
 import com.google.inject.Inject
 import javax.servlet.http.HttpServletRequest
 import java.lang.IllegalStateException
 import com.google.gson.Gson
+import org.slf4j.LoggerFactory
 
 class CometRegistry @Inject()(clients: Clients) {
 
-  private val logger = Logger.getLogger(getClass.getName)
+  private val logger = LoggerFactory.getLogger(getClass.getName)
 
   private val checkClientsInterval = 1 * 1000
 
@@ -77,9 +77,8 @@ class CometRegistry @Inject()(clients: Clients) {
 
     clients.getByClientId(clientId) match {
       case None => {
-        throw new IllegalStateException(
-          "Can not register client uplink because the client is unknown. In case you restarted the server, you need to refresh the browser page since the list of clients stored on the server is not (yet) persistent."
-        )
+        logger.debug(
+          "Can not register client uplink because the client is unknown. In case you restarted the server, you need to refresh the browser page since the list of clients stored on the server is not (yet) persistent.")
       }
       case Some(cc) => {
         logger.info("Client connection found. Updating existing ClientConnection with new meteor.")

@@ -6,10 +6,8 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.web.browser
+package io.leon.web.servletwhiteboard
 
-trait VirtualLeonJsFileContribution {
+import javax.servlet.Servlet
 
-  def content(params: java.util.Map[String, String]): String
-
-}
+class ServletBinding(val url: String, val servlet: Servlet)

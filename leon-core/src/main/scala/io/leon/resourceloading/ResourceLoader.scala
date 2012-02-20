@@ -36,12 +36,16 @@ class ResourceLoader @Inject()(injector: Injector,
   }
 
   def getResourceOption(fileName: String): Option[Resource] = {
+    logger.debug("Searching resource [{}]", fileName)
     for (processor <- resourceProcessorRegistry.processorsForFile(fileName)) {
       val fileNameForProcessor = resourceProcessorRegistry.replaceFileNameEndingForProcessor(processor, fileName)
 
       for (rl <- resourceLocations) {
-        val resourceOption = rl.getProvider.get().getResource(fileNameForProcessor)
+        val rlInstance = rl.getProvider.get()
+        logger.debug("Searching resource [{}] with [{}]", fileName, rl.getKey.getAnnotation)
+        val resourceOption = rlInstance.getResource(fileNameForProcessor)
         if (resourceOption.isDefined) {
+          logger.debug("Found resource [{}] with [{}]", fileName, rl.getKey.getAnnotation)
           val processed = resourceOption.map(processor.process)
           if (processor.isCachingRequested) {
             // TODO

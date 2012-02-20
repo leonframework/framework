@@ -15,6 +15,7 @@ class LeonJavaScriptModule extends PrivateModule {
   def configure() {
     bind(classOf[LeonScriptEngine]).asEagerSingleton()
     bind(classOf[JavaScriptWebBindings]).asEagerSingleton()
+
     expose(classOf[LeonScriptEngine])
   }
 

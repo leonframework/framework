@@ -5,43 +5,51 @@ jQuery.fn.toObject = function() {
 
 var leon = (function() {
 
-    var ajaxCallsCount = 0;
-
     return {
 
         deploymentMode: "development",
 
-        getAjaxCallsCount: function() {
-            return ajaxCallsCount;
-        },
+        service: function(url, methodName) {
+            return {
+                call: function() {
+                    var args = Array.prototype.slice.call(arguments);
 
-        call: function(target, args, callback) {
+                    // check if last argument is a callback function
+                    var params = [];
+                    var callback = args[args.length - 1];
+                    if (typeof callback === 'function') {
+                        params = args.slice(0, args.length - 1);
+                    } else {
+                        params = args.slice(0, args.length);
+                        callback = function() {};
+                    }
 
-            var params = {
-                pageId: this.pageId,
-                target: target,
-                argsSize: args.length,
-                dataType: "json"
-            };
+                    var request = {
+                        pageId: this.pageId,
+                        member: methodName,
+                        argsSize: params.length,
+                        dataType: "json"
+                    };
 
-            for(var i = 0; i < args.length; i++) {
-                params["arg" + i] = JSON.stringify(args[i]);
-            }
+                    for(var i = 0; i < params.length; i++) {
+                        request["arg" + i] = JSON.stringify(params[i]);
+                    }
 
-            var handler = function(result) {
-                if (result.leonAjaxError) {
-                    console.log("Server-side error while executing AJAX call. Check the console for more information.");
-                    console.log(result);
-                } else {
-                    callback(result);
+                    var handler = function(result) {
+                        if (result != null && result.leonAjaxError) {
+                            console.log("Server-side error while executing AJAX call. Check the console for more information.");
+                            console.log(result);
+                        } else {
+                            callback(result);
+                            if (!(typeof leon.angularDocument === 'undefined')) {
+                                leon.angularDocument.$service("$updateView")();
+                            }
+                        }
+                    }
+
+                    jQuery.post(url, request, handler);
                 }
-                ajaxCallsCount = ajaxCallsCount + 1;
-            }
-
-            jQuery.post(
-                leon.contextPath + "/leon/ajax",
-                params,
-                handler);
+            };
         },
 
         debug: function(msg) {
@@ -49,11 +57,6 @@ var leon = (function() {
                 console.log(msg);
             }
         },
-
-        // TODO delete
-        //alert: function(source, msg) {
-        //    alert(source + ": " + msg);
-        //},
 
         displayMessageBox: function(div) {
             alert("foobar");

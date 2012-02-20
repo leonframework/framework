@@ -12,12 +12,14 @@ import com.google.gson.Gson
 import org.slf4j.LoggerFactory
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import java.io.BufferedOutputStream
-import com.google.inject.{Key, Injector, Inject}
-import com.google.inject.name.Names
+import com.google.inject.Inject
 
-class AjaxCallServlet @Inject()(injector: Injector, gson: Gson) extends HttpServlet {
+class AjaxServlet(ajaxHandler: AjaxHandler) extends HttpServlet {
 
   private val logger = LoggerFactory.getLogger(getClass)
+
+  @Inject
+  private var gson: Gson = _
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
     res.setStatus(200)
@@ -25,27 +27,25 @@ class AjaxCallServlet @Inject()(injector: Injector, gson: Gson) extends HttpServ
     res.setCharacterEncoding("utf-8")
 
     val out = new BufferedOutputStream(res.getOutputStream)
-    val targetName = req.getParameter("target")
     try {
       val argsSize = req.getParameter("argsSize").toInt
       val args = (0 until argsSize) map {
         x => req.getParameter("arg" + x)
       }
-      val (obj, member) = targetName.splitAt(targetName.lastIndexOf('.'))
-
-      val handler = injector.getInstance(Key.get(classOf[AjaxHandler], Names.named(obj)))
-      val result = handler.jsonApply(member.substring(1), args)
-
+      val member = req.getParameter("member")
+      val result = ajaxHandler.jsonApply(member, args)
 
       out.write(result.getBytes("utf-8"))
       out.close()
     } catch {
       case e: Exception => {
-        logger.warn("Error while handling AJAX request. Target: " + targetName)
+        logger.error("Error while handling AJAX request. Target: " + ajaxHandler, e)
 
         val errorResult = new java.util.HashMap[String, Any]()
         errorResult.put("leonAjaxError", true)
-        errorResult.put("errorClass", e.getCause.getClass.getName)
+
+        val cause = e.getCause
+        errorResult.put("errorClass", if (cause != null) { cause.getClass.getName } else {"no root exception"})
         errorResult.put("errorMessage", e.getMessage)
         errorResult.put("errorStackTrace", e.getStackTrace)
         val errorString = gson.toJson(errorResult)
