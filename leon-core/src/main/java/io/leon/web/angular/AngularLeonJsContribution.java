@@ -12,6 +12,10 @@ public class AngularLeonJsContribution implements VirtualLeonJsFileContribution 
 
     private final ResourceLoader resourceLoader;
 
+    private final String angularJsPath = "/"
+            + getClass().getPackage().getName().replace('.', '/')
+            + "/angular-0.9.19.js";
+
     @Inject
     public AngularLeonJsContribution(ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
@@ -22,7 +26,7 @@ public class AngularLeonJsContribution implements VirtualLeonJsFileContribution 
         StringBuilder content = new StringBuilder();
 
         if (!("false".equals(params.get("loadAngular")))) {
-            Resource resource = resourceLoader.getResource("/leon/browser/angular-0.9.19.js");
+            Resource resource = resourceLoader.getResource(angularJsPath);
             content.append(ResourceUtils.inputStreamToString(resource.createInputStream()));
         }
 
