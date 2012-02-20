@@ -11,12 +11,15 @@ package io.leon.resources.soy
 import com.google.inject.{Key, AbstractModule}
 import io.leon.resourceloading.processor.ResourceProcessor
 import io.leon.guice.GuiceUtils
+import io.leon.web.browser.VirtualLeonJsFileBinder
 
 class SoyTemplatesModule extends AbstractModule {
 
   def configure() {
     GuiceUtils.bindClassWithName(
       binder(), classOf[ResourceProcessor], classOf[SoyTemplatesResourceProcessor]).asEagerSingleton()
+
+    new VirtualLeonJsFileBinder(binder()).bindAndAddContribution(classOf[SoyLeonJsContribution])
   }
 
 }
