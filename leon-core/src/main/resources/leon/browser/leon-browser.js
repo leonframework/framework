@@ -54,10 +54,14 @@ var leon = (function() {
             };
         },
 
+        hasCockpit: function() {
+            return !(typeof leon.cockpit === 'undefined');
+        },
+
         log: function(msg) {
             if (leon.deploymentMode === "development") {
 	            console.log(msg);
-	            if (!(typeof leon.cockpit === 'undefined')) {
+	            if (leon.hasCockpit()) {
 	                leon.cockpit.displayLogMessage(msg);
 	            }
             }
