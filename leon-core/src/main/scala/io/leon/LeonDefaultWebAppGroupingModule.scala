@@ -8,14 +8,12 @@
  */
 package io.leon
 
-import com.google.inject.AbstractModule
 import gson.GsonModule
 import javascript.LeonJavaScriptModule
 import resourceloading.ResourceLoadingModule
 import resources.coffeescript.CoffeeScriptModule
 import resources.soy.SoyTemplatesModule
 import web.angular.AngularModule
-import web.cockpit.CockpitModule
 import web.htmltagsprocessor.HtmlTagsProcessorModule
 import resources.less.LessModule
 import unitofwork.UOWModule
@@ -23,6 +21,7 @@ import web.ajax.AjaxModule
 import web.browser.BrowserModule
 import web.comet.CometModule
 import web.resources.WebResourcesModule
+import com.google.inject.AbstractModule
 
 class LeonDefaultWebAppGroupingModule extends AbstractModule {
 
@@ -39,9 +38,7 @@ class LeonDefaultWebAppGroupingModule extends AbstractModule {
     install(new CoffeeScriptModule)
     install(new LessModule)
     install(new SoyTemplatesModule)
-    install(new CockpitModule)
     //install(new FreeMarkerModule)
-
 
     // must be at the last position!
     install(new WebResourcesModule)

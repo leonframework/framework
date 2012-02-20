@@ -16,9 +16,10 @@ import java.lang.reflect.Method
 import io.leon.resourceloading.ResourceWatcher
 import org.slf4j.LoggerFactory
 import java.io.InputStream
-import javax.servlet.{FilterChain, ServletResponse, ServletRequest, FilterConfig}
 import com.google.inject.{Inject, Injector, Guice}
 import io.leon.unitofwork.UOWManager
+import io.leon.config.{ConfigMapHolder, ConfigReader}
+import javax.servlet._
 
 class LeonFilter extends GuiceFilter {
 
@@ -32,8 +33,9 @@ class LeonFilter extends GuiceFilter {
   private var uowManager: UOWManager = _
 
   override def init(filterConfig: FilterConfig) {
-    val moduleName = filterConfig.getInitParameter("module")
+    setupConfigMap(filterConfig)
 
+    val moduleName = filterConfig.getInitParameter("module")
     val module =
       if(moduleName.endsWith(".js"))
         loadModuleFromJavaScript(classLoader.getResourceAsStream(moduleName))
@@ -114,6 +116,13 @@ class LeonFilter extends GuiceFilter {
     Context.exit()
 
     javaObject.asInstanceOf[AbstractLeonConfiguration]
+  }
+
+  def setupConfigMap(filterConfig: FilterConfig) {
+    val configMap = ConfigMapHolder.getInstance().getConfigMap
+    val servletConfig = new ConfigReader().readFilterConfig(filterConfig)
+
+    configMap.putAll(servletConfig)
   }
 
 }
