@@ -4,11 +4,31 @@ import java.util.*;
 
 public class ConfigMap extends Hashtable<String, String> {
 
-    public static final String APPLICATION_NAME_KEY = "leon.applicationNMame";
+    public static final String APPLICATION_NAME_KEY = "leon.applicationName";
     public static final String DEPLOYMENT_MODE_KEY  = "leon.deploymentMode";
 
     public static final String DEVELOPMENT_MODE = "development";
     public static final String PRODUCTION_MODE = "production";
+
+    public ConfigMap() {
+
+    }
+
+    public ConfigMap(Map<String, String> map) {
+        super(map);
+    }
+
+    /**
+     * Imports entries from the given {configMap} without overriding existing entries.
+     * @param configMap the {ConfigMap} to import.
+     */
+    public void importConfigMap(ConfigMap configMap) {
+        for (Map.Entry<String, String> entry : configMap.entrySet()) {
+            if(! this.containsKey(entry.getKey())) {
+                this.put(entry.getKey(), entry.getValue());
+            }
+        }
+    }
 
     // -- convenience --
 
@@ -18,11 +38,11 @@ public class ConfigMap extends Hashtable<String, String> {
     }
 
     public String getApplicationName() {
-        return get(APPLICATION_NAME_KEY);
+        return getOrElse(APPLICATION_NAME_KEY, "UnnamedLeonApp");
     }
 
     public String getDeploymentMode() {
-        return getOrElse(DEPLOYMENT_MODE_KEY, DEVELOPMENT_MODE).toLowerCase();
+        return getOrElse(DEPLOYMENT_MODE_KEY, PRODUCTION_MODE).toLowerCase();
     }
 
     public boolean isDevelopmentMode() {

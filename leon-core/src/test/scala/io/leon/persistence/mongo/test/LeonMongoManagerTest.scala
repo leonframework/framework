@@ -6,8 +6,10 @@ import org.testng.annotations.{Test, Guice}
 import com.mongodb.{BasicDBObject, DB}
 
 
+@Test(groups = Array("nodefault"))
 @Guice(modules = Array[Class[_ <: Module]](classOf[MongoTestModule]))
-class LeonMongoManagerTest @Inject()(db: DB) extends Assertions {
+class LeonMongoManagerTest @Inject()(db: DB) {
+  import Assertions._
 
   private val personTestData = List(
       dbObject("id" -> 1, "firstName" -> "first1", "lastName" -> "last1"),
@@ -20,7 +22,6 @@ class LeonMongoManagerTest @Inject()(db: DB) extends Assertions {
     collection
   }
 
-  @Test(groups = Array("nodefault"))
   def insertDataIntoACollection() {
     val coll = createCollection()
 
@@ -28,7 +29,6 @@ class LeonMongoManagerTest @Inject()(db: DB) extends Assertions {
     assert(coll.find().size() === 3)
   }
 
-  @Test(groups = Array("nodefault"))
   def findDataBySimpleQuery() {
     val coll = createCollection()
     coll.insert(personTestData: _*)
@@ -37,7 +37,6 @@ class LeonMongoManagerTest @Inject()(db: DB) extends Assertions {
     assert(coll.find(query).size() === 1)
   }
 
-  @Test(groups = Array("nodefault"))
   def findDataByRegularExpression() {
     val coll = createCollection()
     coll.insert(personTestData: _*)

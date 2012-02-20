@@ -7,7 +7,6 @@ public class Config extends AbstractLeonConfiguration {
 
     @Override
     public void config() {
-        bind(ConfigParameter.class).toInstance(new ConfigParameter("xyz", "b"));
         browser("reverserService").linksToServer(ReverserService.class);
     }
 

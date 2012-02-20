@@ -1,6 +1,10 @@
 package io.leon.config;
 
-
+/**
+ * Value object to hold a configuration parameter.
+ *
+ * @see {ConfigBinder}
+ */
 public class ConfigValue {
 
     private final String key;

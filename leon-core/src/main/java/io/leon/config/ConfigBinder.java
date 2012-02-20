@@ -3,6 +3,7 @@ package io.leon.config;
 import com.google.inject.Binder;
 import com.google.inject.name.Names;
 
+
 public class ConfigBinder {
 
     private final Binder binder;
@@ -11,7 +12,15 @@ public class ConfigBinder {
         this.binder = binder;
     }
 
-    public void configParameter(String key, String value) {
-        binder.bind(ConfigValue.class).annotatedWith(Names.named(String.format("%s=%s", key, value))).toInstance(new ConfigValue(key, value));
+    /**
+     * Bind a configuration parameter to the {ConfigMap}.
+     *
+     * @param key the key
+     * @param value the value
+     */
+    public void configValue(String key, String value) {
+        binder.bind(ConfigValue.class)
+              .annotatedWith(Names.named(String.format("config[%s]", key)))
+              .toInstance(new ConfigValue(key, value));
     }
 }
