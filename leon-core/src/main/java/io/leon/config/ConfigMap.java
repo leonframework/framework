@@ -3,7 +3,7 @@ package io.leon.config;
 import java.util.*;
 
 /**
- * The ConfigMap holds all configuration parameters of a LEON application.
+ * The ConfigMap holds all configuration parameters of a Leon application.
  *
  * Parameters are read from the following places and priority:
  * <ol>
