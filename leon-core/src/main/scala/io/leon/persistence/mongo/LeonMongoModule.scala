@@ -11,11 +11,12 @@ package io.leon.persistence.mongo
 import io.leon.javascript.LeonScriptEngine
 import com.google.inject._
 import com.mongodb.{DB, Mongo}
+import io.leon.config.ConfigMapHolder
 
 class LeonMongoConfig {
   var host: String = "127.0.0.1"
   var port: Int = 27017
-  var db: String = "leon_test" // TODO: use application name
+  var db: String = ConfigMapHolder.getInstance().getConfigMap.getApplicationName
 }
 
 class LeonMongoModule(config: LeonMongoConfig) extends AbstractModule {
