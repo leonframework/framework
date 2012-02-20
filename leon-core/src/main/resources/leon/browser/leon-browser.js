@@ -37,31 +37,29 @@ var leon = (function() {
 
                     var handler = function(result) {
                         if (result != null && result.leonAjaxError) {
-                            console.log("Server-side error while executing AJAX call. Check the console for more information.");
+                            leon.log("Ajax [" + url + " " + methodName + "] ERROR");
                             console.log(result);
                         } else {
                             callback(result);
                             if (!(typeof leon.angularDocument === 'undefined')) {
                                 leon.angularDocument.$service("$updateView")();
                             }
+                            leon.log("Ajax [" + url + " " + methodName + "] done");
                         }
                     }
 
                     jQuery.post(url, request, handler);
+                    leon.log("Ajax [" + url + " " + methodName + "] called");
                 }
             };
         },
 
-        debug: function(msg) {
-            if (leon.deploymentMode === "development") {
-                console.log(msg);
-            }
-        },
-
         log: function(msg) {
-            console.log(msg);
-            if (!(typeof leon.cockpit === 'undefined')) {
-                leon.cockpit.displayLogMessage(msg);
+            if (leon.deploymentMode === "development") {
+	            console.log(msg);
+	            if (!(typeof leon.cockpit === 'undefined')) {
+	                leon.cockpit.displayLogMessage(msg);
+	            }
             }
         }
 

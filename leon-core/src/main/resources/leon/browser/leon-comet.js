@@ -81,8 +81,10 @@ leon.comet = (function() {
                         lastMessageId = message.messageId;
                         try {
                             leon.comet.handleEvent(message.topicName, dataParsed);
+                            leon.log("Comet handler called")
                         } catch (err) {
-                            leon.debug("Error in user comet handler code: " + err.description);
+                            leon.log("Comet handler ERROR");
+                            console.log(err.description);
                         }
                     }
                 }
@@ -107,11 +109,11 @@ leon.comet = (function() {
 
         connect: function(id) {
             if (leon.comet.isCometActive()) {
-                //leon.debug("Comet connection already active.");
+                //leon.log("Comet connection already active.");
                 return; // already connected
             }
 
-            //leon.debug("Starting Comet connection.");
+            //leon.log("Starting Comet connection.");
             if (pageId == undefined) {
                 // a page can only define the pageId once
                 pageId = id;
