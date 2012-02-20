@@ -7,7 +7,7 @@ public class AngularModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        new VirtualLeonJsFileBinder(binder()).bindAndAddContribution(AngularAutoCompileLeonJsContribution.class);
+        new VirtualLeonJsFileBinder(binder()).bindAndAddContribution(AngularLeonJsContribution.class);
     }
 
 }
