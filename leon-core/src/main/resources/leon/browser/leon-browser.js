@@ -58,8 +58,11 @@ var leon = (function() {
             }
         },
 
-        displayMessageBox: function(div) {
-            alert("foobar");
+        log: function(msg) {
+            console.log(msg);
+            if (!(typeof leon.cockpit === 'undefined')) {
+                leon.cockpit.displayLogMessage(msg);
+            }
         }
 
     };
