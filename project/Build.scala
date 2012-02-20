@@ -8,7 +8,7 @@ import WebPlugin._
 
 object BuildSettings {
   val buildOrganization = "io.leon"
-  val buildVersion      = "0.2.0-SNAPSHOT"
+  val buildVersion      = "0.2.3-SNAPSHOT"
   val buildScalaVersion = "2.9.1"
   val buildDescription  = "JVM web framework for building data-driven web applications"
 
@@ -25,6 +25,7 @@ http://www.eclipse.org/legal/epl-v10.html
     Defaults.defaultSettings ++
     licenseSettings ++
     Seq(scalacOptions ++= Seq("-unchecked", "-Xfatal-warnings", "-deprecation")) ++
+    Seq(javacOptions ++= Seq("-source", "1.6", "-target", "1.6")) ++
     Seq(
       organization := buildOrganization,
       description  := buildDescription,
