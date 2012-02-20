@@ -1,0 +1,18 @@
+<html xmlns:ng="http://angularjs.org">
+<head>
+    <title>Dummy App</title>
+    <script src="/leon/leon.js" type="text/javascript"></script>
+    <script src="/browser/app.js" type="text/javascript"></script>
+</head>
+
+<body ng:controller="DummyAppCtrl">
+<div>
+    <h1>Ajax Reverser</h1>
+    <hr />
+    Text: <input type="text" name="text" /> <br />
+    <hr />
+    <a href="#" ng:click="reverse()">Reverse text</a> <br/>
+    Reverse: <span ng:bind="reversed"/>
+</div>
+</body>
+</html>

@@ -8,7 +8,7 @@ import WebPlugin._
 
 object BuildSettings {
   val buildOrganization = "io.leon"
-  val buildVersion      = "0.2.0-SNAPSHOT"
+  val buildVersion      = "0.2.3-SNAPSHOT"
   val buildScalaVersion = "2.9.1"
   val buildDescription  = "JVM web framework for building data-driven web applications"
 
@@ -25,6 +25,7 @@ http://www.eclipse.org/legal/epl-v10.html
     Defaults.defaultSettings ++
     licenseSettings ++
     Seq(scalacOptions ++= Seq("-unchecked", "-Xfatal-warnings", "-deprecation")) ++
+    Seq(javacOptions ++= Seq("-source", "1.6", "-target", "1.6")) ++
     Seq(
       organization := buildOrganization,
       description  := buildDescription,
@@ -197,7 +198,8 @@ object LeonBuild extends Build {
     file("."),
     settings = buildSettings) aggregate(
       leon_core,
-      leon_hbase
+      leon_hbase,
+      leon_dummyapp
       //samplesAjaxReverserJavaJs,
       //samplesAjaxReverserJsJs,
       //samplesAjaxReverserWithPojoJavaJs,
@@ -218,6 +220,13 @@ object LeonBuild extends Build {
     file("leon-hbase"),
     settings = buildSettings ++ publishSettings ++
       Seq(libraryDependencies ++= (/* hadoop +: hbase +: */ coreDeps))
+  ) dependsOn(leon_core)
+
+  lazy val leon_dummyapp = Project(
+    "leon-dummyapp",
+    file("leon-dummyapp"),
+    settings = buildSettings ++ webSettings ++
+      Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(leon_core)
 
   // ------------------------------------------------------
