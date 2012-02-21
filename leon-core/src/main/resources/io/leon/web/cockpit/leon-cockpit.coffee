@@ -21,10 +21,11 @@ logMessageTimer = null
 showMenu = ->
 	$("body").first().addClass("leonCockpitBodyLowered")
 	$("body").prepend(menu)
+	menu.show()
 
 hideMenu = ->
 	$("body").first().removeClass("leonCockpitBodyLowered")
-	$("#leonCockpitMenu").hide()
+	menu.hide()
 
 getCurrentTime = ->
 	date = new Date()
@@ -53,7 +54,7 @@ getCurrentTime = ->
 		date = new Date()
 		clearInterval(logMessageTimer)
 		hideLogMessage = -> logLabel().text("")
-		logMessageTimer = setTimeout(hideLogMessage, 5000)
+		logMessageTimer = setTimeout(hideLogMessage, 10000)
 		logLabel().text(getCurrentTime() + " " + message)
 
 #----------------------------------------------------------
