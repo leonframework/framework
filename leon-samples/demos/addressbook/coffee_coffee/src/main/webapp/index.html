@@ -1,0 +1,19 @@
+<html xmlns:ng="http://angularjs.org">
+<head>
+    <title>Address Book Demo</title>
+    <script src="/leon/leon.js" type="text/javascript"></script>
+    <script src="/browser/browser.js" type="text/javascript"></script>
+</head>
+
+<body ng:controller="ReverserServiceCtrl">
+<div>
+    <h1>Ajax Reverser JS/JS Sample</h1>
+    <hr />
+    Text: <input type="text" name="text" /> <br />
+    To upper case? <input type="checkbox" name="toUpperCase" />
+    <hr />
+    <a href="#" ng:click="reverse()">Reverse text</a> <br/>
+    Reverse: {{reversed}}
+</div>
+</body>
+</html>

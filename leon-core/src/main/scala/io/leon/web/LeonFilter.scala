@@ -37,7 +37,7 @@ class LeonFilter extends GuiceFilter {
     val moduleName = filterConfig.getInitParameter("module")
     val module =
       if(moduleName.endsWith(".js"))
-        loadModuleFromJavaScript(classLoader.getResourceAsStream(moduleName))
+        loadModuleFromJavaScript(classLoader.getResourceAsStream(moduleName))// FIX use another classloader
       else
         classLoader.loadClass(moduleName).asInstanceOf[Class[AbstractLeonConfiguration]].newInstance()
 

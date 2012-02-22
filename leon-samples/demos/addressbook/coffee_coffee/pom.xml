@@ -5,15 +5,15 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>io.leon.samples</groupId>
-  <artifactId>{ARTIFACT_ID}</artifactId>
+  <artifactId>demos-addressbook-coffee_coffee</artifactId>
   <packaging>war</packaging>
-  <version>{LEON_VERSION}</version>
+  <version>0.2.4-SNAPSHOT</version>
   
   <dependencies>
     <dependency>
       <groupId>io.leon</groupId>
       <artifactId>leon-core</artifactId>
-      <version>{LEON_VERSION}</version>
+      <version>0.2.4-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.testng</groupId>
@@ -59,39 +59,50 @@
         <artifactId>maven-jetty-plugin</artifactId>
         <version>6.1.22</version>
         <configuration>
-          <scanIntervalSeconds>10</scanIntervalSeconds>
+          <scanIntervalSeconds>0</scanIntervalSeconds>
+          <reload>manual</reload>
           <contextPath>/</contextPath>
+            <!--
+          <baseResource implementation="org.eclipse.jetty.util.resource.ResourceCollection">
+            <resourcesAsCSV>src/main/resources,src/main/webapp</resourcesAsCSV>
+          </baseResource>
+          -->
         </configuration>
       </plugin>
     </plugins>
   </build>
 
-    <repositories>
-        <repository>
-            <id>sonatype_release</id>
-            <name>Sonatype Releases</name>
-            <url>http://oss.sonatype.org/content/repositories/releases</url>
-        </repository>
-        <repository>
-            <id>sonatype_snapshots</id>
-            <name>Sonatype Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </repository>
-        <repository>
-            <id>apache_releases</id>
-            <name>Apache Release</name>
-            <url>https://repository.apache.org/content/repositories/releases</url>
-        </repository>
-        <repository>
-            <id>apache_public</id>
-            <name>Apache Public</name>
-            <url>https://repository.apache.org/content/repositories/public</url>
-        </repository>
-        <repository>
-            <id>apache_snapshots</id>
-            <name>Apache Snapshots</name>
-            <url>https://repository.apache.org/content/repositories/snapshots</url>
-        </repository>
-    </repositories>
+  <repositories>
+    <repository>
+      <id>sonatype_release</id>
+      <name>Sonatype Releases</name>
+      <url>http://oss.sonatype.org/content/repositories/releases</url>
+    </repository>
+    <repository>
+      <id>sonatype_snapshots</id>
+      <name>Sonatype Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </repository>
+    <repository>
+      <id>mave2_repo</id>
+      <name>Official Maven2 Repo</name>
+      <url>http://repo2.maven.org/maven2</url>
+    </repository>
+    <repository>
+      <id>apache_releases</id>
+      <name>Apache Release</name>
+      <url>https://repository.apache.org/content/repositories/releases</url>
+    </repository>
+    <repository>
+      <id>apache_public</id>
+      <name>Apache Public</name>
+      <url>https://repository.apache.org/content/repositories/public</url>
+    </repository>
+      <repository>
+      <id>apache_snapshots</id>
+      <name>Apache Snapshots</name>
+      <url>https://repository.apache.org/content/repositories/snapshots</url>
+    </repository>
+  </repositories>
 
 </project>
