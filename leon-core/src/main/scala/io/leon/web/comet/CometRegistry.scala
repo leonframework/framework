@@ -15,8 +15,9 @@ import javax.servlet.http.HttpServletRequest
 import java.lang.IllegalStateException
 import com.google.gson.Gson
 import org.slf4j.LoggerFactory
+import io.leon.config.ConfigMap
 
-class CometRegistry @Inject()(clients: Clients) {
+class CometRegistry @Inject()(clients: Clients, configMap: ConfigMap) {
 
   private val logger = LoggerFactory.getLogger(getClass.getName)
 
@@ -70,6 +71,8 @@ class CometRegistry @Inject()(clients: Clients) {
     clients.allClients foreach { _.resumeAndRemoveUplink() }
   }
 
+
+  // TODO pageId clientID missmatch
   def registerUplink(req: HttpServletRequest, pageId: String, lastMessageId: Int) {
     val meteor = createMeteor(req)
     val clientId = Clients.generateExistingClientId(req.getSession, pageId)
@@ -77,8 +80,15 @@ class CometRegistry @Inject()(clients: Clients) {
 
     clients.getByClientId(clientId) match {
       case None => {
-        logger.debug(
-          "Can not register client uplink because the client is unknown. In case you restarted the server, you need to refresh the browser page since the list of clients stored on the server is not (yet) persistent.")
+        if (configMap.isDevelopmentMode) {
+          logger.debug("Allowing client comet connect request since we are in development mode.")
+          val cc = new ClientConnection(pageId, None)
+          clients.add(cc)
+          registerUplink(req, pageId, lastMessageId)
+        } else {
+          logger.debug(
+            "Can not register client uplink because the client is unknown. In case you restarted the server, you need to refresh the browser page since the list of clients stored on the server is not (yet) persistent.")
+        }
       }
       case Some(cc) => {
         logger.info("Client connection found. Updating existing ClientConnection with new meteor.")
@@ -97,8 +107,12 @@ class CometRegistry @Inject()(clients: Clients) {
 
     val requiredFilters = filters.asScala
     val matchingClients = clients.allClients filter { c =>
-      requiredFilters forall { case (filterName, filterValue) =>
-        c.hasFilterValue(topicName, filterName, filterValue.toString)
+      if (configMap.isDevelopmentMode && topicName.startsWith("leon.developmentMode")) {
+        true
+      } else {
+        requiredFilters forall { case (filterName, filterValue) =>
+          c.hasFilterValue(topicName, filterName, filterValue.toString)
+        }
       }
     }
 

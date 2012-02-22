@@ -25,12 +25,12 @@ public class CockpitLeonJsContribution implements VirtualLeonJsFileContribution 
             // Soy
             Resource cockpitSoy = resourceLoader.getResource(
                     getClass().getPackage().getName().replace('.', '/') + "/leon-cockpit-ui.js");
-            builder.append(ResourceUtils.inputStreamToString(cockpitSoy.createInputStream()));
+            builder.append(ResourceUtils.inputStreamToString(cockpitSoy.getInputStream()));
 
             // CoffeeScript
             Resource cockpitJs = resourceLoader.getResource(
                     getClass().getPackage().getName().replace('.', '/') + "/leon-cockpit.js");
-            builder.append(ResourceUtils.inputStreamToString(cockpitJs.createInputStream()));
+            builder.append(ResourceUtils.inputStreamToString(cockpitJs.getInputStream()));
         }
 
         return builder.toString();

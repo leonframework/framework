@@ -13,17 +13,16 @@ import scala.io.Source
 import org.mozilla.javascript.{NativeJavaObject, Context}
 import io.leon.{AbstractLeonConfiguration, LeonDefaultWebAppGroupingModule}
 import java.lang.reflect.Method
-import io.leon.resourceloading.ResourceWatcher
-import org.slf4j.LoggerFactory
 import java.io.InputStream
 import com.google.inject.{Inject, Injector, Guice}
 import io.leon.unitofwork.UOWManager
 import io.leon.config.{ConfigMapHolder, ConfigReader}
 import javax.servlet._
+import io.leon.resourceloading.watcher.ResourceWatcher
 
 class LeonFilter extends GuiceFilter {
 
-  private val logger = LoggerFactory.getLogger(this.getClass)
+  //private val logger = LoggerFactory.getLogger(this.getClass)
 
   private val classLoader = Thread.currentThread.getContextClassLoader
 
@@ -47,6 +46,10 @@ class LeonFilter extends GuiceFilter {
     super.init(filterConfig)
   }
 
+  override def destroy() {
+    injector.getInstance(classOf[ResourceWatcher]).stop()
+    super.destroy()
+  }
 
   override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) {
     uowManager.begin(servletRequest)
@@ -55,11 +58,6 @@ class LeonFilter extends GuiceFilter {
     } finally {
       uowManager.commit()
     }
-  }
-
-  override def destroy() {
-    Option(injector) foreach { _.getInstance(classOf[ResourceWatcher]).stop() }
-    super.destroy()
   }
 
   def loadModuleFromJavaScript(file: InputStream): AbstractLeonConfiguration = {

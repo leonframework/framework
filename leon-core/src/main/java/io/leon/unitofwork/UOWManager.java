@@ -30,7 +30,7 @@ public class UOWManager {
     @Inject
     public UOWManager(Injector injector) {
         this.injector = injector;
-        listener = GuiceUtils.getAllBindingsForType(injector, UOWListener.class);
+        listener = GuiceUtils.getByType(injector, UOWListener.class);
     }
 
     /**

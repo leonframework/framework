@@ -21,19 +21,18 @@ class SoyTemplatesResourceProcessor ()
 
   def toFileEnding = "js"
 
-  def process(in: Resource) = new Resource(in.name, () => {
-
+  def process(in: Resource) = new Resource(in.name) {
     import JavaConverters._
 
-    // Bundle the given Soy file into a SoyFileSet
-    val inStr = ResourceUtils.inputStreamToString(in.createInputStream())
-    val sfs = (new SoyFileSet.Builder()).add(inStr,in.name).build()
+    def getLastModified() = in.getLastModified()
 
-    val res = sfs.compileToJsSrc(new SoyJsSrcOptions(), null)
+    def getInputStream() = {
+      val inStr = ResourceUtils.inputStreamToString(in.getInputStream())
+      val sfs = (new SoyFileSet.Builder()).add(inStr,in.name).build()
+      val res = sfs.compileToJsSrc(new SoyJsSrcOptions(), null)
+      ResourceUtils.stringToInputStream(res.asScala.head)
+    }
 
-    //println(res.asScala.head)
-
-    ResourceUtils.stringToInputStream(res.asScala.head)
-  })
+  }
 
 }

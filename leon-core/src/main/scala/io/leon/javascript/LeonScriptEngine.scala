@@ -13,8 +13,9 @@ import java.io.InputStreamReader
 import java.lang.IllegalArgumentException
 
 import org.mozilla.javascript.{ScriptableObject, Context, Function => RhinoFunction}
-import io.leon.resourceloading.{ResourceWatcher, ResourceLoader, Resource}
+import io.leon.resourceloading.{ResourceLoader, Resource}
 import org.slf4j.LoggerFactory
+import io.leon.resourceloading.watcher.{ResourceChangedListener, ResourceWatcher}
 
 class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader, resourceWatcher: ResourceWatcher) {
 
@@ -36,28 +37,33 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
   }
 
   def loadResource(fileName: String) {
-    logger.info("Loading resource: " + fileName)
-    def _loadResource(resource: Resource) {
-      withContext { ctx =>
-        val reader = new InputStreamReader(resource.createInputStream())
-        ctx.evaluateReader(rhinoScope, reader, fileName, 1, null)
-      }
+    withContext { ctx =>
+      loadResource(fileName, ctx.getOptimizationLevel)
     }
-
-    val resource = resourceLoader.getResource(fileName)
-    // TODO: Only watch in 'development mode'
-    resourceWatcher.watch(resource, _loadResource _)
-
-    _loadResource(resource)
   }
 
   def loadResource(fileName: String, optimizationLevel: Int) {
-    withContext { ctx =>
-      val ol = ctx.getOptimizationLevel
-      ctx.setOptimizationLevel(optimizationLevel)
-      loadResource(fileName)
-      ctx.setOptimizationLevel(ol)
+    logger.info("Loading resource: " + fileName + " with optimization level " + optimizationLevel)
+    def _loadResource(resource: Resource) {
+      withContext { ctx =>
+        val ol = ctx.getOptimizationLevel
+        ctx.setOptimizationLevel(optimizationLevel)
+        try {
+          val reader = new InputStreamReader(resource.getInputStream())
+          ctx.evaluateReader(rhinoScope, reader, fileName, 1, null)
+        } finally {
+          ctx.setOptimizationLevel(ol)
+        }
+      }
     }
+
+    val resource = resourceLoader.getResource(fileName, new ResourceChangedListener {
+      def resourceChanged(changedResource: Resource) {
+        _loadResource(changedResource)
+      }
+    })
+
+    _loadResource(resource)
   }
 
   def loadResources(fileNames: List[String]) {

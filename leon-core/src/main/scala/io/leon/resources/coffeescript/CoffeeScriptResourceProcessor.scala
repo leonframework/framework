@@ -28,9 +28,12 @@ class CoffeeScriptResourceProcessor @Inject()(leonScriptEngineProvider: Provider
 
   def process(in: Resource) = {
     synchronized {
-      val inStr = ResourceUtils.inputStreamToString(in.createInputStream())
-      val cs = leonScriptEngine.invokeFunction("CoffeeScript.compile", inStr)
-      new Resource(in.name, in.lastModifiedFunc , () => ResourceUtils.stringToInputStream(cs.toString))
+      val asCoffeeScript = ResourceUtils.inputStreamToString(in.getInputStream())
+      val asJavaScript = leonScriptEngine.invokeFunction("CoffeeScript.compile", asCoffeeScript)
+      new Resource(in.name) {
+        def getLastModified() = in.getLastModified()
+        def getInputStream() = ResourceUtils.stringToInputStream(asJavaScript.toString)
+      }
     }
   }
 

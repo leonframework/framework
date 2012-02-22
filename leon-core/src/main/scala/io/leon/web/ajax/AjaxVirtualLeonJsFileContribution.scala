@@ -19,7 +19,7 @@ class AjaxVirtualLeonJsFileContribution @Inject()(injector: Injector) extends Vi
   def content(params: java.util.Map[String, String]) = {
     import scala.collection.JavaConverters._
     val buffer = new StringBuffer()
-    val serverObjects = GuiceUtils.getAllBindingsForType(injector, classOf[AjaxHandler])
+    val serverObjects = GuiceUtils.getByType(injector, classOf[AjaxHandler])
     serverObjects.asScala foreach { o =>
       val browserName = o.getKey.getAnnotation.asInstanceOf[Named].value()
       buffer.append(createJavaScriptFunctionDeclaration(browserName))

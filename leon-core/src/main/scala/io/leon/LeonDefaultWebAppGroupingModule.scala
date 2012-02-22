@@ -8,12 +8,14 @@
  */
 package io.leon
 
+import config.ConfigMapHolder
 import gson.GsonModule
 import javascript.LeonJavaScriptModule
 import resourceloading.ResourceLoadingModule
 import resources.coffeescript.CoffeeScriptModule
 import resources.soy.SoyTemplatesModule
 import web.angular.AngularModule
+import web.cockpit.CockpitModule
 import web.htmltagsprocessor.HtmlTagsProcessorModule
 import resources.less.LessModule
 import unitofwork.UOWModule
@@ -27,7 +29,7 @@ class LeonDefaultWebAppGroupingModule extends AbstractModule {
 
   def configure() {
     install(new UOWModule)
-    install(new ResourceLoadingModule(true)) // TODO true/false depends on deployment mode
+    install(new ResourceLoadingModule)
     install(new AngularModule)
     install(new HtmlTagsProcessorModule)
     install(new GsonModule)
@@ -38,7 +40,10 @@ class LeonDefaultWebAppGroupingModule extends AbstractModule {
     install(new CoffeeScriptModule)
     install(new LessModule)
     install(new SoyTemplatesModule)
-    //install(new FreeMarkerModule)
+
+    if (ConfigMapHolder.getInstance().getConfigMap.isDevelopmentMode) {
+      install(new CockpitModule)
+    }
 
     // must be at the last position!
     install(new WebResourcesModule)

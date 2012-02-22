@@ -24,7 +24,7 @@ class ResourcesServlet @Inject()(injector: Injector,
 
   private val welcomeFiles = List("index.html")
 
-  private val exposedServlets = GuiceUtils.getAllBindingsForType(injector, classOf[ServletBinding]).asScala
+  private val exposedServlets = GuiceUtils.getByType(injector, classOf[ServletBinding]).asScala
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
     val url = WebUtils.getRequestedResource(req)
@@ -59,7 +59,7 @@ class ResourcesServlet @Inject()(injector: Injector,
         else resource
 
       setResponseContentType(req, res)
-      val stream = resourceTransformed.createInputStream()
+      val stream = resourceTransformed.getInputStream()
       val buffer = new Array[Byte](1024)
       var bytesRead = 0
       while (bytesRead != -1) {

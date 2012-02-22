@@ -20,35 +20,37 @@ class LeonTagProcessor @Inject()(injector: Injector) {
 
   private val logger = LoggerFactory.getLogger(getClass)
 
-  private lazy val rewriters = GuiceUtils.getAllBindingsForType(
+  private lazy val rewriters = GuiceUtils.getByType(
     injector, classOf[LeonTagRewriter]).asScala map { _.getProvider.get() }
 
-  def transform(in: Resource) = new Resource(in.name, () => {
+  def transform(in: Resource) = new Resource(in.name) {
 
-    println(rewriters.map(_.getClass.getName).mkString(","))
+    def getLastModified() = in.getLastModified()
 
-    measureTime(in.name) {
+    def getInputStream() = {
+      println(rewriters.map(_.getClass.getName).mkString(","))
+      measureTime(in.name) {
+        val stream = in.getInputStream()
 
-      val stream = in.createInputStream()
+        val source = new Source(stream)
+        val out = new OutputDocument(source)
 
-      val source = new Source(stream)
-      val out = new OutputDocument(source)
+        rewriters flatMap { _.process(source) } foreach { func => func(out) }
 
-      rewriters flatMap { _.process(source) } foreach { func => func(out) }
+        val initialBufferSize = stream match {
+          case buf: ByteArrayInputStream => buf.available() + 512
+          case _ => 2048
+        }
 
-      val initialBufferSize = stream match {
-        case buf: ByteArrayInputStream => buf.available() + 512
-        case _ => 2048
+        val buf = new ByteArrayOutputStream(initialBufferSize)
+        val writer = new OutputStreamWriter(buf)
+
+        out.writeTo(writer)
+
+        new ByteArrayInputStream(buf.toByteArray)
       }
-
-      val buf = new ByteArrayOutputStream(initialBufferSize)
-      val writer = new OutputStreamWriter(buf)
-
-      out.writeTo(writer)
-
-      new ByteArrayInputStream(buf.toByteArray)
     }
-  })
+  }
 
   private def measureTime[A](name: String)(func: => A) = {
     val start = System.currentTimeMillis()
@@ -59,4 +61,5 @@ class LeonTagProcessor @Inject()(injector: Injector) {
 
     result
   }
+
 }

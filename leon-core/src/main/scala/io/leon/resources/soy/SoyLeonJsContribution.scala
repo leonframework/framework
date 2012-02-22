@@ -22,7 +22,7 @@ class SoyLeonJsContribution @Inject()(resourceLoader: ResourceLoader) extends Vi
   def content(params: Map[String, String]) = {
     if (!(("false" == params.get("loadSoy")))) {
       val resource = resourceLoader.getResource(soyJsPath)
-      ResourceUtils.inputStreamToString(resource.createInputStream())
+      ResourceUtils.inputStreamToString(resource.getInputStream())
     } else {
       ""
     }

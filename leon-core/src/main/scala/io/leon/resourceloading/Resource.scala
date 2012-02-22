@@ -18,12 +18,16 @@ package io.leon.resourceloading
 
 import java.io.InputStream
 
-class Resource(val name: String, val lastModifiedFunc: () => Long, streamFunc: () => InputStream) {
+abstract class Resource(val name: String) {
 
-  def this(name: String, streamFunc: () => InputStream) = this(name, () => 0, streamFunc)
+  /**
+   * Returns the timestamp of the last modification. Implementations must return -1
+   * if this method is not applicable.
+   *
+   * @return timestamp of the last modification
+   */
+  def getLastModified(): Long
 
-  def lastModified() = lastModifiedFunc.apply()
-
-  def createInputStream() = streamFunc.apply()
+  def getInputStream(): InputStream
 
 }

@@ -10,13 +10,24 @@ package io.leon.resourceloading.location
 
 import java.net.URL
 import io.leon.resourceloading.Resource
+import java.io.File
 
 class DelegatingResourceLocation(loaderFn: (String) => URL) extends ResourceLocation {
 
   def getResource(fileName: String): Option[Resource] = {
     val r = loaderFn(fileName)
     if (r != null) {
-      return Some(new Resource(fileName, () => r.openStream()))
+      val resource = new Resource(fileName) {
+        def getLastModified() = {
+          if (r.getProtocol == "file") {
+            new File(r.toURI).lastModified()
+          } else {
+            -1
+          }
+        }
+        def getInputStream() = r.openStream()
+      }
+      return Some(resource)
     }
     None
   }

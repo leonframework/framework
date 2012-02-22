@@ -13,6 +13,7 @@ import config.{ConfigMapHolder, ConfigMap, ConfigReader}
 import javascript.LeonScriptEngine
 import collection.mutable
 import com.google.inject._
+import resourceloading.watcher.ResourceWatcher
 import servlet.ServletModule
 import java.io.File
 import web.resources.WebResourcesBinder
@@ -70,35 +71,14 @@ abstract class AbstractLeonConfiguration extends ServletModule {
 
     requestInjection(new Object {
       @Inject def init(injector: Injector, engine: LeonScriptEngine) {
-        // Loading JavaScript files
-        engine.loadResources(javaScriptFilesToLoad.toList)
-
         // Importing module config parameters without overriding existing values
         globalConfig.importConfigMap(new ConfigReader().readModuleParameters(injector))
+
+        // Loading JavaScript files
+        engine.loadResources(javaScriptFilesToLoad.toList)
       }
     })
   }
-
-  // --- Resources ----------------------------------------
-
-  //def setBaseDir(baseDir: String) {
-  //  baseDirOption = Some(new File(baseDir).getAbsoluteFile)
-  //}
-
-  /*
-  def addLocation(path: String) {
-    val name = "%s[%s]".format(classOf[FileSystemResourceLocation].getName, path)
-
-    val filePath = new File(path)
-    val file =
-      if(filePath.isAbsolute) filePath
-      else baseDirOption map { baseDir => new File(baseDir, path) } getOrElse filePath
-
-    val res = new FileSystemResourceLocation(file)
-
-    bind(classOf[ResourceLocation]).annotatedWith(Names.named(name)).toInstance(res)
-  }
-  */
 
   // --- JavaScript methods ---
 

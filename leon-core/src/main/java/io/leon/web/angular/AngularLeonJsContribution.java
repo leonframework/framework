@@ -27,7 +27,7 @@ public class AngularLeonJsContribution implements VirtualLeonJsFileContribution 
 
         if (!("false".equals(params.get("loadAngular")))) {
             Resource resource = resourceLoader.getResource(angularJsPath);
-            content.append(ResourceUtils.inputStreamToString(resource.createInputStream()));
+            content.append(ResourceUtils.inputStreamToString(resource.getInputStream()));
         }
 
         if (!("false".equals(params.get("angularAutoCompile")))) {

@@ -16,7 +16,7 @@ public class GuiceUtils {
         return Key.get(iface, Names.named(clazz.getName()));
     }
 
-    public static <T> List<Binding<T>> getAllBindingsForType(Injector injector, Class<T> type) {
+    public static <T> List<Binding<T>> getByType(Injector injector, Class<T> type) {
         TypeLiteral<T> typeLiteral = Key.get(type).getTypeLiteral();
         return injector.findBindingsByType(typeLiteral);
     }

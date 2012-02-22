@@ -10,22 +10,27 @@ package io.leon.resourceloading.processor
 
 import com.google.inject.{TypeLiteral, Injector, Inject}
 import scala.collection.mutable
+import io.leon.guice.GuiceUtils
 
-class ResourceProcessorRegistry @Inject()(injector: Injector, noOpProcessor: NoOpResourceProcessor) {
+class ResourceProcessorRegistry @Inject()(injector: Injector,
+                                          noOpProcessor: NoOpResourceProcessor) {
 
   import scala.collection.JavaConverters._
 
-  private val resourceProcessors: Map[String, mutable.ListBuffer[ResourceProcessor]] = {
+  private val resourceProcessors: Map[String, List[ResourceProcessor]] = {
     val processors = new mutable.HashMap[String, mutable.ListBuffer[ResourceProcessor]]
 
-    val rps = injector.findBindingsByType(new TypeLiteral[ResourceProcessor]() {}).asScala
-    rps foreach {
-      binding =>
-        val processor = binding.getProvider.get()
-        val list = processors.getOrElseUpdate(processor.toFileEnding, new mutable.ListBuffer[ResourceProcessor])
-        list.append(processor)
+    val rps = GuiceUtils.getByType(injector, classOf[ResourceProcessor]).asScala
+    rps foreach { binding =>
+      val processor = binding.getProvider.get()
+      val list = processors.getOrElseUpdate(processor.toFileEnding, new mutable.ListBuffer[ResourceProcessor])
+      list.append(processor)
     }
-    processors.toMap
+
+    // Convert mutable to immutable
+    (processors map { e =>
+      e._1 -> e._2.toList
+    }).toMap
   }
 
   private def getFileNameEnding(fileName: String): String = {
@@ -41,6 +46,6 @@ class ResourceProcessorRegistry @Inject()(injector: Injector, noOpProcessor: NoO
   def processorsForFile(fileName: String): List[ResourceProcessor] = {
     val ending = getFileNameEnding(fileName)
     val processors = resourceProcessors.getOrElse(ending, new mutable.ListBuffer)
-    processors.toList ::: noOpProcessor :: Nil
+    noOpProcessor :: processors.toList
   }
 }

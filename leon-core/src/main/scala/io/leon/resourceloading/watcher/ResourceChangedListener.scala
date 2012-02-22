@@ -6,15 +6,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.resources.freemarker
+package io.leon.resourceloading.watcher
 
-import com.google.inject.AbstractModule
+import io.leon.resourceloading.Resource
 
-class FreeMarkerModule extends AbstractModule {
 
-  def configure() {
-    bind(classOf[FreeMarkerProcessor]).asEagerSingleton()
-    bind(classOf[LeonFreeMarkerTemplateLoader]).asEagerSingleton()
-  }
+trait ResourceChangedListener {
+
+  def resourceChanged(resource: Resource)
 
 }

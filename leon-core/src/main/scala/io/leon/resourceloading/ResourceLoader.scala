@@ -12,21 +12,29 @@ import com.google.inject._
 import java.lang.RuntimeException
 import location.ResourceLocation
 import org.slf4j.LoggerFactory
-import io.leon.resourceloading.processor.ResourceProcessorRegistry
+import io.leon.guice.GuiceUtils
+import collection.immutable.List
+import processor.{ResourceProcessor, ResourceProcessorRegistry}
+import watcher.{ResourceWatcher, ResourceChangedListener}
 
 class ResourceLoader @Inject()(injector: Injector,
-                               resourceProcessorRegistry: ResourceProcessorRegistry) {
+                               resourceProcessorRegistry: ResourceProcessorRegistry,
+                               resourceWatcher: ResourceWatcher) {
 
   import scala.collection.JavaConverters._
 
   private val logger = LoggerFactory.getLogger(getClass)
 
   val resourceLocations: List[Binding[ResourceLocation]] = {
-    injector.findBindingsByType(new TypeLiteral[ResourceLocation]() {}).asScala.toList
+    GuiceUtils.getByType(injector, classOf[ResourceLocation]).asScala.toList
   }
 
   def getResource(fileName: String): Resource = {
-    getResourceOption(fileName) match {
+    getResource(fileName, null)
+  }
+
+  def getResource(fileName: String, changedListener: ResourceChangedListener): Resource = {
+    getResourceOption(fileName, changedListener) match {
       case Some(resource) => {
         logger.debug("Loaded resource {}", resource.name)
         resource
@@ -36,44 +44,53 @@ class ResourceLoader @Inject()(injector: Injector,
   }
 
   def getResourceOption(fileName: String): Option[Resource] = {
-    logger.debug("Searching resource [{}]", fileName)
-    for (processor <- resourceProcessorRegistry.processorsForFile(fileName)) {
-      val fileNameForProcessor = resourceProcessorRegistry.replaceFileNameEndingForProcessor(processor, fileName)
+    getResourceOption(fileName, null)
+  }
 
-      for (rl <- resourceLocations) {
-        val rlInstance = rl.getProvider.get()
-        logger.debug("Searching resource [{}] with [{}]", fileName, rl.getKey.getAnnotation)
-        val resourceOption = rlInstance.getResource(fileNameForProcessor)
+  def getResourceOption(fileName: String, changedListener: ResourceChangedListener): Option[Resource] = {
+    logger.debug("Searching resource [{}]", fileName)
+
+    val processors = resourceProcessorRegistry.processorsForFile(fileName)
+    val combinations = for {
+      processor <- processors
+      locationBinding <- resourceLocations
+    } yield {
+      val location = locationBinding.getProvider.get()
+      (fileName, location, processor)
+    }
+
+    tryCombinations(combinations) match {
+      case None => None
+      case Some((fileNameForProcessor, location, processor, processed)) => {
+        resourceWatcher.addResource(
+          fileNameForProcessor,  location, processor, processed.get, changedListener)
+        processed
+      }
+    }
+  }
+
+  private def tryCombinations(combinations: List[(String, ResourceLocation, ResourceProcessor)])
+      : Option[(String, ResourceLocation, ResourceProcessor, Option[Resource])] =
+
+    combinations match {
+      case Nil => None
+      case (fileName, location, processor) :: xs => {
+
+        val fileNameForProcessor = resourceProcessorRegistry.replaceFileNameEndingForProcessor(processor, fileName)
+        val resourceOption = location.getResource(fileNameForProcessor)
+
         if (resourceOption.isDefined) {
-          logger.debug("Found resource [{}] with [{}]", fileName, rl.getKey.getAnnotation)
+          logger.debug("Found resource [{}]", fileNameForProcessor)
           val processed = resourceOption.map(processor.process)
           if (processor.isCachingRequested) {
             // TODO
           }
-          return processed
+          Some((fileNameForProcessor, location, processor, processed))
+        } else {
+          tryCombinations(xs)
         }
       }
-
-    }
-    None
   }
-
-  /*
-  private def getOrTransformResource(res: Resource, fileNameForProcessor: String, cacheLocation: String, processor: ResourceProcessor): File = {
-    val cachedFile = new File(cacheLocation, fileNameForProcessor)
-
-    if (!cachedFile.exists() || res.lastModified > cachedFile.lastModified()) {
-      logger.debug("File {} either too old or not in cache yet.", cachedFile.getAbsolutePath)
-      val processedRes = processor.process(res)
-
-      cachedFile.getParentFile.mkdirs()
-
-      FileUtils.writeLines(cachedFile, Source.fromInputStream(processedRes.getInputStream).getLines().toList)
-    }
-
-    cachedFile
-  }
-  */
 
 }
 

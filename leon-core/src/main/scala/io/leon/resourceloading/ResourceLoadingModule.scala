@@ -12,19 +12,15 @@ import com.google.inject.name.Names
 import com.google.inject.{Inject, AbstractModule}
 import io.leon.resourceloading.processor.{NoOpResourceProcessor, ResourceProcessorRegistry}
 import location.{ResourceLocation, DelegatingResourceLocation}
+import io.leon.config.ConfigMapHolder
+import watcher.ResourceWatcher
 
-class ResourceLoadingModule(startResourceWatcher: Boolean) extends AbstractModule {
-
-  def this() = this(false)
+class ResourceLoadingModule extends AbstractModule {
 
   def configure() {
     bind(classOf[ResourceLoader]).asEagerSingleton()
 
     // --- Default classloader-based ResourceLocations ---
-
-    val clCore = new DelegatingResourceLocation((name) => getClass.getClassLoader.getResource(name))
-    val clCoreName = clCore.getClass.getName + "- Leon core classloader"
-    bind(classOf[ResourceLocation]).annotatedWith(Names.named(clCoreName)).toInstance(clCore)
 
     val clClass = new DelegatingResourceLocation((name) => getClass.getResource(name))
     val clClassName = clClass.getClass.getName + "- Leon class-based classloader"
@@ -37,8 +33,9 @@ class ResourceLoadingModule(startResourceWatcher: Boolean) extends AbstractModul
     bind(classOf[ResourceProcessorRegistry]).asEagerSingleton()
     bind(classOf[NoOpResourceProcessor]).asEagerSingleton()
 
+    // Resourcewatcher, depending on the deployment mode
     bind(classOf[ResourceWatcher]).asEagerSingleton()
-    if (startResourceWatcher) {
+    if (ConfigMapHolder.getInstance().getConfigMap.isDevelopmentMode) {
       requestInjection(new Object {
         @Inject def init(watcher: ResourceWatcher) {
           watcher.start()
@@ -46,6 +43,7 @@ class ResourceLoadingModule(startResourceWatcher: Boolean) extends AbstractModul
       })
     }
   }
+
 }
 
 

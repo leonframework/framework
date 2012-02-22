@@ -9,7 +9,7 @@
 package io.leon.web.browser
 
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
-import com.google.inject.{TypeLiteral, Injector, Inject}
+import com.google.inject.{Injector, Inject}
 import io.leon.resourceloading.{ResourceUtils, ResourceLoader}
 import java.io.{Writer, BufferedWriter}
 import org.slf4j.LoggerFactory
@@ -21,7 +21,7 @@ class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) ex
 
   private def writeResource(out: Writer, name: String) {
     loader.getResourceOption(name) foreach { r =>
-      out.write(ResourceUtils.inputStreamToString(r.createInputStream()))
+      out.write(ResourceUtils.inputStreamToString(r.getInputStream()))
     }
   }
   
@@ -64,7 +64,7 @@ class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) ex
     }).asJava
 
     // dynamic content
-    val contributions = GuiceUtils.getAllBindingsForType(injector, classOf[VirtualLeonJsFileContribution])
+    val contributions = GuiceUtils.getByType(injector, classOf[VirtualLeonJsFileContribution])
     contributions.asScala foreach { binding =>
       try {
         val content = binding.getProvider.get().content(requestMap)
@@ -72,6 +72,7 @@ class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) ex
       } catch {
         case e: Exception => {
           logger.error("VirtualLeonJsFileContribution threw error: " + e)
+          e.printStackTrace()
         }
       }
     }
