@@ -8,7 +8,7 @@ import WebPlugin._
 
 object BuildSettings {
   val buildOrganization = "io.leon"
-  val buildVersion      = "0.2.3-SNAPSHOT"
+  val buildVersion      = "0.2.4-SNAPSHOT"
   val buildScalaVersion = "2.9.1"
   val buildDescription  = "JVM web framework for building data-driven web applications"
 
