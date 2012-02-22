@@ -12,12 +12,14 @@ import org.atmosphere.cpr.{BroadcastFilter, Meteor}
 import org.atmosphere.util.XSSHtmlFilter
 import com.google.inject.Inject
 import javax.servlet.http.HttpServletRequest
-import java.lang.IllegalStateException
 import com.google.gson.Gson
 import org.slf4j.LoggerFactory
 import io.leon.config.ConfigMap
+import io.leon.web.BrowserTopics
+import java.util.Map
+import com.google.common.collect.Maps
 
-class CometRegistry @Inject()(clients: Clients, configMap: ConfigMap) {
+class CometRegistry @Inject()(clients: Clients, gson: Gson, configMap: ConfigMap) extends BrowserTopics {
 
   private val logger = LoggerFactory.getLogger(getClass.getName)
 
@@ -71,20 +73,17 @@ class CometRegistry @Inject()(clients: Clients, configMap: ConfigMap) {
     clients.allClients foreach { _.resumeAndRemoveUplink() }
   }
 
-
-  // TODO pageId clientID missmatch
-  def registerUplink(req: HttpServletRequest, pageId: String, lastMessageId: Int) {
+  def registerUplink(req: HttpServletRequest, clientId: String, lastMessageId: Int) {
     val meteor = createMeteor(req)
-    val clientId = Clients.generateExistingClientId(req.getSession, pageId)
     logger.info("Registering meteor for client [" + clientId + "]")
 
     clients.getByClientId(clientId) match {
       case None => {
         if (configMap.isDevelopmentMode) {
-          logger.debug("Allowing client comet connect request since we are in development mode.")
-          val cc = new ClientConnection(pageId, None)
+          logger.debug("Re-registering client comet connect request since we are in development mode.")
+          val cc = new ClientConnection(clientId, None)
           clients.add(cc)
-          registerUplink(req, pageId, lastMessageId)
+          registerUplink(req, clientId, lastMessageId)
         } else {
           logger.debug(
             "Can not register client uplink because the client is unknown. In case you restarted the server, you need to refresh the browser page since the list of clients stored on the server is not (yet) persistent.")
@@ -102,7 +101,7 @@ class CometRegistry @Inject()(clients: Clients, configMap: ConfigMap) {
     }
   }
 
-  def publish(topicName: String, filters: java.util.Map[String, Any], data: String) {
+  def publish(topicName: String, filters: java.util.Map[String, AnyRef], data: String) {
     import scala.collection.JavaConverters._
 
     val requiredFilters = filters.asScala
@@ -129,6 +128,14 @@ class CometRegistry @Inject()(clients: Clients, configMap: ConfigMap) {
   def updateClientFilter(topicId: String, clientId: String, filterName: String, filterValue: String) {
     logger.info("Updating topic filter for client [%s], topic [%s], filter name [%s], filter value [%s].".format(clientId, topicId, filterName, filterValue))
     clients.getByClientId(clientId).get.updateTopicFilter(topicId, filterName, filterValue)
+  }
+
+  def send(topicId: String, data: AnyRef) {
+    send(topicId, Maps.newHashMap(), data)
+  }
+
+  def send(topicId: String, filters: Map[String, AnyRef], data: AnyRef) {
+    publish(topicId, filters, gson.toJson(data))
   }
 
 }

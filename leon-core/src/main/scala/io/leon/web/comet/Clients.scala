@@ -9,26 +9,22 @@
 package io.leon.web.comet
 
 import java.util.concurrent.atomic.AtomicLong
-import javax.servlet.http.HttpSession
 import java.util.concurrent.ConcurrentHashMap
+import io.leon.config.ConfigMapHolder
 
 
 object Clients {
 
   private val ids = new AtomicLong
 
-  def generateNewPageId(): String = {
-    // TODO check deployment mode to use the appropriate way
-    //System.currentTimeMillis().toString // more save, use in production
-    ids.getAndIncrement.toString // useful more debugging, use in development
-  }
+  private def getConfigMap() = ConfigMapHolder.getInstance().getConfigMap
 
-  def generateNewClientId(session: HttpSession): String = {
-    generateExistingClientId(session, generateNewPageId())
-  }
-
-  def generateExistingClientId(session: HttpSession, pageId: String): String = {
-    session.getId + "__" + pageId
+  def generateNewClientId(): String = {
+    if (getConfigMap().isProductionMode) {
+      (System.currentTimeMillis() + ids.getAndIncrement).toString
+    } else {
+      ids.getAndIncrement.toString
+    }
   }
 
 }

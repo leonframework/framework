@@ -13,7 +13,7 @@ leon.comet = (function() {
 
     var lastMessageId = -1;
 
-    var pageId = undefined; // gets defined during the first connect(...) call
+    var clientId = undefined; // gets defined during the first connect(...) call
 
     var handlerFns = {};
 
@@ -114,15 +114,15 @@ leon.comet = (function() {
             }
 
             //leon.log("Starting Comet connection.");
-            if (pageId == undefined) {
-                // a page can only define the pageId once
-                pageId = id;
+            if (clientId == undefined) {
+                // a page can only define the clientId once
+                clientId = id;
             }
 
             clearInterval(pollTimer);
             clearInterval(disconnectTimer);
 
-            var url = leon.contextPath + "/leon/comet/connect" + "?pageId=" + pageId + "&lastMessageId=" + lastMessageId;
+            var url = leon.contextPath + "/leon/comet/connect" + "?clientId=" + clientId + "&lastMessageId=" + lastMessageId;
             leon.comet.openSocket(url);
 
             // check every second that we have a connection
@@ -145,7 +145,7 @@ leon.comet = (function() {
 
         updateFilter: function(topicId, key, value) {
             jQuery.get(leon.contextPath + "/leon/comet/updateFilter", {
-                pageId: pageId,
+                clientId: clientId,
                 topicId: topicId,
                 key: key,
                 value: value

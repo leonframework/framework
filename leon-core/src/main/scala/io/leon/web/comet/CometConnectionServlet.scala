@@ -28,11 +28,11 @@ class CometConnectionServlet @Inject()(registry: CometRegistry) extends Atmosphe
     }
 
     override def doGet(req: HttpServletRequest, res: HttpServletResponse) {
-      val pageId = req.getParameter("pageId")
+      val clientId = req.getParameter("clientId")
       val lastMessageId = req.getParameter("lastMessageId").toInt
 
       res.setCharacterEncoding("utf-8")
-      registry.registerUplink(req, pageId, lastMessageId)
+      registry.registerUplink(req, clientId, lastMessageId)
     }
 
   }

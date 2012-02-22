@@ -4,4 +4,8 @@
     @reversed = ""
 
     @reverse = ->
-        leon.service("/ajaxService", "method1").call @text, (@reversed) =>
+        leon.service("/reverserService", "reverse").call @text, (@reversed) =>
+
+@reversedTopic = (d) ->
+	$("#reversedStrings").prepend(d.original + "->" + d.reversed + "<br/>")
+

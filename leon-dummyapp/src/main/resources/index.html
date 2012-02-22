@@ -7,16 +7,37 @@
 	<link rel="stylesheet" href="/browser/style.css" />
 </head>
 
+<leon:subscribe topic="reversed" handlerFn="reversedTopic" />
+
 <body ng:controller="DummyAppCtrl">
 <div>
     <div id="header">
 	    <span>Ajax Reverser</span>
     </div>
+
     <hr />
-    Text: <input type="text" name="text" /> <br />
+
+    <span style="{font-weight:bold; margin-left:10px; margin-right:10px}">
+	    Text to reverse
+    </span>
+	<input type="text" name="text" />
+	<a href="#" ng:click="reverse()">Reverse text!</a> <br/>
+
     <hr />
-    <a href="#" ng:click="reverse()">Reverse text</a> <br/>
-    Reverse: <span ng:bind="reversed"/>
+
+	<span style="{font-weight:bold; margin-left:10px; margin-right:10px}">
+		Reversed text
+    </span>
+	<span ng:bind="reversed"></span>
+
+	<hr/>
+
+	<span style="{font-weight:bold; margin-left:10px; margin-bottom:10px}">
+		Reversed strings by all users
+	</span>
+	<br/>
+	<div id="reversedStrings" style="{margin-left:10px}">
+	</div>
 </div>
 </body>
 </html>

@@ -30,20 +30,20 @@ class CometSubscribeTagRewriter @Inject()(injector: Injector,
     if (subscribeTags.size() == 0)
       return Nil
 
-    val pageId = Option(request.getAttribute("pageId")) map {
+    // Make sure that we only create the clientID once.
+    // A page can contain several leon:subscribe tags!
+    val clientId = Option(request.getAttribute("clientId")) map {
       _.toString
     } getOrElse {
-      Clients.generateNewPageId()
+      Clients.generateNewClientId()
     }
-    request.setAttribute("pageId", pageId)
+    request.setAttribute("clientId", clientId)
 
-    val clientId = Clients.generateExistingClientId(request.getSession(true), pageId)
     val cc = new ClientConnection(clientId, None)
     clients.add(cc)
     logger.info("Registering client [%s].".format(cc.clientId))
 
     for (subscribeTag <- subscribeTags.asScala) yield {
-
       val topicId = Option(subscribeTag.getAttributeValue("topic")) getOrElse sys.error("attribute topic is missing in <leon:subscribe>!")
       val filterOn = Option(subscribeTag.getAttributeValue("filterOn")) map {
         _.split(",").toList map {
@@ -60,7 +60,7 @@ class CometSubscribeTagRewriter @Inject()(injector: Injector,
         |  leon.comet.addHandler("%s", %s);
         |  leon.comet.connect(%s);
         |</script>
-        """).stripMargin.format(topicId, handlerFn, pageId)
+        """).stripMargin.format(topicId, handlerFn, clientId)
 
       out: OutputDocument => out.replace(subscribeTag, scriptToInclude)
     }
