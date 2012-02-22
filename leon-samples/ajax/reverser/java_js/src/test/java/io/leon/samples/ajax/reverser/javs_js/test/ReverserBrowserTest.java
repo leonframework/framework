@@ -2,48 +2,42 @@ package io.leon.samples.ajax.reverser.javs_js.test;
 
 import io.leon.samples.ajax.reverser.java_js.Config;
 import io.leon.tests.browser.LeonBrowserTester;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
+@Test
 public class ReverserBrowserTest {
 
-    private static LeonBrowserTester LEON;
+    private LeonBrowserTester leon;
 
     @BeforeClass
-    public static void init() throws Exception {
-        LEON = new LeonBrowserTester(Config.class);
-        LEON.start();
+    public void init() throws Exception {
+        leon = new LeonBrowserTester(Config.class);
+        leon.start();
     }
 
     @AfterClass
-    public static void destroy() throws Exception {
-        LEON.stop();
+    public void destroy() throws Exception {
+        leon.stop();
     }
 
-    @Test
     public void testReverseText() throws InterruptedException {
-        LEON.openPage("/");
-        LEON.setTextForElementWithName("text", "abc");
-        LEON.setOffForElementWithName("toUpperCase");
+        leon.openPage("/");
+        leon.setTextForElementWithName("text", "abc");
+        leon.setOffForElementWithName("toUpperCase");
 
-        AjaxCallsMark mark = LEON.createAjaxCallsMark();
-        LEON.findElementById("reverse").click();
-        mark.waitForCalls(1);
-        Assert.assertEquals("cba", LEON.findElementById("text_reversed").getText());
+        leon.findElementById("reverse").click();
+        leon.waitForExpectedValue("text_reversed", "cba", 5);
     }
 
-    @Test
     public void testReverseTextUppercase() throws InterruptedException {
-        LEON.openPage("/");
-        LEON.setTextForElementWithName("text", "abc");
-        LEON.setOnForElementWithName("toUpperCase");
+        leon.openPage("/");
+        leon.setTextForElementWithName("text", "abc");
+        leon.setOnForElementWithName("toUpperCase");
 
-        AjaxCallsMark mark = LEON.createAjaxCallsMark();
-        LEON.findElementById("reverse").click();
-        mark.waitForCalls(1);
-        Assert.assertEquals("CBA", LEON.findElementById("text_reversed").getText());
+        leon.findElementById("reverse").click();
+        leon.waitForExpectedValue("text_reversed", "CBA", 5);
     }
 
 }
