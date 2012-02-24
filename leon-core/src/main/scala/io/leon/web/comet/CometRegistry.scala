@@ -15,11 +15,11 @@ import javax.servlet.http.HttpServletRequest
 import com.google.gson.Gson
 import org.slf4j.LoggerFactory
 import io.leon.config.ConfigMap
-import io.leon.web.BrowserTopics
+import io.leon.web.TopicsService
 import java.util.Map
 import com.google.common.collect.Maps
 
-class CometRegistry @Inject()(clients: Clients, gson: Gson, configMap: ConfigMap) extends BrowserTopics {
+class CometRegistry @Inject()(clients: Clients, gson: Gson, configMap: ConfigMap) extends TopicsService {
 
   private val logger = LoggerFactory.getLogger(getClass.getName)
 
@@ -131,10 +131,10 @@ class CometRegistry @Inject()(clients: Clients, gson: Gson, configMap: ConfigMap
   }
 
   def send(topicId: String, data: AnyRef) {
-    send(topicId, Maps.newHashMap(), data)
+    send(topicId, data, Maps.newHashMap())
   }
 
-  def send(topicId: String, filters: Map[String, AnyRef], data: AnyRef) {
+  def send(topicId: String, data: AnyRef, filters: Map[String, AnyRef]) {
     publish(topicId, filters, gson.toJson(data))
   }
 

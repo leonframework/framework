@@ -9,13 +9,13 @@
 package io.leon.javascript
 
 import com.google.inject.{Injector, Inject}
-import java.io.InputStreamReader
 import java.lang.IllegalArgumentException
 
 import org.mozilla.javascript.{ScriptableObject, Context, Function => RhinoFunction}
 import io.leon.resourceloading.{ResourceLoader, Resource}
 import org.slf4j.LoggerFactory
 import io.leon.resourceloading.watcher.{ResourceChangedListener, ResourceWatcher}
+import java.io.{BufferedReader, BufferedInputStream, InputStreamReader}
 
 class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader, resourceWatcher: ResourceWatcher) {
 
@@ -59,6 +59,7 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
 
     val resource = resourceLoader.getResource(fileName, new ResourceChangedListener {
       def resourceChanged(changedResource: Resource) {
+        logger.debug("Reloading JS file [{}]", changedResource.name)
         _loadResource(changedResource)
       }
     })

@@ -36,15 +36,15 @@ var leon = (function() {
             return leon.inject(Packages.com.google.gson.Gson);
         },
 
-        sendBrowserTopicsMessage: function(topic, filter, data) {
-            var browserTopics = leon.inject(Packages.io.leon.web.BrowserTopics);
+        sendTopicMessage: function(topic, data, filter) {
+            var topicsService = leon.inject(Packages.io.leon.web.TopicsService);
 
-            var filterMap = new Packages.java.util.HashMap();
-            filter.properties().forEach(function(key) {
-                filterMap.put(key, filter[key]);
-            });
+			if (filter) {
+                browserTopics.send(topic, data, filter);
+			} else {
+				browserTopics.send(topic, data);
+			}
 
-            browserTopics.send(topic, filterMap, data);
             return true;
         },
 

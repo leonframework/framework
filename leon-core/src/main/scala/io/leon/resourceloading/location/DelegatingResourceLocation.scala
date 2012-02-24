@@ -25,7 +25,9 @@ class DelegatingResourceLocation(loaderFn: (String) => URL) extends ResourceLoca
             -1
           }
         }
-        def getInputStream() = r.openStream()
+        def getInputStream() = {
+          r.openStream()
+        }
       }
       return Some(resource)
     }

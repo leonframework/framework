@@ -48,16 +48,21 @@ class ResourceWatcher @Inject()(cometRegistry: CometRegistry) {
             watched.lastTimestamp = currentLastModified
             changedResources.add(watched)
             lastDetectedModification = System.currentTimeMillis()
+            logger.debug("Resource [{}] changed.", watched.fileNameForProcessor)
           }
         }
 
         if (lastDetectedModification != -1L &&
           (lastDetectedModification + 1000) <= System.currentTimeMillis()) {
+          logger.debug("Applying pending resource changes.")
 
           lastDetectedModification = -1L
           for (changed <- changedResources.asScala) {
             try {
-              changed.changedListener.resourceChanged(changed.resource)
+              val newResource = changed.processor.process(
+                changed.location.getResource(changed.resource.name).get)
+
+              changed.changedListener.resourceChanged(newResource)
               cometRegistry.publish(
                 "leon.developmentMode.resourceWatcher.resourceChanged",
                 Maps.newHashMap(),

@@ -12,14 +12,14 @@ import com.google.inject.servlet.ServletModule
 import org.atmosphere.cpr.AtmosphereServlet
 import io.leon.web.resources.WebResourcesBinder
 import io.leon.web.htmltagsprocessor.HtmlTagsProcessorBinder
-import io.leon.web.BrowserTopics
+import io.leon.web.TopicsService
 import com.google.inject.{Key, AbstractModule}
 
 class CometModule extends AbstractModule {
 
   def configure() {
     bind(classOf[CometRegistry]).asEagerSingleton()
-    bind(classOf[BrowserTopics]).to(Key.get(classOf[CometRegistry]))
+    bind(classOf[TopicsService]).to(Key.get(classOf[CometRegistry]))
 
     bind(classOf[Clients]).asEagerSingleton()
     bind(classOf[CometConnectionServlet]).asEagerSingleton()

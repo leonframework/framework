@@ -4,20 +4,19 @@ package io.leon.dummyapp;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
-import io.leon.web.comet.CometRegistry;
+import io.leon.web.TopicsService;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class ReverserService {
 
-    private final CometRegistry cometRegistry;
+    private final TopicsService topicsService;
 
     private final Gson gson;
 
     @Inject
-    public ReverserService(CometRegistry cometRegistry, Gson gson) {
-        this.cometRegistry = cometRegistry;
+    public ReverserService(TopicsService topicsService, Gson gson) {
+        this.topicsService = topicsService;
         this.gson = gson;
     }
 
@@ -27,9 +26,7 @@ public class ReverserService {
         Map<String, String> data = Maps.newHashMap();
         data.put("original", param);
         data.put("reversed", reversed);
-        String json = gson.toJson(data);
-
-        cometRegistry.publish("reversed", new HashMap<String, Object>(), json);
+        topicsService.send("reversed", data);
 
         return reversed;
     }

@@ -10,16 +10,16 @@ package io.leon.gson
 
 import com.google.gson._
 import com.google.inject.AbstractModule
-import org.mozilla.javascript.{NativeArray, NativeJavaObject, NativeObject}
+import org.mozilla.javascript.{ScriptableObject, NativeArray, NativeJavaObject}
 
 class GsonModule extends AbstractModule {
 
   def configure() {
     val gsonBuilder = new GsonBuilder
 
-    val nativeObjectSerializer = new NativeObjectSerializer
-    requestInjection(nativeObjectSerializer)
-    gsonBuilder.registerTypeAdapter(classOf[NativeObject], nativeObjectSerializer)
+    val scriptableObjectSerializer = new ScriptableObjectSerializer
+    requestInjection(scriptableObjectSerializer)
+    gsonBuilder.registerTypeAdapter(classOf[ScriptableObject], scriptableObjectSerializer)
 
     val nativeJavaObjectSerializer = new NativeJavaObjectSerializer
     requestInjection(nativeJavaObjectSerializer)

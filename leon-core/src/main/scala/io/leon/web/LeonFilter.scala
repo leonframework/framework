@@ -32,14 +32,24 @@ class LeonFilter extends GuiceFilter {
   private var uowManager: UOWManager = _
 
   override def init(filterConfig: FilterConfig) {
+    StaticServletContextHolder.SERVLET_CONTEXT = filterConfig.getServletContext
+
     setupConfigMap(filterConfig)
 
     val moduleName = filterConfig.getInitParameter("module")
     val module =
-      if(moduleName.endsWith(".js"))
-        loadModuleFromJavaScript(classLoader.getResourceAsStream(moduleName))// FIX use another classloader
-      else
+      if(moduleName.endsWith(".js")) {
+        val _moduleName = if (moduleName.startsWith("/")) moduleName else "/" + moduleName
+        val viaContext = filterConfig.getServletContext.getResourceAsStream(_moduleName)
+        val inputStream = if (viaContext != null) {
+          viaContext
+        } else {
+          classLoader.getResourceAsStream(moduleName)
+        }
+        loadModuleFromJavaScript(inputStream)
+      } else {
         classLoader.loadClass(moduleName).asInstanceOf[Class[AbstractLeonConfiguration]].newInstance()
+      }
 
     injector = Guice.createInjector(new LeonDefaultWebAppGroupingModule, module)
     injector.injectMembers(this)

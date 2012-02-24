@@ -9,18 +9,17 @@
 package io.leon.resourceloading
 
 import com.google.inject.name.Names
-import com.google.inject.{Inject, AbstractModule}
 import io.leon.resourceloading.processor.{NoOpResourceProcessor, ResourceProcessorRegistry}
-import location.{ResourceLocation, DelegatingResourceLocation}
 import io.leon.config.ConfigMapHolder
+import location.{ServletContextResourceLocation, ResourceLocation, DelegatingResourceLocation}
 import watcher.ResourceWatcher
+import io.leon.guice.GuiceUtils
+import com.google.inject.{Scopes, Inject, AbstractModule}
 
 class ResourceLoadingModule extends AbstractModule {
 
   def configure() {
-    bind(classOf[ResourceLoader]).asEagerSingleton()
-
-    // --- Default classloader-based ResourceLocations ---
+    // --- Classloader-based ResourceLocations ---
 
     val clClass = new DelegatingResourceLocation((name) => getClass.getResource(name))
     val clClassName = clClass.getClass.getName + "- Leon class-based classloader"
@@ -30,8 +29,14 @@ class ResourceLoadingModule extends AbstractModule {
     val clThreadName = clThread.getClass.getName + "- Thread local context classloader"
     bind(classOf[ResourceLocation]).annotatedWith(Names.named(clThreadName)).toInstance(clThread)
 
-    bind(classOf[ResourceProcessorRegistry]).asEagerSingleton()
-    bind(classOf[NoOpResourceProcessor]).asEagerSingleton()
+    // --- ServletContext-based ResourceLocations ---
+
+    GuiceUtils.bindClassWithName(binder(), classOf[ResourceLocation], classOf[ServletContextResourceLocation]).in(Scopes.SINGLETON)
+
+
+    bind(classOf[ResourceLoader]).in(Scopes.SINGLETON)
+    bind(classOf[ResourceProcessorRegistry]).in(Scopes.SINGLETON)
+    bind(classOf[NoOpResourceProcessor]).in(Scopes.SINGLETON)
 
     // Resourcewatcher, depending on the deployment mode
     bind(classOf[ResourceWatcher]).asEagerSingleton()

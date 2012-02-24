@@ -3,20 +3,19 @@ package io.leon.web.browser.comet.ping;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
-import io.leon.web.comet.CometRegistry;
+import io.leon.web.TopicsService;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class PingService {
 
-    private final CometRegistry cometRegistry;
+    private final TopicsService topicsService;
 
     private final Gson gson;
     
     @Inject
-    public PingService(CometRegistry cometRegistry, Gson gson) {
-        this.cometRegistry = cometRegistry;
+    public PingService(TopicsService topicsService, Gson gson) {
+        this.topicsService = topicsService;
         this.gson = gson;
     }
 
@@ -28,8 +27,7 @@ public class PingService {
                 while (i++ < start + (10)) {
                     Map<String, Object> map = Maps.newHashMap();
                     map.put("number", i);
-                    cometRegistry.publish("ping", new HashMap<String, Object>(), gson.toJson(map));
-                    System.out.println("##### " + gson.toJson(map));
+                    topicsService.send("ping", map);
                     try {
                         Thread.sleep(1);
                     } catch (InterruptedException e) {
@@ -38,8 +36,7 @@ public class PingService {
                 }
                 Map<String, Object> map = Maps.newHashMap();
                 map.put("done", true);
-                cometRegistry.publish("ping", new HashMap<String, Object>(), gson.toJson(map));
-                System.out.println("##### " + gson.toJson(map));
+                topicsService.send("ping", map);
             }
         }.start();
     }
