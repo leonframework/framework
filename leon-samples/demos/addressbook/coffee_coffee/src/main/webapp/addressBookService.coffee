@@ -1,29 +1,16 @@
 
+logger = leon.getLogger("addressBookService")
+
+coll = -> leon.mongo.addresses
+
 @addressBookService =
 	save: (address) ->
-		leon.mongo.addresses.save(address)
+		coll().save(address)
 
 	list: ->
-		#data = []
-		#leon.mongo.addresses.find().foreach (a) ->
-		#	data.push(a)
-		#data
-		gson = leon.getGson()
-		println = (o) -> Packages.java.lang.System.out.println(o)
+		coll().find().toArray()
 
-		println("-----------")
-		result = (p for p in leon.mongo.addresses.find().toArray())
-
-		println("result[0] = ")
-		println(result[0])
-		println("")
-
-		println("gsontoJson(result[0]) = ")
-		println(gson.toJson(result[0]))
-		println("")
-
-		result
-
-
-
+	get: (id) ->
+		logger.info("Loading address with ID " + id)
+		coll().findOne({"firstname": "Roman"})
 

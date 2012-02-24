@@ -70,7 +70,15 @@ private[mongo] class JavaScriptDBCollection(collection: DBCollection) {
   def findOne(obj: ScriptableObject) = {
     val query = scriptableToDbObject(obj)
     val result = collection.findOne(query)
-    Option(result) map { dbObjectToScriptable } getOrElse null
+    val r = Option(result) map { dbObjectToScriptable } getOrElse null
+
+    println("----------------------")
+    println("query = " + query)
+    println("r = " + r)
+    println("collection.findOne(query) = " + collection.findOne(query))
+    println("----------------------")
+
+    r
   }
 
   def findOne(obj: ScriptableObject, fields: ScriptableObject) = {

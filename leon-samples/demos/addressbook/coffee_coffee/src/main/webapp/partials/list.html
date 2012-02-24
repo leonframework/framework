@@ -1,5 +1,18 @@
-<ul class="phones">
-	<li ng:repeat="address in addresses">
-		<span ng:bind="address"></span>
-	</li>
-</ul>
+
+
+<table>
+	<tr>
+		<td>Firstname</td>
+		<td>Lastname</td>
+		<td></td>
+	</tr>
+	<tr ng:repeat="address in view">
+		<td ng:bind="address.firstname"></td>
+		<td ng:bind="address.lastname"></td>
+		<td>
+			<a href="#/edit/{{address._id}}">edit</a>
+			<a href="#" ng:click="delete(address._id)">delete</a>
+		</td>
+	</tr>
+</table>
+

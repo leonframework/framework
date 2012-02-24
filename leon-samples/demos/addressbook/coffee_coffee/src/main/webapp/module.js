@@ -1,7 +1,7 @@
 
 setApplicationName("LeonDemoAddressBook");
 
-install(new Packages.io.leon.persistence.mongo.LeonMongoModule)
+install(new Packages.io.leon.persistence.mongo.LeonMongoModule);
 
 loadFile("addressBookService.js");
 

@@ -9,6 +9,10 @@ var leon = (function() {
 
         deploymentMode: "development",
 
+        go: function(href) {
+            window.location.href = href;
+        },
+
         service: function(url, methodName) {
             return {
                 call: function() {

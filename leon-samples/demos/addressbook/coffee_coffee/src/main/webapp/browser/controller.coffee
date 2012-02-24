@@ -1,7 +1,8 @@
 
 @AddressBookController = ($route) ->
-	$route.parent this
-	$route.onChange => @params = $route.current.params
+	$route.parent(this)
+	$route.onChange =>
+		@params = $route.current.params
 
 	$route.when "/list",
 		template: "partials/list.html"
@@ -13,15 +14,21 @@
 
 	$route.otherwise redirectTo: '/list'
 
+	@delete = (id) ->
+		console.log("delete " + id)
+		console.log($route)
+
 
 @AddressBookListController = ->
 	leon.service("/addressBookService", "list").call (list) =>
-		console.log(list)
+		@view = list
 
 
 @AddressBookEditController = ->
 	if @params.id
-		@address = {}
+		leon.service("/addressBookService", "get").call @params.id, (a) =>
+			console.log(a)
+			@address = a
 	else
 		@address = {}
 
