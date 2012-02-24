@@ -19,15 +19,6 @@ class ScriptableObjectSerializer extends JsonSerializer[ScriptableObject] {
   var gson: Gson = _
 
   def serialize(src: ScriptableObject, typeOfSrc: Type, context: JsonSerializationContext) = {
-    println("####################################")
-    println("####################################")
-    println("####################################")
-    println("####################################")
-    println("####################################")
-    println("####################################")
-    println("####################################")
-    println("####################################")
-    println("####################################")
     val map = new JsonObject
     val ids = src.getAllIds
     for (id <- ids) {
