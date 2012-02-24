@@ -25,24 +25,17 @@ private[mongo] object MongoUtils {
     case x => x
   }
 
-  def javaToJs(obj: AnyRef): AnyRef = {
-    println("### START #################################")
-    val r = obj match {
-      case dbList: BasicDBList => println("1"); new NativeArray(dbList.toArray map { javaToJs })
-      case dbObj: DBObject => println("2"); dbObjectToScriptable(dbObj)
-      case objId: ObjectId => println("3"); objId.toString
-      case x => println("4 - " + x.getClass + " - " + x); x
+  def javaToJs(obj: AnyRef): AnyRef = obj match {
+      case dbList: BasicDBList => new NativeArray(dbList.toArray map { javaToJs })
+      case dbObj: DBObject => dbObjectToScriptable(dbObj)
+      case objId: ObjectId => objId.toString
+      case so: ScriptableObject => (so.toMap.asScala map { e => e._1 -> javaToJs(e._2.asInstanceOf[AnyRef]) }).asJava
+      case x => x
     }
-    println("### ENDE #################################")
-    r
-  }
-
-  def dbObjectToMap(obj: DBObject): java.util.Map[_, _] = {
-    obj.toMap
-  }
 
   implicit def dbObjectToScriptable(obj: DBObject): ScriptableObject =
     new ScriptableObject() {
+
       def getClassName = "DBObject"
 
       obj.toMap.asScala foreach { case (k: String, v: AnyRef) =>
