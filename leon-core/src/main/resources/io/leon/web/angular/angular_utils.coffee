@@ -35,7 +35,10 @@
 
 		# --- default route settings ---
 
+		@routeListUrl = "/list"
 		@routeListTemplate = "partials/list.html"
+
+		@routeEditUrl = "/edit/:id"
 		@routeEditTemplate = "partials/edit.html"
 
 		# --- user controller ---
@@ -48,12 +51,12 @@
 		@route.onChange =>
 			@params = @route.current.params
 
-		@route.when "/list",
+		@route.when @routeListUrl,
 			template: @routeListTemplate
 			controller: ->
 				@doList()
 
-		@route.when "/edit/:id",
+		@route.when @routeEditUrl,
 			template: @routeEditTemplate
 			controller: ->
 				if @params.id
@@ -61,4 +64,4 @@
 				else
 					@doEditNew()
 
-		@route.otherwise redirectTo: '/list'
+		@route.otherwise redirectTo: @routeListUrl
