@@ -1,5 +1,3 @@
-
-
 <table>
 	<tr>
 		<td>Firstname</td>
@@ -10,9 +8,8 @@
 		<td ng:bind="address.firstname"></td>
 		<td ng:bind="address.lastname"></td>
 		<td>
-			<a href="#/edit/{{address._id}}">edit</a>
-			<a ng:click="delete(address._id)">delete</a>
+			<a ng:click="showEdit(address._id)">edit</a>
+			<a ng:click="doDelete(address._id)">delete</a>
 		</td>
 	</tr>
 </table>
-

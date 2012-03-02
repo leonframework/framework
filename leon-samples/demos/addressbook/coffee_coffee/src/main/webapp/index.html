@@ -7,9 +7,6 @@
 	<link rel="stylesheet" href="/style.css" />
 </head>
 
-<!-- <leon:subscribe topic="reversed" handlerFn="reversedTopic" /> -->
-
-
 <body ng:controller="AddressBookController">
 
 <div id="header">
@@ -17,8 +14,8 @@
 </div>
 <hr />
 
-<a href="#/list">List</a>
-<a href="#/edit/">New</a>
+<a ng:click="showList()">List</a>
+<a ng:click="showEdit()">New</a>
 <br/>
 
 <ng:view></ng:view>

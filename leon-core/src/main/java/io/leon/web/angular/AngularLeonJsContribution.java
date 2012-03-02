@@ -20,6 +20,10 @@ public class AngularLeonJsContribution implements VirtualLeonJsFileContribution 
             + getClass().getPackage().getName().replace('.', '/')
             + "/angular_leon_integration.js";
 
+    private final String angularUtilsJsPath = "/"
+            + getClass().getPackage().getName().replace('.', '/')
+            + "/angular_utils.js";
+
     @Inject
     public AngularLeonJsContribution(ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
@@ -35,6 +39,9 @@ public class AngularLeonJsContribution implements VirtualLeonJsFileContribution 
 
             Resource aliJs = resourceLoader.getResource(angularLeonIntegrationJsPath);
             content.append(ResourceUtils.inputStreamToString(aliJs.getInputStream()));
+
+            Resource utilsJs = resourceLoader.getResource(angularUtilsJsPath);
+            content.append(ResourceUtils.inputStreamToString(utilsJs.getInputStream()));
         }
 
         if (!("false".equals(params.get("angularAutoCompile")))) {

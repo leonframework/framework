@@ -29,6 +29,7 @@ class ResourceWatcher @Inject()(cometRegistry: CometRegistry) {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
+  @volatile
   private var started = false
 
   private val watchedResources = new java.util.Vector[WatchedResource]
