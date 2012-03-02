@@ -3,7 +3,7 @@ jQuery.fn.toObject = function() {
     return form2object(this.attr("id"));
 };
 
-var leon = (function() {
+var _leon = (function() {
 
     return {
 
@@ -13,7 +13,7 @@ var leon = (function() {
             window.location.href = href;
         },
 
-        service: function(url, methodName) {
+        service: function(url, methodName, onComplete) {
             return {
                 call: function() {
                     var args = Array.prototype.slice.call(arguments);
@@ -41,36 +41,40 @@ var leon = (function() {
 
                     var handler = function(result) {
                         if (result != null && result.leonAjaxError) {
-                            leon.log("Ajax [" + url + " " + methodName + "] ERROR");
+                            getLeon().log("Ajax [" + url + " " + methodName + "] ERROR");
                             console.log(result);
                         } else {
                             callback(result);
-                            if (!(typeof leon.angularDocument === 'undefined')) {
-                                leon.angularDocument.$service("$updateView")();
-                            }
-                            leon.log("Ajax [" + url + " " + methodName + "] done");
+                            getLeon().log("Ajax [" + url + " " + methodName + "] done");
+                        }
+                        if (!(typeof onComplete === "undefined")) {
+                            onComplete()
                         }
                     }
 
                     jQuery.post(url, request, handler);
-                    leon.log("Ajax [" + url + " " + methodName + "] called");
+                    getLeon().log("Ajax [" + url + " " + methodName + "] called");
                 }
             };
         },
 
         hasCockpit: function() {
-            return !(typeof leon.cockpit === 'undefined');
+            return !(typeof getLeon().cockpit === 'undefined');
         },
 
         log: function(msg) {
-            if (leon.deploymentMode === "development") {
+            if (getLeon().deploymentMode === "development") {
 	            console.log(msg);
-	            if (leon.hasCockpit()) {
-	                leon.cockpit.displayLogMessage(msg);
+	            if (getLeon().hasCockpit()) {
+	                getLeon().cockpit.displayLogMessage(msg);
 	            }
             }
         }
 
     };
 })();
+
+var getLeon = function() {
+	return _leon;
+}
 

@@ -1,5 +1,5 @@
 
-@DummyAppCtrl = ->
+@DummyAppCtrl = (leon) ->
     @text = "Hello World!"
     @reversed = ""
 

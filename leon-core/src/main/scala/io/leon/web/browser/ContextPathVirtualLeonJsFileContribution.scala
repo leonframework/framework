@@ -15,7 +15,7 @@ class ContextPathVirtualLeonJsFileContribution @Inject()(httpRequestProvider: Pr
     extends VirtualLeonJsFileContribution {
 
   def content(params: java.util.Map[String, String]): String = {
-    val script = """ leon.contextPath = "%s"; """
+    val script = """ getLeon().contextPath = "%s"; """
     val cp = httpRequestProvider.get().getContextPath
     script.format(cp)
   }

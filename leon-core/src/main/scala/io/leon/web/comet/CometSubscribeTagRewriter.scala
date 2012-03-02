@@ -57,8 +57,8 @@ class CometSubscribeTagRewriter @Inject()(injector: Injector,
       val scriptToInclude =
         ("""
         |<script type="text/javascript">
-        |  leon.comet.addHandler("%s", %s);
-        |  leon.comet.connect(%s);
+        |  getLeon().comet.addHandler("%s", %s);
+        |  getLeon().comet.connect(%s);
         |</script>
         """).stripMargin.format(topicId, handlerFn, clientId)
 

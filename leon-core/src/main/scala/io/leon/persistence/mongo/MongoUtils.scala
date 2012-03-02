@@ -28,7 +28,7 @@ private[mongo] object MongoUtils {
   def javaToJs(obj: AnyRef): AnyRef = obj match {
       case dbList: BasicDBList => new NativeArray(dbList.toArray map { javaToJs })
       case dbObj: DBObject => dbObjectToScriptable(dbObj)
-      case objId: ObjectId => objId.toString
+      case objId: ObjectId => objId.toByteArray.toString
       case so: ScriptableObject => (so.toMap.asScala map { e => e._1 -> javaToJs(e._2.asInstanceOf[AnyRef]) }).asJava
       case x => x
     }

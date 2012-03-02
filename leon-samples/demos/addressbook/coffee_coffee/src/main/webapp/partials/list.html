@@ -6,12 +6,12 @@
 		<td>Lastname</td>
 		<td></td>
 	</tr>
-	<tr ng:repeat="address in view">
+	<tr ng:repeat="address in model.list">
 		<td ng:bind="address.firstname"></td>
 		<td ng:bind="address.lastname"></td>
 		<td>
 			<a href="#/edit/{{address._id}}">edit</a>
-			<a href="#" ng:click="delete(address._id)">delete</a>
+			<a ng:click="delete(address._id)">delete</a>
 		</td>
 	</tr>
 </table>

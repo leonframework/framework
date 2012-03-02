@@ -10,6 +10,7 @@ package io.leon.persistence.mongo
 
 import org.mozilla.javascript.{Context, BaseFunction, ScriptableObject}
 import com.mongodb.{DBCollection, BasicDBObject}
+import org.bson.types.ObjectId
 
 
 private[mongo] class JavaScriptDBCollection(collection: DBCollection) {
@@ -70,15 +71,7 @@ private[mongo] class JavaScriptDBCollection(collection: DBCollection) {
   def findOne(obj: ScriptableObject) = {
     val query = scriptableToDbObject(obj)
     val result = collection.findOne(query)
-    val r = Option(result) map { dbObjectToScriptable } getOrElse null
-
-    println("----------------------")
-    println("query = " + query)
-    println("r = " + r)
-    println("collection.findOne(query) = " + collection.findOne(query))
-    println("----------------------")
-
-    r
+    Option(result) map { dbObjectToScriptable } getOrElse null
   }
 
   def findOne(obj: ScriptableObject, fields: ScriptableObject) = {
@@ -87,10 +80,9 @@ private[mongo] class JavaScriptDBCollection(collection: DBCollection) {
     Option(result) map { dbObjectToScriptable } getOrElse null
   }
 
-  def findOne(id: String) = {
+  def findOne(id: String): ScriptableObject = {
     import scala.collection.JavaConverters._
-
-    val query = new BasicDBObject(Map("_id" -> id).asJava)
+    val query = new BasicDBObject(Map("_id" -> new ObjectId(id)).asJava)
     Option(collection.findOne(query)) map { dbObjectToScriptable } getOrElse null
   }
 

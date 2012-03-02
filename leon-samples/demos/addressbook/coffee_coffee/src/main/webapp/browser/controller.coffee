@@ -1,37 +1,44 @@
 
-@AddressBookController = ($route) ->
+@AddressBookController = ($route, leon) ->
+	# controllers
+	@ListController = ->
+		@loadAll()
+
+	@EditController = (leon) ->
+		if @params.id
+			leon.service("/addressBookService", "get").call @params.id, (a) =>
+				@model.address = a
+		else
+			@model.address = {}
+
+
+	# state
+	@model = {}
+
+	# route settings
 	$route.parent(this)
 	$route.onChange =>
 		@params = $route.current.params
 
 	$route.when "/list",
 		template: "partials/list.html"
-		controller: AddressBookListController
+		controller: @ListController
 
 	$route.when "/edit/:id",
 		template: "partials/edit.html"
-		controller: AddressBookEditController
+		controller: @EditController
 
 	$route.otherwise redirectTo: '/list'
 
+	# functions
+	@loadAll = ->
+		leon.service("/addressBookService", "list").call (list) =>
+			@model.list = list
+
 	@delete = (id) ->
-		console.log("delete " + id)
-		console.log($route)
-
-
-@AddressBookListController = ->
-	leon.service("/addressBookService", "list").call (list) =>
-		@view = list
-
-
-@AddressBookEditController = ->
-	if @params.id
-		leon.service("/addressBookService", "get").call @params.id, (a) =>
-			console.log(a)
-			@address = a
-	else
-		@address = {}
+		leon.service("addressBookService", "delete").call id, =>
+			@loadAll()
 
 	@save = ->
-		console.log(@address)
-		leon.service("/addressBookService", "save").call(@address)
+		leon.service("/addressBookService", "save").call(@model.address)
+		leon.go("#/list")

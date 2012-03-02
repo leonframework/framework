@@ -5,7 +5,7 @@
 
 $('<link rel="stylesheet" href="/io/leon/web/cockpit/leon-cockpit.css"/>').appendTo("head")
 
-menu = $(leon.cockpit.ui.menu())
+menu = $(leoncockpit.ui.menu())
 logLabel = -> $("#leonCockpitMenu>div.log")
 
 #----------------------------------------------------------
@@ -41,7 +41,7 @@ getCurrentTime = ->
 # Public API
 #----------------------------------------------------------
 
-@leon.cockpit =
+getLeon().cockpit =
 	enable: ->
 		console.log("Leon Cockpit enabled.")
 		showMenu()
@@ -61,5 +61,5 @@ getCurrentTime = ->
 # Init
 #----------------------------------------------------------
 
-$ => @leon.cockpit.enable()
+$ => getLeon().cockpit.enable()
 

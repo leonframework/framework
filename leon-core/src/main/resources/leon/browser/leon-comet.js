@@ -1,5 +1,5 @@
 
-leon.comet = (function() {
+getLeon().comet = (function() {
 
     var pollTimer; // check for new data, connection state, ...
 
@@ -36,7 +36,7 @@ leon.comet = (function() {
         },
 
         handleResponse: function() {
-            //leon.debug("Http readyState: " + http.readyState + "; Http status: " + http.status + "; done reading: " + (prevDataLength == http.responseText.length));
+            //getLeon().debug("Http readyState: " + http.readyState + "; Http status: " + http.status + "; done reading: " + (prevDataLength == http.responseText.length));
             // Documentation
             // --------------------------------------------
             // readyState:
@@ -51,7 +51,7 @@ leon.comet = (function() {
             if (http.readyState == 3 && http.status != 200)
                 return;
 
-            leon.comet.readBuffer();
+            getLeon().comet.readBuffer();
         },
 
         readBuffer: function() {
@@ -80,10 +80,10 @@ leon.comet = (function() {
                         var dataParsed = JSON.parse(message.data);
                         lastMessageId = message.messageId;
                         try {
-                            leon.comet.handleEvent(message.topicName, dataParsed);
-                            leon.log("Comet handler called")
+                            getLeon().comet.handleEvent(message.topicName, dataParsed);
+                            getLeon().log("Comet handler called")
                         } catch (err) {
-                            leon.log("Comet handler ERROR");
+                            getLeon().log("Comet handler ERROR");
                             console.log(err.description);
                         }
                     }
@@ -96,10 +96,10 @@ leon.comet = (function() {
             prevDataLength = 0;
             nextLine = 0;
 
-            http = leon.comet.createRequestObject();
+            http = getLeon().comet.createRequestObject();
             http.open('get', url);
-            http.onreadystatechange = leon.comet.handleResponse;
-            pollTimer = setInterval(leon.comet.handleResponse, 5 * 1000);
+            http.onreadystatechange = getLeon().comet.handleResponse;
+            pollTimer = setInterval(getLeon().comet.handleResponse, 5 * 1000);
             http.send(null);
         },
 
@@ -108,12 +108,12 @@ leon.comet = (function() {
         },
 
         connect: function(id) {
-            if (leon.comet.isCometActive()) {
-                //leon.log("Comet connection already active.");
+            if (getLeon().comet.isCometActive()) {
+                //getLeon().log("Comet connection already active.");
                 return; // already connected
             }
 
-            //leon.log("Starting Comet connection.");
+            //getLeon().log("Starting Comet connection.");
             if (clientId == undefined) {
                 // a page can only define the clientId once
                 clientId = id;
@@ -122,13 +122,13 @@ leon.comet = (function() {
             clearInterval(pollTimer);
             clearInterval(disconnectTimer);
 
-            var url = leon.contextPath + "/leon/comet/connect" + "?clientId=" + clientId + "&lastMessageId=" + lastMessageId;
-            leon.comet.openSocket(url);
+            var url = getLeon().contextPath + "/leon/comet/connect" + "?clientId=" + clientId + "&lastMessageId=" + lastMessageId;
+            getLeon().comet.openSocket(url);
 
             // check every second that we have a connection
             (function connectionCheck() {
                setTimeout(function() {
-                  leon.comet.connect();
+                  getLeon().comet.connect();
                   connectionCheck();
               }, 1000);
             })();
@@ -144,7 +144,7 @@ leon.comet = (function() {
         },
 
         updateFilter: function(topicId, key, value) {
-            jQuery.get(leon.contextPath + "/leon/comet/updateFilter", {
+            jQuery.get(getLeon().contextPath + "/leon/comet/updateFilter", {
                 clientId: clientId,
                 topicId: topicId,
                 key: key,
