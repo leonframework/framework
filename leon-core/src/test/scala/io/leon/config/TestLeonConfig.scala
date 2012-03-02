@@ -1,9 +1,9 @@
 package io.leon.config
 
-import io.leon.AbstractLeonConfiguration
+import io.leon.LeonAppMainModule
 
 
-class TestLeonConfig extends AbstractLeonConfiguration {
+class TestLeonConfig extends LeonAppMainModule {
 
   def config() {
     setApplicationName("ConfigTestApp")

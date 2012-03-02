@@ -16,7 +16,6 @@ package io.leon.samples.mixed
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-import io.leon.AbstractLeonConfiguration
 import io.leon.persistence.mongo.LeonMongoModule
 import io.leon.resources.coffeescript.CoffeeScriptModule
 

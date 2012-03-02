@@ -11,7 +11,6 @@ package io.leon.web
 import com.google.inject.servlet.GuiceFilter
 import scala.io.Source
 import org.mozilla.javascript.{NativeJavaObject, Context}
-import io.leon.{AbstractLeonConfiguration, LeonDefaultWebAppGroupingModule}
 import java.lang.reflect.Method
 import java.io.InputStream
 import com.google.inject.{Inject, Injector, Guice}
@@ -19,6 +18,7 @@ import io.leon.unitofwork.UOWManager
 import io.leon.config.{ConfigMapHolder, ConfigReader}
 import javax.servlet._
 import io.leon.resourceloading.watcher.ResourceWatcher
+import io.leon.{DefaultWebAppGroupingModule, LeonAppMainModule}
 
 class LeonFilter extends GuiceFilter {
 
@@ -34,6 +34,8 @@ class LeonFilter extends GuiceFilter {
   override def init(filterConfig: FilterConfig) {
     StaticServletContextHolder.SERVLET_CONTEXT = filterConfig.getServletContext
 
+    val defaultWebModule = new DefaultWebAppGroupingModule
+    defaultWebModule.init()
     setupConfigMap(filterConfig)
 
     val moduleName = filterConfig.getInitParameter("module")
@@ -48,10 +50,10 @@ class LeonFilter extends GuiceFilter {
         }
         loadModuleFromJavaScript(inputStream)
       } else {
-        classLoader.loadClass(moduleName).asInstanceOf[Class[AbstractLeonConfiguration]].newInstance()
+        classLoader.loadClass(moduleName).asInstanceOf[Class[LeonAppMainModule]].newInstance()
       }
 
-    injector = Guice.createInjector(new LeonDefaultWebAppGroupingModule().init(), module)
+    injector = Guice.createInjector(defaultWebModule, module)
     injector.injectMembers(this)
     super.init(filterConfig)
   }
@@ -70,13 +72,13 @@ class LeonFilter extends GuiceFilter {
     }
   }
 
-  def loadModuleFromJavaScript(file: InputStream): AbstractLeonConfiguration = {
+  def loadModuleFromJavaScript(file: InputStream): LeonAppMainModule = {
     require(file != null, "JavaScript module file not found!")
     val js = Source.fromInputStream(file).getLines().mkString("\n")
     createAndLoadModuleClass(js)
   }
 
-  def createAndLoadModuleClass(js: String): AbstractLeonConfiguration = {
+  def createAndLoadModuleClass(js: String): LeonAppMainModule = {
     //logger.info("loading leon configuration from {}", filename)
     //logger.info("Base directory is {}", baseDir.getAbsolutePath)
 
@@ -92,7 +94,7 @@ class LeonFilter extends GuiceFilter {
       }
 
       for {
-        method <- getMethods(classOf[AbstractLeonConfiguration])
+        method <- getMethods(classOf[LeonAppMainModule])
         modifiers = method.getModifiers if isPublic(modifiers) || isProtected(modifiers)
         name = method.getName if !(name contains "$") // ignore special 'scala' methods
       } yield name
@@ -112,7 +114,7 @@ class LeonFilter extends GuiceFilter {
              %s
           }
       };
-      new Packages.io.leon.AbstractLeonConfiguration(module);
+      new Packages.io.leon.LeonAppMainModule(module);
       """.format(forwardMethods, js)
 
     // logger.debug("generated js config: {}", jsConfig)
@@ -123,7 +125,7 @@ class LeonFilter extends GuiceFilter {
     val javaObject = jsObject.unwrap()
     Context.exit()
 
-    javaObject.asInstanceOf[AbstractLeonConfiguration]
+    javaObject.asInstanceOf[LeonAppMainModule]
   }
 
   def setupConfigMap(filterConfig: FilterConfig) {

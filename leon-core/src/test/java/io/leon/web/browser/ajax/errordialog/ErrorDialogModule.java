@@ -1,14 +1,12 @@
 package io.leon.web.browser.ajax.errordialog;
 
-import io.leon.AbstractLeonConfiguration;
-import io.leon.web.ajax.AjaxBinder;
+import io.leon.LeonModule;
 
-public class ErrorDialogModule extends AbstractLeonConfiguration {
+public class ErrorDialogModule extends LeonModule {
 
     @Override
     public void config() {
-        AjaxBinder ab = new AjaxBinder(super.binder());
-        ab.exposeJavaService("/ajaxService", AjaxService.class);
+        exposeJavaService("/ajaxService", AjaxService.class);
     }
 
 }

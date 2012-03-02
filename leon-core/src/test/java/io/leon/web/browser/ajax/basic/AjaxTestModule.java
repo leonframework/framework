@@ -1,15 +1,13 @@
 package io.leon.web.browser.ajax.basic;
 
-import io.leon.AbstractLeonConfiguration;
-import io.leon.web.ajax.AjaxBinder;
+import io.leon.LeonModule;
 
-public class AjaxTestModule extends AbstractLeonConfiguration {
+public class AjaxTestModule extends LeonModule {
 
     @Override
     public void config() {
         exposeUrl(".*");
-        AjaxBinder ab = new AjaxBinder(super.binder());
-        ab.exposeJavaService("/ajaxService", AjaxService.class);
+        exposeJavaService("/ajaxService", AjaxService.class);
     }
 
 }

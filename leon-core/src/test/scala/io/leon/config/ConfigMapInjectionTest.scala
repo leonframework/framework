@@ -1,13 +1,13 @@
 package io.leon.config
 
 import org.testng.annotations.{Guice, Test}
-import io.leon.LeonDefaultWebAppGroupingModule
 import com.google.inject.{Inject, Module}
 import org.scalatest.Assertions
+import io.leon.LeonAppMainModule
 
 
 @Test
-@Guice(modules = Array[Class[_ <: Module]](classOf[LeonDefaultWebAppGroupingModule], classOf[TestLeonConfig]))
+@Guice(modules = Array[Class[_ <: Module]](classOf[LeonAppMainModule], classOf[TestLeonConfig]))
 class ConfigMapInjectionTest @Inject()(configMap: ConfigMap) {
   import Assertions._
 

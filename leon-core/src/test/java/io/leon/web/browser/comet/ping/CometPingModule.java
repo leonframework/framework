@@ -1,9 +1,9 @@
 package io.leon.web.browser.comet.ping;
 
-import io.leon.AbstractLeonConfiguration;
+import io.leon.LeonModule;
 import io.leon.web.ajax.AjaxBinder;
 
-public class CometPingModule extends AbstractLeonConfiguration {
+public class CometPingModule extends LeonModule {
 
     @Override
     public void config() {

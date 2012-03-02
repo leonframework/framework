@@ -19,6 +19,8 @@ import java.io.{BufferedReader, BufferedInputStream, InputStreamReader}
 
 class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader, resourceWatcher: ResourceWatcher) {
 
+  import scala.collection.JavaConverters._
+
   private val logger = LoggerFactory.getLogger(getClass.getName)
 
   val rhinoScope = withContext { _.initStandardObjects() }
@@ -67,8 +69,8 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
     _loadResource(resource)
   }
 
-  def loadResources(fileNames: List[String]) {
-    fileNames foreach loadResource
+  def loadResources(fileNames: java.util.List[String]) {
+    fileNames.asScala foreach loadResource
   }
 
   def getObject(name: String): ScriptableObject = {

@@ -1,6 +1,6 @@
 package io.leon.tests.browser;
 
-import io.leon.AbstractLeonConfiguration;
+import io.leon.LeonModule;
 import io.leon.web.LeonFilter;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.*;
@@ -11,7 +11,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 
 public class LeonBrowserTester {
 
-    private final Class<? extends AbstractLeonConfiguration> config;
+    private final Class<? extends LeonModule> config;
 
     private Server server;
 
@@ -19,7 +19,7 @@ public class LeonBrowserTester {
 
     private int httpPort = 8090;
 
-    public LeonBrowserTester(Class<? extends AbstractLeonConfiguration> config) {
+    public LeonBrowserTester(Class<? extends LeonModule> config) {
         this.config = config;
     }
 
