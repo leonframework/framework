@@ -9,11 +9,10 @@
 package io.leon
 
 
-import config.{ConfigMapHolder, ConfigMap, ConfigReader}
+import config.{ConfigMapHolder, ConfigMap}
 import javascript.LeonScriptEngine
 import collection.mutable
 import com.google.inject._
-import resourceloading.watcher.ResourceWatcher
 import servlet.ServletModule
 import java.io.File
 import web.resources.WebResourcesBinder
@@ -22,17 +21,6 @@ import web.resources.WebResourcesBinder
 abstract class AbstractLeonConfiguration extends ServletModule {
 
   //private val logger = Logger.getLogger(getClass.getName)
-
-  val globalConfig: ConfigMap = {
-    val currentConfig = ConfigMapHolder.getInstance().getConfigMap
-
-    // read properties without overriding existing values
-    currentConfig.importConfigMap(new ConfigReader().readProperties())
-    // read system settings with overriding existing values
-    currentConfig.putAll(new ConfigReader().readEnvironment())
-
-    currentConfig
-  }
 
   val javaScriptFilesToLoad = mutable.ArrayBuffer[String]()
 
@@ -47,7 +35,8 @@ abstract class AbstractLeonConfiguration extends ServletModule {
   }
 
   def setApplicationName(appName: String) {
-    globalConfig.put(ConfigMap.APPLICATION_NAME_KEY, appName)
+    val map = ConfigMapHolder.getInstance().getConfigMap
+    map.put(ConfigMap.APPLICATION_NAME_KEY, appName)
   }
 
   override def configureServlets() {
@@ -62,8 +51,6 @@ abstract class AbstractLeonConfiguration extends ServletModule {
     exposeUrl(".*/browser/.*js$")
     exposeUrl(".*/browser/.*json$")
 
-    bind(classOf[ConfigMap]).toInstance(globalConfig)
-
     config()
 
     val rb = new WebResourcesBinder(binder())
@@ -71,9 +58,6 @@ abstract class AbstractLeonConfiguration extends ServletModule {
 
     requestInjection(new Object {
       @Inject def init(injector: Injector, engine: LeonScriptEngine) {
-        // Importing module config parameters without overriding existing values
-        globalConfig.importConfigMap(new ConfigReader().readModuleParameters(injector))
-
         // Loading JavaScript files
         engine.loadResources(javaScriptFilesToLoad.toList)
       }
