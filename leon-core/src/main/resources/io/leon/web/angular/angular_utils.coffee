@@ -11,6 +11,9 @@
 		@doEdit = ->
 			throw "doEdit(id) not implemented"
 
+		@doEditNew = ->
+		    @model.current = {}
+
 		# --- state ---
 
 		@route = @$service("$route")
@@ -56,6 +59,6 @@
 				if @params.id
 					@doEdit(@params.id)
 				else
-					@model.current = {}
+					@doEditNew()
 
 		@route.otherwise redirectTo: '/list'
