@@ -2,7 +2,7 @@
 
 @AddressBookController = getLeon().angular.utils.createCrudController ->
 	@doEdit = (id) ->
-		@leon.service("/addressBookService", "get").call @params.id, (a) =>
+		@leon.service("/addressBookService", "get").call id, (a) =>
 			@model.current = a
 
 	@doList = ->
