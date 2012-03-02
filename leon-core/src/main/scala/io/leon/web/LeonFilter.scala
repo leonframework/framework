@@ -51,7 +51,7 @@ class LeonFilter extends GuiceFilter {
         classLoader.loadClass(moduleName).asInstanceOf[Class[AbstractLeonConfiguration]].newInstance()
       }
 
-    injector = Guice.createInjector(new LeonDefaultWebAppGroupingModule, module)
+    injector = Guice.createInjector(new LeonDefaultWebAppGroupingModule().init(), module)
     injector.injectMembers(this)
     super.init(filterConfig)
   }

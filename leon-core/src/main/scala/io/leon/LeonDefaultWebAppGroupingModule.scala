@@ -8,7 +8,7 @@
  */
 package io.leon
 
-import config.{ConfigModule, ConfigMapHolder}
+import config.{ConfigMap, ConfigModule, ConfigMapHolder}
 import gson.GsonModule
 import javascript.LeonJavaScriptModule
 import resourceloading.ResourceLoadingModule
@@ -27,8 +27,15 @@ import com.google.inject.AbstractModule
 
 class LeonDefaultWebAppGroupingModule extends AbstractModule {
 
+  val configModule = new ConfigModule
+
+  def init(): this.type = {
+    configModule.init()
+    this
+  }
+
   def configure() {
-    install(new ConfigModule().init())
+    install(configModule)
     install(new UOWModule)
     install(new ResourceLoadingModule)
     install(new AngularModule)
