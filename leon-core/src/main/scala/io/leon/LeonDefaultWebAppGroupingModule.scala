@@ -28,7 +28,7 @@ import com.google.inject.AbstractModule
 class LeonDefaultWebAppGroupingModule extends AbstractModule {
 
   def configure() {
-    install(new ConfigModule)
+    install(new ConfigModule().init())
     install(new UOWModule)
     install(new ResourceLoadingModule)
     install(new AngularModule)

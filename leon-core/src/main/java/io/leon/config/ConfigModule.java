@@ -6,8 +6,7 @@ import com.google.inject.Injector;
 
 public class ConfigModule extends AbstractModule {
 
-    @Override
-    protected void configure() {
+    public ConfigModule init() {
         ConfigMap configMap = ConfigMapHolder.getInstance().getConfigMap();
 
         // read properties without overriding existing values
@@ -15,6 +14,13 @@ public class ConfigModule extends AbstractModule {
 
         // read system settings with overriding existing values
         configMap.putAll(new ConfigReader().readEnvironment());
+
+        return this;
+    }
+
+    @Override
+    protected void configure() {
+        ConfigMap configMap = ConfigMapHolder.getInstance().getConfigMap();
 
         bind(ConfigMap.class).toInstance(configMap);
 
