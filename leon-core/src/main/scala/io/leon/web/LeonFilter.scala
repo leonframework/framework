@@ -18,7 +18,7 @@ import io.leon.config.{ConfigMapHolder, ConfigReader}
 import javax.servlet._
 import io.leon.resourceloading.watcher.ResourceWatcher
 import io.leon.{DefaultWebAppGroupingModule, LeonAppMainModule}
-import com.google.inject.{Module, Inject, Injector, Guice}
+import com.google.inject._
 
 class LeonFilter extends GuiceFilter {
 
@@ -53,7 +53,14 @@ class LeonFilter extends GuiceFilter {
         classLoader.loadClass(moduleName).asInstanceOf[Class[Module]].newInstance()
       }
 
-    injector = Guice.createInjector(defaultWebModule, module)
+    // create a new module to ensure the binding ordering
+    val app = new AbstractModule {
+      def configure() {
+        install(module)
+        install(defaultWebModule)
+      }
+    }
+    injector = Guice.createInjector(app)
     injector.injectMembers(this)
     super.init(filterConfig)
   }
