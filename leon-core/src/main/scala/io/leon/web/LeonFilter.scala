@@ -13,12 +13,12 @@ import scala.io.Source
 import org.mozilla.javascript.{NativeJavaObject, Context}
 import java.lang.reflect.Method
 import java.io.InputStream
-import com.google.inject.{Inject, Injector, Guice}
 import io.leon.unitofwork.UOWManager
 import io.leon.config.{ConfigMapHolder, ConfigReader}
 import javax.servlet._
 import io.leon.resourceloading.watcher.ResourceWatcher
 import io.leon.{DefaultWebAppGroupingModule, LeonAppMainModule}
+import com.google.inject.{Module, Inject, Injector, Guice}
 
 class LeonFilter extends GuiceFilter {
 
@@ -50,7 +50,7 @@ class LeonFilter extends GuiceFilter {
         }
         loadModuleFromJavaScript(inputStream)
       } else {
-        classLoader.loadClass(moduleName).asInstanceOf[Class[LeonAppMainModule]].newInstance()
+        classLoader.loadClass(moduleName).asInstanceOf[Class[Module]].newInstance()
       }
 
     injector = Guice.createInjector(defaultWebModule, module)
