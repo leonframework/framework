@@ -5,7 +5,24 @@
 
 $('<link rel="stylesheet" href="/io/leon/web/cockpit/leon-cockpit.css"/>').appendTo("head")
 
-menu = $(leoncockpit.ui.menu())
+menu = $("""
+<div id="leonCockpitMenu">
+	<span class="logo"><img src="/io/leon/web/cockpit/leon_small.png" /></span>
+	<span class="info">Leon Cockpit</span>
+	<span class="buttons">
+		<span class="button_active"><a href="#">Auto Refresh</a></span>
+		|
+		<span class="button"><a href="#">Hightlight Changes</a></span>
+		|
+		<span class="button"><a href="#">Actions</a></span>
+		|
+		<span class="button"><a href="#">Server REPL</a></span>
+	</span>
+	<div class="log"></div>
+</div>
+""")
+
+#menu = $(leoncockpit.ui.menu())
 logLabel = -> $("#leonCockpitMenu>div.log")
 
 #----------------------------------------------------------

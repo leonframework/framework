@@ -8,7 +8,6 @@ import io.leon.javascript.LeonJavaScriptModule;
 import io.leon.resourceloading.ResourceLoadingModule;
 import io.leon.resources.coffeescript.CoffeeScriptModule;
 import io.leon.resources.less.LessModule;
-import io.leon.resources.soy.SoyTemplatesModule;
 import io.leon.unitofwork.UOWModule;
 import io.leon.web.ajax.AjaxModule;
 import io.leon.web.angular.AngularModule;
@@ -41,7 +40,6 @@ public class DefaultWebAppGroupingModule extends AbstractModule {
         install(new BrowserModule());
         install(new CoffeeScriptModule());
         install(new LessModule());
-        install(new SoyTemplatesModule());
 
         if (ConfigMapHolder.getInstance().getConfigMap().isDevelopmentMode()) {
             install(new CockpitModule());
