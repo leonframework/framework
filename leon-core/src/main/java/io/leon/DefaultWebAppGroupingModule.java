@@ -47,7 +47,6 @@ public class DefaultWebAppGroupingModule extends AbstractModule {
             install(new CockpitModule());
         }
 
-        // must be at the last position!
-        install(new WebResourcesModule());
+        install(new WebResourcesModule()); // must be at the last position!
     }
 }
