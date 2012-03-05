@@ -1,5 +1,4 @@
 
-
 @AddressBookController = getLeon().angular.utils.createCrudController ->
 	@doEdit = (id) ->
 		@leon.service("/addressBookService", "get").call id, (a) =>
