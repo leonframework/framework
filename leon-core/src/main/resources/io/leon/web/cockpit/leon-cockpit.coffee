@@ -11,12 +11,14 @@ menu = $("""
 	<span class="info">Leon Cockpit</span>
 	<span class="buttons">
 		<span class="button_active"><a href="#">Auto Refresh</a></span>
+		<!--
 		|
 		<span class="button"><a href="#">Hightlight Changes</a></span>
 		|
 		<span class="button"><a href="#">Actions</a></span>
 		|
 		<span class="button"><a href="#">Server REPL</a></span>
+		-->
 	</span>
 	<div class="log"></div>
 </div>
