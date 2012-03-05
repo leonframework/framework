@@ -80,8 +80,8 @@ getLeon().comet = (function() {
                         var dataParsed = JSON.parse(message.data);
                         lastMessageId = message.messageId;
                         try {
-                            getLeon().comet.handleEvent(message.topicName, dataParsed);
                             getLeon().log("Comet handler called")
+                            getLeon().comet.handleEvent(message.topicName, dataParsed);
                         } catch (err) {
                             getLeon().log("Comet handler ERROR");
                             console.log(err.description);
@@ -125,18 +125,18 @@ getLeon().comet = (function() {
             var url = getLeon().contextPath + "/leon/comet/connect" + "?clientId=" + clientId + "&lastMessageId=" + lastMessageId;
             getLeon().comet.openSocket(url);
 
-            // check every second that we have a connection
+            // check every 2 seconds that we have a connection
             (function connectionCheck() {
                setTimeout(function() {
                   getLeon().comet.connect();
                   connectionCheck();
-              }, 1000);
+              }, 2000);
             })();
 
-            // close and open the connection every 10 seconds
+            // close and open the connection every 30 seconds
             disconnectTimer = setTimeout(function() {
                 http.abort();
-            }, 10 * 1000);
+            }, 30 * 1000);
         },
 
         addHandler: function(topicId, handlerFn) {

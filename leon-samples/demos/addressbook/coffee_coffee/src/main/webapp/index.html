@@ -1,24 +1,26 @@
 <html xmlns:ng="http://angularjs.org">
 <head>
-    <title>Address Book Demo</title>
-    <script src="/leon/leon.js" type="text/javascript"></script>
-    <script src="/browser/controller.js" type="text/javascript"></script>
-	<link rel="stylesheet" href="/leon/browser/skin/basic/style.css" />
-	<link rel="stylesheet" href="/style.css" />
+	<title>Address Book Demo</title>
+	<script src="/leon/leon.js" type="text/javascript"></script>
+	<script src="/browser/controller.js" type="text/javascript"></script>
+	<link rel="stylesheet" href="/leon/browser/skin/basic/style.css"/>
+	<link rel="stylesheet" href="/style.css"/>
 </head>
 
 <body ng:controller="AddressBookController">
 
 <div id="header">
-    <span>Address Book Demo</span>
+	<span>Address Book Demo</span>
 </div>
-<hr />
 
-<a ng:click="showList()">List</a>
-<a ng:click="showEdit()">New</a>
-<br/>
+<div id="menu">
+	<a ng:click="showList()">List</a>
+	<a ng:click="showEdit()">New</a>
+</div>
 
-<ng:view></ng:view>
+<div id="content">
+	<ng:view></ng:view>
+</div>
 
 </body>
 </html>

@@ -12,11 +12,10 @@ import org.slf4j.LoggerFactory
 import io.leon.resourceloading.location.ResourceLocation
 import io.leon.resourceloading.processor.ResourceProcessor
 import io.leon.resourceloading.Resource
-import io.leon.web.comet.CometRegistry
 import com.google.inject.Inject
-import com.google.common.collect.Maps
+import io.leon.web.TopicsService
 
-class ResourceWatcher @Inject()(cometRegistry: CometRegistry) {
+class ResourceWatcher @Inject()(topicsService: TopicsService) {
 
   case class WatchedResource(fileNameForProcessor: String,
                              location: ResourceLocation,
@@ -64,10 +63,9 @@ class ResourceWatcher @Inject()(cometRegistry: CometRegistry) {
                 changed.location.getResource(changed.resource.name).get)
 
               changed.changedListener.resourceChanged(newResource)
-              cometRegistry.publish(
+              topicsService.send(
                 "leon.developmentMode.resourceWatcher.resourceChanged",
-                Maps.newHashMap(),
-                "test")
+                Map("name" -> newResource.name).asJava)
             } catch {
               case e => logger.error("Error while calling ResourceChangedLister", e)
             }

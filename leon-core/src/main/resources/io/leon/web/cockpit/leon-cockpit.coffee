@@ -22,7 +22,6 @@ menu = $("""
 </div>
 """)
 
-#menu = $(leoncockpit.ui.menu())
 logLabel = -> $("#leonCockpitMenu>div.log")
 
 #----------------------------------------------------------
@@ -60,8 +59,11 @@ getCurrentTime = ->
 
 getLeon().cockpit =
 	enable: ->
-		console.log("Leon Cockpit enabled.")
 		showMenu()
+		getLeon().comet.connect()
+		getLeon().comet.addHandler "leon.developmentMode.resourceWatcher.resourceChanged", (data) ->
+			getLeon().log("Reloaded [" + data.name + "]")
+		console.log("Leon Cockpit enabled.")
 
 	disable: ->
 		console.log("Leon Cockpit disabled.")
