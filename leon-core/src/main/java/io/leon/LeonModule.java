@@ -39,7 +39,7 @@ abstract public class LeonModule extends ServletModule {
 
     public void loadFile(Class<?> basePackage, String fileName) {
         String base = basePackage.getPackage().getName().replace(".", "/");
-        String file = fileName.startsWith("/") ? fileName : fileName + "/";
+        String file = fileName.startsWith("/") ? fileName : "/" + fileName;
         loadFile(base + file);
     }
 
