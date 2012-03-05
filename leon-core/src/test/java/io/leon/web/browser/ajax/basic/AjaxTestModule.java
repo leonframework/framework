@@ -1,12 +1,11 @@
 package io.leon.web.browser.ajax.basic;
 
-import io.leon.LeonModule;
+import io.leon.LeonAppMainModule;
 
-public class AjaxTestModule extends LeonModule {
+public class AjaxTestModule extends LeonAppMainModule {
 
     @Override
     public void config() {
-        exposeUrl(".*");
         exposeJavaService("/ajaxService", AjaxService.class);
     }
 

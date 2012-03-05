@@ -23,7 +23,6 @@ public class ErrorDialogBrowserTest {
 
     public void testWithoutError() throws InterruptedException {
         leon.openPage(getClass(), "index.html");
-
         leon.findElementById("withoutError").click();
         leon.waitForExpectedValue("result", "throwError==false", 5);
     }
