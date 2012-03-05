@@ -35,6 +35,7 @@ class CometRegistry @Inject()(clients: Clients, gson: Gson, configMap: ConfigMap
 
   //private val clientSubscriptions = new mutable.HashMap[String, List[ClientSubscription]]()
 
+  @volatile
   private var shouldStop = false
 
   private def createMeteor(req: HttpServletRequest): Meteor = {
