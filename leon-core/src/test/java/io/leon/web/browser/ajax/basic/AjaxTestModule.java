@@ -6,7 +6,13 @@ public class AjaxTestModule extends LeonAppMainModule {
 
     @Override
     public void config() {
-        exposeJavaService("/ajaxService", AjaxService.class);
+        // Java
+        exposeJavaService("/ajaxServiceJava", AjaxService.class);
+
+        // JavaScript
+        loadFile(getClass(), "AjaxService.js");
+        exposeUrl(".*");
+        exposeJavaScript("/ajaxServiceJavaScript", "AjaxService");
     }
 
 }

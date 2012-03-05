@@ -21,10 +21,16 @@ public class AjaxTest {
         leon.stop();
     }
 
-    public void method1() throws InterruptedException {
-        leon.openPage(getClass(), "index.html");
+    public void testJava() throws InterruptedException {
+        leon.openPage(getClass(), "java.html");
         leon.findElementById("method1").click();
-        leon.waitForExpectedValue("result", "method1", 5);
+        leon.waitForExpectedValue("result", "java", 5);
+    }
+
+    public void testJavaScript() throws InterruptedException {
+        leon.openPage(getClass(), "javascript.html");
+        leon.findElementById("method1").click();
+        leon.waitForExpectedValue("result", "javascript", 5);
     }
 
 }

@@ -4,7 +4,7 @@ function AjaxServiceCtrl(leon) {
     this.result = "";
 
     this.method1 = function() {
-        leon.service("/ajaxService", "method1").call(function(result) {
+        leon.service("/ajaxServiceJava", "method1").call(function(result) {
             self.result = result;
         });
     }
