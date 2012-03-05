@@ -49,7 +49,7 @@ public class UOWManager {
             throw new IllegalStateException("The unit of work was already started for this thread.");
         }
 
-        logger.info("Starting new unit of work for thread [{}] with context [{}].", Thread.currentThread(), context);
+        logger.debug("Starting new unit of work for thread [{}] with context [{}].", Thread.currentThread(), context);
 
         // Use a dummy value in case that the user provided a null value
         context = context != null ? context : new Object();
@@ -80,7 +80,7 @@ public class UOWManager {
             throw new NoActiveUnitOfWorkException();
         }
 
-        logger.info("Commiting unit of work for thread [{}].", Thread.currentThread());
+        logger.debug("Commiting unit of work for thread [{}].", Thread.currentThread());
 
         // Notify all listener and clean up
         for (UOWListener l : threadLocalListener.get().values()) {
