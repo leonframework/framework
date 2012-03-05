@@ -1,6 +1,6 @@
 
 @sendPing = ->
-    leon.service("/pingService", "ping").call 0
+    getLeon().service("/pingService", "ping").call 0
 
 @pingReceived = (data) ->
     if data.number
