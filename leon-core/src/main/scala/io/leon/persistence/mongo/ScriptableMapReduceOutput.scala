@@ -10,13 +10,13 @@ package io.leon.persistence.mongo
 
 import com.mongodb.MapReduceOutput
 
-class JavaScriptMapReduceOutput(output: MapReduceOutput) {
+class ScriptableMapReduceOutput(output: MapReduceOutput) {
   import scala.collection.JavaConverters._
   import MongoUtils._
 
   def drop() { output.drop() }
 
-  def getOutputCollection = new JavaScriptDBCollection(output.getOutputCollection)
+  def getOutputCollection = new ScriptableDBCollection(output.getOutputCollection)
 
   def getCommand = toScriptableMap(output.getCommand)
 

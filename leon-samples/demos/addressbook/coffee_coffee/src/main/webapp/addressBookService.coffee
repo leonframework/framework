@@ -9,10 +9,10 @@ db = -> leon.mongo.addresses
 		db().save(address)
 
 	delete: (id) ->
-		db().findAndRemove({"_id": id})
+		db().removeByOId(id)
 
 	list: ->		
 		db().find().toArray()
 
 	get: (id) ->
-		db().findOne({"_id": id})
+		db().findByOId(id)

@@ -11,7 +11,7 @@ package io.leon.persistence.mongo
 import org.mozilla.javascript.{Scriptable, ScriptableObject, Context, Function => RhinoFunction }
 import com.mongodb.{DBObject, DBCursor}
 
-private[mongo] class JavaScriptDBCursor(dbCursor: DBCursor) extends ScriptableObject {
+private[mongo] class ScriptableDBCursor(dbCursor: DBCursor) extends ScriptableObject {
   import MongoUtils._
 
   private val jsFunctionNames = Array(
@@ -32,9 +32,7 @@ private[mongo] class JavaScriptDBCursor(dbCursor: DBCursor) extends ScriptableOb
     list(index)
   }
 
-  def hasNext() = {
-    dbCursor.hasNext
-  }
+  def hasNext = dbCursor.hasNext
 
   def next() = {
     val dbo = dbCursor.next()
@@ -43,35 +41,30 @@ private[mongo] class JavaScriptDBCursor(dbCursor: DBCursor) extends ScriptableOb
 
   def skip(n: Int) = {
     val newCursor = dbCursor.skip(n)
-    new JavaScriptDBCursor(newCursor)
+    new ScriptableDBCursor(newCursor)
   }
 
   def limit(n: Int) = {
     val newCursor = dbCursor.limit(n)
-    new JavaScriptDBCursor(newCursor)
+    new ScriptableDBCursor(newCursor)
   }
 
   def sort(orderBy: ScriptableObject) = {
-    new JavaScriptDBCursor(dbCursor.sort(orderBy))
+    new ScriptableDBCursor(dbCursor.sort(toDbObject(orderBy)))
   }
 
-  override def size() = {
-    dbCursor.size
-  }
+  override def size = dbCursor.size
 
-  def length() = size()
+  def length = size
 
-  def count() = {
-    dbCursor.count
-  }
+  def count = dbCursor.count
 
   def close() {
-    dbCursor.close();
+    dbCursor.close()
   }
 
-  def toArray() = {
-    arrayToNativeArray(list.toArray)
-  }
+  def toArray = arrayToNativeArray(list.toArray)
+
 
   def forEach(func: RhinoFunction) {
     val ctx = Context.enter()

@@ -12,7 +12,7 @@ import com.mongodb.CommandResult
 import org.mozilla.javascript.{Undefined, ScriptableObject}
 
 
-private[mongo] class JavaScriptCommandResult(result: CommandResult) extends ScriptableObject {
+private[mongo] class ScriptableCommandResult(result: CommandResult) extends ScriptableObject {
   import scala.collection.JavaConverters._
 
   private val jsFunctionNames = Array("ok", "getErrorMessage", "getException", "throwOnError")
@@ -35,6 +35,4 @@ private[mongo] class JavaScriptCommandResult(result: CommandResult) extends Scri
   def getException = result.getException
 
   def throwOnError() { result.throwOnError() }
-
-  override def getDefaultValue(typeHint: Class[_]) = "undefined"
 }

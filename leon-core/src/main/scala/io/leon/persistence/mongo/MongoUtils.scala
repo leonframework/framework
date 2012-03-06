@@ -22,7 +22,8 @@ private[mongo] object MongoUtils {
     case regex: NativeRegExp => nativeRegExpToPattern(regex)
     case array: NativeArray => nativeArrayToArray(array)
     case func: BaseFunction => Context.getCurrentContext.decompileFunction(func, 2)
-    case so: ScriptableObject => scriptableToDbObject(so)
+    case so: ScriptableObject => toDbObject(so)
+    case njo: NativeJavaObject => njo.unwrap
     case x => x
   }
 
@@ -33,13 +34,13 @@ private[mongo] object MongoUtils {
     case x => x
   }
 
-  implicit def toScriptableMap(obj: DBObject): ScriptableMap = {
+  def toScriptableMap(obj: DBObject): ScriptableMap = {
     val jsMap = obj.toMap.asScala map { case (k: String, v: AnyRef) => k -> javaToJs(v) }
 
     new ScriptableMap(jsMap.asJava)
   }
 
-  implicit def scriptableToDbObject(obj: ScriptableObject): DBObject = {
+  def toDbObject(obj: ScriptableObject): DBObject = {
     import scala.collection.JavaConverters._
 
     val tuples =
