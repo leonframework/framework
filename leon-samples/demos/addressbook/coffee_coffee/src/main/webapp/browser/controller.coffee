@@ -13,5 +13,5 @@
 			@doList()
 
 	@doSave = ->
-		@leon.service("/addressBookService", "save").call(@model.current)
-		@showList()
+		@leon.service("/addressBookService", "save").call @model.current, =>
+			@showList()

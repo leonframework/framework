@@ -18,20 +18,25 @@
 
 		@route = @$service("$route")
 
+		@location = @$service("$location")
+
 		@leon = @$service("leon")
 
 		@model = {}
 
 		# --- UI view functions ---
 
+		@showRoute = (segment) ->
+			@location.update({hashPath: segment})
+
 		@showList = ->
-			@leon.go("#/list")
+			@showRoute("/list")
 
 		@showEdit = (id) ->
 			if id?
-				@leon.go("#/edit/" + id)
+				@showRoute("/edit/" + id)
 			else
-				@leon.go("#/edit/")
+				@showRoute("/edit/")
 
 		# --- default route settings ---
 
