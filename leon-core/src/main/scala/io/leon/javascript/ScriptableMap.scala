@@ -12,6 +12,12 @@ import collection.JavaConverters
 import org.mozilla.javascript.{ScriptableObject, NativeObject}
 
 
+object ScriptableMap {
+  import scala.collection.JavaConverters._
+
+  def apply(values: (String, Any)*) = new ScriptableMap(Map(values: _*).asJava)
+}
+
 class ScriptableMap(map: java.util.Map[String, _ <: Any]) extends NativeObject {
   import JavaConverters._
 
