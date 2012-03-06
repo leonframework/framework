@@ -1,14 +1,14 @@
 package io.leon.gson
 
-import org.mozilla.javascript.NativeJavaObject
-import com.google.gson.JsonParser
-import io.leon.javascript.LeonScriptEngine
 import org.testng.annotations.{Guice, Test}
 import com.google.inject.{Inject, Module}
 import org.scalatest.Assertions
+import com.google.gson.{Gson, JsonParser}
+import io.leon.javascript.{ScriptableMap, LeonScriptEngine}
+import org.mozilla.javascript.{NativeArray, NativeJavaObject}
 
 @Guice(modules = Array[Class[_ <: Module]](classOf[GsonTestModule]))
-class GsonTest @Inject()(leonScriptEngine: LeonScriptEngine) extends Assertions {
+class GsonTest @Inject()(leonScriptEngine: LeonScriptEngine, gson: Gson) extends Assertions {
 
   @Test def gsonRhinoAdapterShouldSerializeRhinoJavaScriptTypesToJson() {
     val js = """
@@ -60,4 +60,36 @@ class GsonTest @Inject()(leonScriptEngine: LeonScriptEngine) extends Assertions 
     assert(result === expected)
   }
 
+  @Test def gsonParserShouldSerializeScriptableMaps() {
+    import scala.collection.JavaConverters._
+
+    val map = Map(
+      "a" -> "string",
+      "b" -> 123,
+      "c" -> new ScriptableMap(Map("ca" -> "test").asJava)
+    ).asJava
+
+    val scriptableMap = new ScriptableMap(map)
+
+    val jsonTree = gson.toJsonTree(scriptableMap)
+
+    val expected = """{"a":"string","b":123,"c":{"ca":"test"}}"""
+    val result = jsonTree.toString
+
+    assert(result === expected)
+  }
+
+  @Test def gsonParserShouldSerializeNativeArraysContainingScriptableMaps() {
+    import scala.collection.JavaConverters._
+
+    val scriptableMap = new ScriptableMap(Map("a" -> "string", "b" -> 123).asJava)
+    val array = new NativeArray(Array[AnyRef](scriptableMap))
+
+    val jsonTree = gson.toJsonTree(array)
+
+    val expected = """[{"a":"string","b":123}]"""
+    val result = jsonTree.toString
+
+    assert(result === expected)
+  }
 }
