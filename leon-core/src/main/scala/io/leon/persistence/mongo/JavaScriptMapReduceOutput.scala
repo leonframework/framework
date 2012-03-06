@@ -18,7 +18,7 @@ class JavaScriptMapReduceOutput(output: MapReduceOutput) {
 
   def getOutputCollection = new JavaScriptDBCollection(output.getOutputCollection)
 
-  def getCommand = dbObjectToScriptable(output.getCommand)
+  def getCommand = toScriptableMap(output.getCommand)
 
-  def results = arrayToNativeArray(output.results.asScala.toArray map dbObjectToScriptable)
+  def results = arrayToNativeArray(output.results.asScala.toArray map toScriptableMap)
 }

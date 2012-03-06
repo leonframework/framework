@@ -43,54 +43,54 @@ private[mongo] class JavaScriptDBCollection(collection: DBCollection) {
 
   def findAndModify(query: ScriptableObject, update: ScriptableObject) = {
     val result = collection.findAndModify(query, update)
-    Option(result) map { dbObjectToScriptable } getOrElse null
+    Option(result) map { toScriptableMap } getOrElse null
   }
 
   def findAndModify(query: ScriptableObject, sort: ScriptableObject, update: ScriptableObject) = {
     val result = collection.findAndModify(query, sort, update)
-    Option(result) map { dbObjectToScriptable } getOrElse null
+    Option(result) map { toScriptableMap } getOrElse null
   }
 
   def findAndModify(query: ScriptableObject, fields: ScriptableObject, sort: ScriptableObject,
                     remove: Boolean, update: ScriptableObject, returnNew: Boolean, upsert: Boolean) = {
     val result = collection.findAndModify(query, fields, sort, remove, update, returnNew, upsert)
-    Option(result) map { dbObjectToScriptable } getOrElse null
+    Option(result) map { toScriptableMap } getOrElse null
   }
 
   // -- findAndRemove --
 
   def findAndRemove(query: ScriptableObject) = {
     val result = collection.findAndRemove(query)
-    Option(result) map { dbObjectToScriptable } getOrElse null
+    Option(result) map { toScriptableMap } getOrElse null
   }
 
   // -- findOne --
 
-  def findOne = Option(collection.findOne) map dbObjectToScriptable getOrElse null
+  def findOne = Option(collection.findOne) map toScriptableMap getOrElse null
 
   def findOne(obj: ScriptableObject) = {
     val query = scriptableToDbObject(obj)
     val result = collection.findOne(query)
-    Option(result) map { dbObjectToScriptable } getOrElse null
+    Option(result) map { toScriptableMap } getOrElse null
   }
 
   def findOne(obj: ScriptableObject, fields: ScriptableObject) = {
     val query = scriptableToDbObject(obj)
     val result = collection.findOne(query, fields)
-    Option(result) map { dbObjectToScriptable } getOrElse null
+    Option(result) map { toScriptableMap } getOrElse null
   }
 
   def findOne(id: String): ScriptableObject = {
     import scala.collection.JavaConverters._
     val query = new BasicDBObject(Map("_id" -> new ObjectId(id)).asJava)
-    Option(collection.findOne(query)) map { dbObjectToScriptable } getOrElse null
+    Option(collection.findOne(query)) map { toScriptableMap } getOrElse null
   }
 
   def findOne(id: String, fields: ScriptableObject) = {
     import scala.collection.JavaConverters._
 
     val query = new BasicDBObject(Map("_id" -> id).asJava)
-    Option(collection.findOne(query, fields)) map { dbObjectToScriptable } getOrElse null
+    Option(collection.findOne(query, fields)) map { toScriptableMap } getOrElse null
   }
 
   // -- remove --

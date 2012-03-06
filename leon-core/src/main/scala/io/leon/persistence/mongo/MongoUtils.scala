@@ -13,6 +13,7 @@ import org.mozilla.javascript.regexp.NativeRegExp
 import org.bson.types.ObjectId
 import java.util.regex.Pattern
 import com.mongodb.{BasicDBObject, BasicDBList, DBObject}
+import io.leon.javascript.ScriptableMap
 
 private[mongo] object MongoUtils {
   import scala.collection.JavaConverters._
@@ -26,22 +27,17 @@ private[mongo] object MongoUtils {
   }
 
   def javaToJs(obj: AnyRef): AnyRef = obj match {
-      case dbList: BasicDBList => new NativeArray(dbList.toArray map { javaToJs })
-      case dbObj: DBObject => dbObjectToScriptable(dbObj)
-      case objId: ObjectId => objId.toByteArray.toString
-      case so: ScriptableObject => (so.toMap.asScala map { e => e._1 -> javaToJs(e._2.asInstanceOf[AnyRef]) }).asJava
-      case x => x
-    }
+    case dbList: BasicDBList => new NativeArray(dbList.toArray map { javaToJs })
+    case dbObj: DBObject => toScriptableMap(dbObj)
+    case objId: ObjectId => objId.toString
+    case x => x
+  }
 
-  implicit def dbObjectToScriptable(obj: DBObject): ScriptableObject =
-    new ScriptableObject() {
+  implicit def toScriptableMap(obj: DBObject): ScriptableMap = {
+    val jsMap = obj.toMap.asScala map { case (k: String, v: AnyRef) => k -> javaToJs(v) }
 
-      def getClassName = "DBObject"
-
-      obj.toMap.asScala foreach { case (k: String, v: AnyRef) =>
-        defineProperty(k, javaToJs(v), ScriptableObject.PERMANENT)
-      }
-    }
+    new ScriptableMap(jsMap.asJava)
+  }
 
   implicit def scriptableToDbObject(obj: ScriptableObject): DBObject = {
     import scala.collection.JavaConverters._

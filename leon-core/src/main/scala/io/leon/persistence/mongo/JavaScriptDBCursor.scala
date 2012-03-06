@@ -20,7 +20,7 @@ private[mongo] class JavaScriptDBCursor(dbCursor: DBCursor) extends ScriptableOb
 
   private lazy val list = {
     import scala.collection.JavaConverters._
-    dbCursor.toArray.asScala map dbObjectToScriptable
+    dbCursor.toArray.asScala map toScriptableMap
   }
 
   defineFunctionProperties(jsFunctionNames, getClass, ScriptableObject.READONLY)
@@ -38,7 +38,7 @@ private[mongo] class JavaScriptDBCursor(dbCursor: DBCursor) extends ScriptableOb
 
   def next() = {
     val dbo = dbCursor.next()
-    dbObjectToScriptable(dbo)
+    toScriptableMap(dbo)
   }
 
   def skip(n: Int) = {
