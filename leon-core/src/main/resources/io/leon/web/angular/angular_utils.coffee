@@ -13,8 +13,8 @@
 
 		# --- UI view functions ---
 
-		@showRoute = (segment) ->
-			@location.update({hashPath: segment})
+		@showRoute = (path) ->
+			@location.updateHash(path)
 
 		# --- route functions ---
 
