@@ -19,7 +19,7 @@ public class HBaseUOWTableCoordinator {
     public void commit(Object o) {
         logger.debug("Closing all tables used in this thread.");
         for (LeonHBaseTable leonHBaseTable : usedTables) {
-            logger.info("Closing [{}].", leonHBaseTable);
+            logger.debug("Closing [{}].", leonHBaseTable);
             leonHBaseTable.close();
         }
     }

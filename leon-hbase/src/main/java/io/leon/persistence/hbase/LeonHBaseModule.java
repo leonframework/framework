@@ -1,7 +1,7 @@
 package io.leon.persistence.hbase;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+import io.leon.LeonModule;
 import io.leon.persistence.hbase.unitofwork.HBaseUOWManager;
 import io.leon.persistence.hbase.unitofwork.HBaseUOWTableCoordinator;
 import org.apache.hadoop.conf.Configuration;
@@ -9,7 +9,7 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTablePool;
 
-public class LeonHBaseModule extends AbstractModule {
+public class LeonHBaseModule extends LeonModule {
 
     private final Configuration configuration;
 
@@ -22,7 +22,7 @@ public class LeonHBaseModule extends AbstractModule {
     }
 
     @Override
-    protected void configure() {
+    protected void config() {
         try {
             bind(HBaseUOWManager.class).in(Scopes.SINGLETON);
             bind(HBaseUOWTableCoordinator.class);

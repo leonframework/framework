@@ -29,7 +29,7 @@ public class AbstractLeonHBaseTest {
         }
     }
 
-    protected String getRandomTableName(String name) {
+    protected String createTestTableName(String name) {
         String cn = getClass().getName().replace('.', '_');
         return "LeonUnitTest_" + name + "_" + cn;
     }
