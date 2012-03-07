@@ -15,10 +15,10 @@ import java.io.IOException;
 import java.util.Set;
 
 @Test
-public class LeonHBaseTableManagementTest extends AbstractLeonHBaseTest {
+public class TableManagementTest extends AbstractLeonHBaseTest {
 
     public void testAutomaticTableCreationAndDeletionApi() throws IOException {
-        final String personTableName = getRandomTableName("person");
+        final String personTableName = createTestTableName("person");
 
         // Create a module for testing
         Injector i = Guice.createInjector(new AbstractModule() {
@@ -47,7 +47,7 @@ public class LeonHBaseTableManagementTest extends AbstractLeonHBaseTest {
     }
 
     public void testColumnFamiliesManagement() throws IOException {
-        final String personTableName = getRandomTableName("person");
+        final String personTableName = createTestTableName("person");
 
         // Create a module for testing
         Injector i = Guice.createInjector(new AbstractModule() {

@@ -12,10 +12,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 @Test
-public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
+public class TableThreadTest extends AbstractLeonHBaseTest {
 
     public void testThreadSeperation() {
-        final String personTableName = getRandomTableName("person");
+        final String personTableName = createTestTableName("person");
 
         // Create a module for testing
         final Injector i = Guice.createInjector(new AbstractModule() {
@@ -48,7 +48,7 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
                 // Wait for the other thread
                 try {
                     while (instances[1] == null) {
-                        System.out.println("LeonHBaseTableThreadTest.testThreadSeperation(): Waiting for other thread to finish.");
+                        System.out.println("TableThreadTest.testThreadSeperation(): Waiting for other thread to finish.");
                         Thread.sleep(10);
                     }
                 } catch (Exception e) {
@@ -68,7 +68,7 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
                 // Wait for the other thread
                 try {
                     while (instances[0] == null) {
-                        System.out.println("LeonHBaseTableThreadTest.testThreadSeperation(): Waiting for other thread to finish.");
+                        System.out.println("TableThreadTest.testThreadSeperation(): Waiting for other thread to finish.");
                         Thread.sleep(10);
                     }
                 } catch (Exception e) {
@@ -91,7 +91,7 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
 
     @Test(expectedExceptions = NoActiveUnitOfWorkException.class)
     public void hbaseSupportCanNotBeUsedWithoutActiveUnitOfWork() throws InterruptedException {
-        final String personTableName = getRandomTableName("person");
+        final String personTableName = createTestTableName("person");
 
         Injector i = null;
         try {
@@ -110,7 +110,7 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
     }
 
     public void hbaseSupportCanNotBeUsedAfterActiveUnitOfWorkCommit() throws InterruptedException {
-        final String personTableName = getRandomTableName("person");
+        final String personTableName = createTestTableName("person");
 
         // Create a module for testing
         final Injector i = Guice.createInjector(new AbstractModule() {
