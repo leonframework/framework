@@ -199,6 +199,7 @@ object LeonBuild extends Build {
     settings = buildSettings) aggregate(
       leon_core,
       leon_hbase,
+      leon_suite,
       leon_dummyapp
       //leon_samples_demos_addressbook_coffee_coffee
       //samplesAjaxReverserJavaJs,
