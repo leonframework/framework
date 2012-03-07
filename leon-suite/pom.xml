@@ -4,10 +4,10 @@
 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.leon.samples</groupId>
-    <artifactId>TODO_PUT_IN_PROPER_DIR-deviceorientation</artifactId>
+    <groupId>com.acme</groupId>
+    <artifactId>appname</artifactId>
     <packaging>war</packaging>
-    <version>0.4.2-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

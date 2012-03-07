@@ -8,7 +8,7 @@ import WebPlugin._
 
 object BuildSettings {
   val buildOrganization = "io.leon"
-  val buildVersion      = "0.3.1-SNAPSHOT"
+  val buildVersion      = "0.4.2-SNAPSHOT"
   val buildScalaVersion = "2.9.1"
   val buildDescription  = "JVM web framework for building data-driven web applications"
 
@@ -226,6 +226,13 @@ object LeonBuild extends Build {
   lazy val leon_dummyapp = Project(
     "leon-dummyapp",
     file("leon-dummyapp"),
+    settings = buildSettings ++ webSettings ++
+      Seq(libraryDependencies ++= samplesDeps)
+  ) dependsOn(leon_core)
+
+  lazy val leon_suite = Project(
+    "leon-suite",
+    file("leon-suite"),
     settings = buildSettings ++ webSettings ++
       Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(leon_core)

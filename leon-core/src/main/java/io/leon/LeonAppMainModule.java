@@ -29,6 +29,7 @@ abstract public class LeonAppMainModule extends LeonModule {
         exposeUrl(".*css$");
         exposeUrl("favicon.ico$");
         exposeUrl(".*/browser/.*js$");
+        exposeUrl(".*\\.client\\.js$");
         exposeUrl(".*/browser/.*json$");
 
         super.configureServlets();

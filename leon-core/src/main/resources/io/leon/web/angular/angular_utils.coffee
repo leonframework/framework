@@ -2,6 +2,41 @@
 @getLeon().angular = {} if !@getLeon().angular?
 @getLeon().angular.utils = {} if !@getLeon().angular.utils?
 
+@getLeon().angular.utils.createController = (controller) ->
+	() ->
+		# --- state ---
+
+		@route = @$service("$route")
+		@location = @$service("$location")
+		@leon = @$service("leon")
+		@model = {}
+
+		# --- UI view functions ---
+
+		@showRoute = (segment) ->
+			@location.update({hashPath: segment})
+
+		# --- route functions ---
+
+		@addRoute = (url, template, fn) ->
+            @route.when url,
+                template: template
+                controller: fn
+
+        @setDefaultRoute = (url) ->
+            @route.otherwise redirectTo: url
+
+		# --- routes ---
+
+		@route.parent(this)
+		@route.onChange =>
+			@params = @route.current.params
+
+		# --- user controller ---
+
+		controller.apply(this)
+
+
 @getLeon().angular.utils.createCrudController = (controller) ->
 	() ->
 		# --- required callbacks ---
