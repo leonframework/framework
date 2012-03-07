@@ -1,4 +1,4 @@
-package io.leon.unitofwork;
+package io.leon.persistence.hbase.unitofwork.exceptions;
 
 public class NoActiveUnitOfWorkException extends IllegalStateException {
 

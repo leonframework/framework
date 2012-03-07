@@ -4,10 +4,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.leon.persistence.hbase.HBaseBinder;
-import io.leon.persistence.hbase.LeonHBaseFeatureModule;
+import io.leon.persistence.hbase.LeonHBaseModule;
 import io.leon.persistence.hbase.LeonHBaseTable;
-import io.leon.unitofwork.UOWManager;
-import io.leon.unitofwork.UOWModule;
+import io.leon.persistence.hbase.unitofwork.HBaseUOWManager;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -25,8 +24,7 @@ public class LeonHBaseTableManagementTest extends AbstractLeonHBaseTest {
         Injector i = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
-                install(new LeonHBaseFeatureModule());
-                install(new UOWModule());
+                install(new LeonHBaseModule());
                 new HBaseBinder(binder()).addTable(personTableName, "data", "cf1");
             }
         });
@@ -41,7 +39,7 @@ public class LeonHBaseTableManagementTest extends AbstractLeonHBaseTest {
                 "Table should be created when the LeonHBaseTable istance is requested.");
 
         // Delete table
-        UOWManager manager = i.getInstance(UOWManager.class);
+        HBaseUOWManager manager = i.getInstance(HBaseUOWManager.class);
         manager.begin(this);
         personTable.delete();
         manager.commit();
@@ -55,7 +53,7 @@ public class LeonHBaseTableManagementTest extends AbstractLeonHBaseTest {
         Injector i = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
-                install(new LeonHBaseFeatureModule());
+                install(new LeonHBaseModule());
                 new HBaseBinder(binder()).addTable(personTableName, "cf1", "cf2");
             }
         });
@@ -82,7 +80,7 @@ public class LeonHBaseTableManagementTest extends AbstractLeonHBaseTest {
         i = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
-                install(new LeonHBaseFeatureModule());
+                install(new LeonHBaseModule());
                 new HBaseBinder(binder()).addTable(personTableName, "cf1", "cf2", "cf3");
             }
         });

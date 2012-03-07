@@ -47,7 +47,7 @@ public class LeonHBaseTableProvider implements Provider<LeonHBaseTable> {
         try {
             boolean exists = hBaseAdmin.tableExists(tableName);
             if (exists) {
-                logger.info("HBase table [{}] exists. Checking column families {}.", tableName, columnFamilies);
+                logger.debug("HBase table [{}] exists. Checking column families {}.", tableName, columnFamilies);
                 checkColumnFamiliesForExistingTable(tableName, columnFamilies);
             } else {
                 logger.info("Creating HBase table [{}] with column families {}.", tableName, columnFamilies);
@@ -109,8 +109,6 @@ public class LeonHBaseTableProvider implements Provider<LeonHBaseTable> {
     @Override
     public LeonHBaseTable get() {
         createTableIfNecessary();
-        LeonHBaseTable tableProxy = ThreadLocalLeonHBaseTableProxy.createProxy(injector, hTablePool, tableName);
-        injector.injectMembers(tableProxy);
-        return tableProxy;
+        return ThreadLocalLeonHBaseTableProxy.createProxy(injector, hTablePool, tableName);
     }
 }

@@ -4,10 +4,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.leon.persistence.hbase.HBaseBinder;
-import io.leon.persistence.hbase.LeonHBaseFeatureModule;
-import io.leon.unitofwork.NoActiveUnitOfWorkException;
-import io.leon.unitofwork.UOWManager;
-import io.leon.unitofwork.UOWModule;
+import io.leon.persistence.hbase.LeonHBaseModule;
+import io.leon.persistence.hbase.unitofwork.exceptions.NoActiveUnitOfWorkException;
+import io.leon.persistence.hbase.unitofwork.HBaseUOWManager;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -22,12 +21,11 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
         final Injector i = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
-                install(new LeonHBaseFeatureModule());
-                install(new UOWModule());
+                install(new LeonHBaseModule());
                 new HBaseBinder(binder()).addTable(personTableName, "cf1", "cf2");
             }
         });
-        final UOWManager manager = i.getInstance(UOWManager.class);
+        final HBaseUOWManager manager = i.getInstance(HBaseUOWManager.class);
 
         // Test behaviour in one thread
         manager.begin(this);
@@ -101,7 +99,7 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
             i = Guice.createInjector(new AbstractModule() {
                 @Override
                 protected void configure() {
-                    install(new LeonHBaseFeatureModule());
+                    install(new LeonHBaseModule());
                     new HBaseBinder(binder()).addTable(personTableName, "cf1", "cf2");
                 }
             });
@@ -118,12 +116,11 @@ public class LeonHBaseTableThreadTest extends AbstractLeonHBaseTest {
         final Injector i = Guice.createInjector(new AbstractModule() {
             @Override
             protected void configure() {
-                install(new LeonHBaseFeatureModule());
-                install(new UOWModule());
+                install(new LeonHBaseModule());
                 new HBaseBinder(binder()).addTable(personTableName, "cf1", "cf2");
             }
         });
-        UOWManager uowManager = i.getInstance(UOWManager.class);
+        HBaseUOWManager uowManager = i.getInstance(HBaseUOWManager.class);
         uowManager.begin(this);
         getTable(i, personTableName).getTableName();
         uowManager.commit();
