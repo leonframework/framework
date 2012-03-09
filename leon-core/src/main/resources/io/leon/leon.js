@@ -31,9 +31,9 @@ var leon = (function() {
             var topicsService = leon.inject(Packages.io.leon.web.TopicsService);
 
 			if (filter) {
-                browserTopics.send(topic, data, filter);
+                topicsService.send(topic, data, filter);
 			} else {
-				browserTopics.send(topic, data);
+				topicsService.send(topic, data);
 			}
 
             return true;
