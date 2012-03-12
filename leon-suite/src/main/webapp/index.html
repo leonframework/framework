@@ -1,6 +1,6 @@
 <html xmlns:ng="http://angularjs.org">
 <head>
-	<title>Address Book Demo</title>
+	<title>Leon Suite</title>
 	<script src="/leon/leon.js" type="text/javascript"></script>
 	<script src="index.client.js" type="text/javascript"></script>
 	<link rel="stylesheet" href="/leon/browser/skin/basic/style.css"/>
@@ -13,14 +13,8 @@
 	<span>Application Template</span>
 </div>
 
-<div id="menu">
-	<a ng:click="showRoute('/serviceA')">Service A</a> |
-	<a ng:click="showRoute('/serviceB')">Service B</a> |
-	<a ng:click="showRoute('/serviceAB')">Service A & B</a>
-</div>
-
 <div id="content">
-	<ng:view></ng:view>
+    Model.a: <span ng:bind="model.a"></span>
 </div>
 
 </body>

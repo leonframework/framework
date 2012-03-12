@@ -1,31 +1,25 @@
 package io.leon.samples.cometping.java_js;
 
 import com.google.inject.Inject;
-import io.leon.web.comet.CometRegistry;
-
-import java.util.HashMap;
+import io.leon.web.TopicsService;
 
 public class PingService {
 
-    private final CometRegistry cometRegistry;
-    
-    private int requests = 0;
+    private final TopicsService topicsService;
 
     @Inject
-    public PingService(CometRegistry cometRegistry) {
-        this.cometRegistry = cometRegistry;
+    public PingService(TopicsService topicsService) {
+        this.topicsService = topicsService;
     }
 
     public void ping(final int start) {
         new Thread() {
             @Override
             public void run() {
-                int i = start;
-                int requestNo = ++requests;
-                while (i++ < start + (10)) {
-                    cometRegistry.publish("ping", new HashMap<String, Object>(), String.valueOf(i));
+                for (int i = start; i < (start + 10); i++) {
+                    topicsService.send("ping", i);
                     try {
-                        Thread.sleep(1);
+                        Thread.sleep(500);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

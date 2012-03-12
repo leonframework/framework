@@ -27,16 +27,8 @@ var leon = (function() {
             return leon.inject(Packages.com.google.gson.Gson);
         },
 
-        sendTopicMessage: function(topic, data, filter) {
-            var topicsService = leon.inject(Packages.io.leon.web.TopicsService);
-
-			if (filter) {
-                browserTopics.send(topic, data, filter);
-			} else {
-				browserTopics.send(topic, data);
-			}
-
-            return true;
+        getTopicsService: function() {
+            return leon.inject(Packages.io.leon.web.TopicsService);
         },
 
         parseLess: function(lessString) {

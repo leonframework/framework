@@ -6,10 +6,22 @@
 	() ->
 		# --- state ---
 
+		@location = @$service("$location")
+		@leon = @$service("leon")
+		@model = new Object()
+
+		# --- user controller ---
+
+		controller.apply(this)
+
+@getLeon().angular.utils.createRouteController = (controller) ->
+	() ->
+		# --- state ---
+
 		@route = @$service("$route")
 		@location = @$service("$location")
 		@leon = @$service("leon")
-		@model = {}
+		@model = new Object()
 
 		# --- UI view functions ---
 
@@ -30,7 +42,7 @@
 
 		@route.parent(this)
 		@route.onChange =>
-			@params = @route.current.params
+            @params = @route.current.params
 
 		# --- user controller ---
 

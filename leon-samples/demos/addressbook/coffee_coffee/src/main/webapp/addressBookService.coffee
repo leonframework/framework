@@ -1,6 +1,4 @@
 
-logger = leon.getLogger("addressBookService")
-
 db = -> leon.mongo.addresses
 
 # Servie
@@ -11,8 +9,11 @@ db = -> leon.mongo.addresses
 	delete: (id) ->
 		db().removeByOId(id)
 
-	list: ->		
+	list: ->
 		db().find().toArray()
 
 	get: (id) ->
 		db().findByOId(id)
+
+
+
