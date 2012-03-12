@@ -9,14 +9,15 @@
 
 <body ng:controller="IndexController">
 
+<leon:subscribe topic="newAddress" handlerFn="newAddress" />
+
 <div id="header">
-	<span>Application Template</span>
+	<span>Address book</span>
 </div>
 
 <div id="menu">
-	<a ng:click="showRoute('/serviceA')">Service A</a> |
-	<a ng:click="showRoute('/serviceB')">Service B</a> |
-	<a ng:click="showRoute('/serviceAB')">Service A & B</a>
+	<a ng:click="showList()">List</a> |
+	<a ng:click="showEdit()">Add</a>
 </div>
 
 <div id="content">

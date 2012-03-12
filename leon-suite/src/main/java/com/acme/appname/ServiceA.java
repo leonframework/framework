@@ -6,4 +6,8 @@ public class ServiceA {
         return "Message from ServiceA";
     }
 
+
+    public void addressSaved(Address address) {
+        System.out.println("address = " + address);
+    }
 }

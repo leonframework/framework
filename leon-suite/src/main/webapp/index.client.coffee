@@ -1,15 +1,26 @@
 
-@IndexController = getLeon().angular.utils.createController ->
-	@setDefaultRoute("/serviceA")
+@IndexController = getLeon().angular.utils.createCrudController ->
 
-	@addRoute "/serviceA", "/partials/serviceA.html", ->
-		@leon.service("/indexService", "serviceA").call (data) =>
-			@model.a = data
+    @leon.comet.addHandler "newAddress", =>
+        console.log("angular comet")
 
-	@addRoute "/serviceB", "/partials/serviceB.html", ->
-		@leon.service("/indexService", "serviceB").call (data) =>
-			@model.b = data
 
-	@addRoute "/serviceAB", "/partials/serviceAB.html", ->
-		@leon.service("/indexService", "serviceAB").call (data) =>
-			@model.ab = data
+    @doList = ->
+        @leon.service("/indexService", "list").call (result) =>
+            @model.list = result
+
+    @doSave = ->
+        @leon.service("/indexService", "save").call @model.current, (result) =>
+            if result
+                @leon.service("/aService", "addressSaved").call @model.current
+                @showList()
+            else
+                alert("Stephan nicht erlaubt!")
+
+    @doEdit = (id) ->
+        @leon.service("/indexService", "edit").call id, (data) =>
+            @model.current = data
+
+
+@newAddress = (data) ->
+    console.log("comet message")

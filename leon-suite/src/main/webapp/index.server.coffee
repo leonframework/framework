@@ -1,15 +1,18 @@
 
-package = Packages.com.acme.appname
-serviceA = -> leon.inject(package.ServiceA)
-serviceB = -> leon.inject(package.ServiceB)
+db = -> leon.mongo.addresses
 
 @indexService =
-	serviceA: ->
-		serviceA().getA()
+    list: ->
+        db().find().sort({name:1, mail:-1}).toArray()
 
-	serviceB: ->
-		serviceB().getB()
+    edit: (id) ->
+        db().findByOId(id)
 
-	serviceAB: ->
-		a: serviceA().getA()
-		b: serviceB().getB()
+    save: (data) ->
+        if data.name is "Stephan"
+            false
+        else
+            db().save(data)
+            ts = leon.inject(Packages.io.leon.web.TopicsService)
+            ts.send("newAddress", data)
+            true
