@@ -1,6 +1,6 @@
 package com.acme.appname;
 
-public class ServiceA {
+public class DemoService {
 
     public String getA() {
         return "Message from ServiceA";

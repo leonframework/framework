@@ -29,7 +29,7 @@ class CometRegistry @Inject()(clients: Clients, gson: Gson, configMap: ConfigMap
   private val reconnectTimeout = 30 * 1000
 
   // after this time, the server will treat the client as disconnected and remove all information
-  private val disconnectTimeout = reconnectTimeout + 60 * 1000
+  private val disconnectTimeout = reconnectTimeout + 100 * 1000
 
   private val filter: List[BroadcastFilter] = List(new XSSHtmlFilter)
 
@@ -102,11 +102,11 @@ class CometRegistry @Inject()(clients: Clients, gson: Gson, configMap: ConfigMap
     }
   }
 
-  def publish(topicName: String, filters: java.util.Map[String, AnyRef], data: String) {
+  def publish(targets: Seq[ClientConnection], topicName: String, filters: java.util.Map[String, AnyRef], data: String) {
     import scala.collection.JavaConverters._
 
     val requiredFilters = filters.asScala
-    val matchingClients = clients.allClients filter { c =>
+    val matchingClients = targets filter { c =>
       if (configMap.isDevelopmentMode && topicName.startsWith("leon.developmentMode")) {
         true
       } else {
@@ -131,12 +131,36 @@ class CometRegistry @Inject()(clients: Clients, gson: Gson, configMap: ConfigMap
     clients.getByClientId(clientId).get.updateTopicFilter(topicId, filterName, filterValue)
   }
 
+  // --- method for interface TopicsService ---
+
   def send(topicId: String, data: AnyRef) {
     send(topicId, data, Maps.newHashMap())
   }
 
   def send(topicId: String, data: AnyRef, filters: Map[String, AnyRef]) {
-    publish(topicId, filters, gson.toJson(data))
+    publish(clients.allClients.toSeq, topicId, filters, gson.toJson(data))
+  }
+
+  override def toOthers = new TopicsService {
+    def toCurrent = throw new IllegalArgumentException("invalid")
+    def toOthers = throw new IllegalArgumentException("invalid")
+    def send(topicId: String, data: AnyRef) {
+      send(topicId, data, Maps.newHashMap())
+    }
+    def send(topicId: String, data: AnyRef, filters: Map[String, AnyRef]) {
+      // TODO
+    }
+  }
+
+  override def toCurrent = new TopicsService {
+    def toCurrent = throw new IllegalArgumentException("invalid")
+    def toOthers = throw new IllegalArgumentException("invalid")
+    def send(topicId: String, data: AnyRef) {
+      send(topicId, data, Maps.newHashMap())
+    }
+    def send(topicId: String, data: AnyRef, filters: Map[String, AnyRef]) {
+      // TODO
+    }
   }
 
 }

@@ -8,4 +8,8 @@ public interface TopicsService {
 
     public void send(String topicId, Object data);
 
+    public TopicsService toOthers();
+
+    public TopicsService toCurrent();
+
 }
