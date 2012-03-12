@@ -53,13 +53,15 @@ abstract public class LeonModule extends ServletModule {
             webResourcesBinder.exposeUrl(eu);
         }
 
-        requestInjection(new Object() {
-            @Inject
-            public void init(LeonScriptEngine engine) {
-                // Loading JavaScript files
-                engine.loadResources(javaScriptFilesToLoad);
-            }
-        });
+        if (javaScriptFilesToLoad.size() > 0) {
+            requestInjection(new Object() {
+                @Inject
+                public void init(LeonScriptEngine engine) {
+                    // Loading JavaScript files
+                    engine.loadResources(javaScriptFilesToLoad);
+                }
+            });
+        }
     }
 
     // --- Delegates for JavaScript modules ---

@@ -2,10 +2,8 @@ package io.leon.persistence.hbase;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Key;
-import io.leon.guice.GuiceUtils;
-import io.leon.unitofwork.UOWListener;
-import io.leon.unitofwork.UOWManager;
+import io.leon.persistence.hbase.unitofwork.HBaseUOWManager;
+import io.leon.persistence.hbase.unitofwork.exceptions.NoActiveUnitOfWorkException;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.HTablePool;
 
@@ -29,7 +27,7 @@ public class ThreadLocalLeonHBaseTableProxy implements InvocationHandler {
     private Injector injector;
 
     @Inject
-    private UOWManager uowManager;
+    private HBaseUOWManager uowManager;
 
     private final ThreadLocal<LeonHBaseTable> threadLocal = new ThreadLocal<LeonHBaseTable>() {
         @Override
@@ -51,23 +49,20 @@ public class ThreadLocalLeonHBaseTableProxy implements InvocationHandler {
         injector.injectMembers(this);
     }
 
-    private HBaseUOWListener getThreadLocalHBaseUOWListener() {
-        Key<UOWListener> k = GuiceUtils.getKeyWithInterfaceAndClassName(UOWListener.class, HBaseUOWListener.class);
-        return (HBaseUOWListener) uowManager.getThreadLocalListenerByKey(k);
-    }
-
     private LeonHBaseTable createNewInstance() {
         HTableInterface tableInterface = pool.getTable(tableName);
         LeonHBaseTableImpl leonHBaseTable = new LeonHBaseTableImpl(tableName, tableInterface);
         injector.injectMembers(leonHBaseTable);
-        getThreadLocalHBaseUOWListener().addLeonHBaseTableUsage(leonHBaseTable);
+        uowManager.getHBaseUOWTableCoordinator().addLeonHBaseTableUsage(leonHBaseTable);
         return leonHBaseTable;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         // Make sure that we are inside of a unit of work
-        getThreadLocalHBaseUOWListener();
+        if (!uowManager.threadHasActiveUnitOfWork()) {
+            throw new NoActiveUnitOfWorkException();
+        }
 
         // Delegate call
         return method.invoke(threadLocal.get(), args);

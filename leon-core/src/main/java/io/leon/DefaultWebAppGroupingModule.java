@@ -8,7 +8,6 @@ import io.leon.javascript.LeonJavaScriptModule;
 import io.leon.resourceloading.ResourceLoadingModule;
 import io.leon.resources.coffeescript.CoffeeScriptModule;
 import io.leon.resources.less.LessModule;
-import io.leon.unitofwork.UOWModule;
 import io.leon.web.ajax.AjaxModule;
 import io.leon.web.angular.AngularModule;
 import io.leon.web.browser.BrowserModule;
@@ -29,7 +28,6 @@ public class DefaultWebAppGroupingModule extends AbstractModule {
     @Override
     protected void configure() {
         install(configModule);
-        install(new UOWModule());
         install(new ResourceLoadingModule());
         install(new AngularModule());
         install(new HtmlTagsProcessorModule());

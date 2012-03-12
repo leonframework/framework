@@ -1,32 +1,35 @@
 package io.leon.persistence.hbase;
 
-import com.google.inject.AbstractModule;
-import io.leon.guice.GuiceUtils;
-import io.leon.unitofwork.UOWListener;
+import com.google.inject.Scopes;
+import io.leon.LeonModule;
+import io.leon.persistence.hbase.unitofwork.HBaseUOWManager;
+import io.leon.persistence.hbase.unitofwork.HBaseUOWTableCoordinator;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTablePool;
 
-public class LeonHBaseFeatureModule extends AbstractModule {
+public class LeonHBaseModule extends LeonModule {
 
     private final Configuration configuration;
 
-    public LeonHBaseFeatureModule() {
+    public LeonHBaseModule() {
         this(HBaseConfiguration.create());
     }
 
-    public LeonHBaseFeatureModule(Configuration configuration) {
+    public LeonHBaseModule(Configuration configuration) {
         this.configuration = configuration;
     }
 
     @Override
-    protected void configure() {
+    protected void config() {
         try {
+            bind(HBaseUOWManager.class).in(Scopes.SINGLETON);
+            bind(HBaseUOWTableCoordinator.class);
+
             bind(Configuration.class).toInstance(configuration);
             bind(HBaseAdmin.class).toInstance(new HBaseAdmin(configuration));
             bind(HTablePool.class).toInstance(new HTablePool(configuration, Integer.MAX_VALUE));
-            GuiceUtils.bindClassWithName(binder(), UOWListener.class, HBaseUOWListener.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

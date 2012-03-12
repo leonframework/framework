@@ -13,7 +13,6 @@ import scala.io.Source
 import org.mozilla.javascript.{NativeJavaObject, Context}
 import java.lang.reflect.Method
 import java.io.InputStream
-import io.leon.unitofwork.UOWManager
 import io.leon.config.{ConfigMapHolder, ConfigReader}
 import javax.servlet._
 import io.leon.resourceloading.watcher.ResourceWatcher
@@ -27,9 +26,6 @@ class LeonFilter extends GuiceFilter {
   private val classLoader = Thread.currentThread.getContextClassLoader
 
   private var injector: Injector = _
-
-  @Inject
-  private var uowManager: UOWManager = _
 
   override def init(filterConfig: FilterConfig) {
     StaticServletContextHolder.SERVLET_CONTEXT = filterConfig.getServletContext
@@ -68,15 +64,6 @@ class LeonFilter extends GuiceFilter {
   override def destroy() {
     injector.getInstance(classOf[ResourceWatcher]).stop()
     super.destroy()
-  }
-
-  override def doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) {
-    uowManager.begin(servletRequest)
-    try {
-      super.doFilter(servletRequest, servletResponse, filterChain)
-    } finally {
-      uowManager.commit()
-    }
   }
 
   def loadModuleFromJavaScript(file: InputStream): LeonAppMainModule = {
