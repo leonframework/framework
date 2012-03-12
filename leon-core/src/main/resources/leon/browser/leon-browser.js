@@ -7,7 +7,7 @@ var _leon = (function() {
 
     return {
 
-        deploymentMode: "development",
+        deploymentMode: "production",
 
         service: function(url, methodName, onComplete) {
             return {
@@ -38,7 +38,6 @@ var _leon = (function() {
                     var handler = function(result) {
                         if (result != null && result.leonAjaxError) {
                             getLeon().log("Ajax [" + url + " " + methodName + "] ERROR");
-                            console.log(result);
                         } else {
                             callback(result);
                             getLeon().log("Ajax [" + url + " " + methodName + "] done");
@@ -52,6 +51,10 @@ var _leon = (function() {
                     getLeon().log("Ajax [" + url + " " + methodName + "] called");
                 }
             };
+        },
+
+        subscribeTopic: function(topicId, handler) {
+            return getLeon().comet.subscribeTopic(topicId, handler);
         },
 
         hasCockpit: function() {

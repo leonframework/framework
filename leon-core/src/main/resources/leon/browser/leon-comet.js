@@ -13,8 +13,6 @@ getLeon().comet = (function() {
 
     var lastMessageId = -1;
 
-    var clientId = undefined; // gets defined during the first connect(...) call
-
     var handlerFns = {};
 
     return {
@@ -32,7 +30,9 @@ getLeon().comet = (function() {
         },
 
         handleEvent: function(topicId, data) {
-            handlerFns[topicId](data);
+            handlerFns[topicId].map(function(fn) {
+                fn(data);
+            });
         },
 
         handleResponse: function() {
@@ -84,7 +84,9 @@ getLeon().comet = (function() {
                             getLeon().comet.handleEvent(message.topicName, dataParsed);
                         } catch (err) {
                             getLeon().log("Comet handler ERROR");
-                            console.log(err.description);
+                            if (getLeon().deploymentMode === "development") {
+                                console.log(err.description);
+                            }
                         }
                     }
                 }
@@ -109,28 +111,21 @@ getLeon().comet = (function() {
 
         connect: function(id) {
             if (getLeon().comet.isCometActive()) {
-                //getLeon().log("Comet connection already active.");
-                return; // already connected
-            }
-
-            //getLeon().log("Starting Comet connection.");
-            if (clientId == undefined) {
-                // a page can only define the clientId once
-                clientId = id;
+                return;
             }
 
             clearInterval(pollTimer);
             clearInterval(disconnectTimer);
 
-            var url = getLeon().contextPath + "/leon/comet/connect" + "?clientId=" + clientId + "&lastMessageId=" + lastMessageId;
+            var url = getLeon().contextPath + "/leon/comet/connect" + "?clientId=" + getLeon().comet.clientId + "&lastMessageId=" + lastMessageId;
             getLeon().comet.openSocket(url);
 
-            // check every 2 seconds that we have a connection
+            // check every 5 seconds that we have a connection
             (function connectionCheck() {
                setTimeout(function() {
                   getLeon().comet.connect();
                   connectionCheck();
-              }, 2000);
+              }, 5000);
             })();
 
             // close and open the connection every 30 seconds
@@ -139,17 +134,44 @@ getLeon().comet = (function() {
             }, 30 * 1000);
         },
 
+        subscribeTopic: function(topicId, handler) {
+            getLeon().comet.connect();
+
+            (function waitForActiveConnection() {
+                if (http && http.readyState == 3) {
+                    getLeon().comet.addHandler(topicId, handler);
+                    getLeon().comet.updateFilter(topicId);
+                } else {
+                    setTimeout(function() { waitForActiveConnection() }, 500);
+                }
+            })();
+        },
+
         addHandler: function(topicId, handlerFn) {
-            handlerFns[topicId] = handlerFn;
+            if (handlerFns.hasOwnProperty(topicId)) {
+                handlerFns[topicId].push(handlerFn);
+            } else {
+                handlerFns[topicId] = [handlerFn];
+            }
         },
 
         updateFilter: function(topicId, key, value) {
-            jQuery.get(getLeon().contextPath + "/leon/comet/updateFilter", {
-                clientId: clientId,
-                topicId: topicId,
-                key: key,
-                value: value
-            });
+            var url = getLeon().contextPath + "/leon/comet/updateFilter";
+            if (key) {
+                // update filter
+	            jQuery.get(url, {
+	                clientId: getLeon().comet.clientId,
+	                topicId: topicId,
+	                key: key,
+	                value: value
+	            });
+            } else {
+                // add subscription
+	            jQuery.get(url, {
+	                clientId: getLeon().comet.clientId,
+	                topicId: topicId
+	            });
+            }
         }
     }
 

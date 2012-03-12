@@ -3,11 +3,9 @@
     <title>Dummy App</title>
     <script src="/leon/leon.js" type="text/javascript"></script>
     <script src="/browser/app.js" type="text/javascript"></script>
-	<link rel="stylesheet" href="/leon/browser/skin/classic/style.css" />
+	<link rel="stylesheet" href="/leon/browser/skin/basic/style.css" />
 	<link rel="stylesheet" href="/browser/style.css" />
 </head>
-
-<leon:subscribe topic="reversed" handlerFn="reversedTopic" />
 
 <body ng:controller="DummyAppCtrl">
 <div>
@@ -29,6 +27,13 @@
 		Reversed text
     </span>
 	<span ng:bind="reversed"></span>
+
+	<hr/>
+
+	<span style="{font-weight:bold; margin-left:10px; margin-right:10px}">
+		CometLastReversed
+    </span>
+	<span ng:bind="cometLastReversed"></span>
 
 	<hr/>
 

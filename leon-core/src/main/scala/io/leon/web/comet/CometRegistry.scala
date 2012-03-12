@@ -10,7 +10,6 @@ package io.leon.web.comet
 
 import org.atmosphere.cpr.{BroadcastFilter, Meteor}
 import org.atmosphere.util.XSSHtmlFilter
-import com.google.inject.Inject
 import javax.servlet.http.HttpServletRequest
 import com.google.gson.Gson
 import org.slf4j.LoggerFactory
@@ -18,12 +17,19 @@ import io.leon.config.ConfigMap
 import io.leon.web.TopicsService
 import java.util.Map
 import com.google.common.collect.Maps
+import com.google.inject.{Injector, Inject}
+import io.leon.guice.GuiceUtils
 
-class CometRegistry @Inject()(clients: Clients, gson: Gson, configMap: ConfigMap) extends TopicsService {
+class CometRegistry @Inject()(injector: Injector,
+                              clients: Clients,
+                              gson: Gson,
+                              configMap: ConfigMap) extends TopicsService {
+
+  import scala.collection.JavaConverters._
 
   private val logger = LoggerFactory.getLogger(getClass.getName)
 
-  private val checkClientsInterval = 1 * 1000
+  private val checkClientsInterval = 10 * 1000
 
   // the time in seconds, when the server will close the connection to force a reconnect
   private val reconnectTimeout = 30 * 1000
@@ -33,14 +39,23 @@ class CometRegistry @Inject()(clients: Clients, gson: Gson, configMap: ConfigMap
 
   private val filter: List[BroadcastFilter] = List(new XSSHtmlFilter)
 
-  //private val clientSubscriptions = new mutable.HashMap[String, List[ClientSubscription]]()
+  private val allDefinedTopics = (GuiceUtils.getByType(injector, classOf[Topic]).asScala map { b =>
+    b.getProvider.get().getName
+  }).toSet
 
   @volatile
   private var shouldStop = false
 
   private def createMeteor(req: HttpServletRequest): Meteor = {
-    import scala.collection.JavaConverters._
     Meteor.build(req, filter.asJava, null)
+  }
+
+  private def checkIfTopicIsConfigured(topicName: String) {
+    if (!allDefinedTopics.contains(topicName)) {
+      throw new IllegalArgumentException(
+        "Topic [" + topicName + "] was not configured. Add e.g. 'addTopic(\""
+          + topicName + "\");' to your module configuration.")
+    }
   }
 
   def start() {
@@ -58,7 +73,7 @@ class CometRegistry @Inject()(clients: Clients, gson: Gson, configMap: ConfigMap
                 client.resumeAndRemoveUplink()
               }
               if ((now - client.connectTime) > disconnectTimeout) {
-                logger.info("Client connection for [" + client.clientId + "] too old. Forcing disconnect.")
+                logger.info("Client connection for [" + client.clientId + "] too old. Removing client information.")
                 client.resumeAndRemoveUplink()
                 clients.remove(client)
               }
@@ -75,58 +90,50 @@ class CometRegistry @Inject()(clients: Clients, gson: Gson, configMap: ConfigMap
   }
 
   def registerUplink(req: HttpServletRequest, clientId: String, lastMessageId: Int) {
+    logger.debug("Registering meteor for client [" + clientId + "]")
+
     val meteor = createMeteor(req)
-    logger.info("Registering meteor for client [" + clientId + "]")
+    meteor.suspend(-1, true)
+    val res = meteor.getAtmosphereResource.getResponse
+    val writer = res.getWriter
+    writer.write("\n")
+    writer.flush()
 
     clients.getByClientId(clientId) match {
       case None => {
-        if (configMap.isDevelopmentMode) {
-          logger.debug("Re-registering client comet connect request since we are in development mode.")
-          val cc = new ClientConnection(clientId, None)
-          clients.add(cc)
-          registerUplink(req, clientId, lastMessageId)
-        } else {
-          logger.debug(
-            "Can not register client uplink because the client is unknown. In case you restarted the server, you need to refresh the browser page since the list of clients stored on the server is not (yet) persistent.")
-        }
+        logger.debug("Registering new meteor for client [" + clientId + "]")
+        val cc = new ClientConnection(clientId, Some(meteor))
+        clients.add(cc)
       }
       case Some(cc) => {
-        logger.info("Client connection found. Updating existing ClientConnection with new meteor.")
-        meteor.suspend(-1, true)
-        val res = meteor.getAtmosphereResource.getResponse
-        val writer = res.getWriter
-        writer.write("\n")
-        writer.flush()
+        logger.debug("Updating existing meteor for client [" + clientId + "]")
         cc.setNewMeteor(lastMessageId, meteor)
       }
     }
   }
 
   def publish(topicName: String, filters: java.util.Map[String, AnyRef], data: String) {
-    import scala.collection.JavaConverters._
+    checkIfTopicIsConfigured(topicName)
 
     val requiredFilters = filters.asScala
     val matchingClients = clients.allClients filter { c =>
-      if (configMap.isDevelopmentMode && topicName.startsWith("leon.developmentMode")) {
-        true
-      } else {
-        requiredFilters forall { case (filterName, filterValue) =>
-          c.hasFilterValue(topicName, filterName, filterValue.toString)
-        }
+      requiredFilters forall { case (filterName, filterValue) =>
+        c.hasFilterValue(topicName, filterName, filterValue.toString)
       }
     }
 
     if (matchingClients.isEmpty) {
-      logger.info("No clients found for topic [%s], filter map [%s]".format(topicName, requiredFilters))
+      logger.debug("No clients found for topic [%s], filter map [%s]".format(topicName, requiredFilters))
     } else {
-      logger.info("Found [%s] clients for filter map [%s].".format(matchingClients.size, requiredFilters))
+      logger.debug("Found [%s] clients for filter map [%s].".format(matchingClients.size, requiredFilters))
+      val dataSerialized = new Gson().toJson(data)
+      matchingClients foreach { _.enqueue(topicName, dataSerialized) }
     }
-
-    val dataSerialized = new Gson().toJson(data)
-    matchingClients foreach { _.enqueue(topicName, dataSerialized) }
   }
 
   def updateClientFilter(topicId: String, clientId: String, filterName: String, filterValue: String) {
+    checkIfTopicIsConfigured(topicId)
+
     logger.info("Updating topic filter for client [%s], topic [%s], filter name [%s], filter value [%s].".format(clientId, topicId, filterName, filterValue))
     clients.getByClientId(clientId).get.updateTopicFilter(topicId, filterName, filterValue)
   }

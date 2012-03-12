@@ -14,12 +14,12 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 class UpdateSubscriptionServlet @Inject()(cometRegisty: CometRegistry) extends HttpServlet {
 
   override def doGet(req: HttpServletRequest, resp: HttpServletResponse) {
-    val pageId = req.getParameter("pageId")
+    val clientId = req.getParameter("clientId")
     val topicId = req.getParameter("topicId")
     val key = req.getParameter("key")
     val value = req.getParameter("value")
 
-    cometRegisty.updateClientFilter(topicId, req.getSession.getId + "__" + pageId, key, value)
+    cometRegisty.updateClientFilter(topicId, clientId, key, value)
   }
 
 }

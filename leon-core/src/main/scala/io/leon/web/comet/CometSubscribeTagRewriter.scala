@@ -45,14 +45,7 @@ class CometSubscribeTagRewriter @Inject()(injector: Injector,
 
     for (subscribeTag <- subscribeTags.asScala) yield {
       val topicId = Option(subscribeTag.getAttributeValue("topic")) getOrElse sys.error("attribute topic is missing in <leon:subscribe>!")
-      val filterOn = Option(subscribeTag.getAttributeValue("filterOn")) map {
-        _.split(",").toList map {
-          _.trim()
-        }
-      } getOrElse Nil
       val handlerFn = Option(subscribeTag.getAttributeValue("handlerFn")) getOrElse sys.error("attribute handlerFn is missing in <leon:subscribe>!")
-
-      cc.registerTopicSubscriptions(topicId, filterOn)
 
       val scriptToInclude =
         ("""

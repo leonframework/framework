@@ -62,13 +62,10 @@ getCurrentTime = ->
 getLeon().cockpit =
 	enable: ->
 		showMenu()
-		getLeon().comet.connect()
-		getLeon().comet.addHandler "leon.developmentMode.resourceWatcher.resourceChanged", (data) ->
+		getLeon().subscribeTopic "leon.developmentMode.resourceWatcher.resourceChanged", (data) ->
 			getLeon().log("Reloaded [" + data.name + "]")
-		console.log("Leon Cockpit enabled.")
 
 	disable: ->
-		console.log("Leon Cockpit disabled.")
 		hideMenu()
 
 	displayLogMessage: (message) ->

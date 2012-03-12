@@ -21,6 +21,8 @@ class BrowserModule extends ServletModule {
     val vljs = new VirtualLeonJsFileBinder(binder())
     vljs.bindAndAddContribution(classOf[ContextPathVirtualLeonJsFileContribution])
 
+    vljs.bindAndAddContribution(classOf[DeploymentModeLeonJsContribution])
+
     bind(classOf[VirtualLeonJsFile]).asEagerSingleton()
     serve("/leon/leon.js").`with`(classOf[VirtualLeonJsFile])
 

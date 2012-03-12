@@ -53,6 +53,7 @@ var leon = (function() {
 
           return result;
         }
+
     };
 
 })();

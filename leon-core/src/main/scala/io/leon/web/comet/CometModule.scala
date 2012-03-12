@@ -11,13 +11,15 @@ package io.leon.web.comet
 import com.google.inject.servlet.ServletModule
 import org.atmosphere.cpr.AtmosphereServlet
 import io.leon.web.resources.WebResourcesBinder
-import io.leon.web.htmltagsprocessor.HtmlTagsProcessorBinder
 import io.leon.web.TopicsService
 import com.google.inject.{Key, AbstractModule}
+import io.leon.web.browser.VirtualLeonJsFileBinder
 
 class CometModule extends AbstractModule {
 
   def configure() {
+    new VirtualLeonJsFileBinder(binder()).bindAndAddContribution(classOf[ClientIdLeonJsContribution])
+
     bind(classOf[CometRegistry]).asEagerSingleton()
     bind(classOf[TopicsService]).to(Key.get(classOf[CometRegistry]))
 
@@ -43,8 +45,8 @@ class CometModule extends AbstractModule {
       }
     })
 
-    val htpb = new HtmlTagsProcessorBinder(binder())
-    htpb.addTagRewriter(classOf[CometSubscribeTagRewriter])
+    //val htpb = new HtmlTagsProcessorBinder(binder())
+    //htpb.addTagRewriter(classOf[CometSubscribeTagRewriter])
   }
 
 }

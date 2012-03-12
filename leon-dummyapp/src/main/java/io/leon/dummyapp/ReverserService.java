@@ -2,7 +2,6 @@ package io.leon.dummyapp;
 
 
 import com.google.common.collect.Maps;
-import com.google.gson.Gson;
 import com.google.inject.Inject;
 import io.leon.web.TopicsService;
 
@@ -12,21 +11,29 @@ public class ReverserService {
 
     private final TopicsService topicsService;
 
-    private final Gson gson;
-
     @Inject
-    public ReverserService(TopicsService topicsService, Gson gson) {
+    public ReverserService(TopicsService topicsService) {
         this.topicsService = topicsService;
-        this.gson = gson;
     }
 
     public String reverse(String param) {
         String reversed = new StringBuffer(param).reverse().toString();
 
-        Map<String, String> data = Maps.newHashMap();
+        final Map<String, String> data = Maps.newHashMap();
         data.put("original", param);
         data.put("reversed", reversed);
-        topicsService.send("reversed", data);
+
+        (new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1000);
+                    topicsService.send("reversed", data);
+                } catch (InterruptedException e) {
+                    //
+                }
+            }
+        }).start();
 
         return reversed;
     }

@@ -10,9 +10,9 @@ package io.leon.web.comet
 
 import org.atmosphere.cpr.Meteor
 import org.slf4j.LoggerFactory
-import java.util.ArrayList
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.{HashSet, Collections, ArrayList}
 
 class ClientConnection(val clientId: String,
                        var meteor: Option[Meteor]) {
@@ -22,8 +22,8 @@ class ClientConnection(val clientId: String,
   // message queue
   private val queue = new ArrayList[(Int, String)]
 
-  // topicID -> list of filters
-  private val topicSubscriptions = new ConcurrentHashMap[String, List[String]]
+  // topicID
+  private val topicSubscriptions = Collections.synchronizedSet(new HashSet[String])
 
   // topic name#filter name -> filter value
   private val topicActiveFilters = new ConcurrentHashMap[String, String]
@@ -63,7 +63,7 @@ class ClientConnection(val clientId: String,
           m.resume()
       }
     } catch {
-      case e: Exception => logger.warn("Cannot resume existing comet connection.")
+      case e: Exception => logger.info("Cannot resume existing comet connection.")
     }
     meteor = None
   }
@@ -108,7 +108,6 @@ class ClientConnection(val clientId: String,
           val res = meteor.getAtmosphereResource.getResponse
           val writer = res.getWriter
           writer.write(data)
-          //logger.info("Sending package: " + data)
           res.flushBuffer()
           true
       } getOrElse false
@@ -120,16 +119,12 @@ class ClientConnection(val clientId: String,
     }
   }
 
-  def registerTopicSubscriptions(topicName: String, filterOn: List[String]) {
-    topicSubscriptions.put(topicName, filterOn)
-  }
-
   def updateTopicFilter(topicName: String, filterName: String, filterValue: String) {
-    // check that the client declared the filter
-    if (!topicSubscriptions.get(topicName).contains(filterName)) {
-      throw new IllegalStateException(
-        "Security issue: Can not set the filter [%s] for topic [%s] to value [%s] since client [%s] did not declare this on connect.".format(filterName, topicName, filterValue, clientId)
-      )
+    // register topic subscription
+    topicSubscriptions.add(topicName)
+
+    if (filterName == null) {
+      return
     }
 
     // update the filter

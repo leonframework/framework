@@ -10,6 +10,8 @@ public class Module extends LeonAppMainModule {
 
         bind(ReverserService.class).asEagerSingleton();
         exposeJavaService("/reverserService", ReverserService.class);
+
+        addTopic("reversed");
     }
 
 }

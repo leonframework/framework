@@ -19,6 +19,7 @@ import io.leon.javascript.LeonScriptEngine;
 import io.leon.web.ajax.AjaxBinder;
 import io.leon.web.ajax.JavaObjectAjaxHandler;
 import io.leon.web.ajax.JavaScriptAjaxHandler;
+import io.leon.web.comet.CometBinder;
 import io.leon.web.resources.WebResourcesBinder;
 
 import java.util.List;
@@ -93,6 +94,12 @@ abstract public class LeonModule extends ServletModule {
     public void exposeJavaScript(String url, String javaScriptObjectName) {
         AjaxBinder b = new AjaxBinder(binder());
         b.exposeAjaxHandler(url, new JavaScriptAjaxHandler(javaScriptObjectName));
+    }
+
+    // --- CometBinder delegates ---
+
+    public void addTopic(String name) {
+        new CometBinder(binder()).addTopic(name);
     }
 
     // --- Abstract methods ---
