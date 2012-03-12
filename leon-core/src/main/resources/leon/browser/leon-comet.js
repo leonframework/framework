@@ -86,6 +86,7 @@ getLeon().comet = (function() {
                             getLeon().log("Comet handler ERROR");
                             if (getLeon().deploymentMode === "development") {
                                 console.log(err.description);
+                                alert(err);
                             }
                         }
                     }
@@ -136,10 +137,10 @@ getLeon().comet = (function() {
 
         subscribeTopic: function(topicId, handler) {
             getLeon().comet.connect();
+            getLeon().comet.addHandler(topicId, handler);
 
             (function waitForActiveConnection() {
                 if (http && http.readyState == 3) {
-                    getLeon().comet.addHandler(topicId, handler);
                     getLeon().comet.updateFilter(topicId);
                 } else {
                     setTimeout(function() { waitForActiveConnection() }, 500);
