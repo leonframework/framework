@@ -14,7 +14,7 @@ public class AngularLeonJsContribution implements VirtualLeonJsFileContribution 
 
     private final String angularJsPath = "/"
             + getClass().getPackage().getName().replace('.', '/')
-            + "/angular-0.9.19.js";
+            + "/angular-1.0.0rc2.js";
 
     private final String angularLeonIntegrationJsPath = "/"
             + getClass().getPackage().getName().replace('.', '/')
@@ -46,7 +46,7 @@ public class AngularLeonJsContribution implements VirtualLeonJsFileContribution 
 
         if (!("false".equals(params.get("angularAutoCompile")))) {
             content.append("angular.element(document).ready(function(){" +
-                    "angular.compile(document)();" +
+                    "angular.bootstrap(document);" +
                     "});");
         }
 

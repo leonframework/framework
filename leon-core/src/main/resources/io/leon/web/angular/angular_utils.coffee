@@ -1,13 +1,14 @@
 
 @getLeon().angular = {} if !@getLeon().angular?
 @getLeon().angular.utils = {} if !@getLeon().angular.utils?
+@getLeon().angular.injector = angular.injector(['ng', 'leon']) if !getLeon().angular.injector?
 
 @getLeon().angular.utils.createController = (controller) ->
 	() ->
 		# --- state ---
-
-		@location = @$service("$location")
-		@leon = @$service("leon")
+		
+		@location = getLeon().angular.injector.get("$location")
+		@leon = getLeon().angular.injector.get("leon")
 		@model = new Object()
 
 		# --- user controller ---
@@ -18,9 +19,9 @@
 	() ->
 		# --- state ---
 
-		@route = @$service("$route")
-		@location = @$service("$location")
-		@leon = @$service("leon")
+		@route = getLeon().angular.injector.get("$route")
+		@location = getLeon().angular.injector.get("$location")
+		@leon = getLeon().angular.injector.get("leon")
 		@model = new Object()
 
 		# --- UI view functions ---
@@ -63,11 +64,9 @@
 
 		# --- state ---
 
-		@route = @$service("$route")
-
-		@location = @$service("$location")
-
-		@leon = @$service("leon")
+		@route = getLeon().angular.injector.get("$route")
+		@location = getLeon().angular.injector.get("$location")
+		@leon = getLeon().angular.injector.get("leon")
 
 		@model = {}
 
