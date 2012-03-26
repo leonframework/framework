@@ -2415,6 +2415,8 @@ function loadStyleSheet(sheet, callback, reload, remaining) {
     var lessString = ResourceUtils.inputStreamToString(resource.getInputStream());
     lessString = "" + lessString; // trigger rhino's javaToJs conversion
 
+    originalLessFilePathHolder.set(sheetName);
+
     var parser = new less.Parser();
     parser.parse(lessString, function (e, root) {
         if (e) {
@@ -2422,6 +2424,8 @@ function loadStyleSheet(sheet, callback, reload, remaining) {
         }
         callback(root, sheet, { local: false, lastModified: 0, remaining: remaining });
     });
+
+    originalLessFilePathHolder.set(originalLessFilePath);
 
     // callback({}, sheet, { local: true, remaining: remaining });
 }
