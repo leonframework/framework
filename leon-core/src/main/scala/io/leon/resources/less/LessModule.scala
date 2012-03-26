@@ -8,13 +8,15 @@
  */
 package io.leon.resources.less
 
-import com.google.inject.{Key, AbstractModule}
 import io.leon.resourceloading.processor.ResourceProcessor
 import io.leon.guice.GuiceUtils
+import com.google.inject.AbstractModule
+
 
 class LessModule extends AbstractModule {
 
   def configure() {
+    bind(classOf[OriginalLessFilePathHolder]).asEagerSingleton()
     GuiceUtils.bindClassWithName(
       binder(), classOf[ResourceProcessor], classOf[LessResourceProcessor]).asEagerSingleton()
   }

@@ -35,11 +35,11 @@ var leon = (function() {
           var result;
           var parser = new less.Parser();
 
-          parser.parse(lessString, function (e, root) {
-            if (e) {
-               throw(e);
+          parser.parse(lessString, function (err, tree) {
+            if (err) {
+               throw(err);
             } else {
-                result =  root.toCSS();
+                result =  tree.toCSS();
             }
           });
 

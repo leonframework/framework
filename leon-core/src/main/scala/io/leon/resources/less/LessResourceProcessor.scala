@@ -13,7 +13,9 @@ import com.google.inject.{Provider, Inject}
 import io.leon.resourceloading.processor.ResourceProcessor
 import io.leon.resourceloading.{ResourceUtils, Resource}
 
-class LessResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScriptEngine])
+
+class LessResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScriptEngine],
+                                      originalLessFilePathHolder: OriginalLessFilePathHolder)
   extends ResourceProcessor {
 
   private lazy val leonScriptEngine = {
@@ -28,8 +30,11 @@ class LessResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScr
 
   def process(in: Resource) = {
     synchronized {
+      originalLessFilePathHolder.set(in.name)
+
       val asLess = ResourceUtils.inputStreamToString(in.getInputStream())
       val asCss = leonScriptEngine.invokeFunction("leon.parseLess", asLess)
+
       new Resource(in.name) {
         def getLastModified() = in.getLastModified()
         def getInputStream() = ResourceUtils.stringToInputStream(asCss.toString)

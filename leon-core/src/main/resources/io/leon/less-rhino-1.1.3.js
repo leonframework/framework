@@ -2398,22 +2398,34 @@ require('less/tree').jsify = function (obj) {
         return obj.toCSS(false);
     }
 };
-var name;
 
 function loadStyleSheet(sheet, callback, reload, remaining) {
-    var sheetName = name.slice(0, name.lastIndexOf('/') + 1) + sheet.href;
-    var input = readFile(sheetName);
+    var ResourceUtils = Packages.io.leon.resourceloading.ResourceUtils;
+    var resourceLoader = leon.inject(Packages.io.leon.resourceloading.ResourceLoader);
+    var originalLessFilePathHolder = leon.inject(Packages.io.leon.resources.less.OriginalLessFilePathHolder);
+
+    var originalLessFilePath = "" + originalLessFilePathHolder.get();
+
+    var sheetName = sheet.href;
+    if(sheetName.charAt(0) != "/") {
+        sheetName = originalLessFilePath.slice(0, originalLessFilePath.lastIndexOf('/') + 1) + sheet.href;
+    }
+
+    var resource = resourceLoader.getResource(sheetName);
+    var lessString = ResourceUtils.inputStreamToString(resource.getInputStream());
+    lessString = "" + lessString; // trigger rhino's javaToJs conversion
+
     var parser = new less.Parser();
-    parser.parse(input, function (e, root) {
+    parser.parse(lessString, function (e, root) {
         if (e) {
-            print("Error: " + e);
-            quit(1);
+            throw(e);
         }
         callback(root, sheet, { local: false, lastModified: 0, remaining: remaining });
     });
 
     // callback({}, sheet, { local: true, remaining: remaining });
 }
+
 
 function writeFile(filename, content) {
     var fstream = new java.io.FileWriter(filename);
