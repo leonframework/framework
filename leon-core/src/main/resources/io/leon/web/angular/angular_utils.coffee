@@ -13,7 +13,7 @@
 
 		# --- user controller ---
 
-		controller.apply($scope)
+		controller.apply(this, [$scope])
 
 @getLeon().angular.utils.createRouteController = (controller) ->
 	() ->
