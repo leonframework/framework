@@ -6,13 +6,13 @@ leonServiceModule.service "leon", ($rootScope) ->
 	leon.service = (url, methodName) ->
 		call: (args...) ->
 			refreshHook = () ->
-				$rootScope.$digest()
+				#$rootScope.$digest()
 			getLeon().service(url, methodName, refreshHook).call.apply(this, args)
 
 	leon.subscribeTopic = (topicId, handler) ->
 		getLeon().comet.subscribeTopic topicId, (data) ->
 			handler(data)
-			$rootScope.$digest()
+			#$rootScope.$digest()
 
 	leon
 
