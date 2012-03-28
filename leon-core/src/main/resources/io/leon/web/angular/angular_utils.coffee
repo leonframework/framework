@@ -4,16 +4,16 @@
 @getLeon().angular.injector = angular.injector(['ng', 'leon']) if !getLeon().angular.injector?
 
 @getLeon().angular.utils.createController = (controller) ->
-	() ->
+	($scope) ->
 		# --- state ---
 		
-		@location = getLeon().angular.injector.get("$location")
-		@leon = getLeon().angular.injector.get("leon")
-		@model = new Object()
+		$scope.location = getLeon().angular.injector.get("$location")
+		$scope.leon = getLeon().angular.injector.get("leon")
+		$scope.model = new Object()
 
 		# --- user controller ---
 
-		controller.apply(this)
+		controller.apply($scope)
 
 @getLeon().angular.utils.createRouteController = (controller) ->
 	() ->
