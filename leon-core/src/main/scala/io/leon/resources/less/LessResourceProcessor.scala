@@ -20,7 +20,7 @@ class LessResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScr
 
   private lazy val leonScriptEngine = {
     val lse = leonScriptEngineProvider.get()
-    lse.loadResource("/io/leon/less-rhino-1.1.3.js", 9)
+    lse.loadResource("/io/leon/less-1.3.0-modified.js", 9)
     lse
   }
 

@@ -16,6 +16,7 @@ import io.leon.resourceloading.{ResourceLoader, Resource}
 import org.slf4j.LoggerFactory
 import io.leon.resourceloading.watcher.{ResourceChangedListener, ResourceWatcher}
 import java.io.{BufferedReader, BufferedInputStream, InputStreamReader}
+import org.mozilla.javascript.tools.shell.Global
 
 class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader, resourceWatcher: ResourceWatcher) {
 
@@ -23,16 +24,23 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
 
   private val logger = LoggerFactory.getLogger(getClass.getName)
 
-  val rhinoScope = withContext { _.initStandardObjects() }
+  val rhinoScope = withContext { ctx =>
+    val global = new Global
+    global.init(ctx)
+
+    ctx.initStandardObjects(global, false)
+  }
 
   put("injector", injector)
 
   // Load Leon core modules
   loadResource("/io/leon/leon.js")
   loadResource("/leon/browser/leon-shared.js")
+  loadResource("/io/leon/env.rhino.1.2.js", -1 /* bypass the 64k limit */)
 
   private[javascript] def withContext[A](block: Context => A): A = {
-    val ctx = Context.enter()
+    val ctx = Context.enter()    
+
     val result = block(ctx)
     Context.exit()
     result
