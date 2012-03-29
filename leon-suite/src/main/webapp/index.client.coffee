@@ -1,4 +1,5 @@
 
-@IndexController = getLeon().angular.utils.createController ->
-    @leon.service("/demoService", "getA").call (data) =>
-        @model.a = data
+@IndexController = getLeon().angular.utils.createController ($scope) ->
+    $scope.leon.service("/demoService", "getA").call (data) =>
+        $scope.model.a = data
+        $scope.$digest()
