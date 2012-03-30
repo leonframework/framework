@@ -1,19 +1,11 @@
-leonServiceModule = angular.module('leon.service', ['ng'])
+
+# create a angular module to support tight integration with angular
+# customer modules can depend on this to get access to leon services
+leonModule = angular.module('leon', [])
     
-leonServiceModule.service "leon", ($rootScope) ->
+# expose leon browser support as angular service to enable di
+leonModule.service "$leon", () ->
 	leon = {}
 	leon.__proto__ = getLeon()
-	leon.service = (url, methodName) ->
-		call: (args...) ->
-			refreshHook = () ->
-				#$rootScope.$digest()
-			getLeon().service(url, methodName, refreshHook).call.apply(this, args)
-
-	leon.subscribeTopic = (topicId, handler) ->
-		getLeon().comet.subscribeTopic topicId, (data) ->
-			handler(data)
-			#$rootScope.$digest()
 
 	leon
-
-leonModule = angular.module('leon', ['ng', 'leon.service'])
