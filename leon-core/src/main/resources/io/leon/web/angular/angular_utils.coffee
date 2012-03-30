@@ -13,8 +13,10 @@ if you want the given scope to be updated after
 - a comet message was received, more accurate: after the given handler was applied
   leon.subscribeTopic(topicId, handler)
 ###
-@getLeon().angular.utils.createScopedLeon = (scope) ->
-	leon = getLeon().angular.injector.get("$leon")
+@getLeon().angular.utils.createScopedLeon = (scope, leon) ->
+	if !leon?
+		leon = getLeon().angular.injector.get("$leon")
+	
 	scopedLeon = {}
 	scopedLeon.__proto__ = leon
 	
