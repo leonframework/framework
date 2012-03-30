@@ -14,157 +14,158 @@ if you want the given scope to be updated after
   leon.subscribeTopic(topicId, handler)
 ###
 @getLeon().angular.utils.createScopedLeon = (scope) ->
-  leon = getLeon().angular.injector.get("$leon")
-  scopedLeon = {}
-  scopedLeon.__proto__ = leon
-  
-  # override service function of prototype to enable refreshing the scope
-  scopedLeon.service = (url, methodName) ->
-    call: (args...) ->
-      refreshHook = () ->
-        scope.$digest()
-      leon.service(url, methodName, refreshHook).call.apply(this, args)
+	leon = getLeon().angular.injector.get("$leon")
+	scopedLeon = {}
+	scopedLeon.__proto__ = leon
+	
+	# override service function of prototype to enable refreshing the scope
+	scopedLeon.service = (url, methodName) ->
+		call: (args...) ->
+			refreshHook = () ->
+				scope.$digest()
+			leon.service(url, methodName, refreshHook).call.apply(this, args)
 
-  # override subscribeTopic function of prototype to enable refreshing the scope
-  scopedLeon.subscribeTopic = (topicId, handler) ->
-    scopedHandler = (data) ->
-      handler(data)
-      scope.$digest()
-    
-    leon.comet.subscribeTopic topicId, scopedHandler
+	# override subscribeTopic function of prototype to enable refreshing the scope
+	scopedLeon.subscribeTopic = (topicId, handler) ->
+		scopedHandler = (data) ->
+			handler(data)
+			scope.$digest()
+		
+		leon.comet.subscribeTopic topicId, scopedHandler
 
-  scopedLeon
+	scopedLeon
 
 ###
 TODO: comment!
 ###
 @getLeon().angular.utils.createController = (controller) ->
-	(scope) ->
+	($scope) ->
 	 
-	  # --- services ---
+		# --- services ---
 		
-		scope.$location = getLeon().angular.injector.get("$location")
-		scope.$leon = getLeon().angular.utils.createScopedLeon(scope)
+		$scope.location = getLeon().angular.injector.get("$location")
+		$scope.leon = getLeon().angular.utils.createScopedLeon($scope)
 		
 		# --- state ---
 		
-		scope.model = new Object()
+		$scope.model = new Object()
 
 		# --- user controller ---
 
-		controller.apply(scope)
+		controller.apply($scope)
 
 
 ###
 TODO: comment!
 ###
 @getLeon().angular.utils.createRouteController = (controller) ->
-	(scope) ->
-		# --- services ---
-		scope.$route = getLeon().angular.injector.get("$route")
-    scope.$routeProvider = getLeon().angular.injector.get("$routeProvider")
-		scope.$location = getLeon().angular.injector.get("$location")
-		scope.$leon = getLeon().angular.utils.createScopedLeon(scope)
-
-    # --- state ---
+	($scope) ->
 		
-		scope.model = new Object()
+		# --- services ---
+		$scope.route = getLeon().angular.injector.get("$route")
+		$scope.routeProvider = getLeon().angular.injector.get("$routeProvider")
+		$scope.location = getLeon().angular.injector.get("$location")
+		$scope.leon = getLeon().angular.utils.createScopedLeon($scope)
+
+	
+		
+		$scope.model = new Object()
 
 		# --- UI view functions ---
 
-		scope.showRoute = (path) ->
-		    scope.location.hash(path)
+		$scope.showRoute = (path) ->
+				$scope.location.hash(path)
 
 		# --- route functions ---
 
-		scope.addRoute = (url, template, fn) ->
-        scope.$routeProvider.when url,
-            template: template
-            controller: fn
+		$scope.addRoute = (url, template, fn) ->
+				$scope.routeProvider.when url,
+						template: template
+						controller: fn
 
-    scope.setDefaultRoute = (url) ->
-        scope.$routeProvider.otherwise redirectTo: url
+		$scope.setDefaultRoute = (url) ->
+				$scope.routeProvider.otherwise redirectTo: url
 
 		# --- routes ---
 
-		scope.route.$afterRouteChange (current, previous) =>
-        scope.params = current.params
+		$scope.route.$afterRouteChange (current, previous) =>
+				$scope.params = current.params
 
 		# --- user controller ---
 
-		controller.apply(scope)
+		controller.apply($scope)
 
 
 ###
 TODO: comment!
 ###
 @getLeon().angular.utils.createCrudController = (controller) ->
-	(scope) ->
+	($scope) ->
 		
 		# --- required callbacks ---
 		
-		scope.doList = ->
+		$scope.doList = ->
 			throw "doList() not implemented"
 
-		scope.doEdit = ->
+		$scope.doEdit = ->
 			throw "doEdit(id) not implemented"
 
-		scope.doEditNew = ->
-		    @model.current = {}
+		$scope.doEditNew = ->
+				@model.current = {}
 
 		# --- services ---
-    
-		scope.$route = getLeon().angular.injector.get("$route")
-    scope.$routeProvider = getLeon().angular.injector.get("$routeProvider")
-		scope.$location = getLeon().angular.injector.get("$location")
-		scope.$leon = getLeon().angular.utils.createScopedLeon(scope)
+		
+		$scope.route = getLeon().angular.injector.get("$route")
+		$scope.routeProvider = getLeon().angular.injector.get("$routeProvider")
+		$scope.location = getLeon().angular.injector.get("$location")
+		$scope.leon = getLeon().angular.utils.create$scopedLeon($scope)
 
-    # --- state ---
+	
 
-		scope.model = {}
+		$scope.model = {}
 
 		# --- UI view functions ---
 
-		scope.showRoute = (segment) ->
-			scope.location.hash(segment)
+		$scope.showRoute = (segment) ->
+			$scope.location.hash(segment)
 
-		scope.showList = ->
-			scope.showRoute("/list")
+		$scope.showList = ->
+			$scope.showRoute("/list")
 
-		scope.showEdit = (id) ->
+		$scope.showEdit = (id) ->
 			if id?
-				scope.showRoute("/edit/" + id)
+				$scope.showRoute("/edit/" + id)
 			else
-				scope.showRoute("/edit/")
+				$scope.showRoute("/edit/")
 
 		# --- default route settings ---
 
-		scope.routeListUrl = "/list"
-		scope.routeListTemplate = "partials/list.html"
+		$scope.routeListUrl = "/list"
+		$scope.routeListTemplate = "partials/list.html"
 
-		scope.routeEditUrl = "/edit/:id"
-		scope.routeEditTemplate = "partials/edit.html"
+		$scope.routeEditUrl = "/edit/:id"
+		$scope.routeEditTemplate = "partials/edit.html"
 
 		# --- user controller ---
 
-		controller.apply(scope)
+		controller.apply($scope)
 
 		# --- route settings ---
 
-		scope.$route.$afterRouteChange (current, previous) =>
-      scope.params = current.params
+		$scope.route.$afterRouteChange (current, previous) =>
+			$scope.params = current.params
 
-		scope.$routeProvider.when scope.routeListUrl,
-			template: scope.routeListTemplate
+		$scope.routeProvider.when $scope.routeListUrl,
+			template: $scope.routeListTemplate
 			controller: ->
-				scope.doList()
+				$scope.doList()
 
-		scope.$routeProvider.when scope.routeEditUrl,
-			template: scope.routeEditTemplate
+		$scope.routeProvider.when $scope.routeEditUrl,
+			template: $scope.routeEditTemplate
 			controller: ->
-				if scope.params.id
-					scope.doEdit(scope.params.id)
+				if $scope.params.id
+					$scope.doEdit($scope.params.id)
 				else
-					scope.doEditNew()
+					$scope.doEditNew()
 
-		scope.$routeProvider.otherwise redirectTo: scope.routeListUrl
+		$scope.routeProvider.otherwise redirectTo: $scope.routeListUrl
