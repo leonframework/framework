@@ -12,6 +12,7 @@ import io.leon.javascript.LeonScriptEngine
 import com.google.inject.{Provider, Inject}
 import io.leon.resourceloading.processor.ResourceProcessor
 import io.leon.resourceloading.{ResourceUtils, Resource}
+import io.leon.javascript.ScriptableMap
 
 class CoffeeScriptResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScriptEngine])
   extends ResourceProcessor {
@@ -29,7 +30,8 @@ class CoffeeScriptResourceProcessor @Inject()(leonScriptEngineProvider: Provider
   def process(in: Resource) = {
     synchronized {
       val asCoffeeScript = ResourceUtils.inputStreamToString(in.getInputStream())
-      val asJavaScript = leonScriptEngine.invokeFunction("CoffeeScript.compile", asCoffeeScript)
+      val options = ScriptableMap("filename" -> in.name)
+      val asJavaScript = leonScriptEngine.invokeFunction("CoffeeScript.compile", asCoffeeScript, options)
       new Resource(in.name) {
         def getLastModified() = in.getLastModified()
         def getInputStream() = ResourceUtils.stringToInputStream(asJavaScript.toString)
