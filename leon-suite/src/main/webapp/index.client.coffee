@@ -1,8 +1,7 @@
 
 @IndexController = getLeon().angular.utils.createController ($scope) ->
-  $scope.refresh = ->
-    $scope.leon.service("/demoService", "getA").call (data) =>
-        $scope.model.a = data
-        $scope.$digest()
+  @getMessage = ->
+    @leon.service("/demoService", "getA").call (data) =>
+        @model.a = data
 
-  $scope.refresh()
+  @getMessage()
