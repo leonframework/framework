@@ -12,10 +12,20 @@ public class AngularLeonJsContribution implements VirtualLeonJsFileContribution 
 
     private final ResourceLoader resourceLoader;
 
+    private final String angularVersion = "1.0.0rc3";
+    
     private final String angularJsPath = "/"
             + getClass().getPackage().getName().replace('.', '/')
-            + "/angular-1.0.0rc2.js";
+            + "/angular-" + angularVersion + ".js";
 
+    private final String angularResourceJsPath = "/"
+            + getClass().getPackage().getName().replace('.', '/')
+            + "/angular-resource-" + angularVersion + ".js";
+    
+    private final String angularCookiesJsPath = "/"
+            + getClass().getPackage().getName().replace('.', '/')
+            + "/angular-cookies-" + angularVersion + ".js";
+    
     private final String angularLeonIntegrationJsPath = "/"
             + getClass().getPackage().getName().replace('.', '/')
             + "/angular_leon_integration.js";
@@ -25,23 +35,29 @@ public class AngularLeonJsContribution implements VirtualLeonJsFileContribution 
             + "/angular_utils.js";
 
     @Inject
-    public AngularLeonJsContribution(ResourceLoader resourceLoader) {
+    public AngularLeonJsContribution(final ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
     }
 
     @Override
-    public String content(Map<String, String> params) {
-        StringBuilder content = new StringBuilder();
+    public String content(final Map<String, String> params) {
+        final StringBuilder content = new StringBuilder();
 
         if (!("false".equals(params.get("loadAngular")))) {
-            Resource aJs = resourceLoader.getResource(angularJsPath);
-            content.append(ResourceUtils.inputStreamToString(aJs.getInputStream()));
+            final Resource angularJs = resourceLoader.getResource(angularJsPath);
+            content.append(ResourceUtils.inputStreamToString(angularJs.getInputStream()));
+            
+            final Resource angularResourceJs = resourceLoader.getResource(angularResourceJsPath);
+            content.append(ResourceUtils.inputStreamToString(angularResourceJs.getInputStream()));
+            
+            final Resource angularCookiesJs = resourceLoader.getResource(angularCookiesJsPath);
+            content.append(ResourceUtils.inputStreamToString(angularCookiesJs.getInputStream()));
 
-            Resource aliJs = resourceLoader.getResource(angularLeonIntegrationJsPath);
-            content.append(ResourceUtils.inputStreamToString(aliJs.getInputStream()));
+            final Resource angularLeonIntegrationJs = resourceLoader.getResource(angularLeonIntegrationJsPath);
+            content.append(ResourceUtils.inputStreamToString(angularLeonIntegrationJs.getInputStream()));
 
-            Resource utilsJs = resourceLoader.getResource(angularUtilsJsPath);
-            content.append(ResourceUtils.inputStreamToString(utilsJs.getInputStream()));
+            final Resource angularLeonUtilsJs = resourceLoader.getResource(angularUtilsJsPath);
+            content.append(ResourceUtils.inputStreamToString(angularLeonUtilsJs.getInputStream()));
         }
 
         if (!("false".equals(params.get("angularAutoCompile")))) {
