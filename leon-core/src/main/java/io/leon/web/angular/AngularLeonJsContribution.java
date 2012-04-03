@@ -14,25 +14,26 @@ public class AngularLeonJsContribution implements VirtualLeonJsFileContribution 
 
     private final String angularVersion = "1.0.0rc3";
     
-    private final String angularJsPath = "/"
-            + getClass().getPackage().getName().replace('.', '/')
-            + "/angular-" + angularVersion + ".js";
+    private final String angularFolderPath = "/" + getClass().getPackage().getName().replace('.', '/');
 
-    private final String angularResourceJsPath = "/"
-            + getClass().getPackage().getName().replace('.', '/')
-            + "/angular-resource-" + angularVersion + ".js";
+    private final String angularJsPath = angularFolderPath + "/angular-" + angularVersion + ".js";
+    private final String angularResourceJsPath = angularFolderPath + "/angular-resource-" + angularVersion + ".js";
+    private final String angularCookiesJsPath = angularFolderPath + "/angular-cookies-" + angularVersion + ".js";
     
-    private final String angularCookiesJsPath = "/"
-            + getClass().getPackage().getName().replace('.', '/')
-            + "/angular-cookies-" + angularVersion + ".js";
-    
-    private final String angularLeonIntegrationJsPath = "/"
-            + getClass().getPackage().getName().replace('.', '/')
-            + "/angular_leon_integration.js";
+    private final String angularLeonIntegration1JsPath = angularFolderPath + "/angular_leon_integration_1_basics.js";
+    private final String angularLeonIntegration2JsPath = angularFolderPath + "/angular_leon_integration_2_utils.js";
+    private final String angularLeonIntegration3JsPath = angularFolderPath + "/angular_leon_integration_3_crud.js";
+    private final String angularLeonIntegration4JsPath = angularFolderPath + "/angular_leon_integration_4.js";
 
-    private final String angularUtilsJsPath = "/"
-            + getClass().getPackage().getName().replace('.', '/')
-            + "/angular_utils.js";
+    private final String[] angularJsPathes = {
+        angularJsPath,
+        angularResourceJsPath,
+        angularCookiesJsPath,
+        angularLeonIntegration1JsPath,
+        angularLeonIntegration2JsPath,
+        angularLeonIntegration3JsPath,
+        angularLeonIntegration4JsPath
+    };
 
     @Inject
     public AngularLeonJsContribution(final ResourceLoader resourceLoader) {
@@ -44,20 +45,10 @@ public class AngularLeonJsContribution implements VirtualLeonJsFileContribution 
         final StringBuilder content = new StringBuilder();
 
         if (!("false".equals(params.get("loadAngular")))) {
-            final Resource angularJs = resourceLoader.getResource(angularJsPath);
-            content.append(ResourceUtils.inputStreamToString(angularJs.getInputStream()));
-            
-            final Resource angularResourceJs = resourceLoader.getResource(angularResourceJsPath);
-            content.append(ResourceUtils.inputStreamToString(angularResourceJs.getInputStream()));
-            
-            final Resource angularCookiesJs = resourceLoader.getResource(angularCookiesJsPath);
-            content.append(ResourceUtils.inputStreamToString(angularCookiesJs.getInputStream()));
-
-            final Resource angularLeonIntegrationJs = resourceLoader.getResource(angularLeonIntegrationJsPath);
-            content.append(ResourceUtils.inputStreamToString(angularLeonIntegrationJs.getInputStream()));
-
-            final Resource angularLeonUtilsJs = resourceLoader.getResource(angularUtilsJsPath);
-            content.append(ResourceUtils.inputStreamToString(angularLeonUtilsJs.getInputStream()));
+            for (final String path : angularJsPathes) {
+                final Resource resoure = resourceLoader.getResource(path);
+                content.append(ResourceUtils.inputStreamToString(resoure.getInputStream()));
+            }
         }
 
         if (!("false".equals(params.get("angularAutoCompile")))) {
