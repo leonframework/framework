@@ -170,4 +170,4 @@ crudService = ->
 # make everything available defined in loen's angular crud support
 crudService.prototype = leonAngular.crud
 
-leonAngular.leonModule.service "$leonAngularCrud", crudService
+leonAngular.crud.module.service "$leonAngularCrud", crudService

@@ -23,7 +23,7 @@ leonAngular = @getLeon().angular
 
 # create a angular module to support tight integration with angular
 # customer modules can depend on this to get access to leon services
-leonAngular.leonModule = angular.module('leon', [])
+leonAngular.leonCoreModule = angular.module('leon.core', [])
 
 
 
@@ -37,4 +37,4 @@ service = ->
 
 
 service.prototype = getLeon()
-leonAngular.leonModule.service "$leon", service
+leonAngular.leonCoreModule.service "$leon", service

@@ -83,4 +83,4 @@ utilsService = ($location) ->
 
 
 utilsService.prototype = leonAngular.utils
-leonAngular.leonModule.service "$leonAngularUtils", utilsService
+leonAngular.leonCoreModule.service "$leonAngularUtils", utilsService

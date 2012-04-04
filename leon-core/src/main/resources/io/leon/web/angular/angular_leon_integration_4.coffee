@@ -14,7 +14,7 @@ leonAngular = @getLeon().angular
 A simple module including angular and leon.
 It's ready to use to implement small applications which do need an own module.
 ###
-leonAngular.leonAppModule = angular.module 'leonApp', ['ng', 'leon']
+leonAngular.leonAppModule = angular.module 'leonApp', ['ng', 'leon.core']
 
 
 
@@ -22,4 +22,4 @@ leonAngular.leonAppModule = angular.module 'leonApp', ['ng', 'leon']
 A simple module including angular, leon and leon's crud support.
 It's ready to use to implement small applications which do need an own module.
 ###
-leonAngular.leonAppCrudModule = angular.module 'leonCrudApp', ['ng', 'leon', 'leon.crud']
+leonAngular.leonAppCrudModule = angular.module 'leonCrudApp', ['ng', 'leon.core', 'leon.crud']
