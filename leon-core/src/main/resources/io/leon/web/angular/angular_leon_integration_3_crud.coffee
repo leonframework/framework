@@ -1,18 +1,25 @@
 # ----------
-# In this file everything of leon's basic crud support is defined. They depend on the utils defined in a previous step.
+# In this file everything of leon's basic crud support is defined. The functions depend on the utils defined in a
+# previous step.
 # Basic crud support contains a module leon.curd, controllers for list view and edit view, utils to register the needed
-# crud service as well as a default implementation.
+# crud service as well as a default implementation of the crud service.
 # ----------
 
 
 
-@getLeon().angular.crud = {} if!@getLeon().angular.crud?
-@getLeon().angular.crud.module = angular.module 'leon.crud', ['ng']
+# local alias which can be used as clojure to bypass this/@
+leonAngular = @getLeon().angular
 
 
 
-# TODO: comment
-@getLeon().angular.crud.module.controller "CrudListController", ($scope, $crudService, $leonAngularUtils) ->
+# init
+leonAngular.crud = {} if!leonAngular.crud?
+leonAngular.crud.module = angular.module 'leon.crud', ['ng']
+
+
+
+# registers the default implementition for list controller, used in the default config
+leonAngular.crud.module.controller "DefaultListController", ($scope, $crudService, $leonAngularUtils) ->
 	
 	$scope.list = ->
 		$crudService.list (result) ->
@@ -36,8 +43,8 @@
 
 
 
-# TODO: comment
-@getLeon().angular.crud.module.controller "CrudEditController", ($scope, $crudService, $leonAngularUtils, $routeParams) ->
+# registers the default implementition for edit controller, used in the default config
+leonAngular.crud.module.controller "DefaultEditController", ($scope, $crudService, $leonAngularUtils, $routeParams) ->
 	
 	$scope.delete = ->
 		$crudService.delete $scope.model.current._id, (result) ->
@@ -66,25 +73,34 @@
 	$scope.get()
 
 
-# TODO: comment
-@getLeon().angular.crud.module.config ($routeProvider) -> 
-	$routeProvider.when '/list', { template: 'partials/list.html', controller: "CrudListController" }
-	$routeProvider.when '/edit/:id', { template: 'partials/edit.html', controller: "CrudEditController" }
-	$routeProvider.otherwise { redirectTo: '/list' }
+# 
+leonAngular.crud.module.config ($routeProvider, crudConfig) -> 
+	if angular.isArray(crudConfig.routes)
+		for routeConfig in crudConfig.routes
+			do (routeConfig) ->
+				route = { template: routeConfig.template }
+
+				if routeConfig.controller?
+					route.controller = routeConfig.controller
+
+				$routeProvider.when routeConfig.path, route			
+
+	if crudConfig.defaultRoute?
+		$routeProvider.otherwise { redirectTo: crudConfig.defaultRoute }
 
 
 ###
 TODO: comment
 ###
-@getLeon().angular.crud.registerService = (service) =>
-	@getLeon().angular.crud.module.service "$crudService", service
+leonAngular.crud.registerService = (service) ->
+	leonAngular.crud.module.service "$crudService", service
 
 
 
 ###
 TODO: comment
 ###
-@getLeon().angular.crud.createaDefaultService = (serverServicePath) =>
+leonAngular.crud.createDefaultService = (serverServicePath) ->
 	($leon) ->
 
 	    @list = (callback) ->
@@ -107,10 +123,38 @@ TODO: comment
 ###
 TODO: comment
 ###
-@getLeon().angular.crud.createAndRegisterDefaultService = (serverServicePath) =>
-	service = @getLeon().angular.crud.createaDefaultService serverServicePath
-	@getLeon().angular.crud.registerService service
+leonAngular.crud.createAndRegisterDefaultService = (serverServicePath) ->
+	service = leonAngular.crud.createDefaultService serverServicePath
+	leonAngular.crud.registerService service
 
+
+leonAngular.crud.createDefaultConfig = ->
+	config = {}
+
+	config.defaultRoute = '/list'
+
+	config.routes = [
+		{ path: "/list", template: "partials/list.html", controller: "DefaultListController"}
+		{ path: "/edit/:id", template: "partials/edit.html", controller: "DefaultEditController"}
+	]
+
+	config
+
+
+leonAngular.crud.setConfig = (config) ->
+	leonAngular.crud.module.constant "crudConfig", config
+
+
+
+leonAngular.crud.useDefaultConfig = ->
+	config = leonAngular.crud.createDefaultConfig()
+	leonAngular.crud.setConfig config
+
+
+
+leonAngular.crud.useDefaultConfigWithDefaultService = (serverServicePath) ->
+	leonAngular.crud.createAndRegisterDefaultService serverServicePath
+	leonAngular.crud.useDefaultConfig()
 
 
 # ----------
@@ -118,12 +162,12 @@ TODO: comment
 # ----------
 
 # constructor function to use as service provider with angular
-crudService = () ->
+crudService = ->
 	# place to add angular specific things 
 	# do it like this: @aNewFunction = ...
 
 
 # make everything available defined in loen's angular crud support
-crudService.prototype = getLeon().angular.crud
+crudService.prototype = leonAngular.crud
 
-@getLeon().angular.leonModule.service "$leonAngularCrud", crudService
+leonAngular.leonModule.service "$leonAngularCrud", crudService

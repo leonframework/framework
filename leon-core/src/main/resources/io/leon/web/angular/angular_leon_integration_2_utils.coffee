@@ -5,7 +5,12 @@
 
 
 
-@getLeon().angular.utils = {} if !@getLeon().angular.utils?
+# local alias which can be used as clojure to bypass this/@
+leonAngular = @getLeon().angular
+
+
+# init
+leonAngular.utils = {} if !leonAngular.utils?
 
 
 
@@ -18,7 +23,7 @@ if you want the given scope to be updated after
 - a comet message was received, more accurate: after the given handler was applied
   leon.subscribeTopic(topicId, handler)
 ###
-@getLeon().angular.utils.createScopedLeon = (scope, leon) ->
+leonAngular.utils.createScopedLeon = (scope, leon) ->
 	scopedLeon = {}
 	scopedLeon.__proto__ = leon
 	
@@ -48,13 +53,13 @@ The controller will also contains everything defined in the given function.
 Nothing special here, it's only a little helper to reduce boilerplate code. If you need more services injected to
 your controller, copy the inner function without the controller.apply and extend it!
 ###
-@getLeon().angular.utils.createController = (controller) ->
+leonAngular.utils.createController = (controller) ->
 	($scope, $location, $leon) ->
 	 
 		# --- services ---
 		
 		$scope.location = $location
-		$scope.leon = getLeon().angular.utils.createScopedLeon($scope, $leon)
+		$scope.leon = leonAngular.utils.createScopedLeon($scope, $leon)
 		
 		# --- state ---
 		
@@ -65,21 +70,17 @@ your controller, copy the inner function without the controller.apply and extend
 		controller.apply($scope)
 
 
-
 # ----------
-# expose leon angular utils as angular service to enable di
+# expose leon's angular utils as angular service to enable DI
 # ----------
 
-# constructor function to use as service provider with angular
 utilsService = ($location) ->
-	# place to add angular specific things 
+	# place to add angular specific things which depends on DI
 	# do it like this: @aNewFunction = ...
 
 	@showRoute = (segment) ->
 		$location.path(segment)
 
 
-# make everything available defined in loen's angular utils
-utilsService.prototype = getLeon().angular.utils
-
-@getLeon().angular.leonModule.service "$leonAngularUtils", utilsService
+utilsService.prototype = leonAngular.utils
+leonAngular.leonModule.service "$leonAngularUtils", utilsService

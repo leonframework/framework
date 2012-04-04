@@ -1,42 +1,40 @@
 # ----------
-# This is the first part of the angular leon integration.
+# This is the first part of the angular leon integration. To keep it clear, the integration is split into several files,
+# each containing code for a specific topig.
+#
 # Define things depending on angular only in this file! All other things like leon angular utils are not defined yet.
 # The other integration steps can depend on the things defined here.
 #
-# Basically this is an angular module for leon.
-# All services can be registered at this module and other modules can depend on it.
+# Basically we define an angular module for leon. All the other services leon provices, can be registered at this
+# module and other modules can depend on it to use DI.
 # ----------
 
 
 
+# init
 @getLeon().angular = {} if !@getLeon().angular?
+
+
+
+# local alias which can be used as clojure to bypass this/@
+leonAngular = @getLeon().angular
 
 
 
 # create a angular module to support tight integration with angular
 # customer modules can depend on this to get access to leon services
-@getLeon().angular.leonModule = angular.module('leon', [])
-
-
-
-# Basic injector for internal usage. Try to use this as less as possible.
-# Expose your code as angular service in your own module and depend on leon module
-# or add it as service to leon's module.
-@getLeon().angular.injector = angular.injector(['ng', 'leon']) if !getLeon().angular.injector?
+leonAngular.leonModule = angular.module('leon', [])
 
 
 
 #----------
-# expose leon browser support as angular service to enable di
+# expose leon browser support as angular service to enable DI
 #----------
 
-# constructor function to use as service provider with angular
 service = -> 
-	# place to add angular specific things
+	# place to add angular specific things which depends on DI
 	# do it like this: @aNewFunction = ...
 
 
-# make everything available defined in leon browser support 
 service.prototype = getLeon()
-
-@getLeon().angular.leonModule.service "$leon", service
+leonAngular.leonModule.service "$leon", service

@@ -51,12 +51,6 @@ public class AngularLeonJsContribution implements VirtualLeonJsFileContribution 
             }
         }
 
-        if (!("false".equals(params.get("angularAutoCompile")))) {
-            content.append("angular.element(document).ready(function(){" +
-                    "angular.bootstrap(document);" +
-                    "});");
-        }
-
         return content.toString();
     }
 
