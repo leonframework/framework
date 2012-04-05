@@ -13,6 +13,54 @@ leonAngular = @getLeon().angular
 leonAngular.utils = {} if !leonAngular.utils?
 
 
+###
+Helper function that can be used to add leading and clothing slashes to a path, for example.
+
+Adds the prefix to the path, if the path doesn't start with the prefix.
+Adds the suffix to the path, if the path doesn't end with the suffix.
+
+Special case: if prefix equala suffix and path is empty, only prefix will be returned (no double slashes).
+###
+leonAngular.utils.assemblePath = (prefix, path, suffix) ->
+	
+	if path? and path != ""	
+		assambledPath = path
+	else
+		assambledPath = ""
+
+	if prefix? and prefix != "" and ( assambledPath == "" or assambledPath.charAt 0 != prefix )
+		assambledPath = prefix + assambledPath
+
+	if suffix? and suffix != "" and ( assambledPath == "" or assambledPath.charAt(assambledPath.length - 1) != suffix )
+		assambledPath = assambledPath + suffix
+
+	assambledPath
+
+
+###
+Sets a route parameter like :id to the given value, to given default value (if value is null or empty) or removes the 
+parameter and the rest of the route (if default value is null or empty too).
+If the parameter is removed and was the last parameter of the route, the route will close with a slash. That's the way
+angular needs it to match the route.
+If the removed parameter was not the last parameter of the route, the subsequent part of the route will be removed too.
+E.g: setRouteParameter "book/:bookId/chapter/:chapterId", "bookId", "", "" returns "book/"
+###
+leonAngular.utils.setRouteParameter = (routeString, paramName, paramValue, defaultParamValue) ->
+	indexOfParameter = routeString.indexOf ":" + paramName
+
+	if indexOfParameter == -1
+			throw "route has no parameter " + paramName + "!"
+
+	if paramValue? and paramValue != ""
+		routeWithSetParam = routeString.replace ":" + paramName, paramValue
+	else if defaultParamValue? and defaultParamValue != ""
+		routeWithSetParam = routeString.replace ":" + paramName, defaultParamValue
+	else
+		routeWithSetParam = routeString.substring(0, indexOfParameter)
+		
+	routeWithSetParam
+
+
 
 ###
 Use this function instead of getLeon() to get a modified leon object
