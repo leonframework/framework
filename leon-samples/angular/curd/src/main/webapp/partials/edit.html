@@ -1,0 +1,10 @@
+<div ng-controller="AdditionalEditController">
+	<span ng-bind="model.edittest"></span><br/>
+	<br/>
+	Name:<input ng-model="model.current.name" type="text"><br/>
+	Tel:<input ng-model="model.current.tel" type="text"><br/>
+	Mail:<input ng-model="model.current.mail" type="email"><br/>
+	        
+	<a ng-click="save(); showList()">save</a><br/>
+	<a ng-click="delete()">delete</a>
+</div>
