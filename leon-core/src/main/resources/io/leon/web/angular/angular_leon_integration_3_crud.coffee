@@ -64,7 +64,14 @@ leonAngular.crud.createDefaultEditController = (serverServicePath, listRoutePath
 
 		$scope.delete = (id) ->
 			callback = (result) ->
-				$scope.showList()
+				if result
+					# we changed the location outside of the the digest life-cycle step of the scope
+					# -> we must wrap the location change into a function and call this with apply manually
+					$scope.$apply (scope) ->
+						scope.showList()
+				else
+					$scope.model.error = new Array() if !$scope.model.error?
+					$scope.model.error.push("Could not delete entity!");
 
 			$injector.invoke $scope.doDelete, this, { $scope: $scope, id: $scope.model.current._id, callback: callback }
 
