@@ -21,17 +21,20 @@ leonAngular.crud.module = angular.module 'leon.crud', ['ng']
 ###
 TODO: comment
 ###
-leonAngular.crud.createDefaultListController = (serverServicePath, editRoutePath) ->
+leonAngular.crud.createDefaultListController = (serverServicePath, editRoutePath, listFunction, deleteFunction) ->
 	($scope, $leon, $leonAngularUtils) ->
 		$scope.leon = $leonAngularUtils.createScopedLeon($scope, $leon) if !$scope.leon?
 
+		$scope.doList = listFunction
+		$scope.doDelete = deleteFunction
+
 		$scope.list = ->
-			$scope.leon.service(serverServicePath, "list").call (result) ->
+			$scope.doList $scope, (result) ->
 				$scope.model.list = result
 
 		$scope.delete = (id) ->
-			$scope.leon.service(serverServicePath, "delete").call id, (result) ->
-				$scope.list()
+			$scope.doDelete $scope, id, (result) ->
+					$scope.list()
 
 		$scope.showEdit = (id) ->
 			pathWithId = $leonAngularUtils.setRouteParameter editRoutePath, "id", id
@@ -46,29 +49,35 @@ leonAngular.crud.createDefaultListController = (serverServicePath, editRoutePath
 ###
 TODO: comment
 ###
-leonAngular.crud.createDefaultEditController = (serverServicePath, listRoutePath) ->
+leonAngular.crud.createDefaultEditController = (serverServicePath, listRoutePath, saveFunction, deleteFunction, getFunction, createFunction) ->
 	($scope, $leon, $leonAngularUtils, $routeParams) ->
 		$scope.leon = $leonAngularUtils.createScopedLeon($scope, $leon) if !$scope.leon?
 
-		$scope.delete = ->
-			$scope.leon.service(serverServicePath, "delete").call $scope.model.current._id, (result) ->
-				$scope.showList()
+		$scope.doDelete = deleteFunction
+		$scope.doGet = getFunction
+		$scope.doCreate = createFunction
+		$scope.doSave = saveFunction
 
-		$scope.save = -> 
-			$scope.leon.service(serverServicePath, "save").call $scope.model.current, (result) ->
-				$scope.model.current = result
+		$scope.delete = (id) ->
+			$scope.doDelete $scope, $scope.model.current._id, (result) ->
+					$scope.showList()
 
-		$scope.showList = ->
-			$leonAngularUtils.showRoute listRoutePath
+		$scope.save = ->
+			$scope.doSave $scope, $scope.model.current, (result) ->
+					$scope.model.current = result
 
 		$scope.get = ->
 			if $routeParams.id? and $routeParams.id != ""
-				$scope.leon.service(serverServicePath, "get").call $routeParams.id, (result) ->
+				$scope.doGet $scope, $routeParams.id, (result) ->
 					$scope.model.current = result
 					$scope.model.showDelete = true
 			else
-				$scope.model.current = {}
-				$scope.model.showDelete = false
+				$scope.doCreate $scope, (data) ->
+					$scope.model.current = data
+					$scope.model.showDelete = false
+
+		$scope.showList = ->
+			$leonAngularUtils.showRoute listRoutePath
 
 
 		# init
@@ -88,7 +97,7 @@ leonAngular.crud.configureWithDefaults = (serverServicePath) ->
 ###
 TODO: comment
 ###
-leonAngular.crud.configure = ({module, routePrefix, listRoute, editRoute, defaultRoute, templatePrefix, listTemplate, editTemplate, listController, editController, serverServicePath}) ->
+leonAngular.crud.configure = ({module, routePrefix, listRoute, editRoute, defaultRoute, templatePrefix, listTemplate, editTemplate, listController, editController, serverServicePath, listFunction, saveFunction, deleteFunction, getFunction, createFunction }) ->
 	
 	###
 	define parameter default values
@@ -102,6 +111,20 @@ leonAngular.crud.configure = ({module, routePrefix, listRoute, editRoute, defaul
 	listTemplate ?= "list.html"
 	editTemplate ?= "edit.html"
 
+	listFunction ?= ($scope, callback)->
+		$scope.leon.service(serverServicePath, "list").call callback
+
+	deleteFunction ?= ($scope, id, callback) ->
+		$scope.leon.service(serverServicePath, "delete").call id, callback
+
+	saveFunction ?= ($scope, data, callback) -> 
+		$scope.leon.service(serverServicePath, "save").call data, callback
+
+	getFunction ?= ($scope, id, callback) ->
+		$scope.leon.service(serverServicePath, "get").call id, callback
+
+	createFunction ?= ($scope, callback) ->
+		callback({})
 
 	listRoutePath = leonAngular.utils.assemblePath "/", routePrefix, listRoute
 	editRoutePath = leonAngular.utils.assemblePath "/", routePrefix, editRoute
@@ -109,13 +132,13 @@ leonAngular.crud.configure = ({module, routePrefix, listRoute, editRoute, defaul
 
 
 	if !listController? and serverServicePath?
-		listController = leonAngular.crud.createDefaultListController serverServicePath, editRoutePath
-	else
+		listController = leonAngular.crud.createDefaultListController serverServicePath, editRoutePath, listFunction, deleteFunction
+	else if !listController?
 		throw "neither listController nor serverServicePath (needed by default controller) given!"
 
 	if !editController? and serverServicePath?
-		editController = leonAngular.crud.createDefaultEditController serverServicePath, listRoutePath
-	else
+		editController = leonAngular.crud.createDefaultEditController serverServicePath, listRoutePath, saveFunction, deleteFunction, getFunction, createFunction
+	else if !editController?
 		throw "neither editController nor serverServicePath (needed by default controller) given!"
 
 
