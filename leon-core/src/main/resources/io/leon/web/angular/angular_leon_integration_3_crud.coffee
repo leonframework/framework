@@ -18,183 +18,126 @@ leonAngular.crud.module = angular.module 'leon.crud', ['ng']
 
 
 
-# registers the default implementation for list controller, used in the default config
-leonAngular.crud.module.controller "DefaultListController", ($scope, $crudService, $leonAngularUtils, crudConfig) ->
-	
-	$scope.list = ->
-		$crudService.list (result) ->
-			$scope.model.list = result
-			$scope.$digest()
+###
+TODO: comment
+###
+leonAngular.crud.createDefaultListController = (serverServicePath, editRoutePath) ->
+	($scope, $leon, $leonAngularUtils) ->
+		$scope.leon = $leonAngularUtils.createScopedLeon($scope, $leon) if !$scope.leon?
 
-	$scope.delete = (id) ->
-		$crudService.delete id, (result) ->
+		$scope.list = ->
+			$scope.leon.service(serverServicePath, "list").call (result) ->
+				$scope.model.list = result
 
+		$scope.delete = (id) ->
+			$scope.leon.service(serverServicePath, "delete").call id, (result) ->
+				$scope.list()
+
+		$scope.showEdit = (id) ->
+			pathWithId = $leonAngularUtils.setRouteParameter editRoutePath, "id", id
+			$leonAngularUtils.showRoute pathWithId 
+
+		# init
+		$scope.model = {} if !$scope.model?
 		$scope.list()
 
-	$scope.showEdit = (id) ->
-		pathWithId = $leonAngularUtils.setRouteParameter crudConfig.editRoute.path, "id", id
-		$leonAngularUtils.showRoute pathWithId 
-
-	# init
-	$scope.model = {} if !$scope.model?
-	$scope.list()
 
 
+###
+TODO: comment
+###
+leonAngular.crud.createDefaultEditController = (serverServicePath, listRoutePath) ->
+	($scope, $leon, $leonAngularUtils, $routeParams) ->
+		$scope.leon = $leonAngularUtils.createScopedLeon($scope, $leon) if !$scope.leon?
 
-# registers the default implementation for edit controller, used in the default config
-leonAngular.crud.module.controller "DefaultEditController", ($scope, $crudService, $leonAngularUtils, $routeParams, crudConfig) ->
-	
-	$scope.delete = ->
-		$crudService.delete $scope.model.current._id, (result) ->
+		$scope.delete = ->
+			$scope.leon.service(serverServicePath, "delete").call $scope.model.current._id, (result) ->
+				$scope.showList()
 
-		@showList()
-
-	$scope.save = -> 
-		$crudService.save $scope.model.current, (result) ->
-			$scope.model.current = result
-			$scope.$digest()
-
-	$scope.showList = ->
-		$leonAngularUtils.showRoute(crudConfig.listRoute.path)
-
-	$scope.get = ->
-		if $routeParams.id? and $routeParams.id != ""
-			$crudService.get $routeParams.id, (result) ->
+		$scope.save = -> 
+			$scope.leon.service(serverServicePath, "save").call $scope.model.current, (result) ->
 				$scope.model.current = result
-				$scope.$digest()
-		else
-			$scope.model.current = $crudService.create()
+
+		$scope.showList = ->
+			$leonAngularUtils.showRoute listRoutePath
+
+		$scope.get = ->
+			if $routeParams.id? and $routeParams.id != ""
+				$scope.leon.service(serverServicePath, "get").call $routeParams.id, (result) ->
+					$scope.model.current = result
+					$scope.model.showDelete = true
+			else
+				$scope.model.current = {}
+				$scope.model.showDelete = false
 
 
-	# init
-	$scope.model = {} if !$scope.model?
-	$scope.get()
-
-
-# registers all routes of the registered crudConfig at the routeProvider
-leonAngular.crud.module.config ($routeProvider, crudConfig) -> 
-	routes = new Array()
-
-	if crudConfig.listRoute?
-		routes.push crudConfig.listRoute
-
-	if crudConfig.editRoute?
-		routes.push crudConfig.editRoute
-
-	if angular.isArray(crudConfig.routes)
-		routes = routes.concat crudConfig.routes
-
-	for routeConfig in routes
-		do (routeConfig) ->
-			route = { template: routeConfig.template }
-
-			if routeConfig.controller?
-				route.controller = routeConfig.controller
-
-			$routeProvider.when routeConfig.path, route			
-
-	if crudConfig.defaultRoute?
-		$routeProvider.otherwise { redirectTo: crudConfig.defaultRoute }
-
-
-###
-Registers the given function as crud service in leon's crud module. The curd service is used by the default
-controllers DefaultListController and DefaultEditController to talk to the server.
-
-Use this function if you want to use the default controllers but not the default implementation of curdService.
-###
-leonAngular.crud.registerService = (service) ->
-	leonAngular.crud.module.service "$crudService", service
+		# init
+		$scope.model = {} if !$scope.model?
+		$scope.get()
 
 
 
 ###
-Returns the default implementation of crudService using the given serverServicePath as URL for calling an exposed sever
-side service.
-The default controller implementations DefaultListController and DefaultEditController uses the crudService function to 
-communicate with the server. This implementation assumes the exposed methods "list", "get(id)", save(data) and
-"delete(id)" on server side.
+TODO: comment
 ###
-leonAngular.crud.createDefaultService = (serverServicePath) ->
-	($leon) ->
-
-	    @list = (callback) ->
-	        $leon.service(serverServicePath, "list").call callback
-
-	    @save = (data, callback) ->
-	        $leon.service(serverServicePath, "save").call data, callback
-
-	    @get = (id, callback) ->
-	        $leon.service(serverServicePath, "get").call id, callback
-
-	    @delete = (id, callback) ->
-	        $leon.service(serverServicePath, "delete").call id, callback
-
-	    @create = () ->
-	    	{}
+leonAngular.crud.configureWithDefaults = (serverServicePath) ->
+	leonAngular.crud.configure { serverServicePath: serverServicePath }
 
 
 
 ###
-Shortcut for createDefaultService and registerService
+TODO: comment
 ###
-leonAngular.crud.createAndRegisterDefaultService = (serverServicePath) ->
-	service = leonAngular.crud.createDefaultService serverServicePath
-	leonAngular.crud.registerService service
+leonAngular.crud.configure = ({module, routePrefix, listRoute, editRoute, defaultRoute, templatePrefix, listTemplate, editTemplate, listController, editController, serverServicePath}) ->
+	
+	###
+	define parameter default values
+	###
+	module ?= leonAngular.crud.module
+	routePrefix ?= ""
+	listRoute ?= "/list"
+	editRoute ?= "/edit/:id"
+	defaultRoute = listRoute if defaultRoute is undefined
+	templatePrefix ?= "partials/"
+	listTemplate ?= "list.html"
+	editTemplate ?= "edit.html"
 
 
-
-###
-Returns an object containing leon.crud's default configuration. Creating an object like this and setting it via
-setConfig enables you e.g. to use the default crudService but your own controllers. You can also use different
-templates but all other default stuff.
-You can also call this method to get the default and only modify the parts you want to.
-
-Don't forget to set the config via setConfig if you call this method directly!
-###
-leonAngular.crud.createDefaultConfig = (pathPrefix) ->
-	config = {}
-
-	listPath = leonAngular.utils.assemblePath "/", pathPrefix, '/list'
-	editPath = leonAngular.utils.assemblePath "/", pathPrefix, '/edit/:id'
-
-	config.defaultRoute = listPath
-
-	config.listRoute = { path: listPath, template: "partials/list.html", controller: "DefaultListController"}
-	config.editRoute = { path: editPath, template: "partials/edit.html", controller: "DefaultEditController"}
-
-	config
+	listRoutePath = leonAngular.utils.assemblePath "/", routePrefix, listRoute
+	editRoutePath = leonAngular.utils.assemblePath "/", routePrefix, editRoute
+	defaultRoutePath = leonAngular.utils.assemblePath "/", routePrefix, defaultRoute if defaultRoute?
 
 
+	if !listController? and serverServicePath?
+		listController = leonAngular.crud.createDefaultListController serverServicePath, editRoutePath
+	else
+		throw "neither listController nor serverServicePath (needed by default controller) given!"
 
-###
-Registers the given config object for leon's crud support. Default implementations rely on this configuration. Only if
-you don't use any default implementation, you can omit setting this configuration. See createDefaultConfig for an
-example who the config should look like.
-###
-leonAngular.crud.setConfig = (config) ->
-	leonAngular.crud.module.constant "crudConfig", config
-
-
-
-###
-Shortcut for createDefaultConfig and setConfig
-###
-leonAngular.crud.useDefaultConfig = ->
-	config = leonAngular.crud.createDefaultConfig()
-	leonAngular.crud.setConfig config
+	if !editController? and serverServicePath?
+		editController = leonAngular.crud.createDefaultEditController serverServicePath, listRoutePath
+	else
+		throw "neither editController nor serverServicePath (needed by default controller) given!"
 
 
+	module.config ($routeProvider) ->
+		listRouteConfig = { template: leonAngular.utils.assemblePath templatePrefix, listTemplate }
 
-###
-The ultra-shortcut: configures the hole leon crud support with only one function call (use all default implementations).
-Only the URL of the server side exposed service have to be given.
+		if listController?
+			listRouteConfig.controller = listController
 
-See createAndRegisterDefaultService and useDefaultConfig for more information.
-###
-leonAngular.crud.useDefaultConfigWithDefaultService = (serverServicePath) ->
-	leonAngular.crud.createAndRegisterDefaultService serverServicePath
-	leonAngular.crud.useDefaultConfig()
+		$routeProvider.when listRoutePath, listRouteConfig
+
+		editRouteConfig = { template: leonAngular.utils.assemblePath templatePrefix, editTemplate }
+
+		if editController?
+			editRouteConfig.controller = editController
+
+		$routeProvider.when editRoutePath, editRouteConfig			
+
+		if defaultRoutePath?
+			$routeProvider.otherwise { redirectTo: defaultRoutePath }
+
+
 
 
 
