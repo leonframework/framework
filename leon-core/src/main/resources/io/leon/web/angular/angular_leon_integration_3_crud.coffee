@@ -21,7 +21,7 @@ leonAngular.crud.module = angular.module 'leon.crud', ['ng']
 ###
 TODO: comment
 ###
-leonAngular.crud.createDefaultListController = (serverServicePath, editRoutePath, listFunction, deleteFunction) ->
+leonAngular.crud.createDefaultListController = (serverServiceUrl, editRoutePath, listFunction, deleteFunction) ->
 	($scope, $leon, $leonAngularUtils, $injector) ->
 		$scope.leon = $leonAngularUtils.createScopedLeon($scope, $leon) if !$scope.leon?
 
@@ -53,7 +53,7 @@ leonAngular.crud.createDefaultListController = (serverServicePath, editRoutePath
 ###
 TODO: comment
 ###
-leonAngular.crud.createDefaultEditController = (serverServicePath, listRoutePath, saveFunction, deleteFunction, getFunction, createFunction) ->
+leonAngular.crud.createDefaultEditController = (serverServiceUrl, listRoutePath, saveFunction, deleteFunction, getFunction, createFunction) ->
 	($scope, $leon, $leonAngularUtils, $routeParams, $injector) ->
 		$scope.leon = $leonAngularUtils.createScopedLeon($scope, $leon) if !$scope.leon?
 
@@ -107,15 +107,15 @@ leonAngular.crud.createDefaultEditController = (serverServicePath, listRoutePath
 ###
 TODO: comment
 ###
-leonAngular.crud.configureWithDefaults = (serverServicePath) ->
-	leonAngular.crud.configure { serverServicePath: serverServicePath }
+leonAngular.crud.configureWithDefaults = (serverServiceUrl) ->
+	leonAngular.crud.configure { serverServiceUrl: serverServiceUrl }
 
 
 
 ###
 TODO: comment
 ###
-leonAngular.crud.configure = ({module, routePrefix, listRoute, editRoute, defaultRoute, templatePrefix, listTemplate, editTemplate, listController, editController, serverServicePath, listFunction, saveFunction, deleteFunction, getFunction, createFunction }) ->
+leonAngular.crud.configure = ({module, routePrefix, listRoute, editRoute, defaultRoute, templatePrefix, listTemplate, editTemplate, listController, editController, serverServiceUrl, listFunction, saveFunction, deleteFunction, getFunction, createFunction }) ->
 	
 	###
 	define parameter default values
@@ -130,16 +130,16 @@ leonAngular.crud.configure = ({module, routePrefix, listRoute, editRoute, defaul
 	editTemplate ?= "edit.html"
 
 	listFunction ?= ($scope, callback)->
-		$scope.leon.service(serverServicePath, "list").call callback
+		$scope.leon.service(serverServiceUrl, "list").call callback
 
 	deleteFunction ?= ($scope, id, callback) ->
-		$scope.leon.service(serverServicePath, "delete").call id, callback
+		$scope.leon.service(serverServiceUrl, "delete").call id, callback
 
 	saveFunction ?= ($scope, data, callback) -> 
-		$scope.leon.service(serverServicePath, "save").call data, callback
+		$scope.leon.service(serverServiceUrl, "save").call data, callback
 
 	getFunction ?= ($scope, id, callback) ->
-		$scope.leon.service(serverServicePath, "get").call id, callback
+		$scope.leon.service(serverServiceUrl, "get").call id, callback
 
 	createFunction ?= ($scope, callback) ->
 		callback({})
@@ -150,15 +150,15 @@ leonAngular.crud.configure = ({module, routePrefix, listRoute, editRoute, defaul
 	prefixRoutePath = leonAngular.utils.assemblePath "/", routePrefix if routePrefix?
 
 
-	if !listController? and serverServicePath?
-		listController = leonAngular.crud.createDefaultListController serverServicePath, editRoutePath, listFunction, deleteFunction
+	if !listController? and serverServiceUrl?
+		listController = leonAngular.crud.createDefaultListController serverServiceUrl, editRoutePath, listFunction, deleteFunction
 	else if !listController?
-		throw "neither listController nor serverServicePath (needed by default controller) given!"
+		throw "neither listController nor serverServiceUrl (needed by default controller) given!"
 
-	if !editController? and serverServicePath?
-		editController = leonAngular.crud.createDefaultEditController serverServicePath, listRoutePath, saveFunction, deleteFunction, getFunction, createFunction
+	if !editController? and serverServiceUrl?
+		editController = leonAngular.crud.createDefaultEditController serverServiceUrl, listRoutePath, saveFunction, deleteFunction, getFunction, createFunction
 	else if !editController?
-		throw "neither editController nor serverServicePath (needed by default controller) given!"
+		throw "neither editController nor serverServiceUrl (needed by default controller) given!"
 
 
 	module.config ($routeProvider) ->
