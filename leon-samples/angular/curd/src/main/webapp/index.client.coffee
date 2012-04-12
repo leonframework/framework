@@ -1,22 +1,16 @@
 
 # use all the defaults, works out of the box
-#@getLeon().angular.crud.useDefaultConfigWithDefaultService "/indexService"
-
-crudConfig = getLeon().angular.crud.createDefaultConfig "addresses"
-@getLeon().angular.crud.setConfig crudConfig
-@getLeon().angular.crud.createAndRegisterDefaultService "/indexService"
+#@getLeon().angular.crud.configureWithDefaults "/indexService"
 
 
-@getLeon().angular.leonAppCrudModule.controller "MainController", ($scope, $leonAngularUtils, crudConfig) ->
+@getLeon().angular.crud.configure
+	serverServicePath: "/indexService"
+	routePrefix: "/addresses"
+
+
+@getLeon().angular.leonAppCrudModule.controller "MainController", ($scope, $leonAngularUtils) ->
     $scope.showList = ->
-        $leonAngularUtils.showRoute crudConfig.listRoute.path
+        $leonAngularUtils.showRoute "/addresses/list"
 
     $scope.showEdit = ->
-        route = $leonAngularUtils.setRouteParameter crudConfig.editRoute.path + "/test/bla", "id", ""
-        $leonAngularUtils.showRoute route
-
-
-
-@getLeon().angular.leonAppCrudModule.controller "AdditionalEditController", ($scope) ->
-    $scope.model = {} if !$scope.model?
-    $scope.model.edittest = "Edit controller test"
+        $leonAngularUtils.showRoute "/addresses/edit/"

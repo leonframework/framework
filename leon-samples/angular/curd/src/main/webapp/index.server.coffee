@@ -5,7 +5,7 @@ db = -> leon.mongo.addresses
     list: ->
         db().find().sort({name:1, mail:-1}).toArray()
 
-    edit: (id) ->
+    get: (id) ->
         db().findByOId(id)
 
     save: (data) ->
