@@ -22,19 +22,23 @@ leonAngular.crud.module = angular.module 'leon.crud', ['ng']
 TODO: comment
 ###
 leonAngular.crud.createDefaultListController = (serverServicePath, editRoutePath, listFunction, deleteFunction) ->
-	($scope, $leon, $leonAngularUtils) ->
+	($scope, $leon, $leonAngularUtils, $injector) ->
 		$scope.leon = $leonAngularUtils.createScopedLeon($scope, $leon) if !$scope.leon?
 
 		$scope.doList = listFunction
 		$scope.doDelete = deleteFunction
 
 		$scope.list = ->
-			$scope.doList $scope, (result) ->
+			callback = (result) ->
 				$scope.model.list = result
 
+			$injector.invoke $scope.doList, this, { $scope: $scope, callback: callback }
+
 		$scope.delete = (id) ->
-			$scope.doDelete $scope, id, (result) ->
-					$scope.list()
+			callback = (result) ->
+				$scope.list()
+
+			$injector.invoke $scope.doDelete, this, { $scope: $scope, id: id, callback: callback } 
 
 		$scope.showEdit = (id) ->
 			pathWithId = $leonAngularUtils.setRouteParameter editRoutePath, "id", id
@@ -50,7 +54,7 @@ leonAngular.crud.createDefaultListController = (serverServicePath, editRoutePath
 TODO: comment
 ###
 leonAngular.crud.createDefaultEditController = (serverServicePath, listRoutePath, saveFunction, deleteFunction, getFunction, createFunction) ->
-	($scope, $leon, $leonAngularUtils, $routeParams) ->
+	($scope, $leon, $leonAngularUtils, $routeParams, $injector) ->
 		$scope.leon = $leonAngularUtils.createScopedLeon($scope, $leon) if !$scope.leon?
 
 		$scope.doDelete = deleteFunction
@@ -59,22 +63,29 @@ leonAngular.crud.createDefaultEditController = (serverServicePath, listRoutePath
 		$scope.doSave = saveFunction
 
 		$scope.delete = (id) ->
-			$scope.doDelete $scope, $scope.model.current._id, (result) ->
-					$scope.showList()
+			callback = (result) ->
+				$scope.showList()
+
+			$injector.invoke $scope.doDelete, this, { $scope: $scope, id: $scope.model.current._id, callback: callback }
 
 		$scope.save = ->
-			$scope.doSave $scope, $scope.model.current, (result) ->
-					$scope.model.current = result
+			callback = (result) ->
+				$scope.model.current = result
+
+			$injector.invoke $scope.doSave, this, {$scope: $scope, data: $scope.model.current, callback: callback }
 
 		$scope.get = ->
 			if $routeParams.id? and $routeParams.id != ""
-				$scope.doGet $scope, $routeParams.id, (result) ->
+				callback = (result) ->
 					$scope.model.current = result
 					$scope.model.showDelete = true
+
+				$injector.invoke $scope.doGet, this, { $scope: $scope, id: $routeParams.id, callback: callback }
 			else
-				$scope.doCreate $scope, (data) ->
+				callback = (data) ->
 					$scope.model.current = data
 					$scope.model.showDelete = false
+				$injector.invoke $scope.doCreate, this, { $scope: $scope, callback: callback }
 
 		$scope.showList = ->
 			$leonAngularUtils.showRoute listRoutePath
