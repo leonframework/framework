@@ -140,6 +140,7 @@ leonAngular.crud.configure = ({module, routePrefix, listRoute, editRoute, defaul
 	listRoutePath = leonAngular.utils.assemblePath "/", routePrefix, listRoute
 	editRoutePath = leonAngular.utils.assemblePath "/", routePrefix, editRoute
 	defaultRoutePath = leonAngular.utils.assemblePath "/", routePrefix, defaultRoute if defaultRoute?
+	prefixRoutePath = leonAngular.utils.assemblePath "/", routePrefix if routePrefix?
 
 
 	if !listController? and serverServicePath?
@@ -166,7 +167,10 @@ leonAngular.crud.configure = ({module, routePrefix, listRoute, editRoute, defaul
 		if editController?
 			editRouteConfig.controller = editController
 
-		$routeProvider.when editRoutePath, editRouteConfig			
+		$routeProvider.when editRoutePath, editRouteConfig
+
+		if prefixRoutePath?
+			$routeProvider.when prefixRoutePath, { redirectTo: listRoutePath } 	
 
 		if defaultRoutePath?
 			$routeProvider.otherwise { redirectTo: defaultRoutePath }
