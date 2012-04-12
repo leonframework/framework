@@ -67,8 +67,8 @@ leonAngular.crud.createDefaultEditController = (serverServiceUrl, listRoutePath,
 				if result
 					# we changed the location outside of the the digest life-cycle step of the scope
 					# -> we must wrap the location change into a function and call this with apply manually
-					$scope.$apply (scope) ->
-						scope.showList()
+					$scope.$apply ->
+						$scope.showList()
 				else
 					$scope.model.error = new Array() if !$scope.model.error?
 					$scope.model.error.push("Could not delete entity!");
@@ -129,7 +129,7 @@ leonAngular.crud.configure = ({module, routePrefix, listRoute, editRoute, defaul
 	listTemplate ?= "list.html"
 	editTemplate ?= "edit.html"
 
-	listFunction ?= ($scope, callback)->
+	listFunction ?= ($scope, callback) ->
 		$scope.leon.service(serverServiceUrl, "list").call callback
 
 	deleteFunction ?= ($scope, id, callback) ->
