@@ -28,7 +28,7 @@ leonAngular.utils.assemblePath = (prefix, path, suffix) ->
 	else
 		assambledPath = ""
 
-	if prefix? and prefix != "" and ( assambledPath == "" or assambledPath.charAt 0 != prefix )
+	if prefix? and prefix != "" and ( assambledPath == "" or assambledPath.charAt(0) != prefix )
 		assambledPath = prefix + assambledPath
 
 	if suffix? and suffix != "" and ( assambledPath == "" or assambledPath.charAt(assambledPath.length - 1) != suffix )
