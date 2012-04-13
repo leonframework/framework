@@ -1,6 +1,6 @@
 # ----------
-# In this file util functions are defined. This functions can be accessed by calling @getLeon().angular....
-# The util functions include things like creating controllers
+# In this file util functions are defined. This functions can be accessed by calling @getLeon().angular.utils....
+# The util functions include things like creating controllers, assembling pathes and setting route parameters.
 # ----------
 
 
@@ -19,7 +19,7 @@ Helper function that can be used to add leading and clothing slashes to a path, 
 Adds the prefix to the path, if the path doesn't start with the prefix.
 Adds the suffix to the path, if the path doesn't end with the suffix.
 
-Special case: if prefix equala suffix and path is empty, only prefix will be returned (no double slashes).
+Special case: if prefix equals suffix and path is empty, only prefix will be returned (no double slashes).
 ###
 leonAngular.utils.assemblePath = (prefix, path, suffix) ->
 	
@@ -63,38 +63,6 @@ leonAngular.utils.setRouteParameter = (routeString, paramName, paramValue, defau
 
 
 ###
-Use this function instead of getLeon() to get a modified leon object
-if you want the given scope to be updated after
-
-- a service call, more accurate: after the given callback was applied
-  leon.service(serviceUrl, methodName).call(callback)
-- a comet message was received, more accurate: after the given handler was applied
-  leon.subscribeTopic(topicId, handler)
-###
-leonAngular.utils.createScopedLeon = (scope, leon) ->
-	scopedLeon = {}
-	scopedLeon.__proto__ = leon
-	
-	# override service function of prototype to enable refreshing the scope
-	scopedLeon.service = (url, methodName) ->
-		call: (args...) ->
-			refreshHook = () ->
-				scope.$digest()
-			leon.service(url, methodName, refreshHook).call.apply(this, args)
-
-	# override subscribeTopic function of prototype to enable refreshing the scope
-	scopedLeon.subscribeTopic = (topicId, handler) ->
-		scopedHandler = (data) ->
-			handler(data)
-			scope.$digest()
-		
-		leon.comet.subscribeTopic topicId, scopedHandler
-
-	scopedLeon
-
-
-
-###
 Creates an angular controller with some basic stuff like scoped leon, location service and model object.
 The controller will also contains everything defined in the given function.
 
@@ -107,7 +75,7 @@ leonAngular.utils.createController = (controller) ->
 		# --- services ---
 		
 		$scope.location = $location
-		$scope.leon = leonAngular.utils.createScopedLeon($scope, $leon)
+		$scope.leon = $leon
 		
 		# --- state ---
 		

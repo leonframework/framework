@@ -23,7 +23,7 @@ TODO: comment
 ###
 leonAngular.crud.createDefaultListController = (serverServiceUrl, editRoutePath, listFunction, deleteFunction) ->
 	($scope, $leon, $leonAngularUtils, $injector) ->
-		$scope.leon = $leonAngularUtils.createScopedLeon($scope, $leon) if !$scope.leon?
+		$scope.leon = $leon if !$scope.leon?
 
 		$scope.doList = listFunction
 		$scope.doDelete = deleteFunction
@@ -55,7 +55,7 @@ TODO: comment
 ###
 leonAngular.crud.createDefaultEditController = (serverServiceUrl, listRoutePath, saveFunction, deleteFunction, getFunction, createFunction) ->
 	($scope, $leon, $leonAngularUtils, $routeParams, $injector) ->
-		$scope.leon = $leonAngularUtils.createScopedLeon($scope, $leon) if !$scope.leon?
+		$scope.leon = $leon if !$scope.leon?
 
 		$scope.doDelete = deleteFunction
 		$scope.doGet = getFunction
@@ -65,12 +65,9 @@ leonAngular.crud.createDefaultEditController = (serverServiceUrl, listRoutePath,
 		$scope.delete = (id) ->
 			callback = (result) ->
 				if result
-					# we changed the location outside of the the digest life-cycle step of the scope
-					# -> we must wrap the location change into a function and call this with apply manually
-					$scope.$apply ->
-						$scope.showList()
+					$scope.showList()
 				else
-					$scope.model.error = new Array() if !$scope.model.error?
+					$scope.model.error = [] if !$scope.model.error?
 					$scope.model.error.push("Could not delete entity!");
 
 			$injector.invoke $scope.doDelete, this, { $scope: $scope, id: $scope.model.current._id, callback: callback }
