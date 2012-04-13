@@ -21,20 +21,15 @@ Adds the suffix to the path, if the path doesn't end with the suffix.
 
 Special case: if prefix equals suffix and path is empty, only prefix will be returned (no double slashes).
 ###
-leonAngular.utils.assemblePath = (prefix, path, suffix) ->
+leonAngular.utils.assemblePath = (elements...) ->
 	
-	if path? and path != ""	
-		assambledPath = path
-	else
-		assambledPath = ""
+	assembledPath = elements.join "/"
 
-	if prefix? and prefix != "" and ( assambledPath == "" or assambledPath.charAt(0) != prefix )
-		assambledPath = prefix + assambledPath
+	# triple slashes can occur if one element ends with a slash and the next element starts with a slash!
+	assembledPath = assembledPath.replace "///", "/"
+	assembledPath = assembledPath.replace "//", "/"
 
-	if suffix? and suffix != "" and ( assambledPath == "" or assambledPath.charAt(assambledPath.length - 1) != suffix )
-		assambledPath = assambledPath + suffix
-
-	assambledPath
+	assembledPath
 
 
 ###
