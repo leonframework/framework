@@ -238,6 +238,10 @@ object LeonBuild extends Build {
       Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(leon_core)
 
+  // ------------------------------------------------------
+  // Examples
+  // ------------------------------------------------------
+
   lazy val leon_samples_demos_addressbook_coffee_coffee = Project(
     "leon-samples-demos-addressbook-coffee_coffee",
     file("leon-samples/demos/addressbook/coffee_coffee"),
@@ -245,9 +249,12 @@ object LeonBuild extends Build {
       Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(leon_core)
 
-  // ------------------------------------------------------
-  // Examples
-  // ------------------------------------------------------
+  lazy val leon_samples_angular_crud = Project(
+    "leon-samples-angular-crud",
+    file("leon-samples/angular/crud"),
+    settings = buildSettings ++ webSettings ++
+      Seq(libraryDependencies ++= samplesDeps)
+  ) dependsOn(leon_core)
 
   /*
 
