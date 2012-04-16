@@ -1,4 +1,4 @@
-package com.acme.appname;
+package com.company.appname;
 
 import io.leon.LeonAppMainModule;
 
@@ -6,7 +6,6 @@ public class Module extends LeonAppMainModule {
 
     @Override
     protected void config() {
-        setApplicationName("AcmeAppName");
         exposeJavaService("/demoService", DemoService.class);
     }
 

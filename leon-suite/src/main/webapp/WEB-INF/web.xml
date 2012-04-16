@@ -10,7 +10,7 @@
         <async-supported>true</async-supported>
         <init-param>
             <param-name>module</param-name>
-            <param-value>com.acme.appname.Module</param-value>
+            <param-value>com.company.appname.Module</param-value>
         </init-param>
     </filter>
 
