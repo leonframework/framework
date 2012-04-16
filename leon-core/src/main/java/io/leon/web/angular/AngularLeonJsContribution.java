@@ -12,7 +12,7 @@ public class AngularLeonJsContribution implements VirtualLeonJsFileContribution 
 
     private final ResourceLoader resourceLoader;
 
-    private final String angularVersion = "1.0.0rc4";
+    private final String angularVersion = "1.0.0rc5";
     
     private final String angularFolderPath = "/" + getClass().getPackage().getName().replace('.', '/');
 
