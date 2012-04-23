@@ -1,0 +1,19 @@
+
+<table style="border-spacing: 3px;">
+    <thead>
+        <tr>
+            <td><b>Name:</b></td>
+            <td><b>Tel:</b></td>
+            <td><b>Mail:</b></td>
+            <td><b>Actions:</b></td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng:repeat="a in model.list">
+            <td><a ng:bind="a.name" ng-click="showEdit(a._id)"></a></td>
+            <td ng:bind="a.tel"></td>
+            <td ng:bind="a.mail"></td>
+            <td><a ng-click="showEdit(a._id)">edit</a> | <a ng-click="delete(a._id)">delete</a></td>
+        </tr>
+    </tbody>
+</table>
