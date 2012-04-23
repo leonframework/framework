@@ -1,7 +1,7 @@
 # ----------
 # In this file everything of leon's basic crud support is defined. The functions depend on the utils defined in a
 # previous step.
-# Basic crud support contains a module leon.curd, controllers for list view and edit view, utils to register the needed
+# Basic crud support contains a module leon.crud, controllers for list view and edit view, utils to register the needed
 # crud service as well as a default implementation of the crud service.
 # ----------
 
