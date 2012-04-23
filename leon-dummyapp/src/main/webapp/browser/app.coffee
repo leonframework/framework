@@ -1,6 +1,6 @@
 
-@DummyAppCtrl = (leon) ->
-	leon.subscribeTopic "reversed", (d) =>
+@DummyAppCtrl = getLeon().angular.utils.createController ->
+	@leon.subscribeTopic "reversed", (d) =>
 		$("#reversedStrings").prepend(d.original + " > " + d.reversed + "<br/>")
 		@cometLastReversed = d.reversed
 
@@ -8,6 +8,6 @@
 	@reversed = ""
 
 	@reverse = ->
-		leon.service("/reverserService", "reverse").call @text, (@reversed) =>
+		@leon.service("/reverserService", "reverse").call @text, (@reversed) =>
 
 

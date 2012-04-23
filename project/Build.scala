@@ -8,7 +8,7 @@ import WebPlugin._
 
 object BuildSettings {
   val buildOrganization = "io.leon"
-  val buildVersion      = "0.4.7-SNAPSHOT"
+  val buildVersion      = "0.5.0-SNAPSHOT"
   val buildScalaVersion = "2.9.1"
   val buildDescription  = "JVM web framework for building data-driven web applications"
 
@@ -238,6 +238,10 @@ object LeonBuild extends Build {
       Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(leon_core)
 
+  // ------------------------------------------------------
+  // Examples
+  // ------------------------------------------------------
+
   lazy val leon_samples_demos_addressbook_coffee_coffee = Project(
     "leon-samples-demos-addressbook-coffee_coffee",
     file("leon-samples/demos/addressbook/coffee_coffee"),
@@ -245,9 +249,12 @@ object LeonBuild extends Build {
       Seq(libraryDependencies ++= samplesDeps)
   ) dependsOn(leon_core)
 
-  // ------------------------------------------------------
-  // Examples
-  // ------------------------------------------------------
+  lazy val leon_samples_angular_crud = Project(
+    "leon-samples-angular-crud",
+    file("leon-samples/angular/crud"),
+    settings = buildSettings ++ webSettings ++
+      Seq(libraryDependencies ++= samplesDeps)
+  ) dependsOn(leon_core)
 
   /*
 

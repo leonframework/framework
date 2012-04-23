@@ -1,4 +1,4 @@
-<html xmlns:ng="http://angularjs.org" ng-app="leonApp">
+<html xmlns:ng="http://angularjs.org" ng-app="leonCrudApp">
 <head>
 	<title>Leon Suite</title>
 	<script src="/leon/leon.js" type="text/javascript"></script>
@@ -7,14 +7,19 @@
 	<link rel="stylesheet" href="/style.css"/>
 </head>
 
-<body ng-controller="IndexController">
+<body ng-controller="MainController">
 
 <div id="header">
-	<span>Application Template</span>
+	<span>Address book</span>
+</div>
+
+<div id="menu">
+	<a ng-click="showList()">List</a> |
+	<a ng-click="showEdit()">Add</a>
 </div>
 
 <div id="content">
-    Message: <span ng-bind="model.message"></span> (<a ng-click="getMessage()">refresh</a>)
+	<ng:view></ng:view>
 </div>
 
 </body>

@@ -1,0 +1,7 @@
+<div>
+	Name:<input ng-model="model.current.name" type="text"><br/>
+	Tel:<input ng-model="model.current.tel" type="text"><br/>
+	Mail:<input ng-model="model.current.mail" type="email"><br/>
+	<br/>
+	<a ng-click="save(); showList()">save</a><span ng-show="model.showDelete"> | <a ng-click="delete()">delete</a></span>
+</div>
