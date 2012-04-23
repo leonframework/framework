@@ -6,6 +6,5 @@ this.IndexController = getLeon().angular.utils.createController(function() {
 			scope.model.message = data;
 		})
 	};
-     
 	this.getMessage();
 })
