@@ -39,18 +39,18 @@ class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) ex
 
     req.getParameter("env") match {
       case "desktop" | null => {
-        writeResource(out, "/leon/browser/jquery-1.5.2.min.js")
+        writeResource(out, "/leon/browser/jquery-1.6.2.min.js")
         writeResource(out, "/leon/browser/leon-browser.js")
         writeResource(out, "/leon/browser/leon-shared.js")
         writeResource(out, "/leon/browser/leon-comet.js")
       }
       case "mobile" => {
-        writeResource(out, "/leon/browser/jquery-1.6.2.js")
-        writeResource(out, "/leon/browser/jquery.mobile-1.0b3.js")
-        writeResource(out, "/leon/browser/jquery-mobile-angular-adapter-1.0.2.js")
-        writeResource(out, "/leon/browser/leon-browser.js")
-        writeResource(out, "/leon/browser/leon-shared.js")
-        writeResource(out, "/leon/browser/leon-comet.js")
+        //writeResource(out, "/leon/browser/jquery-1.6.2.js")
+        //writeResource(out, "/leon/browser/jquery.mobile-1.0b3.js")
+        //writeResource(out, "/leon/browser/jquery-mobile-angular-adapter-1.0.2.js")
+        //writeResource(out, "/leon/browser/leon-browser.js")
+        //writeResource(out, "/leon/browser/leon-shared.js")
+        //writeResource(out, "/leon/browser/leon-comet.js")
       }
       case _ => {
         sys.error("You can add either '?env=desktop' (default) or '?env=mobile' when loading leon.js.")
