@@ -25,12 +25,14 @@ public class CometPingBrowserTest {
     public void testPingService() throws InterruptedException {
         leon.openPage(getClass(), "/");
 
+        //Thread.sleep(100000000);
+
         leon.findElementById("sendPing").click();
 
         leon.waitForExpectedValue("isDone", "true", 5);
 
-        String pingResult = leon.findElementById("result").getText().replace("\n", "");
-        Assert.assertEquals(pingResult, "10987654321");
+        String pingResult = leon.findElementById("result").getText();
+        Assert.assertEquals(pingResult, "12345678910");
     }
 
 }

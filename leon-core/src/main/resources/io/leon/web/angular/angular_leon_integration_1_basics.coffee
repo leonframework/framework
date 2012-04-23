@@ -9,22 +9,15 @@
 # module and other modules can depend on it to use DI.
 # ----------
 
-
-
 # init
 @getLeon().angular = {} if !@getLeon().angular?
-
-
 
 # local alias which can be used as clojure to bypass this/@
 leonAngular = @getLeon().angular
 
-
-
 # create a angular module to support tight integration with angular
 # customer modules can depend on this to get access to leon services
 leonAngular.leonCoreModule = angular.module('leon.core', [])
-
 
 
 #----------
@@ -34,14 +27,12 @@ leonAngular.leonCoreModule = angular.module('leon.core', [])
 #----------
 # Register an unmodified version of leon as service. The unmodified service is needed by the modified version of leon
 # (with angular specifics) below. We can't use the prototype / __proto__ in the modified version which is set to
-# unmodified leon, because 'this' is bound to something different when a service function is called and there for we
+# unmodified leon, because 'this' is bound to something different when a service function is called and therefor we
 # can't reach the correct prototype.
 #----------
 leonUnmodified = ->
 leonUnmodified.prototype = getLeon()
-leonAngular.leonCoreModule.service "$leonUnmodified", leonUnmodified
-
-
+leonAngular.leonCoreModule.service("$leonUnmodified", leonUnmodified)
 
 #----------
 # Register a modified version of leon as angular service. This modified version is used for dependency injection by
@@ -63,17 +54,16 @@ leonModified = ($leonUnmodified, $rootScope, $exceptionHandler) ->
 			params = []
 			callback = args[args.length - 1];
 			
-			if angular.isFunction callback
-				params = args.slice 0, args.length - 1
+			if angular.isFunction(callback)
+				params = args.slice(0, args.length - 1)
 
 				scopedCallback = (result) ->
 					$rootScope.$apply ->
-						callback result
+						callback(result)
 
-				params.push scopedCallback
+				params.push(scopedCallback)
 			else
-				params = args.slice 0, args.length
-                 
+				params = args.slice(0, args.length)
 
 			$leonUnmodified.service(url, methodName).call.apply(this, params)
 
@@ -82,9 +72,9 @@ leonModified = ($leonUnmodified, $rootScope, $exceptionHandler) ->
 			$rootScope.$apply ->
 				handler(data)
 		
-		leon.comet.subscribeTopic topicId, scopedHandler
+		leon.comet.subscribeTopic(topicId, scopedHandler)
 
 leonModified.prototype = getLeon()
 
 leonModified.$inject = ["$leonUnmodified", "$rootScope", "$exceptionHandler"]
-leonAngular.leonCoreModule.service "$leon", leonModified
+leonAngular.leonCoreModule.service("$leon", leonModified)

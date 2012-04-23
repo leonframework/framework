@@ -1,8 +1,23 @@
-<html xmlns:leon="http://leon.io">
+<html>
 <head>
-    <title>Comet Ping example</title>
-    <script src="/leon/leon.js?env=desktop" type="text/javascript"></script>
-    <script src="cometping.js" type="text/javascript"></script>
+    <title>Comet Ping test</title>
+    <script src="/leon/leon.js" type="text/javascript"></script>
+    <script type="text/javascript">
+	    $(function() {
+	        getLeon().subscribeTopic("ping", function(data) {
+				if(data.number) {
+	                $("#result").append(data.number);
+	            }
+	            else if(data.done) {
+	                $("#isDone").text("true");
+	            }
+	        });
+
+	        $("#sendPing").click(function() {
+	            getLeon().service("/pingService", "ping").call(0);
+	        });
+	    });
+    </script>
 </head>
 
 <body>
@@ -10,7 +25,7 @@
     <h1>Comet Ping example</h1>
     <hr />
 
-    <a id="sendPing" href="#" onclick="sendPing();">Send ping to server</a>
+    <a id="sendPing" href="#">Send ping to server</a>
     <br/>
 
     <h2>Result</h2>

@@ -1,8 +1,4 @@
 
-jQuery.fn.toObject = function() {
-    return form2object(this.attr("id"));
-};
-
 var _leon = (function() {
 
     return {

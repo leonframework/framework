@@ -3,15 +3,11 @@
 # The util functions include things like creating controllers, assembling pathes and setting route parameters.
 # ----------
 
-
-
 # local alias which can be used as clojure to bypass this/@
 leonAngular = @getLeon().angular
 
-
 # init
 leonAngular.utils = {} if !leonAngular.utils?
-
 
 ###
 Helper function that can be used to add leading and clothing slashes to a path, for example.

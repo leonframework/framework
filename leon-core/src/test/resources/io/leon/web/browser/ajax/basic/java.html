@@ -1,14 +1,20 @@
-<html xmlns:ng="http://angularjs.org">
-
+<html>
 <head>
     <title>Ajax Test</title>
-    <script src="/leon/leon.js?env=desktop" type="text/javascript"></script>
+    <script src="/leon/leon.js" type="text/javascript"></script>
     <script src="java.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		$(function() {
+			$("#method1").click(function() {
+				getLeon().service("/ajaxServiceJava", "method1").call(function(result) {
+					$("#result").text(result);
+				});
+			});
+		});
+	</script>
 </head>
-
-<body ng:controller="AjaxServiceCtrl">
-    <a id="method1" href="#" ng:click="method1()">method1</a> <br/>
-    <span id="result" ng:bind="result"></span>
+<body>
+    <a id="method1" href="#">method1</a> <br/>
+    <span id="result"></span>
 </body>
-
 </html>

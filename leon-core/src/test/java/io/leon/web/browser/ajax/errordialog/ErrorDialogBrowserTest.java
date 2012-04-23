@@ -29,7 +29,6 @@ public class ErrorDialogBrowserTest {
 
     public void testWithError() throws InterruptedException {
         leon.openPage(getClass(), "index.html");
-
         leon.findElementById("withError").click();
 
         // TODO add teset
