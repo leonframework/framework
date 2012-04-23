@@ -39,7 +39,7 @@ class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) ex
 
     req.getParameter("env") match {
       case "desktop" | null => {
-        writeResource(out, "/leon/browser/jquery-1.6.2.min.js")
+        writeResource(out, "/leon/browser/jquery-1.6.2.js")
         writeResource(out, "/leon/browser/leon-browser.js")
         writeResource(out, "/leon/browser/leon-shared.js")
         writeResource(out, "/leon/browser/leon-comet.js")
