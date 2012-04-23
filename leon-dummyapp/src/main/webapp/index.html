@@ -1,16 +1,15 @@
-<html xmlns:ng="http://angularjs.org">
+<html ng-app="leonApp">
 <head>
     <title>Dummy App</title>
     <script src="/leon/leon.js" type="text/javascript"></script>
     <script src="/browser/app.js" type="text/javascript"></script>
-	<link rel="stylesheet" href="/leon/browser/skin/basic/style.css" />
 	<link rel="stylesheet" href="/browser/style.css" />
 </head>
 
-<body ng:controller="DummyAppCtrl">
+<body ng-controller="DummyAppCtrl">
 <div>
     <div id="header">
-	    <span>Ajax Reverser</span>
+	    <span>Dummy Application</span>
     </div>
 
     <hr />
@@ -19,21 +18,21 @@
 	    Text to reverse
     </span>
 	<input type="text" ng-model="text" />
-	<a href="#" ng:click="reverse()">Reverse text!</a> <br/>
+	<a href="#" ng-click="reverse()">Reverse text!</a> <br/>
 
     <hr />
 
 	<span style="{font-weight:bold; margin-left:10px; margin-right:10px}">
 		Reversed text
     </span>
-	<span ng:bind="reversed"></span>
+	<span ng-bind="reversed"></span>
 
 	<hr/>
 
 	<span style="{font-weight:bold; margin-left:10px; margin-right:10px}">
 		CometLastReversed
     </span>
-	<span ng:bind="cometLastReversed"></span>
+	<span ng-bind="cometLastReversed"></span>
 
 	<hr/>
 
