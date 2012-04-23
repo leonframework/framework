@@ -151,11 +151,6 @@ object Dependencies {
 
   def gson = "com.google.code.gson" % "gson" % "1.7.1" withSources()
 
-  // Apache HBase
-  // currently added as unmanaged dependencies
-  //def hadoop = "org.apache.hadoop" % "hadoop-core" % "0.20.append-r1056497" withSources()
-  //def hbase = "org.apache.hbase" % "hbase" % "0.92.0-20111220.024317-8" withSources()
-
 }
 
 object LeonBuild extends Build {
@@ -198,7 +193,6 @@ object LeonBuild extends Build {
     file("."),
     settings = buildSettings) aggregate(
       leon_core,
-      leon_hbase,
       leon_suite,
       leon_dummyapp
       //leon_samples_demos_addressbook_coffee_coffee
@@ -216,13 +210,6 @@ object LeonBuild extends Build {
     file("leon-core"),
     settings = buildSettings ++ publishSettings ++
       Seq(libraryDependencies ++= coreDeps))
-
-  lazy val leon_hbase = Project(
-    "leon-hbase",
-    file("leon-hbase"),
-    settings = buildSettings ++ publishSettings ++
-      Seq(libraryDependencies ++= (/* hadoop +: hbase +: */ coreDeps))
-  ) dependsOn(leon_core)
 
   lazy val leon_dummyapp = Project(
     "leon-dummyapp",
