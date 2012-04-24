@@ -7,19 +7,21 @@ $('<link rel="stylesheet" href="/io/leon/web/cockpit/leon-cockpit.css"/>').appen
 
 menu = $("""
 <div id="leonCockpitMenu">
-	<span class="logo"><img src="/io/leon/web/cockpit/leon_small.png" /></span>
-	<span class="info">Leon Cockpit</span>
-	<span class="buttons">
+	<!--
+	-->
+	<div class="logo"><img src="/io/leon/web/cockpit/leon_small.png" /></div>
+	<div class="info">Leon Cockpit</div>
+	<!--
+	<span class="menuEntries">
 		<span class="button_active"><a href="#">Auto Refresh</a></span>
-		<!--
 		|
 		<span class="button"><a href="#">Hightlight Changes</a></span>
 		|
 		<span class="button"><a href="#">Actions</a></span>
 		|
 		<span class="button"><a href="#">Server REPL</a></span>
-		-->
 	</span>
+	-->
 	<div class="log"></div>
 </div>
 """)
