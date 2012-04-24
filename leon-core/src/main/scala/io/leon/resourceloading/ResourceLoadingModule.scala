@@ -33,7 +33,7 @@ class ResourceLoadingModule extends AbstractModule {
 
     GuiceUtils.bindClassWithName(binder(), classOf[ResourceLocation], classOf[ServletContextResourceLocation]).in(Scopes.SINGLETON)
 
-
+    bind(classOf[ResourceCache]).in(Scopes.SINGLETON)
     bind(classOf[ResourceLoader]).in(Scopes.SINGLETON)
     bind(classOf[ResourceProcessorRegistry]).in(Scopes.SINGLETON)
     bind(classOf[NoOpResourceProcessor]).in(Scopes.SINGLETON)

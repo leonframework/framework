@@ -19,7 +19,8 @@ import watcher.{ResourceWatcher, ResourceChangedListener}
 
 class ResourceLoader @Inject()(injector: Injector,
                                resourceProcessorRegistry: ResourceProcessorRegistry,
-                               resourceWatcher: ResourceWatcher) {
+                               resourceWatcher: ResourceWatcher,
+                               resourceCache: ResourceCache) {
 
   import scala.collection.JavaConverters._
 
@@ -80,12 +81,31 @@ class ResourceLoader @Inject()(injector: Injector,
         val resourceOption = location.getResource(fileNameForProcessor)
 
         if (resourceOption.isDefined) {
-          logger.debug("Found resource [{}]", fileNameForProcessor)
-          val processed = resourceOption.map(processor.process)
-          if (processor.isCachingRequested) {
-            // TODO
+          val resource = resourceOption.get
+          logger.debug("Found resource [{}].", fileNameForProcessor)
+
+          // Check if the processor requested caching
+          val cachedOrNormal = if (processor.isCachingRequested) {
+            logger.debug("Checking cache for resource [{}]", fileName)
+            val cacheTimestamp = resourceCache.getTimestampOfCacheFile(fileName)
+            val normalTimestamp = resource.getLastModified()
+
+            if (normalTimestamp > cacheTimestamp) {
+              // cache is out of date
+              logger.debug("Cached version for resource [{}] is out of date.", fileName)
+              val processed = processor.process(resource)
+              resourceCache.put(fileName, processed)
+              processed
+            } else {
+              // cache is up to date
+              logger.debug("Cached version for resource [{}] is up to date.", fileName)
+              resourceCache.get(fileName)
+            }
+          } else {
+            // No caching request. Normal processing.
+            processor.process(resource)
           }
-          Some((fileNameForProcessor, location, processor, processed))
+          Some((fileNameForProcessor, location, processor, Some(cachedOrNormal)))
         } else {
           tryCombinations(xs)
         }

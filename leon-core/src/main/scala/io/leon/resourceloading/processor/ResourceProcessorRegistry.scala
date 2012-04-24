@@ -8,7 +8,7 @@
  */
 package io.leon.resourceloading.processor
 
-import com.google.inject.{TypeLiteral, Injector, Inject}
+import com.google.inject.{Injector, Inject}
 import scala.collection.mutable
 import io.leon.guice.GuiceUtils
 
