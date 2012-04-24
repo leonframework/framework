@@ -35,7 +35,7 @@ class CometRegistry @Inject()(injector: Injector,
   private val reconnectTimeout = 30 * 1000
 
   // after this time, the server will treat the client as disconnected and remove all information
-  private val disconnectTimeout = reconnectTimeout + 100 * 1000
+  private val disconnectTimeout = reconnectTimeout + (60 * 1000)
 
   private val filter: List[BroadcastFilter] = List(new XSSHtmlFilter)
 
@@ -138,7 +138,7 @@ class CometRegistry @Inject()(injector: Injector,
     clients.getByClientId(clientId).get.updateTopicFilter(topicId, filterName, filterValue)
   }
 
-  // --- method for interface TopicsService ---
+  // --- methods for interface TopicsService ---
 
   def send(topicId: String, data: AnyRef) {
     send(topicId, data, Maps.newHashMap())

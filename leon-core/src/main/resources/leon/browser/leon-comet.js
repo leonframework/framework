@@ -121,12 +121,12 @@ getLeon().comet = (function() {
             var url = getLeon().contextPath + "/leon/comet/connect" + "?clientId=" + getLeon().comet.clientId + "&lastMessageId=" + lastMessageId;
             getLeon().comet.openSocket(url);
 
-            // check every 5 seconds that we have a connection
+            // check every 2 seconds that we have a connection
             (function connectionCheck() {
                setTimeout(function() {
                   getLeon().comet.connect();
                   connectionCheck();
-              }, 5000);
+              }, 2000);
             })();
 
             // close and open the connection every 30 seconds
