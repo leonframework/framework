@@ -72,7 +72,7 @@ leonModified = ($leonUnmodified, $rootScope) ->
 			$rootScope.$apply ->
 				handler(data)
 
-		leon.comet.subscribeTopic(topicId, scopedHandler)
+		$leonUnmodified.comet.subscribeTopic(topicId, scopedHandler)
 
 leonModified.prototype = getLeon()
 
