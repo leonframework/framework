@@ -14,9 +14,9 @@
 		callback({ name: "test", mail: "test@ww.com" })
 
 
-@getLeon().angular.leonAppCrudModule.controller "MainController", ($scope, $leonAngularUtils) ->
+angular.module("leonCrudApp").controller "MainController", ($scope, $location) ->
     $scope.showList = ->
-        $leonAngularUtils.showRoute "/addresses/list"
+        $location.path("/addresses/list")
 
     $scope.showEdit = ->
-        $leonAngularUtils.showRoute "/addresses/edit/"
+        $location.path("/addresses/edit/")

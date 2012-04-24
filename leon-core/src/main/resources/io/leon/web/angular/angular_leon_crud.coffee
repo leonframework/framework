@@ -8,6 +8,7 @@
 
 
 # local alias which can be used as clojure to bypass this/@
+@getLeon().angular = {} if!@getLeon().angular?
 leonAngular = @getLeon().angular
 
 
@@ -22,8 +23,8 @@ leonAngular.crud.module = angular.module('leon.crud', ['ng'])
 TODO: comment
 ###
 leonAngular.crud.createDefaultListController = (serverServiceUrl, editRoutePath, listFunction, deleteFunction) ->
-	($scope, $leon, $leonAngularUtils, $injector) ->
-		$scope.leon = $leon if !$scope.leon?
+	($scope, leon, $location, leonAngularUtils, $injector) ->
+		$scope.leon = leon if !$scope.leon?
 
 		$scope.doList = listFunction
 		$scope.doDelete = deleteFunction
@@ -41,8 +42,8 @@ leonAngular.crud.createDefaultListController = (serverServiceUrl, editRoutePath,
 			$injector.invoke($scope.doDelete, this, { $scope: $scope, id: id, callback: callback })
 
 		$scope.showEdit = (id) ->
-			pathWithId = $leonAngularUtils.setRouteParameter(editRoutePath, "id", id)
-			$leonAngularUtils.showRoute(pathWithId)
+			pathWithId = leonAngularUtils.setRouteParameter(editRoutePath, "id", id)
+			$location.path(pathWithId)
 
 		# init
 		$scope.model = {} if !$scope.model?
@@ -54,8 +55,8 @@ leonAngular.crud.createDefaultListController = (serverServiceUrl, editRoutePath,
 TODO: comment
 ###
 leonAngular.crud.createDefaultEditController = (serverServiceUrl, listRoutePath, saveFunction, deleteFunction, getFunction, createFunction) ->
-	($scope, $leon, $leonAngularUtils, $routeParams, $injector) ->
-		$scope.leon = $leon if !$scope.leon?
+	($scope, leon, $location, $routeParams, $injector) ->
+		$scope.leon = leon if !$scope.leon?
 
 		$scope.doDelete = deleteFunction
 		$scope.doGet = getFunction
@@ -92,7 +93,7 @@ leonAngular.crud.createDefaultEditController = (serverServiceUrl, listRoutePath,
 				$injector.invoke $scope.doCreate, this, { $scope: $scope, callback: callback }
 
 		$scope.showList = ->
-			$leonAngularUtils.showRoute listRoutePath
+			$location.path(listRoutePath)
 
 
 		# init
@@ -141,32 +142,34 @@ leonAngular.crud.configure = ({module, routePrefix, listRoute, editRoute, defaul
 	createFunction ?= ($scope, callback) ->
 		callback({})
 
-	listRoutePath = leonAngular.utils.assemblePath "/", routePrefix, listRoute
-	editRoutePath = leonAngular.utils.assemblePath "/", routePrefix, editRoute
-	defaultRoutePath = leonAngular.utils.assemblePath "/", routePrefix, defaultRoute if defaultRoute?
-	prefixRoutePath = leonAngular.utils.assemblePath "/", routePrefix if routePrefix?
+
+	module.config ($routeProvider, leonAngularUtils) ->
+		listRoutePath = leonAngularUtils.assemblePath "/", routePrefix, listRoute
+		editRoutePath = leonAngularUtils.assemblePath "/", routePrefix, editRoute
+		defaultRoutePath = leonAngularUtils.assemblePath "/", routePrefix, defaultRoute if defaultRoute?
+		prefixRoutePath = leonAngularUtils.assemblePath "/", routePrefix if routePrefix?
 
 
-	if !listController? and serverServiceUrl?
-		listController = leonAngular.crud.createDefaultListController serverServiceUrl, editRoutePath, listFunction, deleteFunction
-	else if !listController?
-		throw "neither listController nor serverServiceUrl (needed by default controller) given!"
+		if !listController? and serverServiceUrl?
+			listController = leonAngular.crud.createDefaultListController serverServiceUrl, editRoutePath, listFunction, deleteFunction
+		else if !listController?
+			throw "neither listController nor serverServiceUrl (needed by default controller) given!"
 
-	if !editController? and serverServiceUrl?
-		editController = leonAngular.crud.createDefaultEditController serverServiceUrl, listRoutePath, saveFunction, deleteFunction, getFunction, createFunction
-	else if !editController?
-		throw "neither editController nor serverServiceUrl (needed by default controller) given!"
+		if !editController? and serverServiceUrl?
+			editController = leonAngular.crud.createDefaultEditController serverServiceUrl, listRoutePath, saveFunction, deleteFunction, getFunction, createFunction
+		else if !editController?
+			throw "neither editController nor serverServiceUrl (needed by default controller) given!"
 
 
-	module.config ($routeProvider) ->
-		listRouteConfig = { template: leonAngular.utils.assemblePath templatePrefix, listTemplate }
+
+		listRouteConfig = { template: leonAngularUtils.assemblePath templatePrefix, listTemplate }
 
 		if listController?
 			listRouteConfig.controller = listController
 
 		$routeProvider.when listRoutePath, listRouteConfig
 
-		editRouteConfig = { template: leonAngular.utils.assemblePath templatePrefix, editTemplate }
+		editRouteConfig = { template: leonAngularUtils.assemblePath templatePrefix, editTemplate }
 
 		if editController?
 			editRouteConfig.controller = editController
@@ -196,4 +199,12 @@ crudService = ->
 # make everything available defined in loen's angular crud support
 crudService.prototype = leonAngular.crud
 
-leonAngular.crud.module.service "$leonAngularCrud", crudService
+leonAngular.crud.module.service "leonAngularCrud", crudService
+
+
+
+###
+A simple module including angular and leon support.
+It's ready to use to implement small applications which don't need an own module.
+###
+angular.module('leonCrudApp', ['ng', 'leon.core', 'leon.crud'])

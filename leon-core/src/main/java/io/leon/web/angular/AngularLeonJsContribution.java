@@ -20,19 +20,15 @@ public class AngularLeonJsContribution implements VirtualLeonJsFileContribution 
     private final String angularResourceJsPath = angularFolderPath + "/angular-resource-" + angularVersion + ".js";
     private final String angularCookiesJsPath = angularFolderPath + "/angular-cookies-" + angularVersion + ".js";
     
-    private final String angularLeonIntegration1JsPath = angularFolderPath + "/angular_leon_integration_1_basics.js";
-    private final String angularLeonIntegration2JsPath = angularFolderPath + "/angular_leon_integration_2_utils.js";
-    private final String angularLeonIntegration3JsPath = angularFolderPath + "/angular_leon_integration_3_crud.js";
-    private final String angularLeonIntegration4JsPath = angularFolderPath + "/angular_leon_integration_4.js";
+    private final String angularLeonIntegrationJsPath = angularFolderPath + "/angular_leon_integration.js";
+    private final String angularLeonCrudJsPath = angularFolderPath + "/angular_leon_crud.js";
 
     private final String[] angularJsPathes = {
         angularJsPath,
         angularResourceJsPath,
         angularCookiesJsPath,
-        angularLeonIntegration1JsPath,
-        angularLeonIntegration2JsPath,
-        angularLeonIntegration3JsPath,
-        angularLeonIntegration4JsPath
+        angularLeonIntegrationJsPath,
+        angularLeonCrudJsPath,
     };
 
     @Inject
