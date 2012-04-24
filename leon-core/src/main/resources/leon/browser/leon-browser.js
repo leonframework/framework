@@ -21,7 +21,6 @@ var _leon = (function() {
                     }
 
                     var request = {
-                        pageId: this.pageId,
                         member: methodName,
                         argsSize: params.length,
                         dataType: "json"

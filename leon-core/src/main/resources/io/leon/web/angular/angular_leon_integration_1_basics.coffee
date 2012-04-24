@@ -48,7 +48,7 @@ leonAngular.leonCoreModule.service("$leonUnmodified", leonUnmodified)
 # the $apply method of a specific scope or the $apply method of $rootScope. $rootScope can be injected, so we don't need
 # to carry the specific scope with us.
 #----------
-leonModified = ($leonUnmodified, $rootScope, $exceptionHandler) -> 
+leonModified = ($leonUnmodified, $rootScope) ->
 	@service = (url, methodName) ->
 		call: (args...) ->
 			params = []
@@ -65,16 +65,16 @@ leonModified = ($leonUnmodified, $rootScope, $exceptionHandler) ->
 			else
 				params = args.slice(0, args.length)
 
-			$leonUnmodified.service(url, methodName).call.apply(this, params)
+			$leonUnmodified.service(url, methodName).call.call(params)
 
 	@subscribeTopic = (topicId, handler) ->
 		scopedHandler = (data) ->
 			$rootScope.$apply ->
 				handler(data)
-		
+
 		leon.comet.subscribeTopic(topicId, scopedHandler)
 
 leonModified.prototype = getLeon()
 
-leonModified.$inject = ["$leonUnmodified", "$rootScope", "$exceptionHandler"]
+leonModified.$inject = ["$leonUnmodified", "$rootScope"]
 leonAngular.leonCoreModule.service("$leon", leonModified)

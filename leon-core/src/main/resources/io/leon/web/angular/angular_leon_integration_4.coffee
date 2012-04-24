@@ -14,7 +14,7 @@ leonAngular = @getLeon().angular
 A simple module including angular, leon and leon's crud support.
 It's ready to use to implement small applications which don't need an own module.
 ###
-leonAngular.leonAppModule = angular.module 'leonApp', ['ng', 'leon.core', 'leon.crud']
+leonAngular.leonAppModule = angular.module('leonApp', ['ng', 'leon.core', 'leon.crud'])
 
-#leonAngular.leonAppCrudModule.config ($locationProvider) ->
+#leonAngular.leonAppModule.config ($locationProvider) ->
 #	$locationProvider.html5Mode true

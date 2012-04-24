@@ -14,7 +14,7 @@ leonAngular = @getLeon().angular
 
 # init
 leonAngular.crud = {} if!leonAngular.crud?
-leonAngular.crud.module = angular.module 'leon.crud', ['ng']
+leonAngular.crud.module = angular.module('leon.crud', ['ng'])
 
 
 
@@ -32,17 +32,17 @@ leonAngular.crud.createDefaultListController = (serverServiceUrl, editRoutePath,
 			callback = (result) ->
 				$scope.model.list = result
 
-			$injector.invoke $scope.doList, this, { $scope: $scope, callback: callback }
+			$injector.invoke($scope.doList, this, { $scope: $scope, callback: callback })
 
 		$scope.delete = (id) ->
 			callback = (result) ->
 				$scope.list()
 
-			$injector.invoke $scope.doDelete, this, { $scope: $scope, id: id, callback: callback } 
+			$injector.invoke($scope.doDelete, this, { $scope: $scope, id: id, callback: callback })
 
 		$scope.showEdit = (id) ->
-			pathWithId = $leonAngularUtils.setRouteParameter editRoutePath, "id", id
-			$leonAngularUtils.showRoute pathWithId 
+			pathWithId = $leonAngularUtils.setRouteParameter(editRoutePath, "id", id)
+			$leonAngularUtils.showRoute(pathWithId)
 
 		# init
 		$scope.model = {} if !$scope.model?
