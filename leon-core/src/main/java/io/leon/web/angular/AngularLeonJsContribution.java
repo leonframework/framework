@@ -21,14 +21,12 @@ public class AngularLeonJsContribution implements VirtualLeonJsFileContribution 
     private final String angularCookiesJsPath = angularFolderPath + "/angular-cookies-" + angularVersion + ".js";
     
     private final String angularLeonIntegrationJsPath = angularFolderPath + "/angular_leon_integration.js";
-    private final String angularLeonCrudJsPath = angularFolderPath + "/angular_leon_crud.js";
 
     private final String[] angularJsPathes = {
         angularJsPath,
         angularResourceJsPath,
         angularCookiesJsPath,
-        angularLeonIntegrationJsPath,
-        angularLeonCrudJsPath,
+        angularLeonIntegrationJsPath
     };
 
     @Inject
