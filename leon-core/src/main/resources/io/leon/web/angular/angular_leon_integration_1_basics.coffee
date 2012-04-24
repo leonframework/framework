@@ -65,7 +65,7 @@ leonModified = ($leonUnmodified, $rootScope) ->
 			else
 				params = args.slice(0, args.length)
 
-			$leonUnmodified.service(url, methodName).call.call(params)
+			$leonUnmodified.service(url, methodName).call.apply(this, params)
 
 	@subscribeTopic = (topicId, handler) ->
 		scopedHandler = (data) ->
