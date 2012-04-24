@@ -31,7 +31,7 @@ public class ErrorDialogBrowserTest {
         leon.openPage(getClass(), "index.html");
         leon.findElementById("withError").click();
 
-        // TODO add teset
+        // TODO add test
     }
 
 }
