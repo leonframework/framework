@@ -28,7 +28,6 @@ class LeonTagProcessor @Inject()(injector: Injector) {
     def getLastModified() = in.getLastModified()
 
     def getInputStream() = {
-      println(rewriters.map(_.getClass.getName).mkString(","))
       measureTime(in.name) {
         val stream = in.getInputStream()
 
