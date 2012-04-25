@@ -139,17 +139,19 @@ object Dependencies {
 
   def guiceServlet = "com.google.inject.extensions" % "guice-servlet" % "3.0" withSources()
 
-  def mysql = "mysql" % "mysql-connector-java" % "5.1.16"
+  def jerichoHtml = "net.htmlparser.jericho" % "jericho-html" % "3.2" withSources()
+
+  def gson = "com.google.code.gson" % "gson" % "1.7.1" withSources()
+
+  // --- SQL stuff ---
 
   def h2database = "com.h2database" % "h2" % "1.3.155" % "test" withSources()
 
   def snakeYaml = "org.yaml" % "snakeyaml" % "1.8" withSources()
 
+  // --- MongoDB ---
+
   def mongo = "org.mongodb" % "mongo-java-driver" % "2.7.2" withSources()
-
-  def jerichoHtml = "net.htmlparser.jericho" % "jericho-html" % "3.2" withSources()
-
-  def gson = "com.google.code.gson" % "gson" % "1.7.1" withSources()
 
 }
 
@@ -180,10 +182,8 @@ object LeonBuild extends Build {
     guice,
     guava,
     guiceServlet,
-    snakeYaml,
     jerichoHtml,
-    gson,
-    h2database)
+    gson)
 
   val samplesDeps = Seq(servletApi, jettyRuntime, jetty, selenium)
 
@@ -193,6 +193,7 @@ object LeonBuild extends Build {
     settings = buildSettings) aggregate(
       leon_core,
       leon_suite,
+      leon_sql,
       leon_mongo,
       leon_dummyapp
       //leon_samples_demos_addressbook_coffee_coffee
@@ -210,6 +211,13 @@ object LeonBuild extends Build {
     file("leon-core"),
     settings = buildSettings ++ publishSettings ++
       Seq(libraryDependencies ++= coreDeps))
+
+  lazy val leon_sql = Project(
+     "leon-sql",
+     file("leon-sql"),
+     settings = buildSettings ++ publishSettings ++
+       Seq(libraryDependencies ++= (Seq(h2database, snakeYaml) ++: coreDeps))
+  ) dependsOn(leon_core)
 
   lazy val leon_mongo = Project(
      "leon-mongo",
