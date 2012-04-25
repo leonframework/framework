@@ -11,6 +11,8 @@ package io.leon.web.comet
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.ConcurrentHashMap
 import io.leon.config.ConfigMapHolder
+import java.util.HashMap
+import java.util.concurrent.locks.ReentrantLock
 
 
 object Clients {
@@ -33,16 +35,56 @@ class Clients {
 
   import scala.collection.JavaConverters._
 
-  private val byClientId = new ConcurrentHashMap[String, ClientConnection]
+  private val lock = new ReentrantLock(false)
+
+  private val byClientId = new HashMap[String, ClientConnection]
 
   def allClients: Iterable[ClientConnection] = byClientId.values().asScala
 
-  def getByClientId(id: String): Option[ClientConnection] = {
-    if (byClientId.containsKey(id)) Some(byClientId.get(id)) else None
+  def getByClientIdOption(id: String): Option[ClientConnection] = {
+    lock.lock()
+    try {
+      if (byClientId.containsKey(id))
+        Some(byClientId.get(id))
+      else
+        None
+    } finally {
+      lock.unlock()
+    }
   }
 
-  def add(client: ClientConnection) = byClientId.put(client.clientId, client)
+  def getOrCreateByClientId(id: String): ClientConnection = {
+    lock.lock()
+    try {
+      if (byClientId.containsKey(id)) {
+        byClientId.get(id)
+      }
+      else {
+        val newCc = new ClientConnection(id, None)
+        byClientId.put(id, newCc)
+        newCc
+      }
+    } finally {
+      lock.unlock()
+    }
+  }
 
-  def remove(client: ClientConnection) = byClientId.remove(client.clientId)
+  def add(client: ClientConnection) = {
+    lock.lock()
+    try {
+      byClientId.put(client.clientId, client)
+    } finally {
+      lock.unlock()
+    }
+  }
+
+  def remove(client: ClientConnection) = {
+    lock.lock()
+    try {
+      byClientId.remove(client.clientId)
+    } finally {
+      lock.unlock()
+    }
+  }
 
 }

@@ -5,7 +5,7 @@
         </encoder>
     </appender>
 
-    <logger name="io.leon" level="debug" />
+    <logger name="io.leon" level="trace" />
 
     <root level="info">
         <appender-ref ref="console"/>

@@ -137,7 +137,7 @@ public class LeonBrowserTester {
         setOffForElement(findElementByName(name));
     }
 
-    public void waitForExpectedValue(String id, String expectedValue, int timeOutSeconds) {
+    public void waitForHtmlValue(String id, String expectedValue, int timeOutSeconds) {
         long startTime = System.currentTimeMillis();
         while (!findElementById(id).getText().equals(expectedValue)) {
             try {
@@ -154,6 +154,5 @@ public class LeonBrowserTester {
             }
         }
     }
-
 
 }

@@ -12,7 +12,8 @@ import org.atmosphere.cpr.Meteor
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.{HashSet, Collections, ArrayList}
+import java.util.ArrayList
+import scala.collection.JavaConverters._
 
 class ClientConnection(val clientId: String,
                        var meteor: Option[Meteor]) {
@@ -22,10 +23,10 @@ class ClientConnection(val clientId: String,
   // message queue
   private val queue = new ArrayList[(Int, String)]
 
-  // topicID
-  private val topicSubscriptions = Collections.synchronizedSet(new HashSet[String])
+  // topicID->true
+  private val topicSubscriptions = new ConcurrentHashMap[String, Boolean]
 
-  // topic name#filter name -> filter value
+  // topicName#filterName -> filterValue
   private val topicActiveFilters = new ConcurrentHashMap[String, String]
 
   private val nextMessageId = new AtomicInteger(0)
@@ -59,11 +60,11 @@ class ClientConnection(val clientId: String,
     try {
       meteor map {
         m =>
-          logger.info("Removing uplink for ClientConnection")
+          logger.debug("Removing uplink for ClientConnection")
           m.resume()
       }
     } catch {
-      case e: Exception => logger.info("Cannot resume existing comet connection.")
+      case e: Exception => // ignore
     }
     meteor = None
   }
@@ -119,22 +120,49 @@ class ClientConnection(val clientId: String,
     }
   }
 
-  def updateTopicFilter(topicName: String, filterName: String, filterValue: String) {
-    // register topic subscription
-    topicSubscriptions.add(topicName)
+  def updateTopicFilter(topicName: String, filterName: String, filterValue: String) = {
+    logger.debug("Updating topic filter for client [%s], topic [%s], filter name [%s], filter value [%s].".format(
+      clientId, topicName, filterName, filterValue))
 
-    if (filterName == null) {
-      return
+    // register topic subscription
+    topicSubscriptions.put(topicName, true)
+
+    if (filterName != null) {
+      // update the filter
+      val key = topicName + "#" + filterName
+      topicActiveFilters.put(key, filterValue)
     }
 
-    // update the filter
-    val key = topicName + "#" + filterName
-    topicActiveFilters.put(key, filterValue)
+    if (logger.isTraceEnabled) {
+      logger.trace("\n" + getDebugStateString())
+    }
+  }
+
+  def getAllSubscribedTopics(): Set[String] = {
+    topicSubscriptions.keySet().asScala.toSet
+  }
+
+  def hasSubscribedTopic(topicName: String): Boolean = {
+    topicSubscriptions.containsKey(topicName)
   }
 
   def hasFilterValue(topicName: String, filterName: String, requiredFilterValue: String): Boolean = {
     val key = topicName + "#" + filterName
     topicActiveFilters.get(key) == requiredFilterValue
+  }
+
+  def getDebugStateString(): String = {
+    val sb = new StringBuilder
+    sb.append("Client: " + clientId + ", subscriptions:" + "\n")
+    sb.append("  Topics:" + "\n")
+    for (topic <- topicSubscriptions.asScala.keys) {
+      sb.append("    * topic: '" + topic + "'\n")
+    }
+    sb.append("  Filters:" + "\n")
+    for (filter <- topicActiveFilters.asScala.keys) {
+      sb.append("    * filter name: '" + filter + "' value: '" + topicActiveFilters.get(filter) + "'\n")
+    }
+    sb.toString()
   }
 
 }

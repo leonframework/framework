@@ -37,7 +37,7 @@ class ResourceLoader @Inject()(injector: Injector,
   def getResource(fileName: String, changedListener: ResourceChangedListener): Resource = {
     getResourceOption(fileName, changedListener) match {
       case Some(resource) => {
-        logger.debug("Loaded resource {}", resource.name)
+        logger.trace("Loaded resource {}", resource.name)
         resource
       }
       case None => throw new RuntimeException("Resource [%s] not found!".format(fileName))
@@ -49,7 +49,7 @@ class ResourceLoader @Inject()(injector: Injector,
   }
 
   def getResourceOption(fileName: String, changedListener: ResourceChangedListener): Option[Resource] = {
-    logger.debug("Searching resource [{}]", fileName)
+    logger.trace("Searching resource [{}]", fileName)
 
     val processors = resourceProcessorRegistry.processorsForFile(fileName)
     val combinations = for {
@@ -82,11 +82,11 @@ class ResourceLoader @Inject()(injector: Injector,
 
         if (resourceOption.isDefined) {
           val resource = resourceOption.get
-          logger.debug("Found resource [{}].", fileNameForProcessor)
+          logger.trace("Found resource [{}].", fileNameForProcessor)
 
           // Check if the processor requested caching
           val cachedOrNormal = if (processor.isCachingRequested) {
-            logger.debug("Checking cache for resource [{}]", fileName)
+            logger.trace("Checking cache for resource [{}]", fileName)
             val cacheTimestamp = resourceCache.getTimestampOfCacheFile(fileName)
             val normalTimestamp = resource.getLastModified()
 
@@ -98,7 +98,7 @@ class ResourceLoader @Inject()(injector: Injector,
               processed
             } else {
               // cache is up to date
-              logger.debug("Cached version for resource [{}] is up to date.", fileName)
+              logger.trace("Cached version for resource [{}] is up to date.", fileName)
               resourceCache.get(fileName)
             }
           } else {

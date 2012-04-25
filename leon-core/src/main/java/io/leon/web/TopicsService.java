@@ -1,15 +1,9 @@
 package io.leon.web;
 
-import java.util.Map;
+public interface TopicsService extends TopicsSend {
 
-public interface TopicsService {
+    public TopicsSend toOthers();
 
-    public void send(String topicId, Object data, Map<String, Object> filters);
-
-    public void send(String topicId, Object data);
-
-    public TopicsService toOthers();
-
-    public TopicsService toCurrent();
+    public TopicsSend toCurrent();
 
 }

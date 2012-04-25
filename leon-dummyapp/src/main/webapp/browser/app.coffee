@@ -9,5 +9,3 @@
 
 	@reverse = ->
 		@leon.service("/reverserService", "reverse").call @text, (@reversed) =>
-
-

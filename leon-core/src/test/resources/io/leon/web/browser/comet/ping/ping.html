@@ -5,17 +5,23 @@
     <script type="text/javascript">
 	    $(function() {
 	        getLeon().subscribeTopic("ping", function(data) {
-				if(data.number) {
-	                $("#result").append(data.number);
-	            }
-	            else if(data.done) {
-	                $("#isDone").text("true");
-	            }
+                $("#status").text(data);
 	        });
 
 	        $("#sendPing").click(function() {
-	            getLeon().service("/pingService", "ping").call(0);
+				var count = 0;
+			    (function send50Pings() {
+	                if (getLeon().comet.isCometActive()) {
+			            getLeon().service("/pingService", "ping").call();
+			            count = count + 1;
+	                }
+			        if (count < 50) {
+		                setTimeout(function() { send50Pings() }, 100);
+			        }
+			    })();
 	        });
+
+	        $("#status").text("init");
 	    });
     </script>
 </head>
@@ -28,11 +34,8 @@
     <a id="sendPing" href="#">Send ping to server</a>
     <br/>
 
-    <h2>Result</h2>
-    <div id="result"></div>
-
-    <h2>Done?</h2>
-    <div id="isDone"></div>
+    <h2>Status</h2>
+    <div id="status"></div>
 </div>
 </body>
 </html>

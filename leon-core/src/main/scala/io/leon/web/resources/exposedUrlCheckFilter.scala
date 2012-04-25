@@ -37,10 +37,10 @@ class ExposedUrlCheckFilter @Inject()(injector: Injector) extends Filter {
     val requestUrl = WebUtils.getRequestedResource(req)
     val isPublic = exposedUrlsRegex exists { _.findFirstIn(requestUrl).isDefined }
     if (isPublic) {
-      logger.debug("Requested exposed URL {}", requestUrl)
+      logger.debug("GET {}", requestUrl)
       chain.doFilter(_req, _res)
     } else {
-      logger.debug("Requested *private* URL {}", requestUrl)
+      logger.info("Private resource: GET {}", requestUrl)
       res.setStatus(403)
     }
   }

@@ -14,18 +14,18 @@ import javax.servlet.http.HttpServletRequest
 import com.google.gson.Gson
 import org.slf4j.LoggerFactory
 import io.leon.config.ConfigMap
-import io.leon.web.TopicsService
 import java.util.Map
+import scala.collection.JavaConverters._
 import com.google.common.collect.Maps
-import com.google.inject.{Injector, Inject}
 import io.leon.guice.GuiceUtils
+import io.leon.web.{TopicsSend, TopicsService}
+import com.google.inject.{Provider, Injector, Inject}
 
 class CometRegistry @Inject()(injector: Injector,
                               clients: Clients,
                               gson: Gson,
-                              configMap: ConfigMap) extends TopicsService {
-
-  import scala.collection.JavaConverters._
+                              configMap: ConfigMap,
+                              httpServletRequestProvider: Provider[HttpServletRequest]) extends TopicsService {
 
   private val logger = LoggerFactory.getLogger(getClass.getName)
 
@@ -53,7 +53,7 @@ class CometRegistry @Inject()(injector: Injector,
   private def checkIfTopicIsConfigured(topicName: String) {
     if (!allDefinedTopics.contains(topicName)) {
       throw new IllegalArgumentException(
-        "Topic [" + topicName + "] was not configured. Add e.g. 'addTopic(\""
+        "Topic [" + topicName + "] was not configured. Add 'addTopic(\""
           + topicName + "\");' to your module configuration.")
     }
   }
@@ -69,11 +69,11 @@ class CometRegistry @Inject()(injector: Injector,
           clients.allClients foreach { client =>
             if (client.meteor.isDefined) {
               if ((now - client.connectTime) > reconnectTimeout) {
-                logger.info("Client connection for [" + client.clientId + "] too old. Forcing reconnect.")
+                logger.debug("Client connection for [" + client.clientId + "] too old. Forcing reconnect.")
                 client.resumeAndRemoveUplink()
               }
               if ((now - client.connectTime) > disconnectTimeout) {
-                logger.info("Client connection for [" + client.clientId + "] too old. Removing client information.")
+                logger.debug("Client connection for [" + client.clientId + "] too old. Removing client information.")
                 client.resumeAndRemoveUplink()
                 clients.remove(client)
               }
@@ -99,33 +99,46 @@ class CometRegistry @Inject()(injector: Injector,
     writer.write("\n")
     writer.flush()
 
-    clients.getByClientId(clientId) match {
+    clients.getByClientIdOption(clientId) match {
       case None => {
-        logger.debug("Registering new meteor for client [" + clientId + "]")
+        logger.trace("Registering new meteor for client [" + clientId + "]")
         val cc = new ClientConnection(clientId, Some(meteor))
         clients.add(cc)
       }
       case Some(cc) => {
-        logger.debug("Updating existing meteor for client [" + clientId + "]")
+        logger.trace("Updating existing meteor for client [" + clientId + "]")
         cc.setNewMeteor(lastMessageId, meteor)
       }
     }
   }
 
-  def publish(targets: Seq[ClientConnection], topicName: String, filters: java.util.Map[String, AnyRef], data: String) {
-    import scala.collection.JavaConverters._
+  def publish(targets: Seq[ClientConnection],
+              clientFilter: ClientConnection => Boolean,
+              topicName: String,
+              filters: java.util.Map[String, _],
+              data: String) {
 
     val requiredFilters = filters.asScala
     val matchingClients = targets filter { c =>
-      requiredFilters forall { case (filterName, filterValue) =>
-        c.hasFilterValue(topicName, filterName, filterValue.toString)
-      }
+      // RR: I used this ugly code style to use the short-circuit test
+      (c.hasSubscribedTopic(topicName)) && (
+        clientFilter(c)) && (
+        requiredFilters forall { case (filterName, filterValue) =>
+          c.hasFilterValue(topicName, filterName, filterValue.toString)
+        })
     }
 
     if (matchingClients.isEmpty) {
-      logger.debug("No clients found for topic [%s], filter map [%s]".format(topicName, requiredFilters))
+      logger.debug("No clients found for topic [%s] and filter [%s].".format(topicName, requiredFilters))
+      if (logger.isTraceEnabled) {
+        val all = clients.allClients
+        for (c <- all) {
+          logger.trace("\n" + c.getDebugStateString())
+        }
+      }
     } else {
-      logger.debug("Found [%s] clients for filter map [%s].".format(matchingClients.size, requiredFilters))
+      logger.debug("Found [%s] clients for topic [{}] with filter map [%s].".format(
+        matchingClients.size, topicName, requiredFilters))
       val dataSerialized = new Gson().toJson(data)
       matchingClients foreach { _.enqueue(topicName, dataSerialized) }
     }
@@ -133,40 +146,52 @@ class CometRegistry @Inject()(injector: Injector,
 
   def updateClientFilter(topicId: String, clientId: String, filterName: String, filterValue: String) {
     checkIfTopicIsConfigured(topicId)
-
-    logger.info("Updating topic filter for client [%s], topic [%s], filter name [%s], filter value [%s].".format(clientId, topicId, filterName, filterValue))
-    clients.getByClientId(clientId).get.updateTopicFilter(topicId, filterName, filterValue)
+    clients.getOrCreateByClientId(clientId).updateTopicFilter(topicId, filterName, filterValue)
   }
-
-  // --- methods for interface TopicsService ---
 
   def send(topicId: String, data: AnyRef) {
-    send(topicId, data, Maps.newHashMap())
+    send(topicId, data, Maps.newHashMap[String, AnyRef]())
   }
 
-  def send(topicId: String, data: AnyRef, filters: Map[String, AnyRef]) {
-    publish(clients.allClients.toSeq, topicId, filters, gson.toJson(data))
+  def send(topicId: String, data: AnyRef, filters: Map[String, _]) {
+    publish(clients.allClients.toSeq, _ => true, topicId, filters, gson.toJson(data))
   }
 
-  override def toOthers = new TopicsService {
-    def toCurrent = throw new IllegalArgumentException("invalid")
-    def toOthers = throw new IllegalArgumentException("invalid")
+  override def toOthers = new TopicsSend {
     def send(topicId: String, data: AnyRef) {
-      send(topicId, data, Maps.newHashMap())
+      send(topicId, data, Maps.newHashMap[String, AnyRef]())
     }
-    def send(topicId: String, data: AnyRef, filters: Map[String, AnyRef]) {
-      // TODO
+    def send(topicId: String, data: AnyRef, filters: Map[String, _]) {
+      val filter = (clientConnection: ClientConnection) => {
+        clientConnection.meteor match {
+          case None => false
+          case Some(cc) => {
+            val ccSessionId = cc.getAtmosphereResource.getRequest.getSession.getId
+            val currentSessionId = httpServletRequestProvider.get().getSession.getId
+            !ccSessionId.equals(currentSessionId)
+          }
+        }
+      }
+      publish(clients.allClients.toSeq, filter, topicId, filters, gson.toJson(data))
     }
   }
 
-  override def toCurrent = new TopicsService {
-    def toCurrent = throw new IllegalArgumentException("invalid")
-    def toOthers = throw new IllegalArgumentException("invalid")
+  override def toCurrent = new TopicsSend {
     def send(topicId: String, data: AnyRef) {
-      send(topicId, data, Maps.newHashMap())
+      send(topicId, data, Maps.newHashMap[String, AnyRef]())
     }
-    def send(topicId: String, data: AnyRef, filters: Map[String, AnyRef]) {
-      // TODO
+    def send(topicId: String, data: AnyRef, filters: Map[String, _]) {
+      val filter = (clientConnection: ClientConnection) => {
+        clientConnection.meteor match {
+          case None => false
+          case Some(cc) => {
+            val ccSessionId = cc.getAtmosphereResource.getRequest.getSession.getId
+            val currentSessionId = httpServletRequestProvider.get().getSession.getId
+            ccSessionId.equals(currentSessionId)
+          }
+        }
+      }
+      publish(clients.allClients.toSeq, filter, topicId, filters, gson.toJson(data))
     }
   }
 

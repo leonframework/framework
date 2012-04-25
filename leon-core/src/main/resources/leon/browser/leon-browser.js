@@ -52,6 +52,10 @@ var _leon = (function() {
             return getLeon().comet.subscribeTopic(topicId, handler);
         },
 
+        filterTopic: function(topicId, key, value) {
+            return getLeon().comet.updateFilter(topicId, key, value);
+        },
+
         hasCockpit: function() {
             return !(typeof getLeon().cockpit === 'undefined');
         },

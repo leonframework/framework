@@ -110,7 +110,7 @@ getLeon().comet = (function() {
             return http && http.readyState != 4 && http.readyState != 0;
         },
 
-        connect: function(id) {
+        connect: function() {
             if (getLeon().comet.isCometActive()) {
                 return;
             }
@@ -136,16 +136,8 @@ getLeon().comet = (function() {
         },
 
         subscribeTopic: function(topicId, handler) {
-            getLeon().comet.connect();
             getLeon().comet.addHandler(topicId, handler);
-
-            (function waitForActiveConnection() {
-                if (http && http.readyState == 3) {
-                    getLeon().comet.updateFilter(topicId);
-                } else {
-                    setTimeout(function() { waitForActiveConnection() }, 500);
-                }
-            })();
+            getLeon().comet.updateFilter(topicId);
         },
 
         addHandler: function(topicId, handlerFn) {
@@ -165,12 +157,16 @@ getLeon().comet = (function() {
 	                topicId: topicId,
 	                key: key,
 	                value: value
+	            }, function() {
+	                getLeon().comet.connect();
 	            });
             } else {
                 // add subscription
 	            jQuery.get(url, {
 	                clientId: getLeon().comet.clientId,
 	                topicId: topicId
+	            }, function() {
+	                getLeon().comet.connect();
 	            });
             }
         }

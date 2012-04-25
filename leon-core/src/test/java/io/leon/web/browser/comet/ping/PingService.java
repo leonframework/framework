@@ -1,6 +1,6 @@
 package io.leon.web.browser.comet.ping;
 
-import com.google.common.collect.Maps;
+import com.beust.jcommander.internal.Maps;
 import com.google.inject.Inject;
 import io.leon.web.TopicsService;
 
@@ -15,26 +15,23 @@ public class PingService {
         this.topicsService = topicsService;
     }
 
-    public void ping(final int start) {
-        new Thread() {
-            @Override
-            public void run() {
-                int i = start;
-                while (i++ < start + (10)) {
-                    Map<String, Object> map = Maps.newHashMap();
-                    map.put("number", i);
-                    topicsService.send("ping", map);
-                    try {
-                        Thread.sleep(1);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                Map<String, Object> map = Maps.newHashMap();
-                map.put("done", true);
-                topicsService.send("ping", map);
-            }
-        }.start();
+    public void ping() {
+        topicsService.send("ping", "pong");
+    }
+
+    public void numberPing(int number) {
+        topicsService.send("numberPing", String.valueOf(number));
+    }
+
+    public void filterPing(String key, String value) {
+        Map<String, String> filter = Maps.newHashMap();
+        filter.put(key, value);
+
+        Map<String, String> pong = Maps.newHashMap();
+        pong.put("key", key);
+        pong.put("value", value);
+
+        topicsService.send("filterPing", pong, filter);
     }
 
 }

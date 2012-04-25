@@ -28,7 +28,7 @@ public class ReverserBrowserTest {
         leon.setOffForElementWithName("toUpperCase");
 
         leon.findElementById("reverse").click();
-        leon.waitForExpectedValue("text_reversed", "cba", 5);
+        leon.waitForHtmlValue("text_reversed", "cba", 5);
     }
 
     public void testReverseTextUppercase() throws InterruptedException {
@@ -37,7 +37,7 @@ public class ReverserBrowserTest {
         leon.setOnForElementWithName("toUpperCase");
 
         leon.findElementById("reverse").click();
-        leon.waitForExpectedValue("text_reversed", "CBA", 5);
+        leon.waitForHtmlValue("text_reversed", "CBA", 5);
     }
 
 }

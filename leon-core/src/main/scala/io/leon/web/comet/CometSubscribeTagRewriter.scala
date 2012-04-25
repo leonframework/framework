@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory
 import javax.servlet.http.HttpServletRequest
 import net.htmlparser.jericho.{OutputDocument, Source}
 
-
+// TODO: Delete this class
 class CometSubscribeTagRewriter @Inject()(injector: Injector,
                                           clients: Clients,
                                           cometRegistry: CometRegistry) extends LeonTagRewriter {
