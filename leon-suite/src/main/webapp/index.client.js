@@ -1,10 +1,10 @@
 
-this.IndexController = getLeon().angular.utils.createController(function() {
-	this.getMessage = function() {
-		var scope = this;
-		this.leon.service("/demoService", "getExampleMessage").call(function(data) {
-			scope.model.message = data;
+this.IndexController = function($scope, leon) {
+	$scope.getMessage = function() {
+		leon.service("/demoService", "getExampleMessage").call(function(data) {
+			$scope.message = data;
 		})
 	};
-	this.getMessage();
-})
+	
+	$scope.getMessage();
+}

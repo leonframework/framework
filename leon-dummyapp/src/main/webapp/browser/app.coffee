@@ -1,11 +1,13 @@
 
-@DummyAppCtrl = getLeon().angular.utils.createController ->
-	@leon.subscribeTopic "reversed", (d) =>
+@DummyAppCtrl = ($scope, leon) ->
+	leon.subscribeTopic "reversed", (d) =>
 		$("#reversedStrings").prepend(d.original + " > " + d.reversed + "<br/>")
-		@cometLastReversed = d.reversed
+		$scope.cometLastReversed = d.reversed
 
-	@text = "Hello World!"
-	@reversed = ""
+	$scope.text = "Hello World!"
+	$scope.reversed = ""
 
-	@reverse = ->
-		@leon.service("/reverserService", "reverse").call @text, (@reversed) =>
+	$scope.reverse = ->
+		leon.service("/reverserService", "reverse").call $scope.text, (@reversed) =>
+
+
