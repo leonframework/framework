@@ -38,7 +38,7 @@ class ClientConnection(val clientId: String,
   var connectTime = System.currentTimeMillis()
 
   def setNewMeteor(lastMessageReceived: Int, newMeteor: Meteor): Unit = lock.synchronized {
-    logger.info("ClientConnection received a new meteor instance. Last message received: " + lastMessageReceived)
+    logger.debug("ClientConnection received a new meteor instance. Last message received: " + lastMessageReceived)
     resumeAndRemoveUplink()
     meteor = Some(newMeteor)
     connectTime = System.currentTimeMillis()
@@ -94,7 +94,7 @@ class ClientConnection(val clientId: String,
     while (queue.size() > messageSendIndex.get()) {
       val success = sendPackage(queue.get(messageSendIndex.getAndIncrement))
       if (!success) {
-        logger.info("Error while flushing queue. Aborting and waiting for a new client connection.")
+        logger.debug("Error while flushing queue. Aborting and waiting for a new client connection.")
         meteor = None
         return
       }
@@ -114,7 +114,7 @@ class ClientConnection(val clientId: String,
       } getOrElse false
     } catch {
       case e: Throwable => {
-        logger.info("Could not send comet message: ID [%s], Error message [%s]".format(msg._1, e.getMessage))
+        logger.debug("Could not send comet message: ID [%s], Error message [%s]".format(msg._1, e.getMessage))
         false
       }
     }
