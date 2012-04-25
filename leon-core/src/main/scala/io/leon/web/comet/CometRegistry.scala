@@ -29,13 +29,14 @@ class CometRegistry @Inject()(injector: Injector,
 
   private val logger = LoggerFactory.getLogger(getClass.getName)
 
+  // the time seconds, how often the server will check for client timeouts
   private val checkClientsInterval = 10 * 1000
 
   // the time in seconds, when the server will close the connection to force a reconnect
   private val reconnectTimeout = 30 * 1000
 
   // after this time, the server will treat the client as disconnected and remove all information
-  private val disconnectTimeout = reconnectTimeout + (60 * 1000)
+  private val disconnectTimeout = reconnectTimeout + (30 * 1000)
 
   private val filter: List[BroadcastFilter] = List(new XSSHtmlFilter)
 
@@ -66,17 +67,20 @@ class CometRegistry @Inject()(injector: Injector,
         while (!shouldStop) {
           Thread.sleep(checkClientsInterval)
           val now = System.currentTimeMillis
-          clients.allClients foreach { client =>
-            if (client.meteor.isDefined) {
-              if ((now - client.connectTime) > reconnectTimeout) {
+
+          // Create a copy of the list and check all clients
+          clients.allClients.toList foreach { client =>
+            logger.trace("Checking client [{}] for connection timeouts.", client.clientId)
+            if ((now - client.connectTime) > reconnectTimeout) {
+              if (client.meteor.isDefined) {
                 logger.debug("Client connection for [" + client.clientId + "] too old. Forcing reconnect.")
                 client.resumeAndRemoveUplink()
               }
-              if ((now - client.connectTime) > disconnectTimeout) {
-                logger.debug("Client connection for [" + client.clientId + "] too old. Removing client information.")
-                client.resumeAndRemoveUplink()
-                clients.remove(client)
-              }
+            }
+            if ((now - client.connectTime) > disconnectTimeout) {
+              logger.debug("Client connection for [" + client.clientId + "] too old. Removing client information.")
+              client.resumeAndRemoveUplink()
+              clients.remove(client)
             }
           }
         }

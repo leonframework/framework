@@ -129,10 +129,11 @@ getLeon().comet = (function() {
               }, 2000);
             })();
 
-            // close and open the connection every 30 seconds
+            // Just to be sure, close and open the connection every 45 seconds.
+            // The server will disconnet after 30 seconds.
             disconnectTimer = setTimeout(function() {
                 http.abort();
-            }, 30 * 1000);
+            }, 45 * 1000);
         },
 
         subscribeTopic: function(topicId, handler) {
