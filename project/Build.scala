@@ -181,7 +181,6 @@ object LeonBuild extends Build {
     guava,
     guiceServlet,
     snakeYaml,
-    mongo,
     jerichoHtml,
     gson,
     h2database)
@@ -194,6 +193,7 @@ object LeonBuild extends Build {
     settings = buildSettings) aggregate(
       leon_core,
       leon_suite,
+      leon_mongo,
       leon_dummyapp
       //leon_samples_demos_addressbook_coffee_coffee
       //samplesAjaxReverserJavaJs,
@@ -210,6 +210,13 @@ object LeonBuild extends Build {
     file("leon-core"),
     settings = buildSettings ++ publishSettings ++
       Seq(libraryDependencies ++= coreDeps))
+
+  lazy val leon_mongo = Project(
+     "leon-mongo",
+     file("leon-mongo"),
+     settings = buildSettings ++ publishSettings ++
+       Seq(libraryDependencies ++= (mongo +: coreDeps))
+  ) dependsOn(leon_core)
 
   lazy val leon_dummyapp = Project(
     "leon-dummyapp",
