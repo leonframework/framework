@@ -11,9 +11,9 @@ package io.leon.web.browser
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import com.google.inject.{Injector, Inject}
 import io.leon.resourceloading.{ResourceUtils, ResourceLoader}
-import java.io.{Writer, BufferedWriter}
 import org.slf4j.LoggerFactory
 import io.leon.guice.GuiceUtils
+import java.io.{EOFException, IOException, Writer, BufferedWriter}
 
 class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) extends HttpServlet {
 
@@ -70,10 +70,10 @@ class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) ex
         val content = binding.getProvider.get().content(requestMap)
         out.write(content + "\n")
       } catch {
-        case e: Exception => {
-          logger.error("VirtualLeonJsFileContribution threw error: " + e)
-          e.printStackTrace()
+        case e: RuntimeException if e.getCause.isInstanceOf[EOFException] => {
+          logger.debug("VirtualLeonJsFileContribution threw error.", e)
         }
+        case e: Throwable => logger.warn("VirtualLeonJsFileContribution threw error.", e)
       }
     }
     out.close()
