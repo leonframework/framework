@@ -40,7 +40,7 @@ class ExposedUrlCheckFilter @Inject()(injector: Injector) extends Filter {
       logger.debug("GET {}", requestUrl)
       chain.doFilter(_req, _res)
     } else {
-      logger.info("Private resource: GET {}", requestUrl)
+      logger.warn("Private resource: GET {}", requestUrl)
       res.setStatus(403)
     }
   }

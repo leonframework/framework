@@ -16,7 +16,7 @@ public class ChatService {
         msg.put("user", user);
         msg.put("message", message);
         msg.put("time", (int) (System.currentTimeMillis() / 1000.0));
-        topicsService.toOthers().send("chat", msg);
+        topicsService.send("chat", msg);
     }
 
 }
