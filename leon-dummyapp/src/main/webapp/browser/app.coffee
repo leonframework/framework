@@ -8,6 +8,7 @@
 	$scope.reversed = ""
 
 	$scope.reverse = ->
-		leon.service("/reverserService", "reverse").call $scope.text, (@reversed) =>
+		leon.service("/reverserService", "reverse").call $scope.text, (reversed) =>
+      $scope.reversed = reversed
 
 
