@@ -19,6 +19,8 @@ class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) ex
 
   private val logger = LoggerFactory.getLogger(getClass)
 
+  private val contributions = GuiceUtils.getByType(injector, classOf[VirtualLeonJsFileContribution])
+
   private def writeResource(out: Writer, name: String) {
     loader.getResourceOption(name) foreach { r =>
       out.write(ResourceUtils.inputStreamToString(r.getInputStream()))
@@ -64,7 +66,6 @@ class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) ex
     }).asJava
 
     // dynamic content
-    val contributions = GuiceUtils.getByType(injector, classOf[VirtualLeonJsFileContribution])
     contributions.asScala foreach { binding =>
       try {
         val content = binding.getProvider.get().content(requestMap)
