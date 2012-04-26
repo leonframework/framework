@@ -16,7 +16,7 @@ import java.util.ArrayList
 import scala.collection.JavaConverters._
 
 class ClientConnection(val clientId: String,
-                       var meteor: Option[Meteor]) {
+                       var meteor: Option[Meteor]) extends ClientSubscriptionInformation {
 
   private val logger = LoggerFactory.getLogger(getClass.getName)
 
@@ -134,12 +134,19 @@ class ClientConnection(val clientId: String,
     }
 
     if (logger.isTraceEnabled) {
-      logger.trace("\n" + getDebugStateString())
+      logger.trace("\n" + getDebugStateString)
     }
   }
 
-  def getAllSubscribedTopics(): Set[String] = {
-    topicSubscriptions.keySet().asScala.toSet
+
+  def getClientId = {
+    clientId
+  }
+
+  def hasConnection = meteor.isDefined
+
+  def getAllSubscribedTopics: java.util.Set[String] = {
+    topicSubscriptions.keySet()
   }
 
   def hasSubscribedTopic(topicName: String): Boolean = {
@@ -151,7 +158,7 @@ class ClientConnection(val clientId: String,
     topicActiveFilters.get(key) == requiredFilterValue
   }
 
-  def getDebugStateString(): String = {
+  def getDebugStateString: String = {
     val sb = new StringBuilder
     sb.append("Client: " + clientId + ", subscriptions:" + "\n")
     sb.append("  Topics:" + "\n")

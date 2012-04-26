@@ -9,32 +9,16 @@
 	        });
 
 	        $("#sendPing").click(function() {
-				var count = 0;
-			    (function send50Pings() {
-	                if (getLeon().comet.isCometActive()) {
-			            getLeon().service("/pingService", "ping").call();
-			            count = count + 1;
-	                }
-			        if (count < 50) {
-		                setTimeout(function() { send50Pings() }, 100);
-			        }
-			    })();
+                getLeon().service("/pingService", "ping").call();
 	        });
 
 	        $("#status").text("init");
 	    });
     </script>
 </head>
-
 <body>
 <div>
-    <h1>Comet Ping example</h1>
-    <hr />
-
     <a id="sendPing" href="#">Send ping to server</a>
-    <br/>
-
-    <h2>Status</h2>
     <div id="status"></div>
 </div>
 </body>

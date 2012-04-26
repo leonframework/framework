@@ -8,41 +8,22 @@
                 $("#status" + data).text("done");
 	        });
 
-	        var do50 = function(callback) {
-			    var count = 0;
-			    (function _do50() {
-				    if (getLeon().comet.isCometActive()) {
-	                    callback();
-	                    count = count + 1;
-	                }
-	                if (count < 50) {
-	                    setTimeout(function() { _do50() }, 100);
-	                }
-	            })();
-	        }
-
 		    $("#sendPing").click(function() {
-		        do50(function() { getLeon().service("/pingService", "numberPing").call(1) });
-		        do50(function() { getLeon().service("/pingService", "numberPing").call(2) });
-		        do50(function() { getLeon().service("/pingService", "numberPing").call(3) });
-		        do50(function() { getLeon().service("/pingService", "numberPing").call(4) });
-		        do50(function() { getLeon().service("/pingService", "numberPing").call(5) });
+		        getLeon().service("/pingService", "numberPing").call(1);
+		        getLeon().service("/pingService", "numberPing").call(2);
+		        getLeon().service("/pingService", "numberPing").call(3);
+		        getLeon().service("/pingService", "numberPing").call(4);
+		        getLeon().service("/pingService", "numberPing").call(5);
             });
 
 	        $("#init").text("done");
 	    });
     </script>
 </head>
-
 <body>
 <div>
-    <h1>Comet Ping example</h1>
-    <hr />
-
     <a id="sendPing" href="#">Send ping to server</a>
-    <br/>
 
-    <h2>Status</h2>
     <div id="init"></div>
 
     <div id="status1"></div>

@@ -12,7 +12,7 @@ public class BasicCockpitTest {
 
     @BeforeClass
     public void beforeClass() throws Exception {
-        leon = new LeonBrowserTester(BasicCockpitTestModule.class);
+        leon = new LeonBrowserTester(new BasicCockpitTestModule());
         leon.start();
     }
 

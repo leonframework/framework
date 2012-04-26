@@ -19,7 +19,7 @@ import io.leon.resourceloading.watcher.ResourceWatcher
 import io.leon.{DefaultWebAppGroupingModule, LeonAppMainModule}
 import com.google.inject._
 
-class LeonFilter extends GuiceFilter {
+class LeonFilter(applicationModule: Module) extends GuiceFilter {
 
   //private val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -27,16 +27,21 @@ class LeonFilter extends GuiceFilter {
 
   private var injector: Injector = _
 
-  override def init(filterConfig: FilterConfig) {
-    StaticServletContextHolder.SERVLET_CONTEXT = filterConfig.getServletContext
+  def this() = this(null)
 
-    val defaultWebModule = new DefaultWebAppGroupingModule
-    defaultWebModule.init()
-    setupConfigMap(filterConfig)
+  private def setupConfigMap(filterConfig: FilterConfig) {
+    val configMap = ConfigMapHolder.getInstance().getConfigMap
+    val servletConfig = new ConfigReader().readFilterConfig(filterConfig)
 
-    val moduleName = filterConfig.getInitParameter("module")
-    val module =
-      if(moduleName.endsWith(".js")) {
+    configMap.putAll(servletConfig)
+  }
+
+  private def getModule(filterConfig: FilterConfig): Module = {
+    if (applicationModule != null) {
+      applicationModule
+    } else {
+      val moduleName = filterConfig.getInitParameter("module")
+      if (moduleName.endsWith(".js")) {
         val _moduleName = if (moduleName.startsWith("/")) moduleName else "/" + moduleName
         val viaContext = filterConfig.getServletContext.getResourceAsStream(_moduleName)
         val inputStream = if (viaContext != null) {
@@ -48,6 +53,21 @@ class LeonFilter extends GuiceFilter {
       } else {
         classLoader.loadClass(moduleName).asInstanceOf[Class[Module]].newInstance()
       }
+    }
+  }
+
+  def getInjector: Injector = {
+    injector
+  }
+
+  override def init(filterConfig: FilterConfig) {
+    StaticServletContextHolder.SERVLET_CONTEXT = filterConfig.getServletContext
+
+    val defaultWebModule = new DefaultWebAppGroupingModule
+    defaultWebModule.init()
+    setupConfigMap(filterConfig)
+
+    val module = getModule(filterConfig)
 
     // create a new module to ensure the binding ordering
     val app = new AbstractModule {
@@ -82,7 +102,7 @@ class LeonFilter extends GuiceFilter {
 
       def getMethods(clazz: Class[_]): Set[Method] = {
         val superclass = clazz.getSuperclass
-        if(superclass == null) clazz.getDeclaredMethods.toSet
+        if (superclass == null) clazz.getDeclaredMethods.toSet
         else if (superclass == classOf[Object]) clazz.getDeclaredMethods.toSet
         else clazz.getDeclaredMethods.toSet ++ getMethods(clazz.getSuperclass)
       }
@@ -94,8 +114,9 @@ class LeonFilter extends GuiceFilter {
       } yield name
     }
 
-    val forwardMethods = methodNames map { name =>
-      "var %s = function() { return self.%s.apply(self, arguments); }".format(name, name)
+    val forwardMethods = methodNames map {
+      name =>
+        "var %s = function() { return self.%s.apply(self, arguments); }".format(name, name)
     } mkString "\n"
 
     val jsConfig =
@@ -120,13 +141,6 @@ class LeonFilter extends GuiceFilter {
     Context.exit()
 
     javaObject.asInstanceOf[LeonAppMainModule]
-  }
-
-  def setupConfigMap(filterConfig: FilterConfig) {
-    val configMap = ConfigMapHolder.getInstance().getConfigMap
-    val servletConfig = new ConfigReader().readFilterConfig(filterConfig)
-
-    configMap.putAll(servletConfig)
   }
 
 }

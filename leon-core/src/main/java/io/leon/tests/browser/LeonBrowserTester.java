@@ -1,6 +1,6 @@
 package io.leon.tests.browser;
 
-import io.leon.LeonModule;
+import com.google.inject.Module;
 import io.leon.web.LeonFilter;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.*;
@@ -11,7 +11,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 
 public class LeonBrowserTester {
 
-    private final Class<? extends LeonModule> config;
+    private final Module module;
 
     private Server server;
 
@@ -19,8 +19,10 @@ public class LeonBrowserTester {
 
     private int httpPort = 8090;
 
-    public LeonBrowserTester(Class<? extends LeonModule> config) {
-        this.config = config;
+    private LeonFilter leonFilter;
+
+    public LeonBrowserTester(Module module) {
+        this.module = module;
     }
 
     public int getHttpPort() {
@@ -29,6 +31,10 @@ public class LeonBrowserTester {
 
     public void setHttpPort(int httpPort) {
         this.httpPort = httpPort;
+    }
+
+    public LeonFilter getLeonFilter() {
+        return leonFilter;
     }
 
     public void start() {
@@ -46,8 +52,8 @@ public class LeonBrowserTester {
                 context.setContextPath("/");
                 server.setHandler(context);
 
-                FilterHolder filterHolder = new FilterHolder(new LeonFilter());
-                filterHolder.setInitParameter("module", config.getName());
+                leonFilter = new LeonFilter(module);
+                FilterHolder filterHolder = new FilterHolder(leonFilter);
                 context.addFilter(filterHolder, "/*", FilterMapping.ALL);
 
                 ServletHolder servletHolder = new ServletHolder(new DefaultServlet());
@@ -137,6 +143,10 @@ public class LeonBrowserTester {
         setOffForElement(findElementByName(name));
     }
 
+    public void waitForHtmlValue(String id, String expectedValue) {
+        waitForHtmlValue(id, expectedValue, 5);
+    }
+
     public void waitForHtmlValue(String id, String expectedValue, int timeOutSeconds) {
         long startTime = System.currentTimeMillis();
         while (!findElementById(id).getText().equals(expectedValue)) {
@@ -153,6 +163,10 @@ public class LeonBrowserTester {
                         + "]");
             }
         }
+    }
+
+    public TopicSubscriptionsTester getTopicSubscriptionsTester() {
+        return new TopicSubscriptionsTester(this);
     }
 
 }

@@ -12,7 +12,7 @@ public class AjaxTest {
 
     @BeforeClass
     public void beforeClass() throws Exception {
-        leon = new LeonBrowserTester(AjaxTestModule.class);
+        leon = new LeonBrowserTester(new AjaxTestModule());
         leon.start();
     }
 
@@ -24,13 +24,13 @@ public class AjaxTest {
     public void testJava() throws InterruptedException {
         leon.openPage(getClass(), "java.html");
         leon.findElementById("method1").click();
-        leon.waitForHtmlValue("result", "java", 5);
+        leon.waitForHtmlValue("result", "java");
     }
 
     public void testJavaScript() throws InterruptedException {
         leon.openPage(getClass(), "javascript.html");
         leon.findElementById("method1").click();
-        leon.waitForHtmlValue("result", "javascript", 5);
+        leon.waitForHtmlValue("result", "javascript");
     }
 
 }

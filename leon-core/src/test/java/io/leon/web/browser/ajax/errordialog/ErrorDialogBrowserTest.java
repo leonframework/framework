@@ -12,7 +12,7 @@ public class ErrorDialogBrowserTest {
 
     @BeforeClass
     public void beforeClass() throws Exception {
-        leon = new LeonBrowserTester(ErrorDialogModule.class);
+        leon = new LeonBrowserTester(new ErrorDialogModule());
         leon.start();
     }
 
@@ -24,7 +24,7 @@ public class ErrorDialogBrowserTest {
     public void testWithoutError() throws InterruptedException {
         leon.openPage(getClass(), "index.html");
         leon.findElementById("withoutError").click();
-        leon.waitForHtmlValue("result", "throwError==false", 5);
+        leon.waitForHtmlValue("result", "throwError==false");
     }
 
     public void testWithError() throws InterruptedException {

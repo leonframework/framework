@@ -25,7 +25,8 @@ class CometRegistry @Inject()(injector: Injector,
                               clients: Clients,
                               gson: Gson,
                               configMap: ConfigMap,
-                              httpServletRequestProvider: Provider[HttpServletRequest]) extends TopicsService {
+                              httpServletRequestProvider: Provider[HttpServletRequest])
+  extends TopicsService with ClientSubscriptions {
 
   private val logger = LoggerFactory.getLogger(getClass.getName)
 
@@ -97,7 +98,10 @@ class CometRegistry @Inject()(injector: Injector,
     logger.debug("Registering meteor for client [" + clientId + "]")
 
     val meteor = createMeteor(req)
+
+    // TODO: this line sometimes threw errors in tests. add try/catch
     meteor.suspend(-1, true)
+
     val res = meteor.getAtmosphereResource.getResponse
     val writer = res.getWriter
     writer.write("\n")
@@ -105,7 +109,7 @@ class CometRegistry @Inject()(injector: Injector,
 
     clients.getByClientIdOption(clientId) match {
       case None => {
-        logger.trace("Registering new meteor for client [" + clientId + "]")
+        logger.trace("Registering   new meteor for client [" + clientId + "]")
         val cc = new ClientConnection(clientId, Some(meteor))
         clients.add(cc)
       }
@@ -137,7 +141,7 @@ class CometRegistry @Inject()(injector: Injector,
       if (logger.isTraceEnabled) {
         val all = clients.allClients
         for (c <- all) {
-          logger.trace("\n" + c.getDebugStateString())
+          logger.trace("\n" + c.getDebugStateString)
         }
       }
     } else {
@@ -199,4 +203,7 @@ class CometRegistry @Inject()(injector: Injector,
     }
   }
 
+  def getAllClientSubscriptions: java.util.List[_ <: ClientSubscriptionInformation] = {
+    clients.allClients.toList.asJava
+  }
 }

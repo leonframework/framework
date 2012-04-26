@@ -22,6 +22,7 @@ class CometModule extends AbstractModule {
 
     bind(classOf[CometRegistry]).asEagerSingleton()
     bind(classOf[TopicsService]).to(Key.get(classOf[CometRegistry]))
+    bind(classOf[ClientSubscriptions]).to(Key.get(classOf[CometRegistry]))
 
     bind(classOf[Clients]).asEagerSingleton()
     bind(classOf[CometConnectionServlet]).asEagerSingleton()

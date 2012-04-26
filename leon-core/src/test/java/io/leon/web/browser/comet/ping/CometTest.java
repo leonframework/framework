@@ -13,7 +13,7 @@ public class CometTest {
 
     @BeforeClass
     public void beforeClass() throws Exception {
-        leon = new LeonBrowserTester(CometTestModule.class);
+        leon = new LeonBrowserTester(new CometTestModule());
         leon.start();
     }
 
@@ -24,26 +24,34 @@ public class CometTest {
 
     public void testOneTopic() throws InterruptedException {
         leon.openPage(getClass(), "/ping.html");
-        leon.waitForHtmlValue("status", "init", 3);
+        leon.waitForHtmlValue("status", "init");
+        leon.getTopicSubscriptionsTester().waitForSubscription("ping");
+
         leon.findElementById("sendPing").click();
-        leon.waitForHtmlValue("status", "pong", 3);
+        leon.waitForHtmlValue("status", "pong");
     }
 
     public void testMultipleTopics() throws InterruptedException {
         leon.openPage(getClass(), "/multiPing.html");
-        leon.waitForHtmlValue("init", "done", 3);
+        leon.waitForHtmlValue("init", "done");
+        leon.getTopicSubscriptionsTester().waitForSubscription("numberPing");
 
         leon.findElementById("sendPing").click();
-        leon.waitForHtmlValue("status1", "done", 3);
-        leon.waitForHtmlValue("status2", "done", 3);
-        leon.waitForHtmlValue("status3", "done", 3);
-        leon.waitForHtmlValue("status4", "done", 3);
-        leon.waitForHtmlValue("status5", "done", 3);
+        leon.waitForHtmlValue("status1", "done");
+        leon.waitForHtmlValue("status2", "done");
+        leon.waitForHtmlValue("status3", "done");
+        leon.waitForHtmlValue("status4", "done");
+        leon.waitForHtmlValue("status5", "done");
     }
 
     public void testTopicWithFilters() throws InterruptedException {
         leon.openPage(getClass(), "/filterPing.html");
-        leon.waitForHtmlValue("status", "init", 3);
+        leon.waitForHtmlValue("status", "init");
+        leon.getTopicSubscriptionsTester().waitForSubscription("filterPing", "key1", "value1");
+        leon.getTopicSubscriptionsTester().waitForSubscription("filterPing", "key2", "value2");
+        leon.getTopicSubscriptionsTester().waitForSubscription("filterPing", "key3", "value3");
+        leon.getTopicSubscriptionsTester().waitForSubscription("filterPing", "key4", "value4");
+        leon.getTopicSubscriptionsTester().waitForSubscription("filterPing", "key5", "value5");
 
         leon.findElementById("start").click();
 
@@ -51,7 +59,7 @@ public class CometTest {
         Thread t1 = new Thread(new Runnable() {
             @Override
             public void run() {
-                leon.waitForHtmlValue("status_key1", "value1", 3);
+                leon.waitForHtmlValue("status_key1", "value1");
                 t1ok[0] = true;
             }
         });
@@ -61,7 +69,7 @@ public class CometTest {
         Thread t2 = new Thread(new Runnable() {
             @Override
             public void run() {
-                leon.waitForHtmlValue("status_key2", "value2", 3);
+                leon.waitForHtmlValue("status_key2", "value2");
                 t2ok[0] = true;
             }
         });
@@ -71,7 +79,7 @@ public class CometTest {
         Thread t4 = new Thread(new Runnable() {
             @Override
             public void run() {
-                leon.waitForHtmlValue("status_key4", "value4", 3);
+                leon.waitForHtmlValue("status_key4", "value4");
                 t4ok[0] = true;
             }
         });
