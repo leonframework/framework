@@ -44,30 +44,30 @@ leonCoreModule.service("leonUnmodified", leonUnmodified)
 # to carry the specific scope with us.
 #----------
 leonModified = (leonUnmodified, $rootScope) ->
-	@service = (url, methodName) ->
-		call: (args...) ->
-			params = []
-			callback = args[args.length - 1];
-			
-			if angular.isFunction(callback)
-				params = args.slice(0, args.length - 1)
+  @service = (url, methodName) ->
+    call: (args...) ->
+      params = []
+      callback = args[args.length - 1]
 
-				scopedCallback = (result) ->
-					$rootScope.$apply ->
-						callback(result)
+      if angular.isFunction(callback)
+        params = args.slice(0, args.length - 1)
 
-				params.push(scopedCallback)
-			else
-				params = args.slice(0, args.length)
+        scopedCallback = (result) ->
+          $rootScope.$apply ->
+            callback(result)
 
-			leonUnmodified.service(url, methodName).call.apply(this, params)
+        params.push(scopedCallback)
+      else
+        params = args.slice(0, args.length)
 
-	@subscribeTopic = (topicId, handler) ->
-		scopedHandler = (data) ->
-			$rootScope.$apply ->
-				handler(data)
+      leonUnmodified.service(url, methodName).call.apply(this, params)
 
-		leonUnmodified.subscribeTopic(topicId, scopedHandler)
+  @subscribeTopic = (topicId, handler) ->
+    scopedHandler = (data) ->
+      $rootScope.$apply ->
+        handler(data)
+
+    leonUnmodified.subscribeTopic(topicId, scopedHandler)
 
 leonModified.prototype = getLeon()
 
@@ -78,54 +78,51 @@ leonCoreModule.service("leon", leonModified)
 # leonAngularUtils is registered as constant (see comment below), so it has to be an object not a constructor function!
 # All functions has to be pure! No DI, no state, only little helpers!
 leonAngularUtils =
-	###
-	Helper function that can be used to add leading and clothing slashes to a path, for example.
+  ###
+  Helper function that can be used to add leading and clothing slashes to a path, for example.
 
-	Adds the prefix to the path, if the path doesn't start with the prefix.
-	Adds the suffix to the path, if the path doesn't end with the suffix.
+  Adds the prefix to the path, if the path doesn't start with the prefix.
+  Adds the suffix to the path, if the path doesn't end with the suffix.
 
-	Special case: if prefix equals suffix and path is empty, only prefix will be returned (no double slashes).
-	###
-	assemblePath: (elements...) ->
-		
-		assembledPath = elements.join "/"
+  Special case: if prefix equals suffix and path is empty, only prefix will be returned (no double slashes).
+  ###
+  assemblePath: (elements...) ->
+    assembledPath = elements.join "/"
 
-		# triple slashes can occur if one element ends with a slash and the next element starts with a slash!
-		assembledPath = assembledPath.replace "///", "/"
-		assembledPath = assembledPath.replace "//", "/"
+    # triple slashes can occur if one element ends with a slash and the next element starts with a slash!
+    assembledPath = assembledPath.replace "///", "/"
+    assembledPath = assembledPath.replace "//", "/"
 
-		assembledPath
+    assembledPath
 
 
-	###
-	Sets a route parameter like :id to the given value, to given default value (if value is null or empty) or removes the 
-	parameter and the rest of the route (if default value is null or empty too).
-	If the parameter is removed and was the last parameter of the route, the route will close with a slash. That's the way
-	angular needs it to match the route.
-	If the removed parameter was not the last parameter of the route, the subsequent part of the route will be removed too.
-	E.g: setRouteParameter "book/:bookId/chapter/:chapterId", "bookId", "", "" returns "book/"
-	###
-	setRouteParameter: (routeString, paramName, paramValue, defaultParamValue) ->
-		indexOfParameter = routeString.indexOf ":" + paramName
+  ###
+  Sets a route parameter like :id to the given value, to given default value (if value is null or empty) or removes the
+  parameter and the rest of the route (if default value is null or empty too).
+  If the parameter is removed and was the last parameter of the route, the route will close with a slash. That's the way
+  angular needs it to match the route.
+  If the removed parameter was not the last parameter of the route, the subsequent part of the route will be removed too.
+  E.g: setRouteParameter "book/:bookId/chapter/:chapterId", "bookId", "", "" returns "book/"
+  ###
+  setRouteParameter: (routeString, paramName, paramValue, defaultParamValue) ->
+    indexOfParameter = routeString.indexOf ":" + paramName
 
-		if indexOfParameter == -1
-			throw "route has no parameter " + paramName + "!"
+    if indexOfParameter == -1
+      throw "route has no parameter " + paramName + "!"
 
-		if paramValue? and paramValue != ""
-			routeWithSetParam = routeString.replace ":" + paramName, paramValue
-		else if defaultParamValue? and defaultParamValue != ""
-			routeWithSetParam = routeString.replace ":" + paramName, defaultParamValue
-		else
-			routeWithSetParam = routeString.substring(0, indexOfParameter)
-			
-		routeWithSetParam
+    if paramValue? and paramValue != ""
+      routeWithSetParam = routeString.replace ":" + paramName, paramValue
+    else if defaultParamValue? and defaultParamValue != ""
+      routeWithSetParam = routeString.replace ":" + paramName, defaultParamValue
+    else
+      routeWithSetParam = routeString.substring(0, indexOfParameter)
 
+    routeWithSetParam
 
 
 # We have to register it as constant to enable DI to config functions. All helper functions are pure so it's not as bad
 # as it looks.
 leonCoreModule.constant "leonAngularUtils", leonAngularUtils
-
 
 
 ###
