@@ -8,7 +8,7 @@ import WebPlugin._
 
 object BuildSettings {
   val buildOrganization = "io.leon"
-  val buildVersion      = "0.5.0-SNAPSHOT"
+  val buildVersion      = "0.5.5"
   val buildScalaVersion = "2.9.1"
   val buildDescription  = "JVM web framework for building data-driven web applications"
 
@@ -94,10 +94,12 @@ object Publish {
   def sonatype: Initialize[Option[Resolver]] = {
     (version) { version: String =>
       val nexus = "https://oss.sonatype.org/"
-        if (version.trim.endsWith("SNAPSHOT"))
-          Some("snapshots" at nexus + "content/repositories/snapshots")
-        else
-          Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+      if (version.trim.endsWith("SNAPSHOT"))
+        Some("snapshots" at nexus + "content/repositories/snapshots")
+      else
+        Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+
+      //Some("snapshots" at nexus + "content/repositories/snapshots")
     }
   }
 }
