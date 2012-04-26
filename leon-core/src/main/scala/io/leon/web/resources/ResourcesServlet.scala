@@ -28,7 +28,7 @@ class ResourcesServlet @Inject()(injector: Injector,
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
     // Make sure that we create a session for this request.
-    // TopicsService.toCurrent()/toOthers() would not work otherwise.
+    // TopicsService.toCurrentSession()/toOtherSessions() would not work otherwise.
     req.getSession(true)
     val url = WebUtils.getRequestedResource(req)
     doResource(req, res, url)

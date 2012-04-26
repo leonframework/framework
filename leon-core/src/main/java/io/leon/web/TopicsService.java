@@ -2,8 +2,8 @@ package io.leon.web;
 
 public interface TopicsService extends TopicsSend {
 
-    public TopicsSend toOthers();
+    public TopicsSend toOtherSessions();
 
-    public TopicsSend toCurrent();
+    public TopicsSend toCurrentSession();
 
 }

@@ -98,8 +98,6 @@ class CometRegistry @Inject()(injector: Injector,
     logger.debug("Registering meteor for client [" + clientId + "]")
 
     val meteor = createMeteor(req)
-
-    // TODO: this line sometimes threw errors in tests. add try/catch
     meteor.suspend(-1, true)
 
     val res = meteor.getAtmosphereResource.getResponse
@@ -165,7 +163,7 @@ class CometRegistry @Inject()(injector: Injector,
     publish(clients.allClients.toSeq, _ => true, topicId, filters, gson.toJson(data))
   }
 
-  override def toOthers = new TopicsSend {
+  override def toOtherSessions = new TopicsSend {
     def send(topicId: String, data: AnyRef) {
       send(topicId, data, Maps.newHashMap[String, AnyRef]())
     }
@@ -184,7 +182,7 @@ class CometRegistry @Inject()(injector: Injector,
     }
   }
 
-  override def toCurrent = new TopicsSend {
+  override def toCurrentSession = new TopicsSend {
     def send(topicId: String, data: AnyRef) {
       send(topicId, data, Maps.newHashMap[String, AnyRef]())
     }
