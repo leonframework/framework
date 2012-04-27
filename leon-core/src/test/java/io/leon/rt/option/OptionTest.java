@@ -1,10 +1,10 @@
-package io.leon.rt;
+package io.leon.rt.option;
 
-import io.leon.rt.option.None;
-import io.leon.rt.option.Option;
-import io.leon.rt.option.Some;
-import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 @Test
 public class OptionTest {
@@ -14,7 +14,7 @@ public class OptionTest {
         for (@SuppressWarnings("UnusedDeclaration") Object o : new None()) {
             called = true;
         }
-        Assert.assertFalse(called, "Option.none() should not iterate.");
+        assertFalse(called, "Option.none() should not iterate.");
     }
 
     public void optionNone() {
@@ -22,7 +22,7 @@ public class OptionTest {
         for (@SuppressWarnings("UnusedDeclaration") Object o : Option.none()) {
             called = true;
         }
-        Assert.assertFalse(called, "Option.none() should not iterate.");
+        assertFalse(called, "Option.none() should not iterate.");
     }
 
     public void some() {
@@ -30,7 +30,7 @@ public class OptionTest {
         for (String o : new Some<String>("abc")) {
             val = o;
         }
-        Assert.assertEquals(val, "abc", "Option.some() should iterate.");
+        assertEquals(val, "abc", "Option.some() should iterate.");
     }
 
     public void optionSome() {
@@ -38,7 +38,15 @@ public class OptionTest {
         for (String o : Option.some("abc")) {
             val = o;
         }
-        Assert.assertEquals(val, "abc", "Option.some() should iterate.");
+        assertEquals(val, "abc", "Option.some() should iterate.");
+    }
+
+    public void noneIsDefined() {
+        assertFalse(Option.none().isDefined());
+    }
+
+    public void someIsDefined() {
+        assertTrue(Option.some("abc").isDefined());
     }
 
 }

@@ -10,5 +10,6 @@ public abstract class Option<A> implements Iterable<A> {
         return new Some<B>(object);
     }
 
+    public abstract boolean isDefined();
 
 }

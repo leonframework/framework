@@ -73,8 +73,8 @@ public class RTTest {
         list.add("2");
         list.add("3");
 
-        map1.put("key1", map2);
         map2.put("key2", list);
+        map1.put("key1", map2);
 
         RT rtMap = RT.of(map1);
         assertEquals(rtMap.get("key1").get("key2").get(0).valInt(), 1);

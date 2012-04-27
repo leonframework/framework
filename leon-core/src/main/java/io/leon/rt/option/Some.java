@@ -36,4 +36,8 @@ public class Some<A> extends Option<A> {
         return new SomeIterator();
     }
 
+    @Override
+    public boolean isDefined() {
+        return true;
+    }
 }

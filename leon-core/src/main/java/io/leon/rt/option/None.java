@@ -27,4 +27,8 @@ public class None<A> extends Option<A> {
         return iterator;
     }
 
+    @Override
+    public boolean isDefined() {
+        return false;
+    }
 }
