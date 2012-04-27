@@ -1,7 +1,8 @@
 package io.leon.rt;
 
-import com.beust.jcommander.internal.Maps;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.util.List;
@@ -12,28 +13,35 @@ import static org.testng.Assert.assertEquals;
 @Test
 public class RTTest {
 
+    private RT rt;
+
+    @BeforeTest
+    public void beforeTest() {
+        rt = new RT();
+    }
+
     public void val() {
-        assertEquals(RT.of("test").val(), "test");
+        assertEquals(rt.of("test").val(), "test");
     }
 
     public void valStringWithInt() {
-        assertEquals(RT.of("1").valString(), "1");
+        assertEquals(rt.of("1").valString(), "1");
     }
 
     public void valStringWithDouble() {
-        assertEquals(RT.of(1.2).valString(), "1.2");
+        assertEquals(rt.of(1.2).valString(), "1.2");
     }
 
     public void valStringWithLong() {
-        assertEquals(RT.of(1L).valString(), "1");
+        assertEquals(rt.of(1L).valString(), "1");
     }
 
     public void valIntWithInt() {
-        assertEquals(RT.of(123).valInt(), 123);
+        assertEquals(rt.of(123).valInt(), 123);
     }
 
     public void valIntWitString() {
-        assertEquals(RT.of("123").valInt(), 123);
+        assertEquals(rt.of("123").valInt(), 123);
     }
 
     public void mapGet() {
@@ -41,7 +49,7 @@ public class RTTest {
         map.put("key1", "value1");
         map.put("key2", 2);
 
-        assertEquals(RT.of(map).get("key1").val(), map.get("key1"));
+        assertEquals(rt.of(map).get("key1").val(), map.get("key1"));
     }
 
     public void mapMapGet() {
@@ -50,7 +58,7 @@ public class RTTest {
         map1.put("key1", map2);
         map2.put("key2", "value2");
 
-        assertEquals(RT.of(map1).get("key1").get("key2").val(), map2.get("key2"));
+        assertEquals(rt.of(map1).get("key1").get("key2").val(), map2.get("key2"));
     }
 
     public void getIndexList() {
@@ -59,10 +67,10 @@ public class RTTest {
         list.add("b");
         list.add("c");
 
-        RT rtList = RT.of(list);
-        assertEquals(rtList.get(0).val(), "a");
-        assertEquals(rtList.get(1).val(), "b");
-        assertEquals(rtList.get(2).val(), "c");
+        Node node = rt.of(list);
+        assertEquals(node.get(0).val(), "a");
+        assertEquals(node.get(1).val(), "b");
+        assertEquals(node.get(2).val(), "c");
     }
 
     public void mapMapListGetIndexToInt() {
@@ -76,9 +84,9 @@ public class RTTest {
         map2.put("key2", list);
         map1.put("key1", map2);
 
-        RT rtMap = RT.of(map1);
-        assertEquals(rtMap.get("key1").get("key2").get(0).valInt(), 1);
-        assertEquals(rtMap.get("key1").get("key2").get(1).valInt(), 2);
-        assertEquals(rtMap.get("key1").get("key2").get(2).valInt(), 3);
+        Node node = rt.of(map1);
+        assertEquals(node.get("key1").get("key2").get(0).valInt(), 1);
+        assertEquals(node.get("key1").get("key2").get(1).valInt(), 2);
+        assertEquals(node.get("key1").get("key2").get(2).valInt(), 3);
     }
 }
