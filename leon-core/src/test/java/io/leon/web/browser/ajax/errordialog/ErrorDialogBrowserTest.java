@@ -27,11 +27,9 @@ public class ErrorDialogBrowserTest {
         leon.waitForHtmlValue("result", "throwError==false");
     }
 
-    public void testWithError() throws InterruptedException {
-        leon.openPage(getClass(), "index.html");
-        leon.findElementById("withError").click();
-
-        // TODO add test
-    }
+    //public void testWithError() throws InterruptedException {
+    //    leon.openPage(getClass(), "index.html");
+    //    leon.findElementById("withError").click();
+    //}
 
 }
