@@ -7,17 +7,22 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 package io.leon.web.comet
-  
+
+import annotations.CometThreadPoolExecutor
 import com.google.inject.servlet.ServletModule
 import org.atmosphere.cpr.AtmosphereServlet
 import io.leon.web.resources.WebResourcesBinder
 import io.leon.web.TopicsService
 import com.google.inject.{Key, AbstractModule}
 import io.leon.web.browser.VirtualLeonJsFileBinder
+import java.util.concurrent.{Executors, Executor}
 
 class CometModule extends AbstractModule {
 
   def configure() {
+    bind(classOf[Executor]).annotatedWith(classOf[CometThreadPoolExecutor]).toInstance(
+      Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors()))
+
     new VirtualLeonJsFileBinder(binder()).bindAndAddContribution(classOf[ClientIdLeonJsContribution])
 
     bind(classOf[CometRegistry]).asEagerSingleton()

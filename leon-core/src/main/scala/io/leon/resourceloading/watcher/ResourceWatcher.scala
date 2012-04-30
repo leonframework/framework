@@ -40,7 +40,7 @@ class ResourceWatcher @Inject()(topicsService: TopicsService) {
     private var lastDetectedModification = -1L
 
     override def run() {
-      while (isStarted()) {
+      while (started) {
         Thread.sleep(2000)
         for (watched <- watchedResources.asScala) {
           val currentLastModified = watched.resource.getLastModified()
@@ -64,7 +64,7 @@ class ResourceWatcher @Inject()(topicsService: TopicsService) {
 
               changed.changedListener.resourceChanged(newResource)
               topicsService.send(
-                "leon.developmentMode.resourceWatcher.resourceChanged",
+                "/leon/developmentMode/resourceWatcher/resourceChanged",
                 Map("name" -> newResource.name).asJava)
             } catch {
               case e => logger.error("Error while calling ResourceChangedLister", e)
@@ -86,10 +86,6 @@ class ResourceWatcher @Inject()(topicsService: TopicsService) {
 
   def stop() {
     started = false
-  }
-
-  def isStarted() = {
-    started
   }
 
   def addResource(fileNameForProcessor: String,

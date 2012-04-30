@@ -11,18 +11,17 @@ package io.leon.web.comet
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.ConcurrentHashMap
 import io.leon.config.ConfigMapHolder
-import java.util.HashMap
-import java.util.concurrent.locks.ReentrantLock
+import com.google.common.collect.Lists
 
 
 object Clients {
 
   private val ids = new AtomicLong
 
-  private def getConfigMap() = ConfigMapHolder.getInstance().getConfigMap
+  private def getConfigMap = ConfigMapHolder.getInstance().getConfigMap
 
   def generateNewClientId(): String = {
-    if (getConfigMap().isProductionMode) {
+    if (getConfigMap.isProductionMode) {
       (System.currentTimeMillis() + ids.getAndIncrement).toString
     } else {
       ids.getAndIncrement.toString
@@ -33,58 +32,41 @@ object Clients {
 
 class Clients {
 
-  import scala.collection.JavaConverters._
+  private val byClientId = new ConcurrentHashMap[String, ClientConnection]
 
-  private val lock = new ReentrantLock(false)
+  /**
+   * @return a copyied List of all ClientConnection.
+   */
+  def getAllClients: java.util.List[ClientConnection] = {
+    val copy = Lists.newLinkedList[ClientConnection]
+    copy.addAll(byClientId.values())
+    copy
+  }
 
-  private val byClientId = new HashMap[String, ClientConnection]
+  def getByClientIdOption(id: String): Option[ClientConnection] = synchronized {
+    if (byClientId.containsKey(id))
+      Some(byClientId.get(id))
+    else
+      None
+  }
 
-  def allClients: Iterable[ClientConnection] = byClientId.values().asScala
-
-  def getByClientIdOption(id: String): Option[ClientConnection] = {
-    lock.lock()
-    try {
-      if (byClientId.containsKey(id))
-        Some(byClientId.get(id))
-      else
-        None
-    } finally {
-      lock.unlock()
+  def getOrCreateByClientId(id: String): ClientConnection = synchronized {
+    if (byClientId.containsKey(id)) {
+      byClientId.get(id)
+    }
+    else {
+      val newCc = new ClientConnection(id, None)
+      byClientId.put(id, newCc)
+      newCc
     }
   }
 
-  def getOrCreateByClientId(id: String): ClientConnection = {
-    lock.lock()
-    try {
-      if (byClientId.containsKey(id)) {
-        byClientId.get(id)
-      }
-      else {
-        val newCc = new ClientConnection(id, None)
-        byClientId.put(id, newCc)
-        newCc
-      }
-    } finally {
-      lock.unlock()
-    }
+  def add(client: ClientConnection) = synchronized {
+    byClientId.put(client.clientId, client)
   }
 
-  def add(client: ClientConnection) = {
-    lock.lock()
-    try {
-      byClientId.put(client.clientId, client)
-    } finally {
-      lock.unlock()
-    }
-  }
-
-  def remove(client: ClientConnection) = {
-    lock.lock()
-    try {
-      byClientId.remove(client.clientId)
-    } finally {
-      lock.unlock()
-    }
+  def remove(client: ClientConnection) = synchronized {
+    byClientId.remove(client.clientId)
   }
 
 }

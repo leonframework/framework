@@ -1,6 +1,6 @@
 
 @DummyAppCtrl = ($scope, leon) ->
-	leon.subscribeTopic "reversed", (d) =>
+	leon.subscribeTopic "/reversed", (d) =>
 		$("#reversedStrings").prepend(d.original + " > " + d.reversed + "<br/>")
 		$scope.cometLastReversed = d.reversed
 
