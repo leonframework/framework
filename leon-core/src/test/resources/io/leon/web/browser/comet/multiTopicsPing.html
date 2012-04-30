@@ -4,15 +4,15 @@
     <script src="/leon/leon.js?loadAngular=false" type="text/javascript"></script>
     <script type="text/javascript">
 	    $(function() {
-	        getLeon().subscribeTopic("pingTopic1", function(data) { $("#status1").text(data); });
-	        getLeon().subscribeTopic("pingTopic2", function(data) { $("#status2").text(data); });
-	        getLeon().subscribeTopic("pingTopic3", function(data) { $("#status3").text(data); });
-	        getLeon().subscribeTopic("pingTopic4", function(data) { $("#status4").text(data); });
-	        getLeon().subscribeTopic("pingTopic5", function(data) { $("#status5").text(data); });
-	        getLeon().subscribeTopic("pingTopic6", function(data) { $("#status6").text(data); });
-	        getLeon().subscribeTopic("pingTopic7", function(data) { $("#status7").text(data); });
-	        getLeon().subscribeTopic("pingTopic8", function(data) { $("#status8").text(data); });
-	        getLeon().subscribeTopic("pingTopic9", function(data) { $("#status9").text(data); });
+	        getLeon().subscribeTopic("/pingTopic1", function(data) { $("#status1").text(data); });
+	        getLeon().subscribeTopic("/pingTopic2", function(data) { $("#status2").text(data); });
+	        getLeon().subscribeTopic("/pingTopic3", function(data) { $("#status3").text(data); });
+	        getLeon().subscribeTopic("/pingTopic4", function(data) { $("#status4").text(data); });
+	        getLeon().subscribeTopic("/pingTopic5", function(data) { $("#status5").text(data); });
+	        getLeon().subscribeTopic("/pingTopic6", function(data) { $("#status6").text(data); });
+	        getLeon().subscribeTopic("/pingTopic7", function(data) { $("#status7").text(data); });
+	        getLeon().subscribeTopic("/pingTopic8", function(data) { $("#status8").text(data); });
+	        getLeon().subscribeTopic("/pingTopic9", function(data) { $("#status9").text(data); });
 
 		    $("#sendPing").click(function() {
 		        getLeon().service("/pingService", "multipleTopicsPing").call();

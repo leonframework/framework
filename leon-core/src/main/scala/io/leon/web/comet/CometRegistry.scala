@@ -127,6 +127,8 @@ class CometRegistry @Inject()(injector: Injector,
               filters: java.util.Map[String, _],
               data: String) {
 
+    Topic.checkTopicName(topicName);
+
     val job = new Runnable {
       def run() {
         val requiredFilters = filters.asScala

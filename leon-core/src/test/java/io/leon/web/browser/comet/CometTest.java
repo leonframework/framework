@@ -25,7 +25,7 @@ public class CometTest {
     public void testOneTopic() throws InterruptedException {
         leon.openPage(getClass(), "/ping.html");
         leon.waitForHtmlValue("status", "init");
-        leon.getTopicSubscriptionsTester().waitForSubscription("ping");
+        leon.getTopicSubscriptionsTester().waitForSubscription("/ping");
 
         leon.findElementById("sendPing").click();
         leon.waitForHtmlValue("status", "pong");
@@ -34,7 +34,7 @@ public class CometTest {
     public void testMultipleMessagesInOneTopic() throws InterruptedException {
         leon.openPage(getClass(), "/multiPing.html");
         leon.waitForHtmlValue("init", "done");
-        leon.getTopicSubscriptionsTester().waitForSubscription("numberPing");
+        leon.getTopicSubscriptionsTester().waitForSubscription("/numberPing");
 
         leon.findElementById("sendPing").click();
         leon.waitForHtmlValue("status1", "done");
@@ -47,15 +47,15 @@ public class CometTest {
     public void testMultipleTopics() throws InterruptedException {
         leon.openPage(getClass(), "/multiTopicsPing.html");
         leon.waitForHtmlValue("init", "done");
-        leon.getTopicSubscriptionsTester().waitForSubscription("pingTopic1");
-        leon.getTopicSubscriptionsTester().waitForSubscription("pingTopic2");
-        leon.getTopicSubscriptionsTester().waitForSubscription("pingTopic3");
-        leon.getTopicSubscriptionsTester().waitForSubscription("pingTopic4");
-        leon.getTopicSubscriptionsTester().waitForSubscription("pingTopic5");
-        leon.getTopicSubscriptionsTester().waitForSubscription("pingTopic6");
-        leon.getTopicSubscriptionsTester().waitForSubscription("pingTopic7");
-        leon.getTopicSubscriptionsTester().waitForSubscription("pingTopic8");
-        leon.getTopicSubscriptionsTester().waitForSubscription("pingTopic9");
+        leon.getTopicSubscriptionsTester().waitForSubscription("/pingTopic1");
+        leon.getTopicSubscriptionsTester().waitForSubscription("/pingTopic2");
+        leon.getTopicSubscriptionsTester().waitForSubscription("/pingTopic3");
+        leon.getTopicSubscriptionsTester().waitForSubscription("/pingTopic4");
+        leon.getTopicSubscriptionsTester().waitForSubscription("/pingTopic5");
+        leon.getTopicSubscriptionsTester().waitForSubscription("/pingTopic6");
+        leon.getTopicSubscriptionsTester().waitForSubscription("/pingTopic7");
+        leon.getTopicSubscriptionsTester().waitForSubscription("/pingTopic8");
+        leon.getTopicSubscriptionsTester().waitForSubscription("/pingTopic9");
 
         leon.findElementById("sendPing").click();
 
@@ -79,11 +79,11 @@ public class CometTest {
     public void testTopicWithFilters() throws InterruptedException {
         leon.openPage(getClass(), "/filterPing.html");
         leon.waitForHtmlValue("status", "init");
-        leon.getTopicSubscriptionsTester().waitForSubscription("filterPing", "key1", "value1");
-        leon.getTopicSubscriptionsTester().waitForSubscription("filterPing", "key2", "value2");
-        leon.getTopicSubscriptionsTester().waitForSubscription("filterPing", "key3", "value3");
-        leon.getTopicSubscriptionsTester().waitForSubscription("filterPing", "key4", "value4");
-        leon.getTopicSubscriptionsTester().waitForSubscription("filterPing", "key5", "value5");
+        leon.getTopicSubscriptionsTester().waitForSubscription("/filterPing", "key1", "value1");
+        leon.getTopicSubscriptionsTester().waitForSubscription("/filterPing", "key2", "value2");
+        leon.getTopicSubscriptionsTester().waitForSubscription("/filterPing", "key3", "value3");
+        leon.getTopicSubscriptionsTester().waitForSubscription("/filterPing", "key4", "value4");
+        leon.getTopicSubscriptionsTester().waitForSubscription("/filterPing", "key5", "value5");
 
         leon.findElementById("start").click();
 
