@@ -10,9 +10,8 @@ package io.leon.web.htmltagsprocessor
 
 import net.htmlparser.jericho.{OutputDocument, Source}
 
-
 trait LeonTagRewriter {
 
-  def process(doc: Source): Seq[OutputDocument => Unit]
+  def process(referrer: String, in: Source, out: OutputDocument)
 
 }

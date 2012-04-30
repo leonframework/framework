@@ -9,12 +9,12 @@
 package io.leon.web.htmltagsprocessor
 
 import com.google.inject.Binder
-import com.google.inject.name.Names
+import io.leon.guice.GuiceUtils
 
 class HtmlTagsProcessorBinder(binder: Binder) {
 
   def addTagRewriter[A <: LeonTagRewriter](clazz:Class[A]) {
-    binder.bind(classOf[LeonTagRewriter]).annotatedWith(Names.named(clazz.getName)).to(clazz).asEagerSingleton()
+    GuiceUtils.bindClassWithName(binder, classOf[LeonTagRewriter], clazz)
   }
 
 }

@@ -34,7 +34,9 @@ class LeonTagProcessor @Inject()(injector: Injector) {
         val source = new Source(stream)
         val out = new OutputDocument(source)
 
-        rewriters flatMap { _.process(source) } foreach { func => func(out) }
+        for (rewriter <- rewriters) {
+          rewriter.process(in.name, source, out)
+        }
 
         val initialBufferSize = stream match {
           case buf: ByteArrayInputStream => buf.available() + 512

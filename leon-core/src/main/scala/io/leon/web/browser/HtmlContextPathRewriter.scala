@@ -26,32 +26,21 @@ class HtmlContextPathRewriter @Inject()(requestProvider: Provider[HttpServletReq
     "input" -> "src")
 
 
-  def process(doc: Source) = {
+  def process(referrer: String, in: Source, out: OutputDocument) {
     import scala.collection.JavaConverters._
-
     val contextPath = requestProvider.get.getContextPath
 
-    val result =
-      for {
-        (tagName, attributeName) <- affectedTags
-      } yield {
-        doc.getAllStartTags(tagName).asScala flatMap { tag =>
-
-        Option(tag.getAttributeValue(attributeName)) flatMap { link =>
-          if(link.startsWith("/")) {
-            val attributeMap = new java.util.LinkedHashMap[String, String]()
-            tag.getAttributes.populateMap(attributeMap, false)
-
-            attributeMap.put(attributeName, contextPath + link)
-
-            Some((out: OutputDocument) => out.replace(tag.getAttributes, attributeMap))
-
-          } else None
+    for ((tagName, attributeName) <- affectedTags) {
+      for (tag <- in.getAllStartTags(tagName).asScala) {
+        val attributeValue = tag.getAttributeValue(attributeName)
+        if (attributeValue != null && attributeValue.startsWith("/")) {
+          val attributeMap = new java.util.LinkedHashMap[String, String]()
+          tag.getAttributes.populateMap(attributeMap, false)
+          attributeMap.put(attributeName, contextPath + attributeValue)
+          out.replace(tag.getAttributes, attributeMap)
         }
       }
     }
-
-    result.flatten
   }
 
 }

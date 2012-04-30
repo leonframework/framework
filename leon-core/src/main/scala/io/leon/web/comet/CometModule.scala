@@ -50,9 +50,6 @@ class CometModule extends AbstractModule {
         rwb.exposeUrl("/leon/comet/updateFilter")
       }
     })
-
-    //val htpb = new HtmlTagsProcessorBinder(binder())
-    //htpb.addTagRewriter(classOf[CometSubscribeTagRewriter])
   }
 
 }
