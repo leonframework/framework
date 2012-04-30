@@ -7,4 +7,5 @@ this.IndexController = function($scope, leon) {
 	};
 	
 	$scope.getMessage();
-}
+};
+
