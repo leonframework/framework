@@ -1,4 +1,4 @@
-package io.leon.web.browser.comet.ping;
+package io.leon.web.browser.comet;
 
 import io.leon.tests.browser.LeonBrowserTester;
 import org.testng.Assert;
@@ -31,7 +31,7 @@ public class CometTest {
         leon.waitForHtmlValue("status", "pong");
     }
 
-    public void testMultipleTopics() throws InterruptedException {
+    public void testMultipleMessagesInOneTopic() throws InterruptedException {
         leon.openPage(getClass(), "/multiPing.html");
         leon.waitForHtmlValue("init", "done");
         leon.getTopicSubscriptionsTester().waitForSubscription("numberPing");
@@ -42,6 +42,38 @@ public class CometTest {
         leon.waitForHtmlValue("status3", "done");
         leon.waitForHtmlValue("status4", "done");
         leon.waitForHtmlValue("status5", "done");
+    }
+
+    public void testMultipleTopics() throws InterruptedException {
+        leon.openPage(getClass(), "/multiTopicsPing.html");
+        leon.waitForHtmlValue("init", "done");
+        leon.getTopicSubscriptionsTester().waitForSubscription("pingTopic1");
+        leon.getTopicSubscriptionsTester().waitForSubscription("pingTopic2");
+        leon.getTopicSubscriptionsTester().waitForSubscription("pingTopic3");
+        leon.getTopicSubscriptionsTester().waitForSubscription("pingTopic4");
+        leon.getTopicSubscriptionsTester().waitForSubscription("pingTopic5");
+        leon.getTopicSubscriptionsTester().waitForSubscription("pingTopic6");
+        leon.getTopicSubscriptionsTester().waitForSubscription("pingTopic7");
+        leon.getTopicSubscriptionsTester().waitForSubscription("pingTopic8");
+        leon.getTopicSubscriptionsTester().waitForSubscription("pingTopic9");
+
+        leon.findElementById("sendPing").click();
+
+        leon.waitForHtmlValue("status1", "1");
+        leon.waitForHtmlValue("status2", "2");
+        leon.waitForHtmlValue("status3", "3");
+        leon.waitForHtmlValue("status4", "4");
+        leon.waitForHtmlValue("status5", "5");
+        leon.waitForHtmlValue("status6", "6");
+        leon.waitForHtmlValue("status7", "7");
+        leon.waitForHtmlValue("status8", "8");
+        leon.waitForHtmlValue("status9", "9");
+    }
+
+    public void testMultipleTopics5Times() throws InterruptedException {
+        for (int i = 0; i < 5; i++) {
+            testMultipleTopics();
+        }
     }
 
     public void testTopicWithFilters() throws InterruptedException {

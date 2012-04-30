@@ -33,11 +33,9 @@ class ClientConnection(val clientId: String,
 
   private val messageSendIndex = new AtomicInteger(0)
 
-  private val lock = new Object
-
   var connectTime = System.currentTimeMillis()
 
-  def setNewMeteor(lastMessageReceived: Int, newMeteor: Meteor): Unit = lock.synchronized {
+  def setNewMeteor(lastMessageReceived: Int, newMeteor: Meteor): Unit = synchronized {
     logger.debug("ClientConnection received a new meteor instance. Last message received: " + lastMessageReceived)
     resumeAndRemoveUplink()
     meteor = Some(newMeteor)
@@ -56,7 +54,7 @@ class ClientConnection(val clientId: String,
     flushQueue()
   }
 
-  def resumeAndRemoveUplink() {
+  def resumeAndRemoveUplink() = synchronized {
     try {
       meteor map {
         m =>
@@ -72,7 +70,7 @@ class ClientConnection(val clientId: String,
   /**
    * Add the message to the queue and flush the queue.
    */
-  def enqueue(topicName: String, data: String) = lock.synchronized {
+  def enqueue(topicName: String, data: String) = synchronized {
     val id = nextMessageId.getAndIncrement
     val message = """$$$MESSAGE$$${
       "messageId": %s,
@@ -87,7 +85,7 @@ class ClientConnection(val clientId: String,
   /**
    * Send all messages waiting in the queue.
    */
-  private def flushQueue(): Unit = lock.synchronized {
+  private def flushQueue(): Unit = synchronized {
     if (meteor.isEmpty) {
       return
     }
@@ -101,7 +99,7 @@ class ClientConnection(val clientId: String,
     }
   }
 
-  private def sendPackage(msg: (Int, String)): Boolean = {
+  private def sendPackage(msg: (Int, String)): Boolean = synchronized {
     val data = msg._2
     try {
       meteor map {
@@ -120,7 +118,7 @@ class ClientConnection(val clientId: String,
     }
   }
 
-  def updateTopicFilter(topicName: String, filterName: String, filterValue: String) = {
+  def updateTopicFilter(topicName: String, filterName: String, filterValue: String) = synchronized {
     logger.debug("Updating topic filter for client [%s], topic [%s], filter name [%s], filter value [%s].".format(
       clientId, topicName, filterName, filterValue))
 
@@ -139,26 +137,28 @@ class ClientConnection(val clientId: String,
   }
 
 
-  def getClientId = {
+  def getClientId = synchronized {
     clientId
   }
 
-  def hasConnection = meteor.isDefined
+  def hasConnection = synchronized  {
+    meteor.isDefined
+  }
 
-  def getAllSubscribedTopics: java.util.Set[String] = {
+  def getAllSubscribedTopics: java.util.Set[String] = synchronized {
     topicSubscriptions.keySet()
   }
 
-  def hasSubscribedTopic(topicName: String): Boolean = {
+  def hasSubscribedTopic(topicName: String): Boolean = synchronized {
     topicSubscriptions.containsKey(topicName)
   }
 
-  def hasFilterValue(topicName: String, filterName: String, requiredFilterValue: String): Boolean = {
+  def hasFilterValue(topicName: String, filterName: String, requiredFilterValue: String): Boolean = synchronized {
     val key = topicName + "#" + filterName
     topicActiveFilters.get(key) == requiredFilterValue
   }
 
-  def getDebugStateString: String = {
+  def getDebugStateString: String = synchronized {
     val sb = new StringBuilder
     sb.append("Client: " + clientId + ", subscriptions:" + "\n")
     sb.append("  Topics:" + "\n")

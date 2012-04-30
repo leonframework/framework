@@ -1,4 +1,4 @@
-package io.leon.web.browser.ajax.basic;
+package io.leon.web.browser.ajax;
 
 import io.leon.tests.browser.LeonBrowserTester;
 import org.testng.annotations.AfterClass;

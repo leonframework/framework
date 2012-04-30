@@ -8,6 +8,7 @@
  */
 package io.leon.web.comet
 
+import annotations.CometThreadPoolExecutor
 import org.atmosphere.cpr.{BroadcastFilter, Meteor}
 import org.atmosphere.util.XSSHtmlFilter
 import javax.servlet.http.HttpServletRequest
@@ -20,8 +21,10 @@ import com.google.common.collect.Maps
 import io.leon.guice.GuiceUtils
 import io.leon.web.{TopicsSend, TopicsService}
 import com.google.inject.{Provider, Injector, Inject}
+import java.util.concurrent.Executor
 
 class CometRegistry @Inject()(injector: Injector,
+                              @CometThreadPoolExecutor executor: Executor,
                               clients: Clients,
                               gson: Gson,
                               configMap: ConfigMap,
@@ -70,7 +73,7 @@ class CometRegistry @Inject()(injector: Injector,
           val now = System.currentTimeMillis
 
           // Create a copy of the list and check all clients
-          clients.allClients.toList foreach { client =>
+          clients.getAllClients.asScala foreach { client =>
             logger.trace("Checking client [{}] for connection timeouts.", client.clientId)
             if ((now - client.connectTime) > reconnectTimeout) {
               if (client.meteor.isDefined) {
@@ -91,10 +94,10 @@ class CometRegistry @Inject()(injector: Injector,
  
   def stop() {
     shouldStop = true
-    clients.allClients foreach { _.resumeAndRemoveUplink() }
+    clients.getAllClients.asScala foreach { _.resumeAndRemoveUplink() }
   }
 
-  def registerUplink(req: HttpServletRequest, clientId: String, lastMessageId: Int) {
+  def registerUplink(req: HttpServletRequest, clientId: String, lastMessageId: Int) = synchronized {
     logger.debug("Registering meteor for client [" + clientId + "]")
 
     val meteor = createMeteor(req)
@@ -118,36 +121,41 @@ class CometRegistry @Inject()(injector: Injector,
     }
   }
 
-  def publish(targets: Seq[ClientConnection],
+  def publish(targets: List[ClientConnection],
               clientFilter: ClientConnection => Boolean,
               topicName: String,
               filters: java.util.Map[String, _],
               data: String) {
 
-    val requiredFilters = filters.asScala
-    val matchingClients = targets filter { c =>
-      // RR: I used this ugly code style to use the short-circuit test
-      (c.hasSubscribedTopic(topicName)) && (
-        clientFilter(c)) && (
-        requiredFilters forall { case (filterName, filterValue) =>
-          c.hasFilterValue(topicName, filterName, filterValue.toString)
-        })
-    }
+    val job = new Runnable {
+      def run() {
+        val requiredFilters = filters.asScala
+        val matchingClients = targets filter { c =>
+        // RR: I used this ugly code style to use the short-circuit test
+          (c.hasSubscribedTopic(topicName)) && (
+            clientFilter(c)) && (
+            requiredFilters forall { case (filterName, filterValue) =>
+              c.hasFilterValue(topicName, filterName, filterValue.toString)
+            })
+        }
 
-    if (matchingClients.isEmpty) {
-      logger.debug("No clients found for topic [%s] and filter [%s].".format(topicName, requiredFilters))
-      if (logger.isTraceEnabled) {
-        val all = clients.allClients
-        for (c <- all) {
-          logger.trace("\n" + c.getDebugStateString)
+        if (matchingClients.isEmpty) {
+          logger.debug("No clients found for topic [%s] and filter [%s].".format(topicName, requiredFilters))
+          if (logger.isTraceEnabled) {
+            val all = clients.getAllClients.asScala
+            for (c <- all) {
+              logger.trace("\n" + c.getDebugStateString)
+            }
+          }
+        } else {
+          logger.debug("Found [%s] clients for topic [{}] with filter map [%s].".format(
+            matchingClients.size, topicName, requiredFilters))
+          val dataSerialized = new Gson().toJson(data)
+          matchingClients foreach { _.enqueue(topicName, dataSerialized) }
         }
       }
-    } else {
-      logger.debug("Found [%s] clients for topic [{}] with filter map [%s].".format(
-        matchingClients.size, topicName, requiredFilters))
-      val dataSerialized = new Gson().toJson(data)
-      matchingClients foreach { _.enqueue(topicName, dataSerialized) }
     }
+    executor.execute(job)
   }
 
   def updateClientFilter(topicId: String, clientId: String, filterName: String, filterValue: String) {
@@ -160,7 +168,7 @@ class CometRegistry @Inject()(injector: Injector,
   }
 
   def send(topicId: String, data: AnyRef, filters: Map[String, _]) {
-    publish(clients.allClients.toSeq, _ => true, topicId, filters, gson.toJson(data))
+    publish(clients.getAllClients.asScala.toList, _ => true, topicId, filters, gson.toJson(data))
   }
 
   override def toOtherSessions = new TopicsSend {
@@ -178,7 +186,7 @@ class CometRegistry @Inject()(injector: Injector,
           }
         }
       }
-      publish(clients.allClients.toSeq, filter, topicId, filters, gson.toJson(data))
+      publish(clients.getAllClients.asScala.toList, filter, topicId, filters, gson.toJson(data))
     }
   }
 
@@ -197,11 +205,11 @@ class CometRegistry @Inject()(injector: Injector,
           }
         }
       }
-      publish(clients.allClients.toSeq, filter, topicId, filters, gson.toJson(data))
+      publish(clients.getAllClients.asScala.toList, filter, topicId, filters, gson.toJson(data))
     }
   }
 
   def getAllClientSubscriptions: java.util.List[_ <: ClientSubscriptionInformation] = {
-    clients.allClients.toList.asJava
+    clients.getAllClients
   }
 }
