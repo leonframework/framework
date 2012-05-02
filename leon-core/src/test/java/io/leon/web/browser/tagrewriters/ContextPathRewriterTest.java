@@ -24,7 +24,7 @@ public class ContextPathRewriterTest {
         try {
             leon.setContextPath("");
             leon.start();
-            leon.openPage(getClass(), "severalTags.html");
+            leon.openPage(getClass(), "contextPathRewriterTest.html");
 
             compareStrings(getPortAndContextUrl(leon) + baseUrl + "/url", leon.findElementById("a1").getAttribute("href"));
             compareStrings(getPortAndContextUrl(leon) + "/url", leon.findElementById("a2").getAttribute("href"));
@@ -41,7 +41,7 @@ public class ContextPathRewriterTest {
         try {
             leon.setContextPath("/dummy");
             leon.start();
-            leon.openPage(getClass(), "severalTags.html");
+            leon.openPage(getClass(), "contextPathRewriterTest.html");
 
             compareStrings(getPortAndContextUrl(leon) + baseUrl + "/url", leon.findElementById("a1").getAttribute("href"));
             compareStrings(getPortAndContextUrl(leon) + "/url", leon.findElementById("a2").getAttribute("href"));
