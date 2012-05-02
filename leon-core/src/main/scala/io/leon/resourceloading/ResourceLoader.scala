@@ -51,7 +51,7 @@ class ResourceLoader @Inject()(injector: Injector,
   def getResourceOption(fileName: String, changedListener: ResourceChangedListener): Option[Resource] = {
     logger.trace("Searching resource [{}]", fileName)
 
-    val processors = resourceProcessorRegistry.processorsForFile(fileName)
+    val processors = resourceProcessorRegistry.getProcessorsForFile(fileName)
     val combinations = for {
       processor <- processors
       locationBinding <- resourceLocations
@@ -63,8 +63,11 @@ class ResourceLoader @Inject()(injector: Injector,
     tryCombinations(combinations) match {
       case None => None
       case Some((fileNameForProcessor, location, processor, processed)) => {
-        resourceWatcher.addResource(
-          fileNameForProcessor,  location, processor, processed.get, changedListener)
+        resourceWatcher.addResource(fileNameForProcessor,  location, processor, processed.get, changedListener)
+
+        resourceProcessorRegistry.getEnrichersForFile(fileName) foldLeft(processed) { (enriched, enricher) =>
+        }
+
         processed
       }
     }
@@ -76,7 +79,6 @@ class ResourceLoader @Inject()(injector: Injector,
     combinations match {
       case Nil => None
       case (fileName, location, processor) :: xs => {
-
         val fileNameForProcessor = resourceProcessorRegistry.replaceFileNameEndingForProcessor(processor, fileName)
         val resourceOption = location.getResource(fileNameForProcessor)
 

@@ -11,26 +11,27 @@ package io.leon.resourceloading.processor
 import com.google.inject.{Injector, Inject}
 import scala.collection.mutable
 import io.leon.guice.GuiceUtils
+import scala.collection.JavaConverters._
 
 class ResourceProcessorRegistry @Inject()(injector: Injector,
                                           noOpProcessor: NoOpResourceProcessor) {
 
-  import scala.collection.JavaConverters._
+  // e.g. CoffeeScript -> JavaScript
+  private val transformers = new mutable.HashMap[String, mutable.ListBuffer[ResourceProcessor]]
 
-  private val resourceProcessors: Map[String, List[ResourceProcessor]] = {
-    val processors = new mutable.HashMap[String, mutable.ListBuffer[ResourceProcessor]]
+  // e.g. HTML -> HTML
+  private val enrichers = new mutable.HashMap[String, mutable.ListBuffer[ResourceProcessor]]
 
-    val rps = GuiceUtils.getByType(injector, classOf[ResourceProcessor]).asScala
-    rps foreach { binding =>
-      val processor = binding.getProvider.get()
-      val list = processors.getOrElseUpdate(processor.toFileEnding, new mutable.ListBuffer[ResourceProcessor])
+  // Init, differentiate between processors and enrichers
+  GuiceUtils.getByType(injector, classOf[ResourceProcessor]).asScala foreach { binding =>
+    val processor = binding.getProvider.get()
+    if (processor.fromFileEnding != processor.toFileEnding) {
+      val list = transformers.getOrElseUpdate(processor.toFileEnding, new mutable.ListBuffer[ResourceProcessor])
+      list.append(processor)
+    } else {
+      val list = enrichers.getOrElseUpdate(processor.toFileEnding, new mutable.ListBuffer[ResourceProcessor])
       list.append(processor)
     }
-
-    // Convert mutable to immutable
-    (processors map { e =>
-      e._1 -> e._2.toList
-    }).toMap
   }
 
   private def getFileNameEnding(fileName: String): String = {
@@ -43,9 +44,15 @@ class ResourceProcessorRegistry @Inject()(injector: Injector,
     fileName.substring(0, currentEndingStrippedLength) + processor.fromFileEnding
   }
 
-  def processorsForFile(fileName: String): List[ResourceProcessor] = {
+  def getProcessorsForFile(fileName: String): List[ResourceProcessor] = {
     val ending = getFileNameEnding(fileName)
-    val processors = resourceProcessors.getOrElse(ending, new mutable.ListBuffer)
+    val processors = transformers.getOrElse(ending, new mutable.ListBuffer)
     noOpProcessor :: processors.toList
   }
+
+  def getEnrichersForFile(fileName: String): List[ResourceProcessor] = {
+    val ending = getFileNameEnding(fileName)
+    transformers.getOrElse(ending, Nil).toList
+  }
+
 }

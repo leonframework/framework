@@ -57,12 +57,8 @@ class ResourcesServlet @Inject()(injector: Injector,
     val out = res.getOutputStream
     if (resourceOption.isDefined) {
       val resource = resourceOption.get
-      val resourceTransformed =
-        if(resource.name.endsWith(".html")) leonTag.transform(resource)
-        else resource
-
       setResponseContentType(req, res)
-      val stream = resourceTransformed.getInputStream()
+      val stream = resource.getInputStream()
       val buffer = new Array[Byte](1024)
       var bytesRead = 0
       while (bytesRead != -1) {
