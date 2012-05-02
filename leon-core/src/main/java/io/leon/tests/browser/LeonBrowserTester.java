@@ -21,6 +21,8 @@ public class LeonBrowserTester {
 
     private LeonFilter leonFilter;
 
+    private String contextPath = "";
+
     public LeonBrowserTester(Module module) {
         this.module = module;
     }
@@ -31,6 +33,22 @@ public class LeonBrowserTester {
 
     public void setHttpPort(int httpPort) {
         this.httpPort = httpPort;
+    }
+
+    public Server getServer() {
+        return server;
+    }
+
+    public void setServer(Server server) {
+        this.server = server;
+    }
+
+    public String getContextPath() {
+        return contextPath;
+    }
+
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath.equals("/") ? "" : contextPath;
     }
 
     public LeonFilter getLeonFilter() {
@@ -49,7 +67,7 @@ public class LeonBrowserTester {
             public void run() {
                 server = new Server(httpPort);
                 ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-                context.setContextPath("/");
+                context.setContextPath(contextPath);
                 server.setHandler(context);
 
                 leonFilter = new LeonFilter(module);
@@ -90,9 +108,12 @@ public class LeonBrowserTester {
     }
 
     public void openPage(String url) {
-        // Possible Selenium bug: Opening e.g. http://localhost:8080// causes a RuntimeException
-        String _url = url.equals("/") ? "" : url;
-        webDriver.get("http://localhost:" + httpPort + "/" + _url);
+        // TODO this check may not be required anymore
+        // // Possible Selenium bug: Opening e.g. http://localhost:8080// causes a RuntimeException
+        // String _url = url.equals("/") ? "" : url;
+
+        String _url = url;
+        webDriver.get("http://localhost:" + httpPort + getContextPath() + "/" + _url);
     }
 
     public WebElement findElementById(String id) {

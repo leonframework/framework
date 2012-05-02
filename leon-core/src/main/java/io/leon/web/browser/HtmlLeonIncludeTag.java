@@ -1,4 +1,4 @@
-package io.leon.web.resources;
+package io.leon.web.browser;
 
 import com.google.inject.Inject;
 import io.leon.resourceloading.ResourceLoader;

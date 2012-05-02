@@ -14,7 +14,7 @@ import javax.servlet._
 import http.{HttpServletResponse, HttpServletRequest}
 import org.slf4j.LoggerFactory
 
-case class ExposedUrl(val urlRegex: String)
+case class ExposedUrl(urlRegex: String)
 
 class ExposedUrlCheckFilter @Inject()(injector: Injector) extends Filter {
 
