@@ -7,67 +7,88 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
-public class Node {
+public class Node<E> {
 
-    private final RT rt;
-    private final Object node;
+    private final Rt rt;
+    private final E element;
 
-    protected Node(RT rt, Object node) {
+    protected Node(Rt rt, E element) {
         this.rt = rt;
-        this.node = node;
-    }
-
-    private Node of(Object node) {
-        return new Node(rt, node);
+        this.element = element;
     }
 
     private <A> A asInstanceOf(Class<A> clazz) {
-        if (!clazz.isInstance(node)) {
-            throw new IllegalArgumentException("Current node is not an instance of " + clazz.getName());
+        if (!clazz.isInstance(element)) {
+            throw new IllegalArgumentException("Current element is not an instance of " + clazz.getName());
         }
-        return clazz.cast(node);
+        return clazz.cast(element);
     }
 
     private <A> Option<A> asInstanceOfOption(Class<A> clazz) {
-        if (clazz.isInstance(node)) {
-            return Option.some(clazz.cast(node));
+        if (clazz.isInstance(element)) {
+            return Option.some(clazz.cast(element));
         } else {
             return Option.none();
         }
     }
 
-    public Object val() {
-        return node;
+    public E val() {
+        return element;
     }
 
     public String valString() {
-        return String.valueOf(node);
+        return rt.getConverter().convert(element.getClass(), String.class, element).getOrThrowException(
+                this + " could not be coverted to a String.");
     }
 
     public int valInt() {
-        return Integer.parseInt(valString());
+        return rt.getConverter().convert(element.getClass(), Integer.class, element).getOrThrowException(
+                this + " could not be coverted to an Integer.");
     }
 
-    public Node get(String key) {
+    public Node<?> get(String key) {
         Map map = asInstanceOf(Map.class);
-        return of(map.get(key));
+        return rt.of(map.get(key));
     }
 
-    public Node get(int index) {
+    public Node<?> get(int index) {
         for (Iterator iter : asInstanceOfOption(Iterator.class)) {
             ArrayList<Object> list = Lists.newArrayList();
             while (iter.hasNext()) {
                 list.add(iter.next());
             }
-            return of(list.get(index));
+            return rt.of(list.get(index));
         }
         for (Iterable iterable : asInstanceOfOption(Iterable.class)) {
             ArrayList<Object> list = Lists.newArrayList();
             for (Object anIterable : iterable) {
                 list.add(anIterable);
             }
-            return of(list.get(index));
+            return rt.of(list.get(index));
         }
-        throw new UnsupportedOperationException("This node can not be accessed as a Iterator or Iterable.");
+        throw new UnsupportedOperationException("This element can not be accessed as a Iterator or Iterable.");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Node node = (Node) o;
+        return !(element != null ? !element.equals(node.element) : node.element != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return element != null ? element.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Element(" + element + ")";
     }
 }

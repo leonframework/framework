@@ -9,39 +9,26 @@ import java.util.List;
 import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 @Test
-public class RTTest {
+public class RtTest {
 
-    private RT rt;
+    private Rt rt;
 
     @BeforeTest
     public void beforeTest() {
-        rt = new RT();
+        rt = new Rt();
     }
 
     public void val() {
         assertEquals(rt.of("test").val(), "test");
     }
 
-    public void valStringWithInt() {
-        assertEquals(rt.of("1").valString(), "1");
-    }
-
-    public void valStringWithDouble() {
-        assertEquals(rt.of(1.2).valString(), "1.2");
-    }
-
-    public void valStringWithLong() {
-        assertEquals(rt.of(1L).valString(), "1");
-    }
-
-    public void valIntWithInt() {
-        assertEquals(rt.of(123).valInt(), 123);
-    }
-
-    public void valIntWitString() {
-        assertEquals(rt.of("123").valInt(), 123);
+    public void keepTypeWhenPossible() {
+        String in = "test";
+        String out = rt.of(in).val();
+        assertTrue(in.equals(out), "Dummy test to ensure that the lines above compile.");
     }
 
     public void mapGet() {

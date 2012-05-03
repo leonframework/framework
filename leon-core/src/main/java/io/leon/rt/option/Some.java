@@ -40,4 +40,47 @@ public class Some<A> extends Option<A> {
     public boolean isDefined() {
         return true;
     }
+
+    @Override
+    public A get() {
+        return element;
+    }
+
+    @Override
+    public A getOrElse(A elseObject) {
+        return get();
+    }
+
+    @Override
+    public A getOrThrowException() {
+        return getOrThrowException("");
+    }
+
+    @Override
+    public A getOrThrowException(String message) {
+        return get();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Some other = (Some) o;
+        return !(element != null ? !element.equals(other.element) : other.element != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return element != null ? element.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Some(" + element + ")";
+    }
 }

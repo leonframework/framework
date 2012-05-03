@@ -31,4 +31,40 @@ public class None<A> extends Option<A> {
     public boolean isDefined() {
         return false;
     }
+
+    @Override
+    public A get() {
+        return null;
+    }
+
+    @Override
+    public A getOrElse(A elseObject) {
+        return elseObject;
+    }
+
+    @Override
+    public A getOrThrowException() {
+        getOrThrowException("Can not get the value of a None()");
+        return null;
+    }
+
+    @Override
+    public A getOrThrowException(String message) {
+        throw new RuntimeException(message);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o || !(o == null || getClass() != o.getClass());
+    }
+
+    @Override
+    public int hashCode() {
+        return 0;
+    }
+
+    @Override
+    public String toString() {
+        return "None()";
+    }
 }

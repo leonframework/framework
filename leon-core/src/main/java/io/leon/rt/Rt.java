@@ -3,21 +3,21 @@ package io.leon.rt;
 import com.google.inject.Inject;
 import io.leon.rt.converters.Converter;
 
-public class RT {
+public class Rt {
 
     private final Converter converter;
 
-    public RT() {
+    public Rt() {
         converter = new Converter();
     }
 
     @Inject
-    public RT(Converter converter) {
+    public Rt(Converter converter) {
         this.converter = converter;
     }
 
-    public Node of(Object node) {
-        return new Node(this, node);
+    public <E> Node<E> of(E node) {
+        return new Node<E>(this, node);
     }
 
     public Converter getConverter() {
