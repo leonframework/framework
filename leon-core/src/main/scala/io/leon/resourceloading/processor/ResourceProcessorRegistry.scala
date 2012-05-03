@@ -52,7 +52,7 @@ class ResourceProcessorRegistry @Inject()(injector: Injector,
 
   def getEnrichersForFile(fileName: String): List[ResourceProcessor] = {
     val ending = getFileNameEnding(fileName)
-    transformers.getOrElse(ending, Nil).toList
+    enrichers.getOrElse(ending, Nil).toList
   }
 
 }

@@ -62,14 +62,14 @@ class ResourceLoader @Inject()(injector: Injector,
 
     tryCombinations(combinations) match {
       case None => None
-      case Some((fileNameForProcessor, location, processor, processed)) => {
-        resourceWatcher.addResource(fileNameForProcessor,  location, processor, processed.get, changedListener)
+      case Some((fileNameForProcessor, location, processor, processed)) =>
+        resourceWatcher.addResource(fileNameForProcessor, location, processor, processed.get, changedListener)
 
-        resourceProcessorRegistry.getEnrichersForFile(fileName) foldLeft(processed) { (enriched, enricher) =>
+        val es = resourceProcessorRegistry.getEnrichersForFile(fileName)
+        val allEnriched = es.foldLeft(processed.get) { (enriched, enricher) =>
+          enricher.process(enriched)
         }
-
-        processed
-      }
+        Option(allEnriched)
     }
   }
 

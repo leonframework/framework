@@ -13,14 +13,12 @@ import http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import io.leon.web.WebUtils
 import io.leon.resourceloading.{ResourceLoader, Resource}
 import com.google.inject._
-import io.leon.web.htmltagsprocessor.LeonTagProcessor
 import io.leon.guice.GuiceUtils
 import io.leon.web.servletwhiteboard.ServletBinding
 import scala.collection.JavaConverters._
 
 class ResourcesServlet @Inject()(injector: Injector,
-                                 resourceLoader: ResourceLoader,
-                                 leonTag: LeonTagProcessor) extends HttpServlet {
+                                 resourceLoader: ResourceLoader) extends HttpServlet {
 
   private val welcomeFiles = List("index.html")
 

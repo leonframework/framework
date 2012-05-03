@@ -14,16 +14,21 @@ import com.google.inject.{Injector, Inject}
 import net.htmlparser.jericho._
 import java.io._
 import io.leon.guice.GuiceUtils
+import io.leon.resourceloading.processor.ResourceProcessor
+import scala.collection.JavaConverters._
 
-class LeonTagProcessor @Inject()(injector: Injector) {
-  import scala.collection.JavaConverters._
+class LeonTagProcessor @Inject()(injector: Injector) extends ResourceProcessor {
 
   private val logger = LoggerFactory.getLogger(getClass)
 
   private lazy val rewriters = GuiceUtils.getByType(
     injector, classOf[LeonTagRewriter]).asScala map { _.getProvider.get() }
 
-  def transform(in: Resource) = new Resource(in.name) {
+  def fromFileEnding = "html"
+
+  def toFileEnding = "html"
+
+  def process(in: Resource) = new Resource(in.name) {
 
     def getLastModified() = in.getLastModified()
 

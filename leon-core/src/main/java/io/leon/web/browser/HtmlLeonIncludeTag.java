@@ -15,7 +15,7 @@ import java.util.List;
 
 public class HtmlLeonIncludeTag implements LeonTagRewriter {
 
-    private Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private ResourceLoader resourceLoader;
 
