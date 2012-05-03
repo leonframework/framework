@@ -17,23 +17,27 @@ public class Node<E> {
         this.element = element;
     }
 
-    private <A> A asInstanceOf(Class<A> clazz) {
-        if (!clazz.isInstance(element)) {
-            throw new IllegalArgumentException("Current element is not an instance of " + clazz.getName());
-        }
-        return clazz.cast(element);
+    public Rt getRt() {
+        return rt;
     }
 
-    private <A> Option<A> asInstanceOfOption(Class<A> clazz) {
+    public E val() {
+        return element;
+    }
+
+    public <A> A cast(Class<A> clazz) {
+        for (A casted : castOption(clazz)) {
+            return casted;
+        }
+        throw new IllegalArgumentException("Current element is not an instance of " + clazz.getName());
+    }
+
+    public <A> Option<A> castOption(Class<A> clazz) {
         if (clazz.isInstance(element)) {
             return Option.some(clazz.cast(element));
         } else {
             return Option.none();
         }
-    }
-
-    public E val() {
-        return element;
     }
 
     public String valString() {
@@ -47,19 +51,19 @@ public class Node<E> {
     }
 
     public Node<?> get(String key) {
-        Map map = asInstanceOf(Map.class);
+        Map map = cast(Map.class);
         return rt.of(map.get(key));
     }
 
     public Node<?> get(int index) {
-        for (Iterator iter : asInstanceOfOption(Iterator.class)) {
+        for (Iterator iter : castOption(Iterator.class)) {
             ArrayList<Object> list = Lists.newArrayList();
             while (iter.hasNext()) {
                 list.add(iter.next());
             }
             return rt.of(list.get(index));
         }
-        for (Iterable iterable : asInstanceOfOption(Iterable.class)) {
+        for (Iterable iterable : castOption(Iterable.class)) {
             ArrayList<Object> list = Lists.newArrayList();
             for (Object anIterable : iterable) {
                 list.add(anIterable);
@@ -89,6 +93,6 @@ public class Node<E> {
 
     @Override
     public String toString() {
-        return "Element(" + element + ")";
+        return "Node(" + element + ")";
     }
 }
