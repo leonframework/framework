@@ -1,6 +1,6 @@
-package io.leon.web.browser.comet;
+package io.leon.web.browser.selenium.comet;
 
-import io.leon.tests.browser.LeonBrowserTester;
+import io.leon.tests.browser.FirefoxLeonBrowserTester;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -9,11 +9,11 @@ import org.testng.annotations.Test;
 @Test(groups = "nodefault")
 public class CometTest {
 
-    private static LeonBrowserTester leon;
+    private static FirefoxLeonBrowserTester leon;
 
     @BeforeClass
     public void beforeClass() throws Exception {
-        leon = new LeonBrowserTester(new CometTestModule());
+        leon = new FirefoxLeonBrowserTester(new CometTestModule());
         leon.start();
     }
 

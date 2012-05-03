@@ -18,6 +18,6 @@ trait ResourceProcessor {
 
   def process(in: Resource): Resource
 
-  def isCachingRequested = false
+  def isCachable = false
 
 }

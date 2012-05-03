@@ -1,6 +1,6 @@
-package io.leon.web.browser.ajax.errordialog;
+package io.leon.web.browser.selenium.ajax.errordialog;
 
-import io.leon.tests.browser.LeonBrowserTester;
+import io.leon.tests.browser.FirefoxLeonBrowserTester;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -8,11 +8,11 @@ import org.testng.annotations.Test;
 @Test(groups = "nodefault")
 public class ErrorDialogBrowserTest {
 
-    private LeonBrowserTester leon;
+    private FirefoxLeonBrowserTester leon;
 
     @BeforeClass
     public void beforeClass() throws Exception {
-        leon = new LeonBrowserTester(new ErrorDialogModule());
+        leon = new FirefoxLeonBrowserTester(new io.leon.web.browser.selenium.ajax.errordialog.ErrorDialogModule());
         leon.start();
     }
 

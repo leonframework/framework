@@ -42,6 +42,6 @@ class LessResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScr
     }
   }
 
-  override def isCachingRequested = true
+  override def isCachable = true
 
 }

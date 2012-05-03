@@ -10,8 +10,6 @@ package io.leon.web.resources
 
 import com.google.inject.Scopes
 import com.google.inject.servlet.ServletModule
-import io.leon.web.htmltagsprocessor.HtmlTagsProcessorBinder
-import io.leon.web.browser.HtmlLeonIncludeTag
 
 class WebResourcesModule extends ServletModule {
 
@@ -20,8 +18,6 @@ class WebResourcesModule extends ServletModule {
 
     bind(classOf[ExposedUrlCheckFilter]).in(Scopes.SINGLETON)
     filter("/*").through(classOf[ExposedUrlCheckFilter])
-
-    new HtmlTagsProcessorBinder(binder()).addTagRewriter(classOf[HtmlLeonIncludeTag])
 
     serve("/*").`with`(classOf[ResourcesServlet])
   }

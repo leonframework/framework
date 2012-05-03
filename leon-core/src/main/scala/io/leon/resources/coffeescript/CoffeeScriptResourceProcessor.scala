@@ -39,6 +39,6 @@ class CoffeeScriptResourceProcessor @Inject()(leonScriptEngineProvider: Provider
     }
   }
 
-  override def isCachingRequested = true
+  override def isCachable = true
 
 }

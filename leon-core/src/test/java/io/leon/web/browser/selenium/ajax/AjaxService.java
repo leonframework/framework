@@ -1,4 +1,4 @@
-package io.leon.web.browser.ajax;
+package io.leon.web.browser.selenium.ajax;
 
 
 public class AjaxService {

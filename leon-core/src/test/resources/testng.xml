@@ -1,10 +1,16 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="leon" verbose="2" parallel="tests">
+<suite name="leon" verbose="2" parallel="false">
 
-    <test name="tests_that_require_jetty_server" parallel="false">
+    <test name="testsThatRequireJettyAndFireFox" parallel="false" enabled="false">
         <packages>
-            <package name="io.leon.web.browser.*"/>
+            <package name="io.leon.web.browser.selenium.*"/>
+        </packages>
+    </test>
+
+    <test name="testsThatRequireJettyAndHttpUnit" parallel="false">
+        <packages>
+            <package name="io.leon.web.browser.tagrewriters.*"/>
         </packages>
     </test>
 

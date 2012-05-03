@@ -87,7 +87,7 @@ class ResourceLoader @Inject()(injector: Injector,
           logger.trace("Found resource [{}].", fileNameForProcessor)
 
           // Check if the processor requested caching
-          val cachedOrNormal = if (processor.isCachingRequested) {
+          val cachedOrNormal = if (processor.isCachable) {
             logger.trace("Checking cache for resource [{}]", fileName)
             val cacheTimestamp = resourceCache.getTimestampOfCacheFile(fileName)
             val normalTimestamp = resource.getLastModified()

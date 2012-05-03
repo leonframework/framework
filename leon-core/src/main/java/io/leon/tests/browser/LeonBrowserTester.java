@@ -4,26 +4,24 @@ import com.google.inject.Module;
 import io.leon.web.LeonFilter;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.*;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.firefox.FirefoxDriver;
 
-public class LeonBrowserTester {
-
-    private final Module module;
+public abstract class LeonBrowserTester {
 
     private Server server;
 
-    private WebDriver webDriver;
-
-    private int httpPort = 8090;
+    private Module module;
 
     private LeonFilter leonFilter;
 
     private String contextPath = "";
 
-    public LeonBrowserTester(Module module) {
+    private int httpPort = 8090;
+
+    public Module getModule() {
+        return module;
+    }
+
+    public void setModule(Module module) {
         this.module = module;
     }
 
@@ -56,12 +54,12 @@ public class LeonBrowserTester {
     }
 
     public void start() {
-        Thread taskFirefox = new Thread(new Runnable() {
+        Thread taskBrowser = new Thread(new Runnable() {
             public void run() {
-                webDriver = new FirefoxDriver();
+                startBrowser();
             }
         });
-        taskFirefox.start();
+        taskBrowser.start();
 
         Thread taskJetty = new Thread(new Runnable() {
             public void run() {
@@ -87,7 +85,7 @@ public class LeonBrowserTester {
         taskJetty.start();
 
         try {
-            taskFirefox.join();
+            taskBrowser.join();
             taskJetty.join();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
@@ -96,98 +94,35 @@ public class LeonBrowserTester {
 
     public void stop() throws Exception {
         server.stop();
-        webDriver.quit();
+        stopBrowser();
     }
 
-    public WebDriver getWebDriver() {
-        return webDriver;
+    public TopicSubscriptionsTester getTopicSubscriptionsTester() {
+        return new TopicSubscriptionsTester(this);
     }
 
     public void openPage(Class<?> basePackage, String name) {
         openPage(basePackage.getPackage().getName().replace('.', '/') + "/" + name);
     }
 
-    public void openPage(String url) {
-        // TODO this check may not be required anymore
-        // // Possible Selenium bug: Opening e.g. http://localhost:8080// causes a RuntimeException
-        // String _url = url.equals("/") ? "" : url;
+    abstract void startBrowser();
 
-        String _url = url;
-        webDriver.get("http://localhost:" + httpPort + getContextPath() + "/" + _url);
-    }
+    abstract void stopBrowser();
 
-    public WebElement findElementById(String id) {
-        return webDriver.findElement(By.id(id));
-    }
+    public abstract void openPage(String url);
 
-    public WebElement findElementByName(String name) {
-        return webDriver.findElement(By.name(name));
-    }
+    public abstract String getAttributeValueOfElementById(String id, String attribute);
 
-    public void setTextForElementWithId(String id, String text) {
-        WebElement e = findElementById(id);
-        e.clear();
-        e.sendKeys(text);
-    }
+    public abstract void setTextForElementWithId(String id, String text);
 
-    public void setTextForElementWithName(String name, String text) {
-        WebElement e = findElementByName(name);
-        e.clear();
-        e.sendKeys(text);
-    }
+    public abstract void setTextForElementWithName(String name, String text);
 
-    public void setOnForElement(WebElement element) {
-        if (!element.isSelected()) {
-            element.click();
-        }
-    }
+    public abstract void setOnForElementWithId(String id);
 
-    public void setOffForElement(WebElement element) {
-        if (element.isSelected()) {
-            element.click();
-        }
-    }
+    public abstract void setOffForElementWithId(String id);
 
-    public void setOnForElementWithId(String id) {
-        setOnForElement(findElementById(id));
-    }
+    public abstract void setOnForElementWithName(String name);
 
-    public void setOffForElementWithId(String id) {
-        setOffForElement(findElementById(id));
-    }
-
-    public void setOnForElementWithName(String name) {
-        setOnForElement(findElementByName(name));
-    }
-
-    public void setOffForElementWithName(String name) {
-        setOffForElement(findElementByName(name));
-    }
-
-    public void waitForHtmlValue(String id, String expectedValue) {
-        waitForHtmlValue(id, expectedValue, 5);
-    }
-
-    public void waitForHtmlValue(String id, String expectedValue, int timeOutSeconds) {
-        long startTime = System.currentTimeMillis();
-        while (!findElementById(id).getText().equals(expectedValue)) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            if ((startTime + (timeOutSeconds * 1000)) < System.currentTimeMillis()) {
-                throw new RuntimeException("Timeout while waiting for the value ["
-                        + expectedValue
-                        + "] in element ["
-                        + id
-                        + "]");
-            }
-        }
-    }
-
-    public TopicSubscriptionsTester getTopicSubscriptionsTester() {
-        return new TopicSubscriptionsTester(this);
-    }
+    public abstract void setOffForElementWithName(String name);
 
 }

@@ -1,4 +1,4 @@
-package io.leon.web.browser.comet;
+package io.leon.web.browser.selenium.comet;
 
 import io.leon.LeonModule;
 

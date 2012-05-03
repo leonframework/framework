@@ -1,4 +1,4 @@
-package io.leon.web.browser.cockpit;
+package io.leon.web.browser.selenium.cockpit;
 
 import io.leon.LeonModule;
 

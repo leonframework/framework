@@ -1,9 +1,3 @@
-/*
- * Created by IntelliJ IDEA.
- * User: roman
- * Date: 4/30/12
- * Time: 11:12 AM
- */
 package io.leon.web.comet.annotations;
 
 import com.google.inject.BindingAnnotation;

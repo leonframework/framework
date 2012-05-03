@@ -1,6 +1,6 @@
-package io.leon.web.browser.cockpit;
+package io.leon.web.browser.selenium.cockpit;
 
-import io.leon.tests.browser.LeonBrowserTester;
+import io.leon.tests.browser.FirefoxLeonBrowserTester;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -8,11 +8,11 @@ import org.testng.annotations.Test;
 @Test(groups = "nodefault")
 public class BasicCockpitTest {
 
-    private LeonBrowserTester leon;
+    private FirefoxLeonBrowserTester leon;
 
     @BeforeClass
     public void beforeClass() throws Exception {
-        leon = new LeonBrowserTester(new BasicCockpitTestModule());
+        leon = new FirefoxLeonBrowserTester(new BasicCockpitTestModule());
         leon.start();
     }
 
