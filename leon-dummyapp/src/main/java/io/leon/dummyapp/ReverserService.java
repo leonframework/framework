@@ -28,7 +28,7 @@ public class ReverserService {
             public void run() {
                 try {
                     Thread.sleep(1000);
-                    topicsService.send("reversed", data);
+                    topicsService.send("/reversed", data);
                 } catch (InterruptedException e) {
                     //
                 }

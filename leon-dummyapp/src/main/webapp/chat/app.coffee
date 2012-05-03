@@ -11,7 +11,7 @@
   $scope.messages = []
   $scope.user = "John"
 
-  leon.subscribeTopic "chat", (d) ->
+  leon.subscribeTopic "/chat", (d) ->
     $scope.addMessage(d)
 
   $scope.send = ->

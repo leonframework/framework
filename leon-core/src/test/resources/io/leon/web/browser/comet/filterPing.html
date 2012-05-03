@@ -5,18 +5,18 @@
     <script type="text/javascript">
 	    $(function() {
             // First we set 2 filter values
-	        getLeon().filterTopic("filterPing", "key1", "value1");
-	        getLeon().filterTopic("filterPing", "key2", "value2");
+	        getLeon().filterTopic("/filterPing", "key1", "value1");
+	        getLeon().filterTopic("/filterPing", "key2", "value2");
 
             // Then we subscribe the actual topic
-	        getLeon().subscribeTopic("filterPing", function(data) {
+	        getLeon().subscribeTopic("/filterPing", function(data) {
                 $("#status_" + data.key).text(data.value);
 	        });
 
             // And then we set 3 more filter values
-            getLeon().filterTopic("filterPing", "key4", "value4");
-            getLeon().filterTopic("filterPing", "key3", "value3");
-            getLeon().filterTopic("filterPing", "key5", "value5");
+            getLeon().filterTopic("/filterPing", "key4", "value4");
+            getLeon().filterTopic("/filterPing", "key3", "value3");
+            getLeon().filterTopic("/filterPing", "key5", "value5");
 
             $("#status").text("init");
 

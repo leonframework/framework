@@ -40,7 +40,7 @@ var _leon = (function() {
                         if (!(typeof onComplete === "undefined")) {
                             onComplete()
                         }
-                    }
+                    };
 
                     jQuery.post(url, request, handler);
                     getLeon().log("Ajax [" + url + " " + methodName + "] called");
@@ -74,5 +74,5 @@ var _leon = (function() {
 
 var getLeon = function() {
 	return _leon;
-}
+};
 

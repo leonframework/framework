@@ -10,7 +10,7 @@ public class CockpitModule extends LeonModule {
         VirtualLeonJsFileBinder leonJsBinder = new VirtualLeonJsFileBinder(binder());
         leonJsBinder.bindAndAddContribution(CockpitLeonJsContribution.class);
 
-        addTopic("leon.developmentMode.resourceWatcher.resourceChanged");
+        addTopic("/leon/developmentMode/resourceWatcher/resourceChanged");
     }
 
 }

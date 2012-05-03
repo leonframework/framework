@@ -64,7 +64,7 @@ getCurrentTime = ->
 getLeon().cockpit =
 	enable: ->
 		showMenu()
-		getLeon().subscribeTopic "leon.developmentMode.resourceWatcher.resourceChanged", (data) ->
+		getLeon().subscribeTopic "/leon/developmentMode/resourceWatcher/resourceChanged", (data) ->
 			getLeon().log("Reloaded [" + data.name + "]")
 
 	disable: ->
