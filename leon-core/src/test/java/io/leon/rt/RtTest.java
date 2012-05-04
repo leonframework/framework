@@ -54,7 +54,7 @@ public class RtTest {
         list.add("b");
         list.add("c");
 
-        Node node = rt.of(list);
+        Node node = rt.of((Object) list);
         assertEquals(node.get(0).val(), "a");
         assertEquals(node.get(1).val(), "b");
         assertEquals(node.get(2).val(), "c");

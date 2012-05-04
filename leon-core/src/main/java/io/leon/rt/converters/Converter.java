@@ -1,10 +1,13 @@
 package io.leon.rt.converters;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.leon.rt.option.Option;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static io.leon.rt.option.Option.none;
@@ -40,8 +43,24 @@ public class Converter {
         if (toConverters == null) {
             // No direct converters found
             if (!fromType.getClass().equals(Object.class)) {
-                // check if we can find a converter for a superclass of fromType
-                return convert(fromType.getSuperclass(), toType, value);
+                // check if we can find a converter for a superclass or interface of fromType
+                List<Class<?>> superTypeAndInterfaces = Lists.newLinkedList();
+
+                // get all supertypes and interfaces ...
+                if (!fromType.isInterface()) {
+                    superTypeAndInterfaces.add(fromType.getSuperclass());
+                }
+                superTypeAndInterfaces.addAll(Arrays.asList(fromType.getInterfaces()));
+
+                // ... and try to convert with them
+                for (Class<?> superTypeOrInterface : superTypeAndInterfaces) {
+                    Option<B> withSuper = convert(superTypeOrInterface, toType, value);
+                    if (withSuper.isDefined()) {
+                        return withSuper;
+                    }
+                }
+                // no converter for a superclass or interface found
+                return none();
             } else {
                 return none();
             }

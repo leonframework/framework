@@ -5,23 +5,44 @@ import com.google.common.collect.Lists;
 
 import java.lang.reflect.Constructor;
 import java.util.Collection;
+import java.util.List;
 
-public class CollectionNode<E> extends Node<Collection<E>> {
+public class CollectionNode<E> {
 
-    protected CollectionNode(Rt rt, Collection<E> element) {
-        super(rt, element);
+    private final Rt rt;
+    private final Collection<E> collection;
+
+    protected CollectionNode(Rt rt, Collection<E> collection) {
+        this.rt = rt;
+        this.collection = collection;
+    }
+
+    public Rt getRt() {
+        return rt;
+    }
+
+    public Collection<E> getCollection() {
+        return collection;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Node<E> get(int index) {
+        List list = rt.getConverter().convert(getCollection().getClass(), List.class, getCollection())
+                .getOrThrowException("This collection does not support random access.");
+
+        return (Node<E>) getRt().of(list.get(index));
     }
 
     @SuppressWarnings("unchecked")
     public <A> Collection<A> map(Function<? super E, ? extends A> function) {
         Collection<A> newCollection;
         try {
-            Constructor<? extends Collection> constructor = val().getClass().getConstructor();
+            Constructor<? extends Collection> constructor = getCollection().getClass().getConstructor();
             newCollection = constructor.newInstance();
         } catch (Exception e) {
-            newCollection = Lists.newArrayListWithCapacity(val().size());
+            newCollection = Lists.newArrayListWithCapacity(getCollection().size());
         }
-        for (E e : val()) {
+        for (E e : getCollection()) {
             newCollection.add(function.apply(e));
         }
         return newCollection;
@@ -32,6 +53,6 @@ public class CollectionNode<E> extends Node<Collection<E>> {
 
     @Override
     public String toString() {
-        return "CollectionNode(" + val() + ")";
+        return "CollectionNode(" + getCollection() + ")";
     }
 }

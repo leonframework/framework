@@ -1,28 +1,27 @@
 package io.leon.rt;
 
-import com.google.common.collect.Lists;
 import io.leon.rt.option.Option;
 
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.Map;
 
-public class Node<E> {
+public class Node<E> extends CollectionNode<E> {
 
-    private final Rt rt;
     private final E element;
 
     protected Node(Rt rt, E element) {
-        this.rt = rt;
+        super(rt, null);
         this.element = element;
-    }
-
-    public Rt getRt() {
-        return rt;
     }
 
     public E val() {
         return element;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Collection<E> getCollection() {
+        return (Collection<E>) getRt().getConverter().convert(element.getClass(), Collection.class, element).get();
     }
 
     public <A> A cast(Class<A> clazz) {
@@ -41,37 +40,20 @@ public class Node<E> {
     }
 
     public String valString() {
-        return rt.getConverter().convert(element.getClass(), String.class, element).getOrThrowException(
+        return getRt().getConverter().convert(element.getClass(), String.class, element).getOrThrowException(
                 this + " could not be coverted to a String.");
     }
 
     public int valInt() {
-        return rt.getConverter().convert(element.getClass(), Integer.class, element).getOrThrowException(
+        return getRt().getConverter().convert(element.getClass(), Integer.class, element).getOrThrowException(
                 this + " could not be coverted to an Integer.");
     }
 
     public Node<?> get(String key) {
         Map map = cast(Map.class);
-        return rt.of(map.get(key));
+        return getRt().of(map.get(key));
     }
 
-    public Node<?> get(int index) {
-        for (Iterator iter : castOption(Iterator.class)) {
-            ArrayList<Object> list = Lists.newArrayList();
-            while (iter.hasNext()) {
-                list.add(iter.next());
-            }
-            return rt.of(list.get(index));
-        }
-        for (Iterable iterable : castOption(Iterable.class)) {
-            ArrayList<Object> list = Lists.newArrayList();
-            for (Object anIterable : iterable) {
-                list.add(anIterable);
-            }
-            return rt.of(list.get(index));
-        }
-        throw new UnsupportedOperationException("This element can not be accessed as a Iterator or Iterable.");
-    }
 
     @Override
     public boolean equals(Object o) {

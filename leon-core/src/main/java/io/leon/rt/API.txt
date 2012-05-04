@@ -1,7 +1,0 @@
-        //RT.of(foo).filter().where(">=", "bar")
-        //RT.of(foo).filter().where(RT.greaterEquals, "bar")
-        //RT.of(foo).filter().where(RT.stringStartWith, 1, 2)
-        //RT.of(foo).filter("address.zipCode").where(RT.stringStartWith, "bar")
-        //
-        //RT newMap = RT.of(map).update("firstname").to("Roman");
-        //RT newMap = RT.of(map).updateIn(5, "address", "zipcode").to("Roman");

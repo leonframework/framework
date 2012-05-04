@@ -35,6 +35,18 @@ public class RtWithCollectionsTest {
         rt = new Rt();
     }
 
+    public void getByIndex() {
+        List<String> list = Lists.newArrayList();
+        list.add("a");
+        list.add("b");
+        list.add("c");
+
+        CollectionNode<String> node = rt.of(list);
+        assertEquals(node.get(0).val(), "a");
+        assertEquals(node.get(1).val(), "b");
+        assertEquals(node.get(2).val(), "c");
+    }
+
     public void mapOverListOfIntegers() {
         CollectionNode<Integer> collectionNode = rt.of(arrayListWithIntegers);
         Collection<Object> collectionPlus10 = collectionNode.map(plus10);
