@@ -28,6 +28,8 @@ class DelegatingResourceLocation(loaderFn: (String) => URL) extends ResourceLoca
         def getInputStream() = {
           r.openStream()
         }
+
+        override def isCachable() = true
       }
       return Some(resource)
     }

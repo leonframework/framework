@@ -35,10 +35,10 @@ class CoffeeScriptResourceProcessor @Inject()(leonScriptEngineProvider: Provider
       new Resource(in.name) {
         def getLastModified() = in.getLastModified()
         def getInputStream() = ResourceUtils.stringToInputStream(asJavaScript.toString)
+        override def isCachable() = true
       }
     }
   }
 
-  override def isCachable = true
 
 }

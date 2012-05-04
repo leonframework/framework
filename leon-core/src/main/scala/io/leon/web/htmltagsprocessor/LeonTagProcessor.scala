@@ -56,6 +56,8 @@ class LeonTagProcessor @Inject()(injector: Injector) extends ResourceProcessor {
         new ByteArrayInputStream(buf.toByteArray)
       }
     }
+
+    def isCachable() = true
   }
 
   private def measureTime[A](name: String)(func: => A) = {

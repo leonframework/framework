@@ -42,20 +42,32 @@ class ResourceCache @Inject()(configMap: ConfigMap) {
    * @param fileName the filename that should be used to put the resource into the cache
    * @param resource the resource that should be stored in the cache
    */
-  def put(fileName: String, resource: Resource) {
+  def put(fileName: String, resource: Resource): Resource = {
     val cacheFile = new File(cacheDir, fileName)
     cacheFile.getParentFile.mkdirs()
 
     val reader = new BufferedReader(new InputStreamReader(new BufferedInputStream(resource.getInputStream())))
-    val writer = new BufferedWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(cacheFile))))
+    val writerFile = new BufferedWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(cacheFile))))
+    val byteArrayOutput = new ByteArrayOutputStream()
+    val writerMem = new BufferedWriter(new OutputStreamWriter(new BufferedOutputStream(byteArrayOutput)))
 
     var line = reader.readLine()
     while (line != null) {
-      writer.write(line + "\n")
+      writerFile.write(line + "\n")
+      writerMem.write(line + "\n")
       line = reader.readLine()
     }
-    writer.close()
+    writerFile.close()
+    writerMem.close()
     reader.close()
+
+    new Resource(fileName) {
+      def getLastModified() = resource.getLastModified()
+
+      def getInputStream() = new ByteArrayInputStream(byteArrayOutput.toByteArray)
+
+      def isCachable() = true
+    }
   }
 
   /**
@@ -71,6 +83,8 @@ class ResourceCache @Inject()(configMap: ConfigMap) {
       def getLastModified() = f.lastModified()
 
       def getInputStream() = new FileInputStream(f)
+
+      def isCachable() = true
     }
   }
 

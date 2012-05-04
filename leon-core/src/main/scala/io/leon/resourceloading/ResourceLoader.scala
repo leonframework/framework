@@ -16,15 +16,18 @@ import io.leon.guice.GuiceUtils
 import collection.immutable.List
 import processor.{ResourceProcessor, ResourceProcessorRegistry}
 import watcher.{ResourceWatcher, ResourceChangedListener}
+import scala.collection.JavaConverters._
 
 class ResourceLoader @Inject()(injector: Injector,
                                resourceProcessorRegistry: ResourceProcessorRegistry,
                                resourceWatcher: ResourceWatcher,
                                resourceCache: ResourceCache) {
 
-  import scala.collection.JavaConverters._
-
   private val logger = LoggerFactory.getLogger(getClass)
+
+  private val resourceLoadingStack = new ThreadLocal[java.util.List[String]] {
+    override def initialValue() = new java.util.concurrent.CopyOnWriteArrayList[String]()
+  }
 
   val resourceLocations: List[Binding[ResourceLocation]] = {
     GuiceUtils.getByType(injector, classOf[ResourceLocation]).asScala.toList
@@ -50,6 +53,7 @@ class ResourceLoader @Inject()(injector: Injector,
 
   def getResourceOption(fileName: String, changedListener: ResourceChangedListener): Option[Resource] = {
     logger.trace("Searching resource [{}]", fileName)
+    resourceLoadingStack.get().add(0, fileName)
 
     val processors = resourceProcessorRegistry.getProcessorsForFile(fileName)
     val combinations = for {
@@ -60,17 +64,14 @@ class ResourceLoader @Inject()(injector: Injector,
       (fileName, location, processor)
     }
 
-    tryCombinations(combinations) match {
+    val result = tryCombinations(combinations) match {
       case None => None
       case Some((fileNameForProcessor, location, processor, processed)) =>
         resourceWatcher.addResource(fileNameForProcessor, location, processor, processed.get, changedListener)
-
-        val es = resourceProcessorRegistry.getEnrichersForFile(fileName)
-        val allEnriched = es.foldLeft(processed.get) { (enriched, enricher) =>
-          enricher.process(enriched)
-        }
-        Option(allEnriched)
+        processed
     }
+    resourceLoadingStack.get().remove(0)
+    result
   }
 
   private def tryCombinations(combinations: List[(String, ResourceLocation, ResourceProcessor)])
@@ -87,7 +88,7 @@ class ResourceLoader @Inject()(injector: Injector,
           logger.trace("Found resource [{}].", fileNameForProcessor)
 
           // Check if the processor requested caching
-          val cachedOrNormal = if (processor.isCachable) {
+          val cachedOrNormal = if (resource.isCachable()) {
             logger.trace("Checking cache for resource [{}]", fileName)
             val cacheTimestamp = resourceCache.getTimestampOfCacheFile(fileName)
             val normalTimestamp = resource.getLastModified()
@@ -96,8 +97,15 @@ class ResourceLoader @Inject()(injector: Injector,
               // cache is out of date
               logger.debug("Cached version for resource [{}] is out of date.", fileName)
               val processed = processor.process(resource)
-              resourceCache.put(fileName, processed)
-              processed
+
+              // apply enricher
+              val es = resourceProcessorRegistry.getEnrichersForFile(fileName)
+              val enriched = es.foldLeft(processed) { (enriched, enricher) =>
+                logger.debug("Applying enricher {}", enricher)
+                enricher.process(enriched)
+              }
+              val cachedResource = resourceCache.put(fileName, enriched)
+              cachedResource // RR: I used a variable here just to make it obvious that a cached resource gets returned
             } else {
               // cache is up to date
               logger.trace("Cached version for resource [{}] is up to date.", fileName)

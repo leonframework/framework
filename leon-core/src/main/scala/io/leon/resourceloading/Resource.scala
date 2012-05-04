@@ -22,4 +22,6 @@ abstract class Resource(val name: String) {
 
   def getInputStream(): InputStream
 
+  def isCachable(): Boolean
+
 }
