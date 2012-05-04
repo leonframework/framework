@@ -1,7 +1,5 @@
 package io.leon.rt;
 
-import io.leon.rt.option.Option;
-
 import java.util.Collection;
 import java.util.Map;
 
@@ -24,21 +22,6 @@ public class Node<E> extends CollectionNode<E> {
         return (Collection<E>) getRt().getConverter().convert(element.getClass(), Collection.class, element).get();
     }
 
-    public <A> A cast(Class<A> clazz) {
-        for (A casted : castOption(clazz)) {
-            return casted;
-        }
-        throw new IllegalArgumentException("Current element is not an instance of " + clazz.getName());
-    }
-
-    public <A> Option<A> castOption(Class<A> clazz) {
-        if (clazz.isInstance(element)) {
-            return Option.some(clazz.cast(element));
-        } else {
-            return Option.none();
-        }
-    }
-
     public String valString() {
         return getRt().getConverter().convert(element.getClass(), String.class, element).getOrThrowException(
                 this + " could not be coverted to a String.");
@@ -50,7 +33,7 @@ public class Node<E> extends CollectionNode<E> {
     }
 
     public Node<?> get(String key) {
-        Map map = cast(Map.class);
+        Map map = getRt().getConverter().convert(element.getClass(), Map.class, element).get();
         return getRt().of(map.get(key));
     }
 
