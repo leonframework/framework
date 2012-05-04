@@ -9,15 +9,15 @@ import java.util.List;
 
 public class CollectionNode<E> {
 
-    private final Rt rt;
+    private final RelaxedTypes rt;
     private final Collection<E> collection;
 
-    protected CollectionNode(Rt rt, Collection<E> collection) {
+    protected CollectionNode(RelaxedTypes rt, Collection<E> collection) {
         this.rt = rt;
         this.collection = collection;
     }
 
-    public Rt getRt() {
+    public RelaxedTypes getRt() {
         return rt;
     }
 

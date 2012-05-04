@@ -12,9 +12,9 @@ import java.util.List;
 import static org.testng.Assert.assertEquals;
 
 @Test
-public class RtWithCollectionsTest {
+public class CollectionNodeTest {
 
-    private Rt rt;
+    private RelaxedTypes rt;
 
     private List<Integer> arrayListWithIntegers = Lists.newArrayList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 
@@ -32,7 +32,7 @@ public class RtWithCollectionsTest {
 
     @BeforeTest
     public void beforeTest() {
-        rt = new Rt();
+        rt = new RelaxedTypes();
     }
 
     public void getByIndex() {

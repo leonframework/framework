@@ -5,16 +5,16 @@ import io.leon.rt.converters.Converter;
 
 import java.util.Collection;
 
-public class Rt {
+public class RelaxedTypes {
 
     private final Converter converter;
 
-    public Rt() {
+    public RelaxedTypes() {
         converter = new Converter();
     }
 
     @Inject
-    public Rt(Converter converter) {
+    public RelaxedTypes(Converter converter) {
         this.converter = converter;
     }
 

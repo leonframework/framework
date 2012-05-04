@@ -12,13 +12,13 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 @Test
-public class RtTest {
+public class NodeTest {
 
-    private Rt rt;
+    private RelaxedTypes rt;
 
     @BeforeTest
     public void beforeTest() {
-        rt = new Rt();
+        rt = new RelaxedTypes();
     }
 
     public void val() {

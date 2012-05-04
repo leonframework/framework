@@ -9,7 +9,7 @@ public class Node<E> extends CollectionNode<E> {
 
     private final E element;
 
-    protected Node(Rt rt, E element) {
+    protected Node(RelaxedTypes rt, E element) {
         super(rt, null);
         this.element = element;
     }
