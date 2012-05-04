@@ -45,6 +45,11 @@ public class FirefoxLeonBrowserTester extends LeonBrowserTester {
         webDriver.get(uri);
     }
 
+    @Override
+    public String getHtml() {
+        return webDriver.getPageSource();
+    }
+
     public WebElement findElementById(String id) {
         return webDriver.findElement(By.id(id));
     }

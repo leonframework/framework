@@ -15,7 +15,7 @@ public abstract class LeonBrowserTester {
 
     private String contextPath = "";
 
-    private int httpPort = 8090;
+    private int httpPort = 8875;
 
     public Module getModule() {
         return module;
@@ -92,9 +92,13 @@ public abstract class LeonBrowserTester {
         }
     }
 
-    public void stop() throws Exception {
-        server.stop();
-        stopBrowser();
+    public void stop() {
+        try {
+            server.stop();
+            stopBrowser();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public TopicSubscriptionsTester getTopicSubscriptionsTester() {
@@ -110,6 +114,8 @@ public abstract class LeonBrowserTester {
     abstract void stopBrowser();
 
     public abstract void openPage(String url);
+
+    public abstract String getHtml();
 
     public abstract String getAttributeValueOfElementById(String id, String attribute);
 

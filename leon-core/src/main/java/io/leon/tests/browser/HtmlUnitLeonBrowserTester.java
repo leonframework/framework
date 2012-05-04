@@ -37,6 +37,10 @@ public class HtmlUnitLeonBrowserTester extends LeonBrowserTester {
         }
     }
 
+    public String getHtml() {
+        return currentPage.asText();
+    }
+
     @Override
     public String getAttributeValueOfElementById(String id, String attribute) {
         return currentPage.getElementById(id).getAttribute(attribute);

@@ -14,7 +14,9 @@ import io.leon.resourceloading.processor.ResourceProcessor
 import io.leon.resourceloading.Resource
 import com.google.inject.Inject
 import io.leon.web.TopicsService
+import scala.collection.JavaConverters._
 
+// TODO get TopicsService with an Injector instance so that user code is not forced to install the CometModule all the time
 class ResourceWatcher @Inject()(topicsService: TopicsService) {
 
   case class WatchedResource(fileNameForProcessor: String,
@@ -23,8 +25,6 @@ class ResourceWatcher @Inject()(topicsService: TopicsService) {
                              resource: Resource,
                              var lastTimestamp: Long,
                              changedListener: ResourceChangedListener)
-
-  import scala.collection.JavaConverters._
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
