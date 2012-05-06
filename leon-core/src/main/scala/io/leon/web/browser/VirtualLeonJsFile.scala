@@ -10,10 +10,10 @@ package io.leon.web.browser
 
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import com.google.inject.{Injector, Inject}
-import io.leon.resourceloading.{ResourceUtils, ResourceLoader}
+import io.leon.utils.{ResourceUtils, GuiceUtils}
 import org.slf4j.LoggerFactory
-import io.leon.utils.GuiceUtils
-import java.io.{EOFException, IOException, Writer, BufferedWriter}
+import java.io.{EOFException, Writer, BufferedWriter}
+import io.leon.resourceloading.ResourceLoader
 
 class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) extends HttpServlet {
 

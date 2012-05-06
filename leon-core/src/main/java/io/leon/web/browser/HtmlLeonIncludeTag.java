@@ -2,7 +2,7 @@ package io.leon.web.browser;
 
 import com.google.inject.Inject;
 import io.leon.resourceloading.ResourceLoader;
-import io.leon.resourceloading.ResourceUtils;
+import io.leon.utils.ResourceUtils;
 import io.leon.web.htmltagsprocessor.LeonTagRewriter;
 import net.htmlparser.jericho.OutputDocument;
 import net.htmlparser.jericho.Source;

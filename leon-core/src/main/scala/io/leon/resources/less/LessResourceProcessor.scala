@@ -11,8 +11,8 @@ package io.leon.resources.less
 import io.leon.javascript.LeonScriptEngine
 import com.google.inject.{Provider, Inject}
 import io.leon.resourceloading.processor.ResourceProcessor
-import io.leon.resourceloading.{ResourceUtils, Resource}
-
+import io.leon.utils.ResourceUtils
+import io.leon.resourceloading.Resource
 
 class LessResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScriptEngine],
                                       originalLessFilePathHolder: OriginalLessFilePathHolder)

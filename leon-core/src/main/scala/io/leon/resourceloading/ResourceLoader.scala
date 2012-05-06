@@ -18,6 +18,7 @@ import watcher.{ResourceWatcher, ResourceChangedListener}
 import scala.collection.JavaConverters._
 import io.leon.config.ConfigMap
 import io.leon.utils.{FileUtils, GuiceUtils}
+import java.util.LinkedList
 
 class ResourceLoader @Inject()(injector: Injector,
                                resourceProcessorRegistry: ResourceProcessorRegistry,
@@ -27,13 +28,15 @@ class ResourceLoader @Inject()(injector: Injector,
 
   private val logger = LoggerFactory.getLogger(getClass)
 
-  private val resourceLoadingStack = new ThreadLocal[java.util.List[String]] {
-    override def initialValue() = new java.util.concurrent.CopyOnWriteArrayList[String]()
+  private val resourceLoadingStack = new ThreadLocal[LinkedList[String]] {
+    override def initialValue() = new LinkedList[String]()
   }
 
   val resourceLocations: List[Binding[ResourceLocation]] = {
     GuiceUtils.getByType(injector, classOf[ResourceLocation]).asScala.toList
   }
+
+  def getResourceLoadingStack(): LinkedList[String] = resourceLoadingStack.get()
 
   def getResource(fileName: String): Resource = {
     getResource(fileName, null)
@@ -54,13 +57,8 @@ class ResourceLoader @Inject()(injector: Injector,
   }
 
   def getResourceOption(_fileName: String, changedListener: ResourceChangedListener): Option[Resource] = {
-    // check if a relative path was used
-    val fileName = if (!_fileName.startsWith("/")) {
-      val predecessor = resourceLoadingStack.get().get(0)
-      FileUtils.getDirectoryNameOfPath(predecessor) + _fileName
-    } else {
-      _fileName
-    }
+    val fileName = convertRelativePathToAbsolutePathIfNecessary(_fileName)
+    resourceCache.doDependencyCheck(fileName)
     resourceLoadingStack.get().add(0, fileName)
     logger.trace("Searching resource [{}]", fileName)
 
@@ -83,6 +81,19 @@ class ResourceLoader @Inject()(injector: Injector,
     result
   }
 
+  private def convertRelativePathToAbsolutePathIfNecessary(fileName: String): String = {
+    if (!fileName.startsWith("/")) {
+      if (resourceLoadingStack.get().size() == 0) {
+        throw new IllegalStateException(
+          "Relative paths are only possible for nested resource loading. Path: '" + fileName + "'")
+      }
+      val predecessor = resourceLoadingStack.get().get(0)
+      FileUtils.getDirectoryNameOfPath(predecessor) + fileName
+    } else {
+      fileName
+    }
+  }
+
   private def tryCombinations(combinations: List[(String, ResourceLocation, ResourceProcessor)])
       : Option[(String, ResourceLocation, ResourceProcessor, Option[Resource])] =
 
@@ -99,8 +110,15 @@ class ResourceLoader @Inject()(injector: Injector,
           // Check if the processor requested caching (if caching is not disabled)
           val cachedOrNormal = if (!configMap.isCacheDisabled && resource.isCachable()) {
             logger.trace("Checking cache for resource [{}]", fileName)
+
+
+
+            // --- TODO move timestamp comparison to cache
             val cacheTimestamp = resourceCache.getTimestampOfCacheFile(fileName)
-            val normalTimestamp = resource.getLastModified()
+            val normalTimestamp = resource.getLastModified() // TODO use timestamps of dependencies as well
+            // ---
+
+
 
             if (normalTimestamp > cacheTimestamp) {
               // cache is out of date

@@ -15,7 +15,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package io.leon.resourceloading;
+package io.leon.utils;
 
 import java.io.*;
 

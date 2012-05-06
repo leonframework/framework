@@ -11,8 +11,12 @@ package io.leon.resourceloading
 import io.leon.config.ConfigMap
 import com.google.inject.Inject
 import java.io._
+import java.util.concurrent.locks.ReentrantLock
+import java.util.LinkedList
+import io.leon.utils.FileUtils
 
-class ResourceCache @Inject()(configMap: ConfigMap) {
+class ResourceCache @Inject()(resourceLoader: ResourceLoader,
+                              configMap: ConfigMap) {
 
   private val appName = configMap.getApplicationName
 
@@ -20,10 +24,22 @@ class ResourceCache @Inject()(configMap: ConfigMap) {
 
   private val javaIoTmpDir = System.getProperty("java.io.tmpdir")
 
-  private val cacheDir = new File(javaIoTmpDir + sep + "leon" + sep + appName)
+  private val cacheDir = new File(javaIoTmpDir + sep + "leon" + sep + appName + sep + "cache")
+
+  private val dependenciesDir = new File(javaIoTmpDir + sep + "leon" + sep + appName + sep + "dependencies")
+
+  private val dependencyWriterLock = new ReentrantLock()
+
+  private def getResourceLoadingStack(): LinkedList[String] = {
+    resourceLoader.getResourceLoadingStack()
+  }
 
   private def getCacheFile(filename: String): File = {
     new File(cacheDir, filename)
+  }
+
+  private def getDependencyFile(fileName: String): File = {
+    new File(dependenciesDir, fileName)
   }
 
   /**
@@ -31,11 +47,47 @@ class ResourceCache @Inject()(configMap: ConfigMap) {
    * @return the timestamp of the file in the cache or 0L if the file does not exist in the cache
    */
   def getTimestampOfCacheFile(filename: String): Long = {
+    // TODO delete this method, move logic to isCacheUpToDate
     val f = getCacheFile(filename)
     if (!f.exists())
       0
     else
       f.lastModified()
+  }
+
+  private def addDependency(rootResource: String, dependency: String) {
+    dependencyWriterLock.lock()
+    try {
+      val dependencyFile = getDependencyFile(rootResource)
+      dependencyFile.getParentFile.mkdirs()
+
+      // read dependency file
+      val lines = FileUtils.readLines(dependencyFile)
+
+      // check if this is a new dependency
+      if (!lines.contains(dependency)) {
+        val writer = new BufferedWriter(new FileWriter(dependencyFile))
+        // add new dependency
+        writer.write(dependency)
+        writer.close()
+      }
+    } finally {
+      dependencyWriterLock.unlock()
+    }
+  }
+
+  def doDependencyCheck(fileName: String) {
+    if (getResourceLoadingStack().size() > 0) { // Nested resource loading
+      // Get "root" resource
+      val rootResource = getResourceLoadingStack().get(getResourceLoadingStack().size() - 1)
+
+      // Add the current resource as a dependency of the "root" resource
+      addDependency(rootResource, fileName)
+    }
+  }
+
+  def isCacheUpToDate(): Boolean = {
+    false
   }
 
   /**

@@ -3,7 +3,7 @@ package io.leon.web.cockpit;
 import com.google.inject.Inject;
 import io.leon.resourceloading.Resource;
 import io.leon.resourceloading.ResourceLoader;
-import io.leon.resourceloading.ResourceUtils;
+import io.leon.utils.ResourceUtils;
 import io.leon.web.browser.VirtualLeonJsFileContribution;
 
 import java.util.Map;
