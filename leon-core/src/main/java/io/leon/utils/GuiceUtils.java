@@ -1,4 +1,4 @@
-package io.leon.guice;
+package io.leon.utils;
 
 import com.google.inject.*;
 import com.google.inject.binder.ScopedBindingBuilder;
