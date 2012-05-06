@@ -10,7 +10,7 @@ package io.leon.resources.coffeescript
 
 import com.google.inject.AbstractModule
 import io.leon.resourceloading.processor.ResourceProcessor
-import io.leon.guice.GuiceUtils
+import io.leon.utils.GuiceUtils
 
 class CoffeeScriptModule extends AbstractModule {
   def configure() {

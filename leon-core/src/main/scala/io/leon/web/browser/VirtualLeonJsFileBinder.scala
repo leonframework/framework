@@ -9,7 +9,7 @@
 package io.leon.web.browser
 
 import com.google.inject.{Scopes, Binder}
-import io.leon.guice.GuiceUtils
+import io.leon.utils.GuiceUtils
 
 class VirtualLeonJsFileBinder(binder: Binder) {
 

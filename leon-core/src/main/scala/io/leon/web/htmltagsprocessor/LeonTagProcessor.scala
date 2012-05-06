@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory
 import com.google.inject.{Injector, Inject}
 import net.htmlparser.jericho._
 import java.io._
-import io.leon.guice.GuiceUtils
+import io.leon.utils.GuiceUtils
 import io.leon.resourceloading.processor.ResourceProcessor
 import scala.collection.JavaConverters._
 

@@ -13,7 +13,7 @@ import io.leon.resourceloading.processor.{NoOpResourceProcessor, ResourceProcess
 import io.leon.config.ConfigMapHolder
 import location.{ServletContextResourceLocation, ResourceLocation, DelegatingResourceLocation}
 import watcher.ResourceWatcher
-import io.leon.guice.GuiceUtils
+import io.leon.utils.GuiceUtils
 import com.google.inject.{Scopes, Inject, AbstractModule}
 
 class ResourceLoadingModule extends AbstractModule {

@@ -12,7 +12,7 @@ import com.google.inject._
 import name.Named
 import io.leon.web.browser.VirtualLeonJsFileContribution
 import java.lang.StringBuffer
-import io.leon.guice.GuiceUtils
+import io.leon.utils.GuiceUtils
 
 class AjaxVirtualLeonJsFileContribution @Inject()(injector: Injector) extends VirtualLeonJsFileContribution {
 

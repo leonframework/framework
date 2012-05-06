@@ -9,7 +9,7 @@
 package io.leon.resources.less
 
 import io.leon.resourceloading.processor.ResourceProcessor
-import io.leon.guice.GuiceUtils
+import io.leon.utils.GuiceUtils
 import com.google.inject.AbstractModule
 
 

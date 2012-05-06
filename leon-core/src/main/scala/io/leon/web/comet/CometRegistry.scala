@@ -18,7 +18,7 @@ import io.leon.config.ConfigMap
 import java.util.Map
 import scala.collection.JavaConverters._
 import com.google.common.collect.Maps
-import io.leon.guice.GuiceUtils
+import io.leon.utils.GuiceUtils
 import io.leon.web.{TopicsSend, TopicsService}
 import com.google.inject.{Provider, Injector, Inject}
 import java.util.concurrent.Executor

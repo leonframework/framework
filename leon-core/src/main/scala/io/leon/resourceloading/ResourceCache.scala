@@ -46,6 +46,7 @@ class ResourceCache @Inject()(configMap: ConfigMap) {
     val cacheFile = new File(cacheDir, fileName)
     cacheFile.getParentFile.mkdirs()
 
+    // TODO optimize! Do not use readLine, use bytes directly instead
     val reader = new BufferedReader(new InputStreamReader(new BufferedInputStream(resource.getInputStream())))
     val writerFile = new BufferedWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(cacheFile))))
     val byteArrayOutput = new ByteArrayOutputStream()

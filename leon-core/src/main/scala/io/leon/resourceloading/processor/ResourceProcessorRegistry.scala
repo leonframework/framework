@@ -10,7 +10,7 @@ package io.leon.resourceloading.processor
 
 import com.google.inject.{Injector, Inject}
 import scala.collection.mutable
-import io.leon.guice.GuiceUtils
+import io.leon.utils.GuiceUtils
 import scala.collection.JavaConverters._
 
 class ResourceProcessorRegistry @Inject()(injector: Injector,

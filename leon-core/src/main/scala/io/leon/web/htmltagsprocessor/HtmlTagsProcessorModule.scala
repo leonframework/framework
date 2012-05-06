@@ -9,7 +9,7 @@
 package io.leon.web.htmltagsprocessor
 
 import com.google.inject.AbstractModule
-import io.leon.guice.GuiceUtils
+import io.leon.utils.GuiceUtils
 import io.leon.resourceloading.processor.ResourceProcessor
 
 class HtmlTagsProcessorModule extends AbstractModule {

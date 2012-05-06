@@ -9,7 +9,7 @@
 package io.leon.web.htmltagsprocessor
 
 import com.google.inject.Binder
-import io.leon.guice.GuiceUtils
+import io.leon.utils.GuiceUtils
 
 class HtmlTagsProcessorBinder(binder: Binder) {
 

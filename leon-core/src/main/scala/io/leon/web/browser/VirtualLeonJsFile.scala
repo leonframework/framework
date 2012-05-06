@@ -12,7 +12,7 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import com.google.inject.{Injector, Inject}
 import io.leon.resourceloading.{ResourceUtils, ResourceLoader}
 import org.slf4j.LoggerFactory
-import io.leon.guice.GuiceUtils
+import io.leon.utils.GuiceUtils
 import java.io.{EOFException, IOException, Writer, BufferedWriter}
 
 class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) extends HttpServlet {
