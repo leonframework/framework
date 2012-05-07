@@ -30,12 +30,14 @@ class CoffeeScriptResourceProcessor @Inject()(leonScriptEngineProvider: Provider
 
   def process(in: Resource) = {
     synchronized {
-      val asCoffeeScript = ResourceUtils.inputStreamToString(in.getInputStream())
-      val options = ScriptableMap("filename" -> in.name)
-      val asJavaScript = leonScriptEngine.invokeFunction("CoffeeScript.compile", asCoffeeScript, options)
       new Resource(in.name) {
         def getLastModified() = in.getLastModified()
-        def getInputStream() = ResourceUtils.stringToInputStream(asJavaScript.toString)
+        def getInputStream() = {
+          val asCoffeeScript = ResourceUtils.inputStreamToString(in.getInputStream())
+          val options = ScriptableMap("filename" -> in.name)
+          val asJavaScript = leonScriptEngine.invokeFunction("CoffeeScript.compile", asCoffeeScript, options)
+          ResourceUtils.stringToInputStream(asJavaScript.toString)
+        }
         override def isCachable() = true
       }
     }
