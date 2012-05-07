@@ -17,24 +17,22 @@
 
 package io.leon.utils;
 
-import java.io.*;
+import com.google.common.io.CharStreams;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 
 public class ResourceUtils {
 
     public static String inputStreamToString(InputStream stream) {
-        BufferedReader br = new BufferedReader(new InputStreamReader(stream));
-        StringBuilder sb = new StringBuilder();
-        String line;
         try {
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-                sb.append("\n");
-            }
-            br.close();
+            return CharStreams.toString(new InputStreamReader(stream));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error while converting InputStream to String", e);
         }
-        return sb.toString();
     }
 
     public static InputStream stringToInputStream(String string) {
