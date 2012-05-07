@@ -18,25 +18,19 @@ import watcher.{ResourceWatcher, ResourceChangedListener}
 import scala.collection.JavaConverters._
 import io.leon.config.ConfigMap
 import io.leon.utils.{FileUtils, GuiceUtils}
-import java.util.LinkedList
 
 class ResourceLoader @Inject()(injector: Injector,
                                resourceProcessorRegistry: ResourceProcessorRegistry,
                                resourceWatcher: ResourceWatcher,
                                configMap: ConfigMap,
-                               resourceCache: ResourceCache) {
+                               resourceCache: ResourceCache,
+                               resourceLoadingStack: ResourceLoadingStack) {
 
   private val logger = LoggerFactory.getLogger(getClass)
-
-  private val resourceLoadingStack = new ThreadLocal[LinkedList[String]] {
-    override def initialValue() = new LinkedList[String]()
-  }
 
   val resourceLocations: List[Binding[ResourceLocation]] = {
     GuiceUtils.getByType(injector, classOf[ResourceLocation]).asScala.toList
   }
-
-  def getResourceLoadingStack(): LinkedList[String] = resourceLoadingStack.get()
 
   def getResource(fileName: String): Resource = {
     getResource(fileName, null)
@@ -59,7 +53,8 @@ class ResourceLoader @Inject()(injector: Injector,
   def getResourceOption(_fileName: String, changedListener: ResourceChangedListener): Option[Resource] = {
     val fileName = convertRelativePathToAbsolutePathIfNecessary(_fileName)
     resourceCache.doDependencyCheck(fileName)
-    resourceLoadingStack.get().add(0, fileName)
+    resourceLoadingStack.pushResourceOnStack(fileName)
+
     logger.trace("Searching resource [{}]", fileName)
 
     val processors = resourceProcessorRegistry.getProcessorsForFile(fileName)
@@ -77,17 +72,17 @@ class ResourceLoader @Inject()(injector: Injector,
         resourceWatcher.addResource(fileNameForProcessor, location, processor, processed.get, changedListener)
         processed
     }
-    resourceLoadingStack.get().remove(0)
+    resourceLoadingStack.popResourceFromStack()
     result
   }
 
   private def convertRelativePathToAbsolutePathIfNecessary(fileName: String): String = {
     if (!fileName.startsWith("/")) {
-      if (resourceLoadingStack.get().size() == 0) {
+      if (resourceLoadingStack.getResourceLoadingStack().size() == 0) {
         throw new IllegalStateException(
           "Relative paths are only possible for nested resource loading. Path: '" + fileName + "'")
       }
-      val predecessor = resourceLoadingStack.get().get(0)
+      val predecessor = resourceLoadingStack.getResourceLoadingStack().get(0)
       FileUtils.getDirectoryNameOfPath(predecessor) + fileName
     } else {
       fileName
@@ -109,20 +104,9 @@ class ResourceLoader @Inject()(injector: Injector,
 
           // Check if the processor requested caching (if caching is not disabled)
           val cachedOrNormal = if (!configMap.isCacheDisabled && resource.isCachable()) {
-            logger.trace("Checking cache for resource [{}]", fileName)
-
-
-
-            // --- TODO move timestamp comparison to cache
-            val cacheTimestamp = resourceCache.getTimestampOfCacheFile(fileName)
-            val normalTimestamp = resource.getLastModified() // TODO use timestamps of dependencies as well
-            // ---
-
-
-
-            if (normalTimestamp > cacheTimestamp) {
+            if (!resourceCache.isCacheUpToDate(resource, this)) {
+              logger.debug("Cache for resource [{}] is out of date", fileName)
               // cache is out of date
-              logger.debug("Cached version for resource [{}] is out of date.", fileName)
               val processed = processor.process(resource)
 
               val enriched = applyEnrichers(fileName, processed)
@@ -130,7 +114,7 @@ class ResourceLoader @Inject()(injector: Injector,
               cachedResource // RR: I used a variable here just to make it obvious that a cached resource gets returned
             } else {
               // cache is up to date
-              logger.trace("Cached version for resource [{}] is up to date.", fileName)
+              logger.debug("Cache for resource [{}] is up to date", fileName)
               resourceCache.get(fileName)
             }
           } else {
@@ -147,7 +131,7 @@ class ResourceLoader @Inject()(injector: Injector,
   private def applyEnrichers(fileName: String, resource: Resource): Resource = {
     val es = resourceProcessorRegistry.getEnrichersForFile(fileName)
     es.foldLeft(resource) { (enriched, enricher) =>
-      logger.debug("Applying enricher {}", enricher)
+      logger.debug("Applying enricher [{}] for resource [{}]", enricher, fileName)
       enricher.process(enriched)
     }
   }

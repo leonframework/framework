@@ -12,11 +12,14 @@ import io.leon.config.ConfigMap
 import com.google.inject.Inject
 import java.io._
 import java.util.concurrent.locks.ReentrantLock
-import java.util.LinkedList
-import io.leon.utils.FileUtils
+import scala.collection.JavaConverters._
+import org.slf4j.LoggerFactory
+import io.leon.utils.{DateUtils, FileUtils}
 
-class ResourceCache @Inject()(resourceLoader: ResourceLoader,
+class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
                               configMap: ConfigMap) {
+
+  private val logger = LoggerFactory.getLogger(getClass.getName)
 
   private val appName = configMap.getApplicationName
 
@@ -30,10 +33,6 @@ class ResourceCache @Inject()(resourceLoader: ResourceLoader,
 
   private val dependencyWriterLock = new ReentrantLock()
 
-  private def getResourceLoadingStack(): LinkedList[String] = {
-    resourceLoader.getResourceLoadingStack()
-  }
-
   private def getCacheFile(filename: String): File = {
     new File(cacheDir, filename)
   }
@@ -42,20 +41,12 @@ class ResourceCache @Inject()(resourceLoader: ResourceLoader,
     new File(dependenciesDir, fileName)
   }
 
-  /**
-   * @param filename The filename to lookup the timestamp for
-   * @return the timestamp of the file in the cache or 0L if the file does not exist in the cache
-   */
-  def getTimestampOfCacheFile(filename: String): Long = {
-    // TODO delete this method, move logic to isCacheUpToDate
-    val f = getCacheFile(filename)
-    if (!f.exists())
-      0
-    else
-      f.lastModified()
+  private def getResourceLoadingStack(): java.util.List[String] = {
+    resourceLoadingStack.getResourceLoadingStack()
   }
 
   private def addDependency(rootResource: String, dependency: String) {
+    logger.trace("Checking dependency [{}] of resource [{}]", dependency, rootResource)
     dependencyWriterLock.lock()
     try {
       val dependencyFile = getDependencyFile(rootResource)
@@ -63,12 +54,14 @@ class ResourceCache @Inject()(resourceLoader: ResourceLoader,
 
       // read dependency file
       val lines = FileUtils.readLines(dependencyFile)
+      logger.trace("Current dependency list for resource [{}]: {}", rootResource, lines)
 
       // check if this is a new dependency
       if (!lines.contains(dependency)) {
-        val writer = new BufferedWriter(new FileWriter(dependencyFile))
+        logger.trace("New dependency for resource [{}]: [{}]", rootResource, dependency)
+        val writer = new BufferedWriter(new FileWriter(dependencyFile, true))
         // add new dependency
-        writer.write(dependency)
+        writer.write(dependency + "\n")
         writer.close()
       }
     } finally {
@@ -77,17 +70,73 @@ class ResourceCache @Inject()(resourceLoader: ResourceLoader,
   }
 
   def doDependencyCheck(fileName: String) {
-    if (getResourceLoadingStack().size() > 0) { // Nested resource loading
-      // Get "root" resource
-      val rootResource = getResourceLoadingStack().get(getResourceLoadingStack().size() - 1)
-
-      // Add the current resource as a dependency of the "root" resource
-      addDependency(rootResource, fileName)
+    if (getResourceLoadingStack().size() == 0) {
+      // No nested resource loading
+      return
     }
+    if (getResourceLoadingStack().contains(fileName)) {
+      // Current resource already checked (happens often e.g. when nested resource are checked for their timestamps)
+      return
+    }
+
+    // Get "root" resource
+    val rootResource = getResourceLoadingStack().get(getResourceLoadingStack().size() - 1)
+
+    // Add the current resource as a dependency of the "root" resource
+    addDependency(rootResource, fileName)
   }
 
-  def isCacheUpToDate(): Boolean = {
-    false
+
+  /**
+   * @param resource The resource to check
+   * @param resourceLoader A ResourceLoader instance. This is required so that the cache
+   *                       can check the dependencies. Guice DI does not work here due to the
+   *                       circular dependency.
+   *
+   * @return true if the cache is up to date, false otherwise
+   */
+  def isCacheUpToDate(resource: Resource, resourceLoader: ResourceLoader): Boolean = {
+    logger.trace("Checking cache for resource [{}]", resource.name)
+    val cacheFile = getCacheFile(resource.name)
+    if (!cacheFile.exists()) {
+      logger.debug("Resource [{}] does not exist in cache", resource.name)
+      return false
+    }
+
+    logger.trace(
+      "Timestamp for resource [{}] is: [{}]",
+      resource.name,
+      DateUtils.timeInLongToReadableString(resource.getLastModified()))
+
+    val cacheFileTimestamp = cacheFile.lastModified()
+    logger.trace(
+      "Timestamp in cache for resource [{}] is: [{}]",
+      resource.name,
+      DateUtils.timeInLongToReadableString(cacheFileTimestamp))
+
+    if (cacheFileTimestamp < resource.getLastModified()) {
+      logger.debug("Cache for resource [{}] is not up to date.", resource.name)
+      return false
+    }
+
+    val dependencies = FileUtils.readLines(getDependencyFile(resource.name))
+    for (line <- dependencies.asScala) {
+      logger.trace("Checking timestamp of dependency [{}]", line)
+
+      val dependencyResource = resourceLoader.getResource(line)
+      if (!dependencyResource.isCachable()) {
+        logger.trace("Dependency [{}] is not cachable hence resource [{}] is not up to date", line, resource.name)
+        return false
+      }
+
+      if (!dependencyResource.wasLoadedFromCache()) {
+        logger.trace("Dependency [{}] was not loaded from cache", line)
+        return false
+      }
+    }
+
+    // If we reach this line, resource is up to date
+    true
   }
 
   /**
@@ -133,11 +182,13 @@ class ResourceCache @Inject()(resourceLoader: ResourceLoader,
       throw new IllegalArgumentException("The resource " + fileName + " does not exist in the cache.")
     }
     new Resource(fileName) {
-      def getLastModified() = f.lastModified()
+      override def getLastModified() = f.lastModified()
 
-      def getInputStream() = new FileInputStream(f)
+      override def getInputStream() = new FileInputStream(f)
 
-      def isCachable() = true
+      override def isCachable() = true
+
+      override def wasLoadedFromCache() = true
     }
   }
 

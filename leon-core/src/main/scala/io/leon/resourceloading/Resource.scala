@@ -24,4 +24,6 @@ abstract class Resource(val name: String) {
 
   def isCachable(): Boolean
 
+  def wasLoadedFromCache(): Boolean = false
+
 }

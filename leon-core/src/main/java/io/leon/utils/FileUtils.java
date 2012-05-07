@@ -19,6 +19,9 @@ public class FileUtils {
 
     public static List<String> readLines(File file) {
         List<String> lines = new LinkedList<String>();
+        if (!file.exists()) {
+            return lines;
+        }
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             String line = null;
