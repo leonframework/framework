@@ -26,7 +26,7 @@ public class HtmlLeonIncludeTag implements LeonTagRewriter {
 
     @Override
     public void process(String referrer, Source in, OutputDocument out) {
-        List<StartTag> includeTags = in.getAllStartTags("leon:include");
+        List<StartTag> includeTags = in.getAllStartTags("leon-include");
         if (includeTags.size() == 0) {
             return;
         }
@@ -38,7 +38,7 @@ public class HtmlLeonIncludeTag implements LeonTagRewriter {
                 src = referrer.substring(0, referrer.lastIndexOf("/")) + "/" + src;
             }
 
-            logger.debug("Processing <leon:include src=\"{}\" />", src);
+            logger.debug("Processing <leon-include src=\"{}\" />", src);
 
             InputStream inputStream = resourceLoader.getResource(src).getInputStream();
             String string = ResourceUtils.inputStreamToString(inputStream);
