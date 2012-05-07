@@ -104,7 +104,7 @@ class ResourceLoader @Inject()(injector: Injector,
 
           // Check if the processor requested caching (if caching is not disabled)
           val cachedOrNormal = if (!configMap.isCacheDisabled && resource.isCachable()) {
-            if (!resourceCache.isCacheUpToDate(resource, this)) {
+            if (!resourceCache.isCacheUpToDate(resource, fileName, this)) {
               logger.debug("Cache for resource [{}] is out of date", fileName)
               // cache is out of date
               val processed = processor.process(resource)

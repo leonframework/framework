@@ -14,25 +14,27 @@ import io.leon.utils.{ResourceUtils, GuiceUtils}
 import org.slf4j.LoggerFactory
 import java.io.{EOFException, Writer, BufferedWriter}
 import io.leon.resourceloading.ResourceLoader
+import scala.collection.JavaConverters._
 
 class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) extends HttpServlet {
 
   private val logger = LoggerFactory.getLogger(getClass)
 
-  private val contributions = GuiceUtils.getByType(injector, classOf[VirtualLeonJsFileContribution])
+  private val contributions = GuiceUtils.getByType(injector, classOf[VirtualLeonJsFileContribution]).asScala map { c =>
+    c.getProvider.get()
+  }
 
   private def writeResource(out: Writer, name: String) {
     loader.getResourceOption(name) foreach { r =>
       out.write(ResourceUtils.inputStreamToString(r.getInputStream()))
     }
   }
-  
+
   private def writeString(out: Writer,  string: String) {
     out.write(string + "\n")
   }
 
   override def service(req: HttpServletRequest, res: HttpServletResponse) {
-    import scala.collection.JavaConverters._
     res.setContentType("text/javascript")
     val out = new BufferedWriter(res.getWriter)
 
@@ -66,9 +68,9 @@ class VirtualLeonJsFile @Inject()(injector: Injector, loader: ResourceLoader) ex
     }).asJava
 
     // dynamic content
-    contributions.asScala foreach { binding =>
+    contributions foreach { c =>
       try {
-        val content = binding.getProvider.get().content(requestMap)
+        val content = c.content(requestMap)
         out.write(content + "\n")
       } catch {
         case e: RuntimeException if e.getCause.isInstanceOf[EOFException] => {

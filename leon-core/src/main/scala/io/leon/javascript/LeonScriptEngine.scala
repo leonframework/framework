@@ -15,7 +15,7 @@ import org.mozilla.javascript.{ScriptableObject, Context, Function => RhinoFunct
 import io.leon.resourceloading.{ResourceLoader, Resource}
 import org.slf4j.LoggerFactory
 import io.leon.resourceloading.watcher.{ResourceChangedListener, ResourceWatcher}
-import java.io.{BufferedReader, BufferedInputStream, InputStreamReader}
+import java.io.InputStreamReader
 
 class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader, resourceWatcher: ResourceWatcher) {
 

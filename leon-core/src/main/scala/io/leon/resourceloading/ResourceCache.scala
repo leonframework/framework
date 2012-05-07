@@ -95,11 +95,11 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
    *
    * @return true if the cache is up to date, false otherwise
    */
-  def isCacheUpToDate(resource: Resource, resourceLoader: ResourceLoader): Boolean = {
-    logger.trace("Checking cache for resource [{}]", resource.name)
-    val cacheFile = getCacheFile(resource.name)
+  def isCacheUpToDate(resource: Resource, fileName: String, resourceLoader: ResourceLoader): Boolean = {
+    logger.trace("Checking cache for resource [{}]", fileName)
+    val cacheFile = getCacheFile(fileName)
     if (!cacheFile.exists()) {
-      logger.debug("Resource [{}] does not exist in cache", resource.name)
+      logger.debug("Resource [{}] does not exist in cache", fileName)
       return false
     }
 
@@ -111,21 +111,21 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
     val cacheFileTimestamp = cacheFile.lastModified()
     logger.trace(
       "Timestamp in cache for resource [{}] is: [{}]",
-      resource.name,
+      fileName,
       DateUtils.timeInLongToReadableString(cacheFileTimestamp))
 
     if (cacheFileTimestamp < resource.getLastModified()) {
-      logger.debug("Cache for resource [{}] is not up to date.", resource.name)
+      logger.debug("Cache for resource [{}] is not up to date.", fileName)
       return false
     }
 
-    val dependencies = FileUtils.readLines(getDependencyFile(resource.name))
+    val dependencies = FileUtils.readLines(getDependencyFile(fileName))
     for (line <- dependencies.asScala) {
       logger.trace("Checking timestamp of dependency [{}]", line)
 
       val dependencyResource = resourceLoader.getResource(line)
       if (!dependencyResource.isCachable()) {
-        logger.trace("Dependency [{}] is not cachable hence resource [{}] is not up to date", line, resource.name)
+        logger.trace("Dependency [{}] is not cachable hence resource [{}] is not up to date", line, fileName)
         return false
       }
 
