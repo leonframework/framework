@@ -18,10 +18,8 @@ class LessResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScr
                                       originalLessFilePathHolder: OriginalLessFilePathHolder)
   extends ResourceProcessor {
 
-  private lazy val leonScriptEngine = {
-    val lse = leonScriptEngineProvider.get()
-    lse.loadResource("/io/leon/less-rhino-1.1.3.js", 9)
-    lse
+  private def getLeonScriptEngine() = {
+    leonScriptEngineProvider.get()
   }
 
   def fromFileEnding = "less"
@@ -33,7 +31,7 @@ class LessResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScr
       originalLessFilePathHolder.set(in.name)
 
       val asLess = ResourceUtils.inputStreamToString(in.getInputStream())
-      val asCss = leonScriptEngine.invokeFunction("leon.parseLess", asLess)
+      val asCss = getLeonScriptEngine().invokeFunction("leon.parseLess", asLess)
 
       new Resource(in.name) {
         def getLastModified() = in.getLastModified()

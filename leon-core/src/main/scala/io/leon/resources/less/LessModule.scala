@@ -10,15 +10,16 @@ package io.leon.resources.less
 
 import io.leon.resourceloading.processor.ResourceProcessor
 import io.leon.utils.GuiceUtils
-import com.google.inject.AbstractModule
+import com.google.inject.{Scopes, AbstractModule}
 
 
 class LessModule extends AbstractModule {
 
   def configure() {
+    bind(classOf[LessInit]).asEagerSingleton()
     bind(classOf[OriginalLessFilePathHolder]).asEagerSingleton()
     GuiceUtils.bindClassWithName(
-      binder(), classOf[ResourceProcessor], classOf[LessResourceProcessor]).asEagerSingleton()
+      binder(), classOf[ResourceProcessor], classOf[LessResourceProcessor]).in(Scopes.SINGLETON)
   }
 
 }

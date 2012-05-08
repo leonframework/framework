@@ -54,26 +54,28 @@ class ResourceLoader @Inject()(injector: Injector,
     val fileName = convertRelativePathToAbsolutePathIfNecessary(_fileName)
     resourceCache.doDependencyCheck(fileName)
     resourceLoadingStack.pushResourceOnStack(fileName)
+    try {
+      logger.trace("Searching resource [{}]", fileName)
 
-    logger.trace("Searching resource [{}]", fileName)
+      val processors = resourceProcessorRegistry.getProcessorsForFile(fileName)
+      val combinations = for {
+        processor <- processors
+        locationBinding <- resourceLocations
+      } yield {
+        val location = locationBinding.getProvider.get()
+        (fileName, location, processor)
+      }
 
-    val processors = resourceProcessorRegistry.getProcessorsForFile(fileName)
-    val combinations = for {
-      processor <- processors
-      locationBinding <- resourceLocations
-    } yield {
-      val location = locationBinding.getProvider.get()
-      (fileName, location, processor)
+      tryCombinations(combinations) match {
+        case None => return None
+        case Some((fileNameForProcessor, location, processor, processed)) =>
+          resourceWatcher.addResource(fileNameForProcessor, location, processor, processed.get, changedListener)
+          return processed
+      }
+    } finally {
+      resourceLoadingStack.popResourceFromStack()
     }
-
-    val result = tryCombinations(combinations) match {
-      case None => None
-      case Some((fileNameForProcessor, location, processor, processed)) =>
-        resourceWatcher.addResource(fileNameForProcessor, location, processor, processed.get, changedListener)
-        processed
-    }
-    resourceLoadingStack.popResourceFromStack()
-    result
+    None
   }
 
   private def convertRelativePathToAbsolutePathIfNecessary(fileName: String): String = {

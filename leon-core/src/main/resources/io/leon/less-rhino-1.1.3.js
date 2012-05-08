@@ -2400,7 +2400,7 @@ require('less/tree').jsify = function (obj) {
 };
 
 function loadStyleSheet(sheet, callback, reload, remaining) {
-    var ResourceUtils = Packages.io.leon.resourceloading.ResourceUtils;
+    var ResourceUtils = Packages.io.leon.utils.ResourceUtils;
     var resourceLoader = leon.inject(Packages.io.leon.resourceloading.ResourceLoader);
     var originalLessFilePathHolder = leon.inject(Packages.io.leon.resources.less.OriginalLessFilePathHolder);
 
