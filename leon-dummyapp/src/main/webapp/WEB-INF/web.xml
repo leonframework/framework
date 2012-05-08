@@ -14,7 +14,6 @@
         </init-param>
     </filter>
 
-    
     <filter-mapping>
         <filter-name>leonFilter</filter-name>
         <url-pattern>/*</url-pattern>

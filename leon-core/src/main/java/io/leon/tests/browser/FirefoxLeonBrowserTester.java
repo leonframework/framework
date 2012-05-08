@@ -1,6 +1,6 @@
 package io.leon.tests.browser;
 
-import com.google.inject.Module;
+import io.leon.LeonAppMainModule;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -14,7 +14,7 @@ public class FirefoxLeonBrowserTester extends LeonBrowserTester {
 
     private WebDriver webDriver;
 
-    public FirefoxLeonBrowserTester(Module module) {
+    public FirefoxLeonBrowserTester(LeonAppMainModule module) {
         setModule(module);
     }
 

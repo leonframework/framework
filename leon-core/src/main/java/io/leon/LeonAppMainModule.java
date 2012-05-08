@@ -8,20 +8,63 @@
  */
 package io.leon;
 
+import com.google.common.collect.Lists;
 import io.leon.config.ConfigMap;
 import io.leon.config.ConfigMapHolder;
+import org.apache.shiro.guice.web.ShiroWebModule;
+import org.apache.shiro.realm.Realm;
+
+import javax.servlet.ServletContext;
+import java.util.List;
 
 abstract public class LeonAppMainModule extends LeonModule {
 
+    private static final class SecurityModule extends ShiroWebModule {
+
+        private final LeonAppMainModule leonAppMainModule;
+
+        public SecurityModule(LeonAppMainModule leonAppMainModule, ServletContext servletContext) {
+            super(servletContext);
+            this.leonAppMainModule = leonAppMainModule;
+        }
+
+        @Override
+        protected void configureShiroWeb() {
+            if (leonAppMainModule.getShiroRealms() != null) {
+                for (Realm realm : leonAppMainModule.getShiroRealms()) {
+                    bindRealm().toInstance(realm);
+                }
+            }
+        }
+    }
+
     private final ConfigMap configMap = ConfigMapHolder.getInstance().getConfigMap();
+
+    private boolean useLeonShiroIntegration = true;
 
     public void setApplicationName(String appName) {
         ConfigMap configMap = ConfigMapHolder.getInstance().getConfigMap();
         configMap.put(ConfigMap.APPLICATION_NAME_KEY, appName);
     }
 
-    public void setConfigProperty(String propertyName, String propertyValue) {
-        configMap.put(propertyName, propertyValue);
+    public ConfigMap getConfigMap() {
+        return configMap;
+    }
+
+    public boolean isUseLeonShiroIntegration() {
+        return useLeonShiroIntegration;
+    }
+
+    public void setUseLeonShiroIntegration(boolean useLeonShiroIntegration) {
+        this.useLeonShiroIntegration = useLeonShiroIntegration;
+    }
+
+    public List<? extends Realm> getShiroRealms() {
+        return Lists.newLinkedList();
+    }
+
+    public ShiroWebModule getShiroWebModule(ServletContext servletContext) {
+        return new SecurityModule(this, servletContext);
     }
 
     @Override

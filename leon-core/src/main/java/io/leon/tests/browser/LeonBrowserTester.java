@@ -1,6 +1,6 @@
 package io.leon.tests.browser;
 
-import com.google.inject.Module;
+import io.leon.LeonAppMainModule;
 import io.leon.web.LeonFilter;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.*;
@@ -9,7 +9,7 @@ public abstract class LeonBrowserTester {
 
     private Server server;
 
-    private Module module;
+    private LeonAppMainModule module;
 
     private LeonFilter leonFilter;
 
@@ -17,11 +17,11 @@ public abstract class LeonBrowserTester {
 
     private int httpPort = 8875;
 
-    public Module getModule() {
+    public LeonAppMainModule getModule() {
         return module;
     }
 
-    public void setModule(Module module) {
+    public void setModule(LeonAppMainModule module) {
         this.module = module;
     }
 
@@ -74,7 +74,6 @@ public abstract class LeonBrowserTester {
 
                 ServletHolder servletHolder = new ServletHolder(new DefaultServlet());
                 context.addServlet(servletHolder, "/*");
-
                 try {
                     server.start();
                 } catch (Exception e) {

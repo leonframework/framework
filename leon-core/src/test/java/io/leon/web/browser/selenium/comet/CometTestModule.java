@@ -1,8 +1,8 @@
 package io.leon.web.browser.selenium.comet;
 
-import io.leon.LeonModule;
+import io.leon.LeonAppMainModule;
 
-public class CometTestModule extends LeonModule {
+public class CometTestModule extends LeonAppMainModule {
 
     @Override
     public void config() {

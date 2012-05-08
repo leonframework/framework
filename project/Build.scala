@@ -145,6 +145,16 @@ object Dependencies {
 
   def gson = "com.google.code.gson" % "gson" % "1.7.1" withSources()
 
+  // --- Apache Shiro ---
+
+  def shiroCore = "org.apache.shiro" % "shiro-core" % "1.2.0" withSources()
+
+  def shiroWeb = "org.apache.shiro" % "shiro-web" % "1.2.0" withSources()
+
+  def shiroGuice = "org.apache.shiro" % "shiro-guice" % "1.2.0" withSources()
+
+  def commonsLogging = "commons-logging" % "commons-logging" % "1.1.1" withSources()
+
   // --- SQL stuff ---
 
   def h2database = "com.h2database" % "h2" % "1.3.155" % "test" withSources()
@@ -185,7 +195,12 @@ object LeonBuild extends Build {
     guava,
     guiceServlet,
     jerichoHtml,
-    gson)
+    gson,
+    shiroCore,
+    shiroWeb,
+    shiroGuice,
+    commonsLogging // RR: Should be part of Apache Shiro, but I had to add it manually
+    )
 
   val samplesDeps = Seq(servletApi, jettyRuntime, jetty, selenium)
 

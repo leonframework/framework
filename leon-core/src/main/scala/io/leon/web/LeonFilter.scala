@@ -18,8 +18,11 @@ import javax.servlet._
 import io.leon.resourceloading.watcher.ResourceWatcher
 import io.leon.{DefaultWebAppGroupingModule, LeonAppMainModule}
 import com.google.inject._
+import org.apache.shiro.guice.web.ShiroWebModule
+import scala.collection.JavaConverters._
+import org.apache.shiro.guice.aop.ShiroAopModule
 
-class LeonFilter(applicationModule: Module) extends GuiceFilter {
+class LeonFilter(applicationModule: LeonAppMainModule) extends GuiceFilter {
 
   //private val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -36,7 +39,7 @@ class LeonFilter(applicationModule: Module) extends GuiceFilter {
     configMap.putAll(servletConfig)
   }
 
-  private def getModule(filterConfig: FilterConfig): Module = {
+  private def getModule(filterConfig: FilterConfig): LeonAppMainModule = {
     if (applicationModule != null) {
       applicationModule
     } else {
@@ -51,7 +54,7 @@ class LeonFilter(applicationModule: Module) extends GuiceFilter {
         }
         loadModuleFromJavaScript(inputStream)
       } else {
-        classLoader.loadClass(moduleName).asInstanceOf[Class[Module]].newInstance()
+        classLoader.loadClass(moduleName).asInstanceOf[Class[LeonAppMainModule]].newInstance()
       }
     }
   }
@@ -72,6 +75,15 @@ class LeonFilter(applicationModule: Module) extends GuiceFilter {
     // create a new module to ensure the binding ordering
     val app = new AbstractModule {
       def configure() {
+        // Shiro
+        if (module.isUseLeonShiroIntegration &&
+          module.getShiroRealms != null &&
+          module.getShiroRealms.size() > 0) {
+
+          install(module.getShiroWebModule(filterConfig.getServletContext))
+          install(ShiroWebModule.guiceFilterModule())
+          install(new ShiroAopModule)
+        }
         install(module)
         install(defaultWebModule)
       }

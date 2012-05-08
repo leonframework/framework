@@ -3,7 +3,7 @@ package io.leon.tests.browser;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.google.inject.Module;
+import io.leon.LeonAppMainModule;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,7 +14,7 @@ public class HtmlUnitLeonBrowserTester extends LeonBrowserTester {
 
     private HtmlPage currentPage;
 
-    public HtmlUnitLeonBrowserTester(Module module) {
+    public HtmlUnitLeonBrowserTester(LeonAppMainModule module) {
         setModule(module);
     }
 
