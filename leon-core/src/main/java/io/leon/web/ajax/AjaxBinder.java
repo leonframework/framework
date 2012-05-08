@@ -36,11 +36,11 @@ public class AjaxBinder {
         servletBinder.registerServlet(servletBinding);
     }
 
-    public void exposeJavaService(String url, Class<? extends Object> clazz) {
+    public void exposeJavaService(String url, Class<?> clazz) {
         exposeJavaService(url, Key.get(clazz));
     }
 
-    public void exposeJavaService(String url, Key<? extends Object> key) {
+    public void exposeJavaService(String url, Key<?> key) {
         exposeAjaxHandler(url, new JavaObjectAjaxHandler(key));
     }
 
