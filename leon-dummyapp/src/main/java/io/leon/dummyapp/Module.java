@@ -1,19 +1,19 @@
 package io.leon.dummyapp;
 
-import com.google.common.collect.Lists;
 import io.leon.LeonAppMainModule;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.realm.text.PropertiesRealm;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class Module extends LeonAppMainModule {
 
     @Override
     public List<? extends Realm> getShiroRealms() {
-        PropertiesRealm pr = new PropertiesRealm();
-        pr.setResourcePath("classpath:dummy-users.properties");
-        return Lists.newArrayList(pr);
+        PropertiesRealm realm = new PropertiesRealm();
+        realm.setResourcePath("classpath:dummy-users.properties");
+        return Arrays.asList(realm);
     }
 
     @Override
