@@ -105,12 +105,10 @@ class ResourceLoader @Inject()(injector: Injector,
           logger.trace("Found resource [{}].", fileNameForProcessor)
 
           // Check if the processor requested caching (if caching is not disabled)
-          val cachedOrNormal = if (!configMap.isCacheDisabled && resource.isCachable()) {
+          val processed = processor.process(resource)
+          val cachedOrNormal = if (!configMap.isCacheDisabled && processed.isCachable()) {
             if (!resourceCache.isCacheUpToDate(resource, fileName, this)) {
-              logger.debug("Cache for resource [{}] is out of date", fileName)
-              // cache is out of date
-              val processed = processor.process(resource)
-
+              logger.info("Cache for resource [{}] is out of date", fileName)
               val enriched = applyEnrichers(fileName, processed)
               val cachedResource = resourceCache.put(fileName, enriched)
               cachedResource // RR: I used a variable here just to make it obvious that a cached resource gets returned

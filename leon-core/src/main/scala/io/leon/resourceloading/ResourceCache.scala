@@ -15,6 +15,7 @@ import java.util.concurrent.locks.ReentrantLock
 import scala.collection.JavaConverters._
 import org.slf4j.LoggerFactory
 import io.leon.utils.{DateUtils, FileUtils}
+import java.nio.file.Files
 
 class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
                               configMap: ConfigMap) {
@@ -100,6 +101,7 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
     val cacheFile = getCacheFile(fileName)
     if (!cacheFile.exists()) {
       logger.debug("Resource [{}] does not exist in cache", fileName)
+      Files.deleteIfExists(getDependencyFile(fileName).toPath) // TODO lock
       return false
     }
 
@@ -115,7 +117,8 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
       DateUtils.timeInLongToReadableString(cacheFileTimestamp))
 
     if (cacheFileTimestamp < resource.getLastModified()) {
-      logger.debug("Cache for resource [{}] is not up to date.", fileName)
+      logger.debug("Cache for resource [{}] is out of date.", fileName)
+      Files.deleteIfExists(getDependencyFile(fileName).toPath) // TODO lock
       return false
     }
 
@@ -125,12 +128,13 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
 
       val dependencyResource = resourceLoader.getResource(line)
       if (!dependencyResource.isCachable()) {
-        logger.trace("Dependency [{}] is not cachable hence resource [{}] is not up to date", line, fileName)
+        logger.trace("Dependency [{}] is not cachable hence resource [{}] is out of date", line, fileName)
         return false
       }
 
       if (!dependencyResource.wasLoadedFromCache()) {
         logger.trace("Dependency [{}] was not loaded from cache", line)
+        Files.deleteIfExists(getDependencyFile(fileName).toPath) // TODO lock
         return false
       }
     }
@@ -147,26 +151,25 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
     val cacheFile = new File(cacheDir, fileName)
     cacheFile.getParentFile.mkdirs()
 
-    // TODO optimize! Do not use readLine, use bytes directly instead
-    val reader = new BufferedReader(new InputStreamReader(new BufferedInputStream(resource.getInputStream())))
-    val writerFile = new BufferedWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(cacheFile))))
-    val byteArrayOutput = new ByteArrayOutputStream()
-    val writerMem = new BufferedWriter(new OutputStreamWriter(new BufferedOutputStream(byteArrayOutput)))
+    val source = new BufferedInputStream(resource.getInputStream())
+    val destCache = new BufferedOutputStream(new FileOutputStream(cacheFile))
+    val destRequest = new ByteArrayOutputStream()
 
-    var line = reader.readLine()
-    while (line != null) {
-      writerFile.write(line + "\n")
-      writerMem.write(line + "\n")
-      line = reader.readLine()
+    val buffer = new Array[Byte](4096)
+    var read = source.read(buffer)
+    while (read != -1) {
+      destCache.write(buffer,  0, read)
+      destRequest.write(buffer, 0, read)
+      read = source.read(buffer)
     }
-    writerFile.close()
-    writerMem.close()
-    reader.close()
+    source.close()
+    destCache.close()
+    destRequest.close()
 
     new Resource(fileName) {
       def getLastModified() = resource.getLastModified()
 
-      def getInputStream() = new ByteArrayInputStream(byteArrayOutput.toByteArray)
+      def getInputStream() = new ByteArrayInputStream(destRequest.toByteArray)
 
       def isCachable() = true
     }
