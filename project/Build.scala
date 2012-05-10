@@ -56,7 +56,6 @@ object Publish {
     ("blank", "Daniela Blank") ::
     ("blankenhorn", "Jan Blankenhorn") ::
     ("burgmer", "Philipp Burgmer") ::
-    ("hohenbichler", "Johannes Hohenbichler") ::
     ("mricog", "Marco Rico Gomez") ::
     ("romanroe", "Roman Roelofsen") ::
     ("thurow", "Alexander Thurow") :: Nil

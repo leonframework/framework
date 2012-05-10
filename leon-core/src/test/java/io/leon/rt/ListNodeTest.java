@@ -12,7 +12,7 @@ import java.util.List;
 import static org.testng.Assert.assertEquals;
 
 @Test
-public class CollectionNodeTest {
+public class ListNodeTest {
 
     private RelaxedTypes rt;
 
@@ -41,23 +41,23 @@ public class CollectionNodeTest {
         list.add("b");
         list.add("c");
 
-        CollectionNode<String> node = rt.of(list);
+        ListNode<String> node = rt.listNode(list);
         assertEquals(node.get(0).val(), "a");
         assertEquals(node.get(1).val(), "b");
         assertEquals(node.get(2).val(), "c");
     }
 
     public void mapOverListOfIntegers() {
-        CollectionNode<Integer> collectionNode = rt.of(arrayListWithIntegers);
-        Collection<Object> collectionPlus10 = collectionNode.map(plus10);
+        ListNode<Integer> listNode = rt.listNode(arrayListWithIntegers);
+        Collection<Object> collectionPlus10 = listNode.map(plus10);
         assertEquals(collectionPlus10, listWithIntegersPlus10);
     }
 
     public void mapPreservesTypeOfCollection() {
-        Collection<Object> mapOverArrayList = rt.of(arrayListWithIntegers).map(plus10);
+        Collection<Object> mapOverArrayList = rt.listNode(arrayListWithIntegers).map(plus10);
         assertEquals(mapOverArrayList.getClass(), arrayListWithIntegers.getClass());
 
-        Collection<Object> mapOverLinkedList = rt.of(linkedListWithIntegers).map(plus10);
+        Collection<Object> mapOverLinkedList = rt.listNode(linkedListWithIntegers).map(plus10);
         assertEquals(mapOverLinkedList.getClass(), linkedListWithIntegers.getClass());
 
 

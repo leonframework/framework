@@ -22,12 +22,12 @@ public class NodeTest {
     }
 
     public void val() {
-        assertEquals(rt.of("test").val(), "test");
+        assertEquals(rt.node("test").val(), "test");
     }
 
     public void keepTypeWhenPossible() {
         String in = "test";
-        String out = rt.of(in).val();
+        String out = rt.node(in).val();
         assertTrue(in.equals(out), "Dummy test to ensure that the lines above compile.");
     }
 
@@ -36,7 +36,7 @@ public class NodeTest {
         map.put("key1", "value1");
         map.put("key2", 2);
 
-        assertEquals(rt.of(map).get("key1").val(), map.get("key1"));
+        assertEquals(rt.mapNode(map).get("key1").val(), map.get("key1"));
     }
 
     public void mapMapGet() {
@@ -45,7 +45,7 @@ public class NodeTest {
         map1.put("key1", map2);
         map2.put("key2", "value2");
 
-        assertEquals(rt.of(map1).get("key1").get("key2").val(), map2.get("key2"));
+        assertEquals(rt.mapNode(map1).get("key1").toMap().get("key2").val(), map2.get("key2"));
     }
 
     public void getIndexList() {
@@ -54,10 +54,11 @@ public class NodeTest {
         list.add("b");
         list.add("c");
 
-        Node node = rt.of((Object) list);
-        assertEquals(node.get(0).val(), "a");
-        assertEquals(node.get(1).val(), "b");
-        assertEquals(node.get(2).val(), "c");
+        Node node = rt.node(list);
+
+        assertEquals(node.toList().get(0).val(), "a");
+        assertEquals(node.toList().get(1).val(), "b");
+        assertEquals(node.toList().get(2).val(), "c");
     }
 
     public void mapMapListGetIndexToInt() {
@@ -71,9 +72,9 @@ public class NodeTest {
         map2.put("key2", list);
         map1.put("key1", map2);
 
-        Node node = rt.of(map1);
-        assertEquals(node.get("key1").get("key2").get(0).valInt(), 1);
-        assertEquals(node.get("key1").get("key2").get(1).valInt(), 2);
-        assertEquals(node.get("key1").get("key2").get(2).valInt(), 3);
+        Node<?> node = rt.node(map1);
+        assertEquals(node.toMap().get("key1").toMap().get("key2").toList().get(0).valInt(), 1);
+        assertEquals(node.toMap().get("key1").toMap().get("key2").toList().get(1).valInt(), 2);
+        assertEquals(node.toMap().get("key1").toMap().get("key2").toList().get(2).valInt(), 3);
     }
 }

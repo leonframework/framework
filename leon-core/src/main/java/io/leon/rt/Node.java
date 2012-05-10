@@ -1,14 +1,15 @@
 package io.leon.rt;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
-public class Node<E> extends CollectionNode<E> {
+public class Node<E> {
 
+    private final RelaxedTypes rt;
     private final E element;
 
     protected Node(RelaxedTypes rt, E element) {
-        super(rt, null);
+        this.rt = rt;
         this.element = element;
     }
 
@@ -16,27 +17,25 @@ public class Node<E> extends CollectionNode<E> {
         return element;
     }
 
-    @Override
     @SuppressWarnings("unchecked")
-    public Collection<E> getCollection() {
-        return (Collection<E>) getRt().getConverter().convert(element.getClass(), Collection.class, element).get();
+    public ListNode<Object> toList() {
+        return rt.listNode(rt.getConverter().convert(element.getClass(), List.class, element).get());
+    }
+
+    @SuppressWarnings("unchecked")
+    public MapNode<Object, Object> toMap() {
+        return rt.mapNode(rt.getConverter().convert(element.getClass(), Map.class, element).get());
     }
 
     public String valString() {
-        return getRt().getConverter().convert(element.getClass(), String.class, element).getOrThrowException(
+        return rt.getConverter().convert(element.getClass(), String.class, element).getOrThrowException(
                 this + " could not be coverted to a String.");
     }
 
     public int valInt() {
-        return getRt().getConverter().convert(element.getClass(), Integer.class, element).getOrThrowException(
+        return rt.getConverter().convert(element.getClass(), Integer.class, element).getOrThrowException(
                 this + " could not be coverted to an Integer.");
     }
-
-    public Node<?> get(String key) {
-        Map map = getRt().getConverter().convert(element.getClass(), Map.class, element).get();
-        return getRt().of(map.get(key));
-    }
-
 
     @Override
     public boolean equals(Object o) {
@@ -46,7 +45,6 @@ public class Node<E> extends CollectionNode<E> {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         Node node = (Node) o;
         return !(element != null ? !element.equals(node.element) : node.element != null);
     }
