@@ -50,7 +50,7 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
     dependencyWriterLock.lock()
     try {
       val dependencyFile = getDependencyFile(rootResource)
-      dependencyFile.getParentFile.mkdirs()
+      dependencyFile.mkdirs()
 
       // read dependency file
       val lines = FileUtils.readLines(dependencyFile)
@@ -122,7 +122,7 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
       logger.trace("Checking timestamp of dependency [{}]", line)
 
       val dependencyResource = resourceLoader.getResource(line)
-      if (!dependencyResource.isCachable()) {
+      if (!dependencyResource.isCachingPossible()) {
         logger.trace("Dependency [{}] is not cachable hence resource [{}] is out of date", line, fileName)
         return false
       }
@@ -166,7 +166,7 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
 
       def getInputStream() = new ByteArrayInputStream(destRequest.toByteArray)
 
-      def isCachable() = true
+      def isCachingDesired() = true
     }
   }
 
@@ -184,7 +184,7 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
 
       override def getInputStream() = new FileInputStream(f)
 
-      override def isCachable() = true
+      override def isCachingDesired() = true
 
       override def wasLoadedFromCache() = true
     }

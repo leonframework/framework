@@ -22,7 +22,9 @@ abstract class Resource(val name: String) {
 
   def getInputStream(): InputStream
 
-  def isCachable(): Boolean
+  def isCachingDesired(): Boolean
+
+  def isCachingPossible(): Boolean = true
 
   def wasLoadedFromCache(): Boolean = false
 

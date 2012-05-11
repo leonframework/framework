@@ -57,7 +57,7 @@ class LeonTagProcessor @Inject()(injector: Injector) extends ResourceProcessor {
       }
     }
 
-    def isCachable() = true
+    def isCachingDesired() = true
   }
 
   private def measureTime[A](name: String)(func: => A) = {

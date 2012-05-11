@@ -38,7 +38,7 @@ class CoffeeScriptResourceProcessor @Inject()(leonScriptEngineProvider: Provider
           val asJavaScript = leonScriptEngine.invokeFunction("CoffeeScript.compile", asCoffeeScript, options)
           ResourceUtils.stringToInputStream(asJavaScript.toString)
         }
-        override def isCachable() = true
+        override def isCachingDesired() = true
       }
     }
   }

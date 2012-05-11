@@ -36,7 +36,7 @@ class LessResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScr
       new Resource(in.name) {
         def getLastModified() = in.getLastModified()
         def getInputStream() = ResourceUtils.stringToInputStream(asCss.toString)
-        override def isCachable() = true
+        override def isCachingDesired() = true
       }
     }
   }
