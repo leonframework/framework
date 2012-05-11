@@ -15,7 +15,6 @@ import java.util.concurrent.locks.ReentrantLock
 import scala.collection.JavaConverters._
 import org.slf4j.LoggerFactory
 import io.leon.utils.{DateUtils, FileUtils}
-import java.nio.file.Files
 
 class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
                               configMap: ConfigMap) {
@@ -70,7 +69,7 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
     }
   }
 
-  def doDependencyCheck(fileName: String) {
+  def doDependencyCheck(fileName: String): Unit = synchronized {
     if (getResourceLoadingStack().size() == 0) {
       // No nested resource loading
       return
@@ -96,29 +95,25 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
    *
    * @return true if the cache is up to date, false otherwise
    */
-  def isCacheUpToDate(resource: Resource, fileName: String, resourceLoader: ResourceLoader): Boolean = {
+  def isCacheUpToDate(resource: Resource, fileName: String, resourceLoader: ResourceLoader): Boolean = synchronized {
     logger.trace("Checking cache for resource [{}]", fileName)
     val cacheFile = getCacheFile(fileName)
     if (!cacheFile.exists()) {
       logger.debug("Resource [{}] does not exist in cache", fileName)
-      Files.deleteIfExists(getDependencyFile(fileName).toPath) // TODO lock
+      FileUtils.deleteIfExists(getDependencyFile(fileName))
       return false
     }
 
-    logger.trace(
-      "Timestamp for resource [{}] is: [{}]",
-      resource.name,
-      DateUtils.timeInLongToReadableString(resource.getLastModified()))
+    logger.trace("Timestamp for resource [{}] is: [{}]",
+      resource.name, DateUtils.longToPrettyString(resource.getLastModified()))
 
     val cacheFileTimestamp = cacheFile.lastModified()
-    logger.trace(
-      "Timestamp in cache for resource [{}] is: [{}]",
-      fileName,
-      DateUtils.timeInLongToReadableString(cacheFileTimestamp))
+    logger.trace("Timestamp in cache for resource [{}] is: [{}]",
+      fileName, DateUtils.longToPrettyString(cacheFileTimestamp))
 
     if (cacheFileTimestamp < resource.getLastModified()) {
       logger.debug("Cache for resource [{}] is out of date.", fileName)
-      Files.deleteIfExists(getDependencyFile(fileName).toPath) // TODO lock
+      FileUtils.deleteIfExists(getDependencyFile(fileName))
       return false
     }
 
@@ -134,7 +129,7 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
 
       if (!dependencyResource.wasLoadedFromCache()) {
         logger.trace("Dependency [{}] was not loaded from cache", line)
-        Files.deleteIfExists(getDependencyFile(fileName).toPath) // TODO lock
+        FileUtils.deleteIfExists(getDependencyFile(fileName))
         return false
       }
     }
@@ -147,7 +142,7 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
    * @param fileName the filename that should be used to put the resource into the cache
    * @param resource the resource that should be stored in the cache
    */
-  def put(fileName: String, resource: Resource): Resource = {
+  def put(fileName: String, resource: Resource): Resource = synchronized {
     val cacheFile = new File(cacheDir, fileName)
     cacheFile.getParentFile.mkdirs()
 
@@ -179,7 +174,7 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
    * @param fileName the file that should be looked up in the cache
    * @return the cached {@link Resource} or an {@link IllegalArgumentException} if the file could not be found
    */
-  def get(fileName: String): Resource = {
+  def get(fileName: String): Resource = synchronized {
     val f = getCacheFile(fileName)
     if (!f.exists()) {
       throw new IllegalArgumentException("The resource " + fileName + " does not exist in the cache.")

@@ -32,7 +32,7 @@ var leon = (function() {
         },
 
         parseLess: function(lessString) {
-          var result;
+          var result = "";
           var parser = new less.Parser();
 
           parser.parse(lessString, function (err, tree) {

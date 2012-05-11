@@ -5,7 +5,7 @@ import java.util.GregorianCalendar;
 
 public class DateUtils {
 
-    public static String timeInLongToReadableString(long longTime) {
+    public static String longToPrettyString(long longTime) {
         Calendar c = new GregorianCalendar();
         c.setTimeInMillis(longTime);
 

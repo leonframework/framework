@@ -17,24 +17,30 @@ public class Node<E> {
         return element;
     }
 
-    @SuppressWarnings("unchecked")
-    public ListNode<Object> toList() {
-        return rt.listNode(rt.getConverter().convert(element.getClass(), List.class, element).get());
+    public <A> A as(Class<A> targetType) {
+       return rt.getConverter().convert(element.getClass(), targetType, element).get();
     }
 
     @SuppressWarnings("unchecked")
-    public MapNode<Object, Object> toMap() {
-        return rt.mapNode(rt.getConverter().convert(element.getClass(), Map.class, element).get());
+    public ListNode<Object> asList() {
+        return rt.listNode(as(List.class));
     }
 
-    public String valString() {
-        return rt.getConverter().convert(element.getClass(), String.class, element).getOrThrowException(
-                this + " could not be coverted to a String.");
+    public <A> ListNode<A> asList(Class<A> elementType) {
+        return rt.listNode(as(List.class)).asListOf(elementType);
     }
 
-    public int valInt() {
-        return rt.getConverter().convert(element.getClass(), Integer.class, element).getOrThrowException(
-                this + " could not be coverted to an Integer.");
+    @SuppressWarnings("unchecked")
+    public MapNode<Object, Object> asMap() {
+        return rt.mapNode(as(Map.class));
+    }
+
+    public int asInt() {
+        return as(Integer.class);
+    }
+
+    public String asString() {
+        return as(String.class);
     }
 
     @Override

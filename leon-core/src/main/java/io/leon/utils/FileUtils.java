@@ -1,8 +1,6 @@
 package io.leon.utils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,15 +20,38 @@ public class FileUtils {
         if (!file.exists()) {
             return lines;
         }
+        BufferedReader reader = null;
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-            String line = null;
+            reader = new BufferedReader(new FileReader(file));
+            String line;
             while ((line = reader.readLine()) != null) {
                 lines.add(line);
             }
         } catch (Exception e) {
             throw new RuntimeException("Error while reading lines of file '" + file.getName() + "'", e);
+        } finally {
+            close(reader);
         }
         return lines;
+    }
+
+    public static void close(Closeable closeable) {
+        try {
+            if (closeable != null) {
+                closeable.close();
+            } else {
+                throw new RuntimeException("Resource is null.");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean deleteIfExists(String fileName) {
+        return deleteIfExists(new File(fileName));
+    }
+
+    public static boolean deleteIfExists(File file) {
+        return file.exists() && file.delete();
     }
 }

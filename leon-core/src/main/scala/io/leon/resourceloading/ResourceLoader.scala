@@ -50,7 +50,7 @@ class ResourceLoader @Inject()(injector: Injector,
     getResourceOption(fileName, null)
   }
 
-  def getResourceOption(_fileName: String, changedListener: ResourceChangedListener): Option[Resource] = {
+  def getResourceOption(_fileName: String, changedListener: ResourceChangedListener): Option[Resource] = synchronized {
     val fileName = convertRelativePathToAbsolutePathIfNecessary(_fileName)
     resourceCache.doDependencyCheck(fileName)
     resourceLoadingStack.pushResourceOnStack(fileName)

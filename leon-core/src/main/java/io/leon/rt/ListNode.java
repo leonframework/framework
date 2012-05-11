@@ -41,6 +41,10 @@ public class ListNode<E> {
         return newCollection;
     }
 
+    public <A> ListNode<A> asListOf(Class<A> elementType) {
+        return null; // TODO
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
