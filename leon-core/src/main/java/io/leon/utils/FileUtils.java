@@ -40,7 +40,7 @@ public class FileUtils {
             if (closeable != null) {
                 closeable.close();
             } else {
-                throw new RuntimeException("Resource is null.");
+                throw new RuntimeException("Can not call closeable.close() since the passed Closeable is null.");
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

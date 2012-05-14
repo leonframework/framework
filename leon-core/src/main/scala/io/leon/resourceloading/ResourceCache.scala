@@ -11,7 +11,6 @@ package io.leon.resourceloading
 import io.leon.config.ConfigMap
 import com.google.inject.Inject
 import java.io._
-import java.util.concurrent.locks.ReentrantLock
 import scala.collection.JavaConverters._
 import org.slf4j.LoggerFactory
 import io.leon.utils.{DateUtils, FileUtils}
@@ -31,8 +30,6 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
 
   private val dependenciesDir = new File(javaIoTmpDir + sep + "leon" + sep + appName + sep + "dependencies")
 
-  private val dependencyWriterLock = new ReentrantLock()
-
   private def getCacheFile(filename: String): File = {
     new File(cacheDir, filename)
   }
@@ -45,37 +42,40 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
     resourceLoadingStack.getResourceLoadingStack()
   }
 
-  private def addDependency(rootResource: String, dependency: String) {
+  private def addDependency(rootResource: String, dependency: String): Unit = synchronized {
     logger.trace("Checking dependency [{}] of resource [{}]", dependency, rootResource)
-    dependencyWriterLock.lock()
-    try {
-      val dependencyFile = getDependencyFile(rootResource)
-      dependencyFile.mkdirs()
+    val dependencyFile = getDependencyFile(rootResource)
+    dependencyFile.getParentFile.mkdirs()
 
-      // read dependency file
-      val lines = FileUtils.readLines(dependencyFile)
-      logger.trace("Current dependency list for resource [{}]: {}", rootResource, lines)
+    // read dependency file
+    val lines = FileUtils.readLines(dependencyFile)
+    logger.trace("Current dependency list for resource [{}]: {}", rootResource, lines)
 
-      // check if this is a new dependency
-      if (!lines.contains(dependency)) {
-        logger.trace("New dependency for resource [{}]: [{}]", rootResource, dependency)
-        val writer = new BufferedWriter(new FileWriter(dependencyFile, true))
-        // add new dependency
-        writer.write(dependency + "\n")
-        writer.close()
-      }
-    } finally {
-      dependencyWriterLock.unlock()
+    // check if this is a new dependency
+    if (!lines.contains(dependency)) {
+      logger.trace("New dependency for resource [{}]: [{}]", rootResource, dependency)
+      val writer = new BufferedWriter(new FileWriter(dependencyFile, true))
+      // add new dependency
+      writer.write(dependency + "\n")
+      writer.flush()
+      writer.close()
+      logger.trace("Added dependency [{}] to file [{}]", dependency, dependencyFile.getPath)
+    } else {
+      logger.trace("Resource [{}] is already a known dependency of resource [{}]", dependency, rootResource)
     }
   }
 
   def doDependencyCheck(fileName: String): Unit = synchronized {
+    logger.trace("Dependency check for resource [{}]", fileName)
+
     if (getResourceLoadingStack().size() == 0) {
       // No nested resource loading
+      logger.trace("The current resource [{}] is the first resource on the loading stack. Nothing to do.", fileName)
       return
     }
     if (getResourceLoadingStack().contains(fileName)) {
       // Current resource already checked (happens often e.g. when nested resource are checked for their timestamps)
+      logger.trace("The current resource [{}] is already on the loading stack and was already checked.", fileName)
       return
     }
 
@@ -112,7 +112,7 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
       fileName, DateUtils.longToPrettyString(cacheFileTimestamp))
 
     if (cacheFileTimestamp < resource.getLastModified()) {
-      logger.debug("Cache for resource [{}] is out of date.", fileName)
+      logger.debug("Cache for resource [{}] is out of date", fileName)
       FileUtils.deleteIfExists(getDependencyFile(fileName))
       return false
     }
@@ -122,8 +122,21 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
       logger.trace("Checking timestamp of dependency [{}]", line)
 
       val dependencyResource = resourceLoader.getResource(line)
+
+      if (dependencyResource.isCachingPossible() && !dependencyResource.isCachingDesired()) {
+        logger.trace("Dependency [{}] is a static resource. Comparing the static resource's timestamp " +
+          "with the cache timestamp of the requested resource [{}].", line, fileName)
+        if (dependencyResource.getLastModified() > cacheFileTimestamp) {
+          logger.trace("The static resource's timestamp is newer hence resource is out of data")
+          return false
+        } else {
+          logger.trace("The static resource's timestamp is older hence the resource is up to data")
+          return true // TODO testing required
+        }
+      }
+
       if (!dependencyResource.isCachingPossible()) {
-        logger.trace("Dependency [{}] is not cachable hence resource [{}] is out of date", line, fileName)
+        logger.trace("Dependency [{}] is not cachable hence the resource [{}] is out of date", line, fileName)
         return false
       }
 
