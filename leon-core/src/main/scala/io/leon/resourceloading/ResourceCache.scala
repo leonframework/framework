@@ -132,6 +132,12 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
         } else {
           logger.trace("The static resource's timestamp is older hence the resource is up to data")
           return true // TODO testing required
+          // TODO this return might be false. instead this block should be removed and
+          // the following ifs should be else if. Return is IMHO wrong here since
+          // we are in a loop and we need to test all dependencies. Using return will
+          // falsy return true even if false-case resources might follow.
+
+          // All ifs here should be else if, I guess...
         }
       }
 
