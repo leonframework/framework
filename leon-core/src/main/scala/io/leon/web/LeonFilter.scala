@@ -18,8 +18,6 @@ import javax.servlet._
 import io.leon.resourceloading.watcher.ResourceWatcher
 import io.leon.{DefaultWebAppGroupingModule, LeonAppMainModule}
 import com.google.inject._
-import org.apache.shiro.guice.web.ShiroWebModule
-import org.apache.shiro.guice.aop.ShiroAopModule
 
 class LeonFilter(applicationModule: LeonAppMainModule) extends GuiceFilter {
 
