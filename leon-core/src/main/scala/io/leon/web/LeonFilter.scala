@@ -72,15 +72,6 @@ class LeonFilter(applicationModule: LeonAppMainModule) extends GuiceFilter {
     // create a new module to ensure the binding ordering
     val app = new AbstractModule {
       def configure() {
-        // Shiro
-        if (module.isUseLeonShiroIntegration &&
-          module.getShiroRealms != null &&
-          module.getShiroRealms.size() > 0) {
-
-          install(module.getShiroWebModule(filterConfig.getServletContext))
-          install(ShiroWebModule.guiceFilterModule())
-          install(new ShiroAopModule)
-        }
         install(module)
         install(defaultWebModule)
       }

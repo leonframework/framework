@@ -14,8 +14,6 @@ import com.google.inject.{Scopes, AbstractModule}
 
 class CoffeeScriptModule extends AbstractModule {
   def configure() {
-    bind(classOf[CoffeeScriptInit]).asEagerSingleton()
-
     GuiceUtils.bindClassWithName(
       binder(), classOf[ResourceProcessor], classOf[CoffeeScriptResourceProcessor]).in(Scopes.SINGLETON)
   }

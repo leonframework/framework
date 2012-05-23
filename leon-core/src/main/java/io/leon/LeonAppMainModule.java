@@ -11,6 +11,8 @@ package io.leon;
 import com.google.common.collect.Lists;
 import io.leon.config.ConfigMap;
 import io.leon.config.ConfigMapHolder;
+import io.leon.web.StaticServletContextHolder$;
+import org.apache.shiro.guice.aop.ShiroAopModule;
 import org.apache.shiro.guice.web.ShiroWebModule;
 import org.apache.shiro.realm.Realm;
 
@@ -78,6 +80,16 @@ abstract public class LeonAppMainModule extends LeonModule {
         exposeUrl(".*css$");
         exposeUrl("favicon.ico$");
         exposeUrl(".*\\.client\\.js$");
+
+        if (useLeonShiroIntegration &&
+                getShiroRealms() != null &&
+                getShiroRealms().size() > 0) {
+
+            // TODO avoid usage of static ref. staging should remove this problem
+            install(getShiroWebModule(StaticServletContextHolder$.MODULE$.SERVLET_CONTEXT()));
+            install(ShiroWebModule.guiceFilterModule());
+            install(new ShiroAopModule());
+        }
 
         super.configureServlets();
     }
