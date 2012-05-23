@@ -65,7 +65,6 @@ abstract public class LeonModule extends ServletModule {
     }
 
     // --- Delegates for JavaScript modules ---
-
     @Override
     protected <T> AnnotatedBindingBuilder<T> bind(Class<T> clazz) {
         return super.bind(clazz);
@@ -82,7 +81,6 @@ abstract public class LeonModule extends ServletModule {
     }
 
     // -- AjaxBinder delegates ---
-
     public void exposeJavaService(String url, Class<?> clazz) {
         AjaxBinder b = new AjaxBinder(binder());
         b.exposeJavaService(url, Key.get(clazz));
@@ -99,13 +97,11 @@ abstract public class LeonModule extends ServletModule {
     }
 
     // --- CometBinder delegates ---
-
     public void addTopic(String name) {
         new CometBinder(binder()).addTopic(name);
     }
 
     // --- Abstract methods ---
-
     abstract protected void config();
 
 }

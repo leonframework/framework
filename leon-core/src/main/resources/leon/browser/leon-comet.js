@@ -45,7 +45,6 @@ getLeon().comet = (function() {
             // 2 LOADED send() has been called, headers and status are available.
             // 3 INTERACTIVE Downloading, responseText holds the partial data.
             // 4 COMPLETED Finished with all operations.
-
             if (http.readyState != 4 && http.readyState != 3)
                 return;
             if (http.readyState == 3 && http.status != 200)

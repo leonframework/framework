@@ -8,13 +8,15 @@
  */
 package io.leon.resources.coffeescript
 
-import com.google.inject.AbstractModule
 import io.leon.resourceloading.processor.ResourceProcessor
 import io.leon.utils.GuiceUtils
+import com.google.inject.{Scopes, AbstractModule}
 
 class CoffeeScriptModule extends AbstractModule {
   def configure() {
+    bind(classOf[CoffeeScriptInit]).asEagerSingleton()
+
     GuiceUtils.bindClassWithName(
-      binder(), classOf[ResourceProcessor], classOf[CoffeeScriptResourceProcessor]).asEagerSingleton()
+      binder(), classOf[ResourceProcessor], classOf[CoffeeScriptResourceProcessor]).in(Scopes.SINGLETON)
   }
 }

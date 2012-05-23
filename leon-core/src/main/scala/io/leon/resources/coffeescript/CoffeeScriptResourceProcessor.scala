@@ -18,15 +18,11 @@ import io.leon.javascript.ScriptableMap
 class CoffeeScriptResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScriptEngine])
   extends ResourceProcessor {
 
-  private lazy val leonScriptEngine = {
-    val lse = leonScriptEngineProvider.get()
-    lse.loadResource("/io/leon/coffee-script.js", -1)
-    lse
-  }
-
   def fromFileEnding = "coffee"
 
   def toFileEnding = "js"
+
+  def getScriptEngine = leonScriptEngineProvider.get()
 
   def process(in: Resource) = {
     synchronized {
@@ -35,7 +31,7 @@ class CoffeeScriptResourceProcessor @Inject()(leonScriptEngineProvider: Provider
         def getInputStream() = {
           val asCoffeeScript = ResourceUtils.inputStreamToString(in.getInputStream())
           val options = ScriptableMap("filename" -> in.name)
-          val asJavaScript = leonScriptEngine.invokeFunction("CoffeeScript.compile", asCoffeeScript, options)
+          val asJavaScript = getScriptEngine.invokeFunction("CoffeeScript.compile", asCoffeeScript, options)
           ResourceUtils.stringToInputStream(asJavaScript.toString)
         }
         override def isCachingDesired() = true

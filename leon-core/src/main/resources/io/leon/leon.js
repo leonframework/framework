@@ -6,7 +6,6 @@ var leon = (function() {
     var Names = Packages.com.google.inject.name.Names;
 
     return {
-
         getLogger: function(name) {
             return LoggerFactory.getLogger("JS: " + name);
         },
@@ -45,7 +44,6 @@ var leon = (function() {
 
           return result;
         }
-
     };
 
 })();

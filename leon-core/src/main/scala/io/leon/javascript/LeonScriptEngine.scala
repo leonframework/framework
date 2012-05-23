@@ -17,13 +17,15 @@ import org.slf4j.LoggerFactory
 import io.leon.resourceloading.watcher.{ResourceChangedListener, ResourceWatcher}
 import java.io.InputStreamReader
 
-class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoader, resourceWatcher: ResourceWatcher) {
+class LeonScriptEngine @Inject()(injector: Injector,
+                                 resourceLoader: ResourceLoader,
+                                 resourceWatcher: ResourceWatcher) {
 
   import scala.collection.JavaConverters._
 
   private val logger = LoggerFactory.getLogger(getClass.getName)
 
-  val rhinoScope = withContext { _.initStandardObjects() }
+  private val rhinoScope = withContext { _.initStandardObjects() }
 
   put("injector", injector)
 
@@ -31,11 +33,13 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
   loadResource("/io/leon/leon.js")
   loadResource("/leon/browser/leon-shared.js")
 
-  private[javascript] def withContext[A](block: Context => A): A = {
+  private def withContext[A](block: Context => A): A = {
     val ctx = Context.enter()
-    val result = block(ctx)
-    Context.exit()
-    result
+    try {
+      block(ctx)
+    } finally {
+      Context.exit()
+    }
   }
 
   def loadResource(fileName: String) {
@@ -116,8 +120,8 @@ class LeonScriptEngine @Inject()(injector: Injector, resourceLoader: ResourceLoa
 
   def put(key: String, value: Any) {
     withContext { ctx =>
-      val wrapped = Context.javaToJS(value, rhinoScope);
-      ScriptableObject.putProperty(rhinoScope, key, wrapped);
+      val wrapped = Context.javaToJS(value, rhinoScope)
+      ScriptableObject.putProperty(rhinoScope, key, wrapped)
     }
   }
 

@@ -21,7 +21,6 @@ class ResourceLoadingModule extends AbstractModule {
     bind(classOf[ResourceCache]).in(Scopes.SINGLETON)
     bind(classOf[ResourceLoader]).in(Scopes.SINGLETON)
     bind(classOf[ResourceProcessorRegistry]).in(Scopes.SINGLETON)
-    bind(classOf[NoOpResourceProcessor]).in(Scopes.SINGLETON)
 
     // Resourcewatcher, start depends on the deployment mode
     bind(classOf[ResourceWatcher]).asEagerSingleton()

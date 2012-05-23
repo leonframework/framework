@@ -13,8 +13,9 @@ import scala.collection.mutable
 import io.leon.utils.GuiceUtils
 import scala.collection.JavaConverters._
 
-class ResourceProcessorRegistry @Inject()(injector: Injector,
-                                          noOpProcessor: NoOpResourceProcessor) {
+class ResourceProcessorRegistry @Inject()(injector: Injector) {
+
+  private val noOpProcessor = new NoOpResourceProcessor
 
   // e.g. CoffeeScript -> JavaScript
   private val transformers = new mutable.HashMap[String, mutable.ListBuffer[ResourceProcessor]]

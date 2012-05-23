@@ -18,6 +18,7 @@ class LessModule extends AbstractModule {
   def configure() {
     bind(classOf[LessInit]).asEagerSingleton()
     bind(classOf[OriginalLessFilePathHolder]).asEagerSingleton()
+
     GuiceUtils.bindClassWithName(
       binder(), classOf[ResourceProcessor], classOf[LessResourceProcessor]).in(Scopes.SINGLETON)
   }
