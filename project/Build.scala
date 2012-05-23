@@ -8,7 +8,7 @@ import WebPlugin._
 
 object BuildSettings {
   val buildOrganization = "io.leon"
-  val buildVersion      = "0.5.13"
+  val buildVersion      = "0.5.15"
   val buildScalaVersion = "2.9.1"
   val buildDescription  = "JVM web framework for building data-driven web applications"
 
@@ -209,7 +209,7 @@ object LeonBuild extends Build {
     settings = buildSettings) aggregate(
       leon_core,
       leon_suite,
-      leon_sql,
+      //leon_sql,
       leon_mongo,
       leon_dummyapp
       //leon_samples_demos_addressbook_coffee_coffee

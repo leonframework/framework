@@ -1,7 +1,0 @@
-* resource loading with cache still buggy
-- first hit seems to be ok
-- second hit is not served from cache
-- problem continues
-
-* dummyapp does not start currently
-

@@ -10,16 +10,15 @@ package io.leon.resourceloading
 
 import com.google.inject._
 import java.lang.RuntimeException
-import location.ResourceLocation
 import org.slf4j.LoggerFactory
 import collection.immutable.List
 import processor.{ResourceProcessor, ResourceProcessorRegistry}
 import watcher.{ResourceWatcher, ResourceChangedListener}
-import scala.collection.JavaConverters._
 import io.leon.config.ConfigMap
-import io.leon.utils.{FileUtils, GuiceUtils}
+import io.leon.utils.FileUtils
 
 class ResourceLoader @Inject()(injector: Injector,
+                               classAndResourceLoader: ClassAndResourceLoader,
                                resourceProcessorRegistry: ResourceProcessorRegistry,
                                resourceWatcher: ResourceWatcher,
                                configMap: ConfigMap,
@@ -28,8 +27,25 @@ class ResourceLoader @Inject()(injector: Injector,
 
   private val logger = LoggerFactory.getLogger(getClass)
 
-  val resourceLocations: List[Binding[ResourceLocation]] = {
-    GuiceUtils.getByType(injector, classOf[ResourceLocation]).asScala.toList
+  private def convertRelativePathToAbsolutePathIfNecessary(fileName: String): String = {
+    if (!fileName.startsWith("/")) {
+      if (resourceLoadingStack.getResourceLoadingStack().size() == 0) {
+        throw new IllegalStateException(
+          "Relative paths are only possible for nested resource loading. Path: '" + fileName + "'")
+      }
+      val predecessor = resourceLoadingStack.getResourceLoadingStack().get(0)
+      FileUtils.getDirectoryNameOfPath(predecessor) + fileName
+    } else {
+      fileName
+    }
+  }
+
+  private def applyEnrichers(fileName: String, resource: Resource): Resource = {
+    val es = resourceProcessorRegistry.getEnrichersForFile(fileName)
+    es.foldLeft(resource) { (enriched, enricher) =>
+      logger.debug("Applying enricher [{}] for resource [{}]", enricher, fileName)
+      enricher.process(enriched)
+    }
   }
 
   def getResource(fileName: String): Resource = {
@@ -60,16 +76,14 @@ class ResourceLoader @Inject()(injector: Injector,
       val processors = resourceProcessorRegistry.getProcessorsForFile(fileName)
       val combinations = for {
         processor <- processors
-        locationBinding <- resourceLocations
       } yield {
-        val location = locationBinding.getProvider.get()
-        (fileName, location, processor)
+        (fileName, processor)
       }
 
       tryCombinations(combinations) match {
         case None => return None
-        case Some((fileNameForProcessor, location, processor, processed)) =>
-          resourceWatcher.addResource(fileNameForProcessor, location, processor, processed.get, changedListener)
+        case Some((fileNameForProcessor, processor, processed)) =>
+          resourceWatcher.addResource(fileNameForProcessor, processor, processed.get, changedListener)
           return processed
       }
     } finally {
@@ -78,27 +92,14 @@ class ResourceLoader @Inject()(injector: Injector,
     None
   }
 
-  private def convertRelativePathToAbsolutePathIfNecessary(fileName: String): String = {
-    if (!fileName.startsWith("/")) {
-      if (resourceLoadingStack.getResourceLoadingStack().size() == 0) {
-        throw new IllegalStateException(
-          "Relative paths are only possible for nested resource loading. Path: '" + fileName + "'")
-      }
-      val predecessor = resourceLoadingStack.getResourceLoadingStack().get(0)
-      FileUtils.getDirectoryNameOfPath(predecessor) + fileName
-    } else {
-      fileName
-    }
-  }
-
-  private def tryCombinations(combinations: List[(String, ResourceLocation, ResourceProcessor)])
-      : Option[(String, ResourceLocation, ResourceProcessor, Option[Resource])] =
+  private def tryCombinations(combinations: List[(String, ResourceProcessor)])
+      : Option[(String, ResourceProcessor, Option[Resource])] =
 
     combinations match {
       case Nil => None
-      case (fileName, location, processor) :: xs => {
+      case (fileName, processor) :: xs => {
         val fileNameForProcessor = resourceProcessorRegistry.replaceFileNameEndingForProcessor(processor, fileName)
-        val resourceOption = location.getResource(fileNameForProcessor)
+        val resourceOption = classAndResourceLoader.getResource(fileNameForProcessor)
 
         if (resourceOption.isDefined) {
           val resource = resourceOption.get
@@ -124,20 +125,12 @@ class ResourceLoader @Inject()(injector: Injector,
             // No caching request. Normal processing.
             processor.process(applyEnrichers(fileName, resource))
           }
-          Some((fileNameForProcessor, location, processor, Some(cachedOrNormal)))
+          Some((fileNameForProcessor, processor, Some(cachedOrNormal)))
         } else {
           tryCombinations(xs)
         }
       }
     }
-
-  private def applyEnrichers(fileName: String, resource: Resource): Resource = {
-    val es = resourceProcessorRegistry.getEnrichersForFile(fileName)
-    es.foldLeft(resource) { (enriched, enricher) =>
-      logger.debug("Applying enricher [{}] for resource [{}]", enricher, fileName)
-      enricher.process(enriched)
-    }
-  }
 
 }
 

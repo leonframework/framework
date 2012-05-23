@@ -26,9 +26,13 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
 
   private val javaIoTmpDir = System.getProperty("java.io.tmpdir")
 
-  private val cacheDir = new File(javaIoTmpDir + sep + "leon" + sep + appName + sep + "cache")
+  private val cacheLeonDir = new File(javaIoTmpDir + sep + "leon" + sep + appName)
 
-  private val dependenciesDir = new File(javaIoTmpDir + sep + "leon" + sep + appName + sep + "dependencies")
+  private val cacheDir = new File(cacheLeonDir, "cache")
+
+  private val dependenciesDir = new File(cacheLeonDir, "dependencies")
+
+  logger.info("Using cache directory [{}]", cacheLeonDir.getPath)
 
   private def getCacheFile(filename: String): File = {
     new File(cacheDir, filename)
@@ -54,11 +58,10 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
     // check if this is a new dependency
     if (!lines.contains(dependency)) {
       logger.trace("New dependency for resource [{}]: [{}]", rootResource, dependency)
-      val writer = new BufferedWriter(new FileWriter(dependencyFile, true))
+      val writer = new FileWriter(dependencyFile, true)
       // add new dependency
       writer.write(dependency + "\n")
-      writer.flush()
-      writer.close()
+      FileUtils.close(writer)
       logger.trace("Added dependency [{}] to file [{}]", dependency, dependencyFile.getPath)
     } else {
       logger.trace("Resource [{}] is already a known dependency of resource [{}]", dependency, rootResource)
@@ -131,22 +134,11 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
           return false
         } else {
           logger.trace("The static resource's timestamp is older hence the resource is up to data")
-          return true // TODO testing required
-          // TODO this return might be false. instead this block should be removed and
-          // the following ifs should be else if. Return is IMHO wrong here since
-          // we are in a loop and we need to test all dependencies. Using return will
-          // falsy return true even if false-case resources might follow.
-
-          // All ifs here should be else if, I guess...
         }
-      }
-
-      if (!dependencyResource.isCachingPossible()) {
+      } else if (!dependencyResource.isCachingPossible()) {
         logger.trace("Dependency [{}] is not cachable hence the resource [{}] is out of date", line, fileName)
         return false
-      }
-
-      if (!dependencyResource.wasLoadedFromCache()) {
+      } else if (!dependencyResource.wasLoadedFromCache()) {
         logger.trace("Dependency [{}] was not loaded from cache", line)
         FileUtils.deleteIfExists(getDependencyFile(fileName))
         return false
@@ -191,7 +183,7 @@ class ResourceCache @Inject()(resourceLoadingStack: ResourceLoadingStack,
 
   /**
    * @param fileName the file that should be looked up in the cache
-   * @return the cached {@link Resource} or an {@link IllegalArgumentException} if the file could not be found
+   * @return the cached Resource or an IllegalArgumentException if the file could not be found
    */
   def get(fileName: String): Resource = synchronized {
     val f = getCacheFile(fileName)

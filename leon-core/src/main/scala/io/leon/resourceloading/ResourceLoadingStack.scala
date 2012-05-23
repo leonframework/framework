@@ -23,7 +23,7 @@ class ResourceLoadingStack {
   }
 
   /**
-   * @return a view (copy) of the current resource-loading stack
+   * @return a view of the current resource-loading stack
    */
   def getResourceLoadingStack(): java.util.List[String] = {
     Collections.unmodifiableList(resourceLoadingStack.get())

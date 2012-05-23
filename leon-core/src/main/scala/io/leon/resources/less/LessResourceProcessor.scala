@@ -26,18 +26,19 @@ class LessResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScr
 
   def toFileEnding = "css"
 
-  def process(in: Resource) = {
-    synchronized {
-      originalLessFilePathHolder.set(in.name)
+  def process(in: Resource) = synchronized {
+    originalLessFilePathHolder.set(in.name)
 
-      val asLess = ResourceUtils.inputStreamToString(in.getInputStream())
-      val asCss = getLeonScriptEngine().invokeFunction("leon.parseLess", asLess)
+    new Resource(in.name) {
+      def getLastModified() = in.getLastModified()
 
-      new Resource(in.name) {
-        def getLastModified() = in.getLastModified()
-        def getInputStream() = ResourceUtils.stringToInputStream(asCss.toString)
-        override def isCachingDesired() = true
+      def getInputStream() = {
+        val asLess = ResourceUtils.inputStreamToString(in.getInputStream())
+        val asCss = getLeonScriptEngine().invokeFunction("leon.parseLess", asLess)
+        ResourceUtils.stringToInputStream(asCss.toString)
       }
+
+      override def isCachingDesired() = true
     }
   }
 

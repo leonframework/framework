@@ -13,7 +13,7 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
         <dependency>
             <groupId>io.leon</groupId>
             <artifactId>leon-core</artifactId>
-            <version>0.5.13</version>
+            <version>0.5.15</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>

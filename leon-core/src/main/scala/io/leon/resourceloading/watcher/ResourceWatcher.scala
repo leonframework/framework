@@ -9,18 +9,17 @@
 package io.leon.resourceloading.watcher
 
 import org.slf4j.LoggerFactory
-import io.leon.resourceloading.location.ResourceLocation
+import io.leon.resourceloading.{ClassAndResourceLoader, Resource}
 import io.leon.resourceloading.processor.ResourceProcessor
-import io.leon.resourceloading.Resource
 import com.google.inject.Inject
 import io.leon.web.TopicsService
 import scala.collection.JavaConverters._
 
 // TODO get TopicsService with an Injector instance so that user code is not forced to install the CometModule all the time
-class ResourceWatcher @Inject()(topicsService: TopicsService) {
+class ResourceWatcher @Inject()(resourceLocations: ClassAndResourceLoader,
+                                topicsService: TopicsService) {
 
   case class WatchedResource(fileNameForProcessor: String,
-                             location: ResourceLocation,
                              processor: ResourceProcessor,
                              resource: Resource,
                              var lastTimestamp: Long,
@@ -60,7 +59,7 @@ class ResourceWatcher @Inject()(topicsService: TopicsService) {
           for (changed <- changedResources.asScala) {
             try {
               val newResource = changed.processor.process(
-                changed.location.getResource(changed.resource.name).get)
+                resourceLocations.getResource(changed.resource.name).get)
 
               changed.changedListener.resourceChanged(newResource)
               topicsService.send(
@@ -89,7 +88,6 @@ class ResourceWatcher @Inject()(topicsService: TopicsService) {
   }
 
   def addResource(fileNameForProcessor: String,
-                  location: ResourceLocation,
                   processor: ResourceProcessor,
                   resource: Resource,
                   changedListener: ResourceChangedListener) {
@@ -101,7 +99,6 @@ class ResourceWatcher @Inject()(topicsService: TopicsService) {
     logger.debug("Watching resource [{}] for changes.", fileNameForProcessor)
     watchedResources.add(WatchedResource(
       fileNameForProcessor,
-      location,
       processor,
       resource,
       resource.getLastModified(),
