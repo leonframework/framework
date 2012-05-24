@@ -16,10 +16,8 @@ public class ListNode<E> {
         this.list = list;
     }
 
-    @SuppressWarnings("unchecked")
-    protected ListNode(RelaxedTypes rt, Object listLike) {
-        this.rt = rt;
-        this.list = rt.getConverter().convert(listLike.getClass(), List.class, listLike).get();
+    public List<E> val() {
+        return list;
     }
 
     public Node<E> get(int index) {
@@ -28,21 +26,26 @@ public class ListNode<E> {
 
     @SuppressWarnings("unchecked")
     public <A> List<A> map(Function<? super E, ? extends A> function) {
-        List<A> newCollection;
+        List<A> newList;
         try {
             Constructor<? extends List> constructor = list.getClass().getConstructor();
-            newCollection = constructor.newInstance();
+            newList = constructor.newInstance();
         } catch (Exception e) {
-            newCollection = Lists.newArrayListWithCapacity(list.size());
+            newList = Lists.newArrayListWithCapacity(list.size());
         }
         for (E e : list) {
-            newCollection.add(function.apply(e));
+            newList.add(function.apply(e));
         }
-        return newCollection;
+        return newList;
     }
 
-    public <A> ListNode<A> asListOf(Class<A> elementType) {
-        return null; // TODO
+    public <A> ListNode<A> asListOf(final Class<A> elementType) {
+        return rt.listNode(map(new Function<E, A>() {
+            @Override
+            public A apply(E input) {
+                return rt.getConverter().convert(input.getClass(), elementType, input).getOrThrowException();
+            }
+        }));
     }
 
     @Override

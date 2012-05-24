@@ -27,9 +27,9 @@ public class RelaxedTypes {
         return new MapNode<K, V>(this, map);
     }
 
-    public MapNode<Object, Object> mapNode(Object mapLike) {
-        return new MapNode<Object, Object>(this, mapLike);
-    }
+    //public MapNode<Object, Object> mapNode(Object mapLike) {
+    //    return new MapNode<Object, Object>(this, mapLike);
+    //}
 
     public <E> ListNode<E> listNode(List<E> list) {
         return new ListNode<E>(this, list);

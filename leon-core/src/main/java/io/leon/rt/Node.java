@@ -26,8 +26,8 @@ public class Node<E> {
         return rt.listNode(as(List.class));
     }
 
-    public <A> ListNode<A> asList(Class<A> elementType) {
-        return rt.listNode(as(List.class)).asListOf(elementType);
+    public <A> ListNode<A> asListOf(Class<A> elementType) {
+        return asList().asListOf(elementType);
     }
 
     @SuppressWarnings("unchecked")
