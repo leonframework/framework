@@ -24,7 +24,7 @@ http://www.eclipse.org/legal/epl-v10.html
   val buildSettings =
     Defaults.defaultSettings ++
     licenseSettings ++
-    Seq(scalacOptions ++= Seq("-unchecked", "-Xfatal-warnings", "-deprecation")) ++
+    Seq(scalacOptions ++= Seq("-target:jvm-1.5", "-unchecked", "-Xfatal-warnings", "-deprecation")) ++
     Seq(javacOptions ++= Seq("-source", "1.6", "-target", "1.6")) ++
     Seq(
       organization := buildOrganization,
