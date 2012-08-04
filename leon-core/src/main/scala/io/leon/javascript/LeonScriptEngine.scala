@@ -14,12 +14,10 @@ import java.lang.IllegalArgumentException
 import org.mozilla.javascript.{ScriptableObject, Context, Function => RhinoFunction}
 import io.leon.resourceloading.{ResourceLoader, Resource}
 import org.slf4j.LoggerFactory
-import io.leon.resourceloading.watcher.{ResourceChangedListener, ResourceWatcher}
 import java.io.InputStreamReader
 
 class LeonScriptEngine @Inject()(injector: Injector,
-                                 resourceLoader: ResourceLoader,
-                                 resourceWatcher: ResourceWatcher) {
+                                 resourceLoader: ResourceLoader) {
 
   import scala.collection.JavaConverters._
 
@@ -63,13 +61,7 @@ class LeonScriptEngine @Inject()(injector: Injector,
       }
     }
 
-    val resource = resourceLoader.getResource(fileName, new ResourceChangedListener {
-      def resourceChanged(changedResource: Resource) {
-        logger.debug("Reloading JS file [{}]", changedResource.name)
-        _loadResource(changedResource)
-      }
-    })
-
+    val resource = resourceLoader.getResource(fileName)
     _loadResource(resource)
   }
 

@@ -11,14 +11,9 @@ package io.leon;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
-import com.google.inject.binder.AnnotatedBindingBuilder;
-import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.servlet.ServletModule;
 import io.leon.javascript.LeonScriptEngine;
 import io.leon.web.ajax.AjaxBinder;
-import io.leon.web.ajax.JavaObjectAjaxHandler;
-import io.leon.web.ajax.JavaScriptAjaxHandler;
 import io.leon.web.comet.CometBinder;
 import io.leon.web.resources.WebResourcesBinder;
 
@@ -64,36 +59,10 @@ abstract public class LeonModule extends ServletModule {
         }
     }
 
-    // --- Delegates for JavaScript modules ---
-    @Override
-    protected <T> AnnotatedBindingBuilder<T> bind(Class<T> clazz) {
-        return super.bind(clazz);
-    }
-
-    @Override
-    protected <T> LinkedBindingBuilder<T> bind(Key<T> key) {
-        return super.bind(key);
-    }
-
-    @Override
-    protected <T> AnnotatedBindingBuilder<T> bind(TypeLiteral<T> typeLiteral) {
-        return super.bind(typeLiteral);
-    }
-
     // -- AjaxBinder delegates ---
     public void exposeJavaService(String url, Class<?> clazz) {
         AjaxBinder b = new AjaxBinder(binder());
         b.exposeJavaService(url, Key.get(clazz));
-    }
-
-    public void exposeJavaService(String url, Key<?> key) {
-        AjaxBinder b = new AjaxBinder(binder());
-        b.exposeAjaxHandler(url, new JavaObjectAjaxHandler(key));
-    }
-
-    public void exposeJavaScript(String url, String javaScriptObjectName) {
-        AjaxBinder b = new AjaxBinder(binder());
-        b.exposeAjaxHandler(url, new JavaScriptAjaxHandler(javaScriptObjectName));
     }
 
     // --- CometBinder delegates ---
@@ -102,6 +71,8 @@ abstract public class LeonModule extends ServletModule {
     }
 
     // --- Abstract methods ---
-    abstract protected void config();
+    protected void config() {
+
+    }
 
 }

@@ -3,7 +3,7 @@ package io.leon.rt;
 import io.leon.rt.converters.Converter;
 import org.testng.annotations.Test;
 
-import static io.leon.rt.option.Option.some;
+import static io.leon.utils.option.Option.some;
 import static org.testng.Assert.assertEquals;
 
 @Test

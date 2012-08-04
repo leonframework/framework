@@ -1,12 +1,15 @@
 package io.leon.rt.option;
 
+import io.leon.utils.option.None;
+import io.leon.utils.option.Option;
+import io.leon.utils.option.Some;
 import org.testng.annotations.Test;
 
 import java.util.concurrent.Callable;
 
-import static io.leon.rt.option.Option.none;
-import static io.leon.rt.option.Option.some;
-import static io.leon.rt.option.Option.someApply;
+import static io.leon.utils.option.Option.none;
+import static io.leon.utils.option.Option.some;
+import static io.leon.utils.option.Option.someApply;
 import static org.testng.Assert.*;
 
 @Test

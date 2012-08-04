@@ -18,7 +18,6 @@ class BrowserModule extends ServletModule {
     val htpb = new HtmlTagsProcessorBinder(binder())
     htpb.addTagRewriter(classOf[HtmlContextPathRewriter])
     htpb.addTagRewriter(classOf[HtmlLeonIncludeTag])
-    htpb.addTagRewriter(classOf[HtmlLeonScriptsTag])
 
     val vljs = new VirtualLeonJsFileBinder(binder())
     vljs.bindAndAddContribution(classOf[ContextPathVirtualLeonJsFileContribution])

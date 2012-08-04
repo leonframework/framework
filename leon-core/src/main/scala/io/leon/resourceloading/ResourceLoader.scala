@@ -13,14 +13,12 @@ import java.lang.RuntimeException
 import org.slf4j.LoggerFactory
 import collection.immutable.List
 import processor.{ResourceProcessor, ResourceProcessorRegistry}
-import watcher.{ResourceWatcher, ResourceChangedListener}
 import io.leon.config.ConfigMap
 import io.leon.utils.FileUtils
 
 class ResourceLoader @Inject()(injector: Injector,
                                classAndResourceLoader: ClassAndResourceLoader,
                                resourceProcessorRegistry: ResourceProcessorRegistry,
-                               resourceWatcher: ResourceWatcher,
                                configMap: ConfigMap,
                                resourceCache: ResourceCache,
                                resourceLoadingStack: ResourceLoadingStack) {
@@ -49,11 +47,7 @@ class ResourceLoader @Inject()(injector: Injector,
   }
 
   def getResource(fileName: String): Resource = {
-    getResource(fileName, null)
-  }
-
-  def getResource(fileName: String, changedListener: ResourceChangedListener): Resource = {
-    getResourceOption(fileName, changedListener) match {
+    getResourceOption(fileName) match {
       case Some(resource) => {
         logger.trace("Loaded resource {}", resource.name)
         resource
@@ -62,11 +56,7 @@ class ResourceLoader @Inject()(injector: Injector,
     }
   }
 
-  def getResourceOption(fileName: String): Option[Resource] = {
-    getResourceOption(fileName, null)
-  }
-
-  def getResourceOption(_fileName: String, changedListener: ResourceChangedListener): Option[Resource] = synchronized {
+  def getResourceOption(_fileName: String): Option[Resource] = synchronized {
     val fileName = convertRelativePathToAbsolutePathIfNecessary(_fileName)
     resourceCache.doDependencyCheck(fileName)
     resourceLoadingStack.pushResourceOnStack(fileName)
@@ -82,9 +72,7 @@ class ResourceLoader @Inject()(injector: Injector,
 
       tryCombinations(combinations) match {
         case None => return None
-        case Some((fileNameForProcessor, processor, processed)) =>
-          resourceWatcher.addResource(fileNameForProcessor, processor, processed.get, changedListener)
-          return processed
+        case Some((fileNameForProcessor, processor, processed)) => return processed
       }
     } finally {
       resourceLoadingStack.popResourceFromStack()

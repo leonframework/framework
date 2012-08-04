@@ -19,7 +19,7 @@ import org.apache.shiro.realm.Realm;
 import javax.servlet.ServletContext;
 import java.util.List;
 
-abstract public class LeonAppMainModule extends LeonModule {
+public class LeonAppMainModule extends LeonModule {
 
     private static final class SecurityModule extends ShiroWebModule {
 

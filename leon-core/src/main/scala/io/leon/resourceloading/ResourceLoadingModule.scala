@@ -8,10 +8,8 @@
  */
 package io.leon.resourceloading
 
-import io.leon.resourceloading.processor.{NoOpResourceProcessor, ResourceProcessorRegistry}
-import io.leon.config.ConfigMapHolder
-import watcher.ResourceWatcher
-import com.google.inject.{Scopes, Inject, AbstractModule}
+import io.leon.resourceloading.processor.ResourceProcessorRegistry
+import com.google.inject.{Scopes, AbstractModule}
 
 class ResourceLoadingModule extends AbstractModule {
 
@@ -21,16 +19,6 @@ class ResourceLoadingModule extends AbstractModule {
     bind(classOf[ResourceCache]).in(Scopes.SINGLETON)
     bind(classOf[ResourceLoader]).in(Scopes.SINGLETON)
     bind(classOf[ResourceProcessorRegistry]).in(Scopes.SINGLETON)
-
-    // Resourcewatcher, start depends on the deployment mode
-    bind(classOf[ResourceWatcher]).asEagerSingleton()
-    if (ConfigMapHolder.getInstance().getConfigMap.isDevelopmentMode) {
-      requestInjection(new Object {
-        @Inject def init(watcher: ResourceWatcher) {
-          watcher.start()
-        }
-      })
-    }
   }
 
 }

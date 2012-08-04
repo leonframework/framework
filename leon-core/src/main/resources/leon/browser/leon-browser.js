@@ -1,5 +1,5 @@
 
-var _leon = (function() {
+var leon = (function() {
 
     return {
 
@@ -56,10 +56,6 @@ var _leon = (function() {
             return getLeon().comet.updateFilter(topicId, key, value);
         },
 
-        hasCockpit: function() {
-            return !(typeof getLeon().cockpit === 'undefined');
-        },
-
         log: function(msg) {
             if (getLeon().deploymentMode === "development") {
 	            console.log(msg);
@@ -71,8 +67,4 @@ var _leon = (function() {
 
     };
 })();
-
-var getLeon = function() {
-	return _leon;
-};
 

@@ -8,7 +8,7 @@ import WebPlugin._
 
 object BuildSettings {
   val buildOrganization = "io.leon"
-  val buildVersion      = "0.5.16"
+  val buildVersion      = "0.6.0"
   val buildScalaVersion = "2.9.1"
   val buildDescription  = "JVM web framework for building data-driven web applications"
 
@@ -34,7 +34,7 @@ http://www.eclipse.org/legal/epl-v10.html
       license      := licenseText,
       licenses     := Seq("Eclipse Public License - v 1.0" -> url("http://www.eclipse.org/legal/epl-v10.html")),
       homepage     := Some(url("http://leon.io")),
-      crossPaths   := false) ++      
+      crossPaths   := false) ++
     (testFrameworks += new TestFramework("de.johoop.testng.TestNGFramework")) ++
     (testOptions <+= (crossTarget, resourceDirectory in Test) map { (target, testResources) =>
       Tests.Argument(
@@ -144,6 +144,8 @@ object Dependencies {
 
   def gson = "com.google.code.gson" % "gson" % "1.7.1" withSources()
 
+  def snakeYaml = "org.yaml" % "snakeyaml" % "1.8" withSources()
+
   // --- Apache Shiro ---
 
   def shiroCore = "org.apache.shiro" % "shiro-core" % "1.2.0" withSources()
@@ -153,16 +155,6 @@ object Dependencies {
   def shiroGuice = "org.apache.shiro" % "shiro-guice" % "1.2.0" withSources()
 
   def commonsLogging = "commons-logging" % "commons-logging" % "1.1.1" withSources()
-
-  // --- SQL stuff ---
-
-  def h2database = "com.h2database" % "h2" % "1.3.155" % "test" withSources()
-
-  def snakeYaml = "org.yaml" % "snakeyaml" % "1.8" withSources()
-
-  // --- MongoDB ---
-
-  def mongo = "org.mongodb" % "mongo-java-driver" % "2.7.2" withSources()
 
 }
 
@@ -209,8 +201,6 @@ object LeonBuild extends Build {
     settings = buildSettings) aggregate(
       leon_core,
       leon_suite,
-      //leon_sql,
-      leon_mongo,
       leon_dummyapp
       //leon_samples_demos_addressbook_coffee_coffee
       //samplesAjaxReverserJavaJs,
@@ -227,20 +217,6 @@ object LeonBuild extends Build {
     file("leon-core"),
     settings = buildSettings ++ publishSettings ++
       Seq(libraryDependencies ++= coreDeps))
-
-  lazy val leon_sql = Project(
-     "leon-sql",
-     file("leon-sql"),
-     settings = buildSettings ++ publishSettings ++
-       Seq(libraryDependencies ++= (Seq(h2database, snakeYaml) ++: coreDeps))
-  ) dependsOn(leon_core)
-
-  lazy val leon_mongo = Project(
-     "leon-mongo",
-     file("leon-mongo"),
-     settings = buildSettings ++ publishSettings ++
-       Seq(libraryDependencies ++= (mongo +: coreDeps))
-  ) dependsOn(leon_core)
 
   lazy val leon_dummyapp = Project(
     "leon-dummyapp",

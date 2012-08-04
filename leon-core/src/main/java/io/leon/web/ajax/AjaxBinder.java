@@ -44,8 +44,4 @@ public class AjaxBinder {
         exposeAjaxHandler(url, new JavaObjectAjaxHandler(key));
     }
 
-    public void exposeJavaScript(String url, String javaScriptObjectName) {
-        exposeAjaxHandler(url, new JavaScriptAjaxHandler(javaScriptObjectName));
-    }
-
 }
