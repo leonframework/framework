@@ -112,7 +112,7 @@ object Dependencies {
   def sbt_testng_interface = "de.johoop" % "sbt-testng-interface" % "1.0.0" % "test"
 
 
-  def selenium = "org.seleniumhq.selenium" % "selenium-java" % "2.21.0" % "provided"
+  def selenium = "org.seleniumhq.selenium" % "selenium-java" % "2.25.0" % "provided"
 
   def servletApi = "org.mortbay.jetty" % "servlet-api" % "2.5-20081211" % "provided"
 
