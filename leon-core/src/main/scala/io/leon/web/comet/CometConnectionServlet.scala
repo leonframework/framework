@@ -37,10 +37,11 @@ class CometConnectionServlet @Inject()(registry: CometRegistry) extends Atmosphe
 
   }
 
-  protected override def loadConfiguration(sc: ServletConfig) {
-    val r = new ReflectorServletProcessor
-    r.setServlet(handlerServlet)
-    addAtmosphereHandler("/*", r)
+  override def init(sc: ServletConfig) {
+    super.init(sc)
+    val r = new ReflectorServletProcessor(handlerServlet)
+    r.init(sc)
+    framework.addAtmosphereHandler("/*", r)
   }
 
   override def destroy() {

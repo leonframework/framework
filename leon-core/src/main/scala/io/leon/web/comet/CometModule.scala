@@ -37,9 +37,9 @@ class CometModule extends AbstractModule {
       override def configureServlets() {
         import scala.collection.JavaConverters._
 
-        val meteorParams = Map(
-          AtmosphereServlet.WEBSOCKET_SUPPORT -> "false",
-          AtmosphereServlet.PROPERTY_NATIVE_COMETSUPPORT -> "true"
+        val meteorParams = Map[String, String](
+          "org.atmosphere.useWebSocket" -> "false"
+          // AtmosphereServlet.PROPERTY_NATIVE_COMETSUPPORT -> "true"
         ).asJava
 
         serve("/leon/comet/connect*").`with`(classOf[CometConnectionServlet], meteorParams)

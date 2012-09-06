@@ -8,7 +8,7 @@
  */
 package io.leon.web.comet
 
-import org.atmosphere.cpr.Meteor
+import org.atmosphere.cpr.{BroadcasterConfig, Meteor}
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
@@ -72,12 +72,12 @@ class ClientConnection(val clientId: String,
    */
   def enqueue(topicName: String, data: String) = synchronized {
     val id = nextMessageId.getAndIncrement
-    val message = """$$$MESSAGE$$${
+    val message = """{
       "messageId": %s,
       "topicName": "%s",
       "data": %s
     }
-    """.format(id, topicName, data).replace('\n', ' ') + "\n"
+    """.format(id, topicName, data).replace('\n', ' ')
     queue.add(id -> message)
     flushQueue()
   }
@@ -101,13 +101,13 @@ class ClientConnection(val clientId: String,
 
   private def sendPackage(msg: (Int, String)): Boolean = synchronized {
     val data = msg._2
+    logger.debug("message: " + data)
     try {
       meteor map {
         meteor =>
-          val res = meteor.getAtmosphereResource.getResponse
-          val writer = res.getWriter
-          writer.write(data)
-          res.flushBuffer()
+          meteor.getBroadcaster.getBroadcasterConfig.removeAllFilters()
+          val b = meteor.getBroadcaster
+          b.broadcast(data)
           true
       } getOrElse false
     } catch {

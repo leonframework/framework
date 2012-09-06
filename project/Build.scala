@@ -112,9 +112,9 @@ object Dependencies {
   def sbt_testng_interface = "de.johoop" % "sbt-testng-interface" % "1.0.0" % "test"
 
 
-  def selenium = "org.seleniumhq.selenium" % "selenium-java" % "2.21.0" % "provided"
+  def selenium = "org.seleniumhq.selenium" % "selenium-java" % "2.25.0" % "provided"
 
-  def servletApi = "org.mortbay.jetty" % "servlet-api" % "2.5-20081211" % "provided"
+  def servletApi = "org.apache.geronimo.specs" % "geronimo-servlet_3.0_spec" % "1.0" % "provided"
 
   def jettyRuntime = "org.eclipse.jetty" % "jetty-webapp" % "7.0.2.v20100331" % "container" withSources()
 
@@ -124,7 +124,7 @@ object Dependencies {
 
   def freemarker = "org.freemarker" % "freemarker" % "2.3.18" withSources()
 
-  def atmosphere_version = "0.7.1"
+  def atmosphere_version = "1.0.0"
 
   def atmosphere_runtime = "org.atmosphere" % "atmosphere-runtime" % atmosphere_version withSources()
 

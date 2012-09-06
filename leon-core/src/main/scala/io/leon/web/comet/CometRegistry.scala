@@ -101,7 +101,7 @@ class CometRegistry @Inject()(injector: Injector,
     logger.debug("Registering meteor for client [" + clientId + "]")
 
     val meteor = createMeteor(req)
-    meteor.suspend(-1, true)
+    meteor.resumeOnBroadcast(true).suspend(-1)
 
     val res = meteor.getAtmosphereResource.getResponse
     val writer = res.getWriter
