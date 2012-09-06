@@ -10,7 +10,7 @@ package io.leon.web.comet
 
 import annotations.CometThreadPoolExecutor
 import com.google.inject.servlet.ServletModule
-import org.atmosphere.cpr.AtmosphereServlet
+import org.atmosphere.cpr.ApplicationConfig
 import io.leon.web.resources.WebResourcesBinder
 import io.leon.web.TopicsService
 import com.google.inject.{Key, AbstractModule}
@@ -38,8 +38,8 @@ class CometModule extends AbstractModule {
         import scala.collection.JavaConverters._
 
         val meteorParams = Map[String, String](
-          "org.atmosphere.useWebSocket" -> "false"
-          // AtmosphereServlet.PROPERTY_NATIVE_COMETSUPPORT -> "true"
+          ApplicationConfig.WEBSOCKET_SUPPORT -> "false",
+          ApplicationConfig.PROPERTY_NATIVE_COMETSUPPORT -> "true"
         ).asJava
 
         serve("/leon/comet/connect*").`with`(classOf[CometConnectionServlet], meteorParams)

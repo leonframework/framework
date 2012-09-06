@@ -1,33 +1,17 @@
 
 getLeon().comet = (function() {
 
-    var pollTimer; // check for new data, connection state, ...
-
-    var disconnectTimer; // force a disconnect
-
     var socket;
-    var prevDataLength = 0;
-    var nextLine = 0;
-
-    var messageMarker = "$$$MESSAGE$$$";
 
     var lastMessageId = -1;
 
     var handlerFns = {};
 
-    return {
+    function buildCometUrl() {
+        return getLeon().contextPath + "/leon/comet/connect" + "?clientId=" + getLeon().comet.clientId + "&lastMessageId=" + lastMessageId;
+    }
 
-        createRequestObject: function() {
-            var ro;
-            if (window.XMLHttpRequest) {
-                    ro = new XMLHttpRequest();
-            } else {
-                    ro = new ActiveXObject("Microsoft.XMLHTTP");
-            }
-            if (!ro)
-                    debug("Couldn't start XMLHttpRequest object");
-            return ro;
-        },
+    return {
 
         handleEvent: function(topicId, data) {
             handlerFns[topicId].map(function(fn) {
@@ -38,28 +22,28 @@ getLeon().comet = (function() {
         openSocket: function(url) {
             var request = {
                 url: url,
-                logLevel: "debug",
                 contentType: 'application/json',
                 transport: 'websocket',
-                fallbackTransport: 'long-polling',
-                executeCallbackBeforeReconnect: 'true'
+                fallbackTransport: 'streaming',
+                trackMessageLength: 'true',
+                executeCallbackBeforeReconnect: 'true',
+                timeout: '45'
             };
 
             request.onReconnect = function(request, response) {
-                console.log("onReconnect");
-                request.url = getLeon().contextPath + "/leon/comet/connect" + "?clientId=" + getLeon().comet.clientId + "&lastMessageId=" + lastMessageId;
+                request.url = buildCometUrl();
             }
 
             request.onMessage = function(response) {
-                console.log("onMessage called");
-
                 var responseBody = response.responseBody;
-                console.log("responseBody: " + responseBody);
+                if (responseBody == null || responseBody.length == 0) {
+                    return;
+                }
+
                 var message = JSON.parse(responseBody);
                 var dataParsed = JSON.parse(message.data);
 
                 lastMessageId = message.messageId;
-                console.log("lastMessageId: " + lastMessageId);
 
                 try {
                     getLeon().log("Comet handler called")
@@ -85,7 +69,7 @@ getLeon().comet = (function() {
                 return;
             }
 
-            var url = getLeon().contextPath + "/leon/comet/connect" + "?clientId=" + getLeon().comet.clientId + "&lastMessageId=" + lastMessageId;
+            var url = buildCometUrl();
             getLeon().comet.openSocket(url);
         },
 

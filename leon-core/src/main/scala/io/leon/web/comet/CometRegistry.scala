@@ -101,7 +101,7 @@ class CometRegistry @Inject()(injector: Injector,
     logger.debug("Registering meteor for client [" + clientId + "]")
 
     val meteor = createMeteor(req)
-    meteor.resumeOnBroadcast(true).suspend(-1)
+    meteor.suspend(-1, true)
 
     val res = meteor.getAtmosphereResource.getResponse
     val writer = res.getWriter
@@ -110,7 +110,7 @@ class CometRegistry @Inject()(injector: Injector,
 
     clients.getByClientIdOption(clientId) match {
       case None => {
-        logger.trace("Registering   new meteor for client [" + clientId + "]")
+        logger.trace("Registering new meteor for client [" + clientId + "]")
         val cc = new ClientConnection(clientId, Some(meteor))
         clients.add(cc)
       }

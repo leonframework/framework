@@ -71,9 +71,9 @@ public class VirtualLeonJsFile extends HttpServlet {
         String env = req.getParameter("env");
         if ("desktop".equals(env) || null == env) {
             writeResource(out, "/leon/browser/jquery-1.6.2.js");
+            writeResource(out, "/leon/browser/jquery.atmosphere.js");
             writeResource(out, "/leon/browser/leon-browser.js");
             writeResource(out, "/leon/browser/leon-shared.js");
-            writeResource(out, "/leon/browser/jquery.atmosphere.js");
             writeResource(out, "/leon/browser/leon-comet.js");
         } else if ("mobile".equals(env)) {
             //writeResource(out, "/leon/browser/jquery-1.6.2.js")
