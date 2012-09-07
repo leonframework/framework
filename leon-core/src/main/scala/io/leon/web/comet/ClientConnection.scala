@@ -8,7 +8,7 @@
  */
 package io.leon.web.comet
 
-import org.atmosphere.cpr.Meteor
+import org.atmosphere.cpr.{AtmosphereResource, DefaultBroadcaster, Meteor}
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
@@ -35,6 +35,8 @@ class ClientConnection(val clientId: String,
 
   var connectTime = System.currentTimeMillis()
 
+  def isWebSocket = meteor map { _.transport() == AtmosphereResource.TRANSPORT.WEBSOCKET } getOrElse false
+
   def setNewMeteor(lastMessageReceived: Int, newMeteor: Meteor): Unit = synchronized {
     logger.debug("ClientConnection received a new meteor instance. Last message received: " + lastMessageReceived)
     resumeAndRemoveUplink()
@@ -60,6 +62,7 @@ class ClientConnection(val clientId: String,
         m =>
           logger.debug("Removing uplink for ClientConnection")
           m.resume()
+          m.destroy()
       }
     } catch {
       case e: Exception => // ignore
@@ -104,12 +107,12 @@ class ClientConnection(val clientId: String,
     try {
       meteor map {
         meteor =>
-          val res = meteor.getAtmosphereResource.getResponse
-          val writer = res.getWriter
-          writer.write("" + data.length)
-          writer.write("|")
-          writer.write(data)
-          res.flushBuffer()
+          val res = meteor.getAtmosphereResource
+
+          val b = new DefaultBroadcaster(clientId, res.getAtmosphereConfig)
+          b.addAtmosphereResource(res)
+          b.broadcast(data.length + "|" + data)
+
           true
       } getOrElse false
     } catch {

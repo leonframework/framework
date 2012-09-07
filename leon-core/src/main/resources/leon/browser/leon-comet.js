@@ -31,12 +31,14 @@ getLeon().comet = (function() {
             };
 
             request.onReconnect = function(request, response) {
+                // rewrite url before re-connect (lastMessageId may have changed)
                 request.url = buildCometUrl();
             }
 
             request.onMessage = function(response) {
                 var responseBody = response.responseBody;
                 if (responseBody == null || responseBody.length == 0) {
+                    // ignore empty messages
                     return;
                 }
 

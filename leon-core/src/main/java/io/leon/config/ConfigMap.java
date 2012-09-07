@@ -32,6 +32,7 @@ public class ConfigMap extends Hashtable<String, String> {
     public static final String APPLICATION_NAME_KEY = "leon.applicationName";
     public static final String DEPLOYMENT_MODE_KEY  = "leon.deploymentMode";
     public static final String DISABLE_CACHE = "leon.disableCache";
+    public static final String USE_WEBSOCKET_KEY = "leon.useWebSocket";
 
     public static final String DEVELOPMENT_MODE = "development";
     public static final String PRODUCTION_MODE = "production";
@@ -81,5 +82,9 @@ public class ConfigMap extends Hashtable<String, String> {
 
     public boolean isCacheDisabled() {
         return "true".equals(getOrElse(DISABLE_CACHE, "false"));
+    }
+
+    public boolean useWebSocket() {
+        return "true".equals(getOrElse(USE_WEBSOCKET_KEY, "true"));
     }
 }

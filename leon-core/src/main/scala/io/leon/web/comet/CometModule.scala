@@ -16,6 +16,7 @@ import io.leon.web.TopicsService
 import com.google.inject.{Key, AbstractModule}
 import io.leon.web.browser.VirtualLeonJsFileBinder
 import java.util.concurrent.{Executors, Executor}
+import io.leon.config.{ConfigMapHolder, ConfigMap}
 
 class CometModule extends AbstractModule {
 
@@ -37,8 +38,9 @@ class CometModule extends AbstractModule {
       override def configureServlets() {
         import scala.collection.JavaConverters._
 
+        val configMap = ConfigMapHolder.getInstance().getConfigMap
         val meteorParams = Map[String, String](
-          ApplicationConfig.WEBSOCKET_SUPPORT -> "false",
+          ApplicationConfig.WEBSOCKET_SUPPORT -> configMap.useWebSocket.toString,
           ApplicationConfig.PROPERTY_NATIVE_COMETSUPPORT -> "true"
         ).asJava
 
