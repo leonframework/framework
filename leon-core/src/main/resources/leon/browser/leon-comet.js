@@ -23,7 +23,7 @@ getLeon().comet = (function() {
             var request = {
                 url: url,
                 contentType: 'application/json',
-                transport: 'websocket',
+                transport: getLeon().useWebSocket ? 'websocket' : 'streaming',
                 fallbackTransport: 'streaming',
                 trackMessageLength: 'true',
                 executeCallbackBeforeReconnect: 'true',
