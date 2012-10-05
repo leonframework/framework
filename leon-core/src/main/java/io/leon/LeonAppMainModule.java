@@ -61,6 +61,10 @@ abstract public class LeonAppMainModule extends LeonModule {
         this.useLeonShiroIntegration = useLeonShiroIntegration;
     }
 
+    public void setUseWebSocket(boolean useWebSocket) {
+        configMap.put(ConfigMap.USE_WEBSOCKET_KEY, Boolean.toString(useWebSocket));
+    }
+
     public List<? extends Realm> getShiroRealms() {
         return Lists.newLinkedList();
     }

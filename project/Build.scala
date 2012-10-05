@@ -8,7 +8,7 @@ import WebPlugin._
 
 object BuildSettings {
   val buildOrganization = "io.leon"
-  val buildVersion      = "0.5.16"
+  val buildVersion      = "0.5.18"
   val buildScalaVersion = "2.9.1"
   val buildDescription  = "JVM web framework for building data-driven web applications"
 
@@ -24,8 +24,9 @@ http://www.eclipse.org/legal/epl-v10.html
   val buildSettings =
     Defaults.defaultSettings ++
     licenseSettings ++
-    Seq(scalacOptions ++= Seq("-unchecked", "-Xfatal-warnings", "-deprecation")) ++
+    Seq(scalacOptions ++= Seq("-target:jvm-1.5", "-unchecked", "-Xfatal-warnings", "-deprecation")) ++
     Seq(javacOptions ++= Seq("-source", "1.6", "-target", "1.6")) ++
+    Seq(classpathTypes ~= (_ + "orbit")) ++ // MR: required to resolve jetty 8.x dependencies
     Seq(
       organization := buildOrganization,
       description  := buildDescription,
@@ -105,26 +106,27 @@ object Publish {
 
 object Dependencies {
 
+  def jetty_version = "8.1.4.v20120524"
+
   def scalatest = "org.scalatest" %% "scalatest" % "1.7.1" % "test" withSources()
 
   def testng = "org.testng" % "testng" % "6.1.1" % "test" withSources()
 
   def sbt_testng_interface = "de.johoop" % "sbt-testng-interface" % "1.0.0" % "test"
 
+  def selenium = "org.seleniumhq.selenium" % "selenium-java" % "2.25.0" % "provided"
 
-  def selenium = "org.seleniumhq.selenium" % "selenium-java" % "2.21.0" % "provided"
+  def servletApi = orbitDep("javax.servlet", "3.0.0.v201112011016", "provided")
 
-  def servletApi = "org.mortbay.jetty" % "servlet-api" % "2.5-20081211" % "provided"
+  def jetty = "org.eclipse.jetty" % "jetty-webapp" % jetty_version % "provided" withSources()
 
-  def jettyRuntime = "org.eclipse.jetty" % "jetty-webapp" % "7.0.2.v20100331" % "container" withSources()
-
-  def jetty = "org.eclipse.jetty" % "jetty-webapp" % "7.0.2.v20100331" % "provided" withSources()
+  def jettyWebSocket = "org.eclipse.jetty" % "jetty-websocket" % jetty_version % "provided" withSources()
 
   def rhino = "org.mozilla" % "rhino" % "1.7R3" withSources()
 
   def freemarker = "org.freemarker" % "freemarker" % "2.3.18" withSources()
 
-  def atmosphere_version = "0.7.1"
+  def atmosphere_version = "1.0.0"
 
   def atmosphere_runtime = "org.atmosphere" % "atmosphere-runtime" % atmosphere_version withSources()
 
@@ -164,6 +166,26 @@ object Dependencies {
 
   def mongo = "org.mongodb" % "mongo-java-driver" % "2.7.2" withSources()
 
+
+  // --- The Jetty Container ---
+  object Container {
+
+    def servletApi = orbitDep("javax.servlet", "3.0.0.v201112011016", "container")
+
+    def jettyRuntime = "org.eclipse.jetty" % "jetty-webapp" % jetty_version % "container" withSources()
+
+    def jettyWebSocket = "org.eclipse.jetty" % "jetty-websocket" % jetty_version % "container" withSources()
+
+    def libraryDependencies = Seq(
+      servletApi,
+      jettyRuntime,
+      jettyWebSocket
+    )
+  }
+
+  // this is a hack for dependencies with packaging type 'orbit' (used in jetty)
+  // we have to rewrite the packaging to jar, otherwise dependency cannot be resloved.
+  def orbitDep(name: String, version: String, scope: String) =  "org.eclipse.jetty.orbit" % name % version % scope artifacts (Artifact(name, "jar", "jar"))
 }
 
 object LeonBuild extends Build {
@@ -183,6 +205,7 @@ object LeonBuild extends Build {
     scalatest,
     sbt_testng_interface,
     jetty,
+    jettyWebSocket,
     selenium,
     logback_classic,
     logback_core,
@@ -201,7 +224,7 @@ object LeonBuild extends Build {
     commonsLogging // RR: Should be part of Apache Shiro, but I had to add it manually
     )
 
-  val samplesDeps = Seq(servletApi, jettyRuntime, jetty, selenium)
+  val samplesDeps = Seq(servletApi, jetty, selenium) ++ Container.libraryDependencies
 
   lazy val leon: Project = Project(
     "leon",

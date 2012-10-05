@@ -12,11 +12,12 @@ public class AngularLeonJsContribution implements VirtualLeonJsFileContribution 
 
     private final ResourceLoader resourceLoader;
 
-    private final String angularVersion = "1.0.0rc6";
+    private final String angularVersion = "1.0.0";
     
     private final String angularFolderPath = "/" + getClass().getPackage().getName().replace('.', '/');
 
     private final String angularJsPath = angularFolderPath + "/angular-" + angularVersion + ".js";
+    private final String angularBootstrapJsPath = angularFolderPath + "/angular-bootstrap-" + angularVersion + ".js";
     private final String angularResourceJsPath = angularFolderPath + "/angular-resource-" + angularVersion + ".js";
     private final String angularCookiesJsPath = angularFolderPath + "/angular-cookies-" + angularVersion + ".js";
     
@@ -24,6 +25,7 @@ public class AngularLeonJsContribution implements VirtualLeonJsFileContribution 
 
     private final String[] angularJsPathes = {
         angularJsPath,
+        angularBootstrapJsPath,
         angularResourceJsPath,
         angularCookiesJsPath,
         angularLeonIntegrationJsPath

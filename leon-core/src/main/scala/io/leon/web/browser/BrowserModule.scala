@@ -25,6 +25,8 @@ class BrowserModule extends ServletModule {
 
     vljs.bindAndAddContribution(classOf[DeploymentModeLeonJsContribution])
 
+    vljs.bindAndAddContribution(classOf[UseWebSocketLeonJsContribution])
+
     bind(classOf[VirtualLeonJsFile]).asEagerSingleton()
     serve("/leon/leon.js").`with`(classOf[VirtualLeonJsFile])
 

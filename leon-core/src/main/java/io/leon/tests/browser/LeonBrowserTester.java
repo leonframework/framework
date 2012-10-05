@@ -5,6 +5,9 @@ import io.leon.web.LeonFilter;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.*;
 
+import javax.servlet.DispatcherType;
+import java.util.EnumSet;
+
 public abstract class LeonBrowserTester {
 
     private Server server;
@@ -70,7 +73,7 @@ public abstract class LeonBrowserTester {
 
                 leonFilter = new LeonFilter(module);
                 FilterHolder filterHolder = new FilterHolder(leonFilter);
-                context.addFilter(filterHolder, "/*", FilterMapping.ALL);
+                context.addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST));
 
                 ServletHolder servletHolder = new ServletHolder(new DefaultServlet());
                 context.addServlet(servletHolder, "/*");

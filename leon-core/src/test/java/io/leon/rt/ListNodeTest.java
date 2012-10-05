@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -24,8 +24,7 @@ public class ListNodeTest {
 
     private Function<Integer, Object> plus10 = new Function<Integer, Object>() {
         @Override
-        public Object apply(@Nullable Integer input) {
-            //noinspection ConstantConditions
+        public Object apply(Integer input) {
             return 10 + input;
         }
     };
@@ -59,8 +58,12 @@ public class ListNodeTest {
 
         Collection<Object> mapOverLinkedList = rt.listNode(linkedListWithIntegers).map(plus10);
         assertEquals(mapOverLinkedList.getClass(), linkedListWithIntegers.getClass());
+    }
 
-
+    public void asListOf() {
+        ArrayList<String> listWithStrings = Lists.newArrayList("1", "2", "3");
+        ListNode<Integer> integerListNode = rt.listNode(listWithStrings).asListOf(Integer.class);
+        assertEquals(integerListNode.val(), Lists.newArrayList(1, 2, 3));
     }
 
 }

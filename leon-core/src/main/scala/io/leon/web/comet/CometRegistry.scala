@@ -72,8 +72,8 @@ class CometRegistry @Inject()(injector: Injector,
           Thread.sleep(checkClientsInterval)
           val now = System.currentTimeMillis
 
-          // Create a copy of the list and check all clients
-          clients.getAllClients.asScala foreach { client =>
+          // Create a copy of the list and check all non-websocket clients
+          clients.getAllClients.asScala filterNot { _.isWebSocket } foreach { client =>
             logger.trace("Checking client [{}] for connection timeouts.", client.clientId)
             if ((now - client.connectTime) > reconnectTimeout) {
               if (client.meteor.isDefined) {
@@ -110,7 +110,7 @@ class CometRegistry @Inject()(injector: Injector,
 
     clients.getByClientIdOption(clientId) match {
       case None => {
-        logger.trace("Registering   new meteor for client [" + clientId + "]")
+        logger.trace("Registering new meteor for client [" + clientId + "]")
         val cc = new ClientConnection(clientId, Some(meteor))
         clients.add(cc)
       }

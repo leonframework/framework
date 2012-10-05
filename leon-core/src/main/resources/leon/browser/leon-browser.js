@@ -42,7 +42,7 @@ var _leon = (function() {
                         }
                     };
 
-                    jQuery.post(url, request, handler);
+                    jQuery.post(getLeon().contextPath + url, request, handler);
                     getLeon().log("Ajax [" + url + " " + methodName + "] called");
                 }
             };
