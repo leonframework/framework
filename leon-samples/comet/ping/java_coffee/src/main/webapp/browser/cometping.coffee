@@ -1,3 +1,4 @@
+
 @sendPing = ->
     server.pingService("ping")(0)
 
