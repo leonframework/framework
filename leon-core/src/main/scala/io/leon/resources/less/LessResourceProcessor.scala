@@ -19,7 +19,9 @@ class LessResourceProcessor @Inject()(leonScriptEngineProvider: Provider[LeonScr
   extends ResourceProcessor {
 
   private def getLeonScriptEngine() = {
-    leonScriptEngineProvider.get()
+    val lse = leonScriptEngineProvider.get()
+    lse.loadResource("/io/leon/less-1.3.0-modified.js", 9)
+    lse
   }
 
   def fromFileEnding = "less"

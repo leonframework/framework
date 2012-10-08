@@ -36,7 +36,7 @@ var leon = (function() {
 
           parser.parse(lessString, function (err, tree) {
             if (err) {
-               throw(err);
+               throw(err.message);
             } else {
                 result =  tree.toCSS();
             }

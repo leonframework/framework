@@ -16,11 +16,8 @@ import com.google.inject.{Scopes, AbstractModule}
 class LessModule extends AbstractModule {
 
   def configure() {
-    bind(classOf[LessInit]).asEagerSingleton()
     bind(classOf[OriginalLessFilePathHolder]).asEagerSingleton()
-
     GuiceUtils.bindClassWithName(
-      binder(), classOf[ResourceProcessor], classOf[LessResourceProcessor]).in(Scopes.SINGLETON)
+      binder(), classOf[ResourceProcessor], classOf[LessResourceProcessor]).asEagerSingleton()
   }
-
 }
