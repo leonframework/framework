@@ -12,9 +12,9 @@ import java.util.Map
 import io.leon.config.ConfigMap
 import com.google.inject.Inject
 
-class DeploymentModeLeonJsContribution @Inject()(configMap: ConfigMap) extends VirtualLeonJsFileContribution {
+class DeploymentModeJsContribution @Inject()(configMap: ConfigMap) extends VirtualJsFileContribution {
 
-  def content(params: Map[String, String]) = {
+  def getContent(params: Map[String, String]) = {
     if (configMap.isDevelopmentMode) {
       "getLeon().deploymentMode = \"development\";\n"
     } else {

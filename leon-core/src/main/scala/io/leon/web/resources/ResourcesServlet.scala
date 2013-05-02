@@ -11,7 +11,7 @@ package io.leon.web.resources
 import javax.servlet._
 import http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import io.leon.web.WebUtils
-import io.leon.resourceloading.{ResourceLoader, Resource}
+import io.leon.resourceloading.{Resource}
 import com.google.inject._
 import io.leon.utils.GuiceUtils
 import io.leon.web.servletwhiteboard.ServletBinding

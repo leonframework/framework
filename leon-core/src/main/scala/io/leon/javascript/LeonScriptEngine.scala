@@ -12,9 +12,9 @@ import com.google.inject.{Injector, Inject}
 import java.lang.IllegalArgumentException
 
 import org.mozilla.javascript.{ScriptableObject, Context, Function => RhinoFunction}
-import io.leon.resourceloading.{ResourceLoader, Resource}
 import org.slf4j.LoggerFactory
 import java.io.InputStreamReader
+import io.leon.resourceloading.ResourceLoader
 
 class LeonScriptEngine @Inject()(injector: Injector,
                                  resourceLoader: ResourceLoader) {
@@ -48,21 +48,19 @@ class LeonScriptEngine @Inject()(injector: Injector,
 
   def loadResource(fileName: String, optimizationLevel: Int) {
     logger.info("Loading resource: " + fileName + " with optimization level " + optimizationLevel)
-    def _loadResource(resource: Resource) {
-      withContext { ctx =>
-        val ol = ctx.getOptimizationLevel
-        ctx.setOptimizationLevel(optimizationLevel)
-        try {
-          val reader = new InputStreamReader(resource.getInputStream())
-          ctx.evaluateReader(rhinoScope, reader, fileName, 1, null)
-        } finally {
-          ctx.setOptimizationLevel(ol)
-        }
-      }
-    }
 
     val resource = resourceLoader.getResource(fileName)
-    _loadResource(resource)
+
+    withContext { ctx =>
+      val ol = ctx.getOptimizationLevel
+      ctx.setOptimizationLevel(optimizationLevel)
+      try {
+        val reader = new InputStreamReader(resource.get.getInputStream())
+        ctx.evaluateReader(rhinoScope, reader, fileName, 1, null)
+      } finally {
+        ctx.setOptimizationLevel(ol)
+      }
+    }
   }
 
   def loadResources(fileNames: java.util.List[String]) {
@@ -78,7 +76,7 @@ class LeonScriptEngine @Inject()(injector: Injector,
         currentRoot = currentRoot.get(segments.head, currentRoot).asInstanceOf[ScriptableObject]
         segments = segments.tail
       }
-      currentRoot.asInstanceOf[ScriptableObject]
+      currentRoot
     }
   }
 

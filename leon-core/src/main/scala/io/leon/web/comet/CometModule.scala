@@ -14,7 +14,7 @@ import org.atmosphere.cpr.AtmosphereServlet
 import io.leon.web.resources.WebResourcesBinder
 import io.leon.web.TopicsService
 import com.google.inject.{Key, AbstractModule}
-import io.leon.web.browser.VirtualLeonJsFileBinder
+import io.leon.web.browser.VirtualJsFileBinder
 import java.util.concurrent.{Executors, Executor}
 
 class CometModule extends AbstractModule {
@@ -23,7 +23,7 @@ class CometModule extends AbstractModule {
     bind(classOf[Executor]).annotatedWith(classOf[CometThreadPoolExecutor]).toInstance(
       Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors()))
 
-    new VirtualLeonJsFileBinder(binder()).bindAndAddContribution(classOf[ClientIdLeonJsContribution])
+    new VirtualJsFileBinder(binder()).bindAndAddContribution(classOf[ClientIdJsContribution])
 
     bind(classOf[CometRegistry]).asEagerSingleton()
     bind(classOf[TopicsService]).to(Key.get(classOf[CometRegistry]))

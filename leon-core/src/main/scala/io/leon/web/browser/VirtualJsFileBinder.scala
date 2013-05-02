@@ -11,11 +11,11 @@ package io.leon.web.browser
 import com.google.inject.{Scopes, Binder}
 import io.leon.utils.GuiceUtils
 
-class VirtualLeonJsFileBinder(binder: Binder) {
+class VirtualJsFileBinder(binder: Binder) {
 
-  def bindAndAddContribution(contribution: Class[_ <: VirtualLeonJsFileContribution]) {
+  def bindAndAddContribution(contribution: Class[_ <: VirtualJsFileContribution]) {
     binder.bind(contribution).in(Scopes.SINGLETON)
-    GuiceUtils.bindClassWithName(binder, classOf[VirtualLeonJsFileContribution], contribution)
+    GuiceUtils.bindClassWithName(binder, classOf[VirtualJsFileContribution], contribution)
   }
 
 }

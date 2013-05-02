@@ -9,13 +9,13 @@
 package io.leon.web.ajax
 
 import com.google.inject.servlet.ServletModule
-import io.leon.web.browser.VirtualLeonJsFileBinder
+import io.leon.web.browser.VirtualJsFileBinder
 
 class AjaxModule extends ServletModule {
 
   override def configureServlets() {
-    val vljs = new VirtualLeonJsFileBinder(binder())
-    vljs.bindAndAddContribution(classOf[AjaxVirtualLeonJsFileContribution])
+    val vljs = new VirtualJsFileBinder(binder())
+    vljs.bindAndAddContribution(classOf[AjaxVirtualJsFileContribution])
   }
 
 }

@@ -19,13 +19,13 @@ class BrowserModule extends ServletModule {
     htpb.addTagRewriter(classOf[HtmlContextPathRewriter])
     htpb.addTagRewriter(classOf[HtmlLeonIncludeTag])
 
-    val vljs = new VirtualLeonJsFileBinder(binder())
-    vljs.bindAndAddContribution(classOf[ContextPathVirtualLeonJsFileContribution])
+    val vljs = new VirtualJsFileBinder(binder())
+    vljs.bindAndAddContribution(classOf[ContextPathVirtualJsFileContribution])
 
-    vljs.bindAndAddContribution(classOf[DeploymentModeLeonJsContribution])
+    vljs.bindAndAddContribution(classOf[DeploymentModeJsContribution])
 
-    bind(classOf[VirtualLeonJsFile]).asEagerSingleton()
-    serve("/leon/leon.js").`with`(classOf[VirtualLeonJsFile])
+    bind(classOf[VirtualJsFile]).asEagerSingleton()
+    serve("/leon/leon.js").`with`(classOf[VirtualJsFile])
 
     val rwb = new WebResourcesBinder(binder())
     rwb.exposeUrl("/leon/leon.js")

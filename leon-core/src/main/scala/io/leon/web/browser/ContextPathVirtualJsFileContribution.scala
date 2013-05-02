@@ -11,10 +11,10 @@ package io.leon.web.browser
 import javax.servlet.http.HttpServletRequest
 import com.google.inject.{Inject, Provider}
 
-class ContextPathVirtualLeonJsFileContribution @Inject()(httpRequestProvider: Provider[HttpServletRequest])
-    extends VirtualLeonJsFileContribution {
+class ContextPathVirtualJsFileContribution @Inject()(httpRequestProvider: Provider[HttpServletRequest])
+    extends VirtualJsFileContribution {
 
-  def content(params: java.util.Map[String, String]): String = {
+  def getContent(params: java.util.Map[String, String]): String = {
     val script = """ getLeon().contextPath = "%s"; """
     val cp = httpRequestProvider.get().getContextPath
     script.format(cp)

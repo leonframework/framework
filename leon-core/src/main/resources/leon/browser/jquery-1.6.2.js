@@ -5887,7 +5887,7 @@ function cloneFixAttributes( src, dest ) {
 
 	// IE6-8 fail to clone children inside object elements that use
 	// the proprietary classid attribute value (rather than the type
-	// attribute) to identify the type of content to display
+	// attribute) to identify the type of getContent to display
 	if ( nodeName === "object" ) {
 		dest.outerHTML = src.outerHTML;
 
@@ -7060,7 +7060,7 @@ jQuery.extend({
 					return match === undefined ? null : match;
 				},
 
-				// Overrides response content-type header
+				// Overrides response getContent-type header
 				overrideMimeType: function( type ) {
 					if ( !state ) {
 						s.mimeType = type;
@@ -7250,7 +7250,7 @@ jQuery.extend({
 		// Uppercase the type
 		s.type = s.type.toUpperCase();
 
-		// Determine if request has content
+		// Determine if request has getContent
 		s.hasContent = !rnoContent.test( s.type );
 
 		// Watch for a new set of requests
@@ -7258,7 +7258,7 @@ jQuery.extend({
 			jQuery.event.trigger( "ajaxStart" );
 		}
 
-		// More options handling for requests with no content
+		// More options handling for requests with no getContent
 		if ( !s.hasContent ) {
 
 			// If data is available, append data to url
@@ -7441,7 +7441,7 @@ jQuery.extend({
 
 /* Handles responses to an ajax request:
  * - sets all responseXXX fields accordingly
- * - finds the right dataType (mediates between content-type and expected dataType)
+ * - finds the right dataType (mediates between getContent-type and expected dataType)
  * - returns the corresponding response
  */
 function ajaxHandleResponses( s, jqXHR, responses ) {
@@ -7461,7 +7461,7 @@ function ajaxHandleResponses( s, jqXHR, responses ) {
 		}
 	}
 
-	// Remove auto dataType and get content-type in the process
+	// Remove auto dataType and get getContent-type in the process
 	while( dataTypes[ 0 ] === "*" ) {
 		dataTypes.shift();
 		if ( ct === undefined ) {
@@ -7469,7 +7469,7 @@ function ajaxHandleResponses( s, jqXHR, responses ) {
 		}
 	}
 
-	// Check if we're dealing with a known content-type
+	// Check if we're dealing with a known getContent-type
 	if ( ct ) {
 		for ( type in contents ) {
 			if ( contents[ type ] && contents[ type ].test( ct ) ) {
@@ -8416,7 +8416,7 @@ jQuery.fx.prototype = {
 
 		// Begin the animation
 		// Make sure that we start at a small width/height to avoid any
-		// flash of content
+		// flash of getContent
 		this.custom(this.prop === "width" || this.prop === "height" ? 1 : 0, this.cur());
 
 		// Start by showing the element

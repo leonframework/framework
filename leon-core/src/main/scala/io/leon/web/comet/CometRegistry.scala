@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2011 WeigleWilczek and others.
- * 
+ *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,7 @@ class CometRegistry @Inject()(injector: Injector,
                               gson: Gson,
                               configMap: ConfigMap,
                               httpServletRequestProvider: Provider[HttpServletRequest])
+
   extends TopicsService with ClientSubscriptions {
 
   private val logger = LoggerFactory.getLogger(getClass.getName)
@@ -91,7 +92,7 @@ class CometRegistry @Inject()(injector: Injector,
       }
     }).start()
   }
- 
+
   def stop() {
     shouldStop = true
     clients.getAllClients.asScala foreach { _.resumeAndRemoveUplink() }

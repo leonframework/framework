@@ -12,20 +12,6 @@ import java.io.InputStream
 
 abstract class Resource(val name: String) {
 
-  /**
-   * Returns the timestamp of the last modification. Implementations must return -1
-   * if this method is not applicable.
-   *
-   * @return timestamp of the last modification
-   */
-  def getLastModified(): Long
-
   def getInputStream(): InputStream
-
-  def isCachingDesired(): Boolean
-
-  def isCachingPossible(): Boolean = true
-
-  def wasLoadedFromCache(): Boolean = false
 
 }

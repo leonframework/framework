@@ -10,13 +10,13 @@ package io.leon.web.ajax
 
 import com.google.inject._
 import name.Named
-import io.leon.web.browser.VirtualLeonJsFileContribution
+import io.leon.web.browser.VirtualJsFileContribution
 import java.lang.StringBuffer
 import io.leon.utils.GuiceUtils
 
-class AjaxVirtualLeonJsFileContribution @Inject()(injector: Injector) extends VirtualLeonJsFileContribution {
+class AjaxVirtualJsFileContribution @Inject()(injector: Injector) extends VirtualJsFileContribution {
 
-  def content(params: java.util.Map[String, String]) = {
+  def getContent(params: java.util.Map[String, String]) = {
     import scala.collection.JavaConverters._
     val buffer = new StringBuffer()
     val serverObjects = GuiceUtils.getByType(injector, classOf[AjaxHandler])

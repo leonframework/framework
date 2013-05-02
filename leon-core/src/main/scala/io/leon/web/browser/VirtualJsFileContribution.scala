@@ -6,16 +6,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.resources.less
+package io.leon.web.browser
 
+trait VirtualJsFileContribution {
 
-class OriginalLessFilePathHolder {
+  def getContent(): String
 
-  private val threadLocal = new ThreadLocal[String]
-
-  def get = threadLocal.get
-
-  def set(path: String) {
-    threadLocal.set(path)
-  }
 }

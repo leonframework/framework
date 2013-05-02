@@ -6,10 +6,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package io.leon.web.browser
+package io.leon.web.comet
 
-trait VirtualLeonJsFileContribution {
+import io.leon.web.browser.VirtualJsFileContribution
+import java.util.Map
 
-  def content(params: java.util.Map[String, String]): String
+class ClientIdJsContribution extends VirtualJsFileContribution {
+
+  def getContent(params: Map[String, String]) = {
+    "getLeon().comet.clientId = " + Clients.generateNewClientId()
+  }
 
 }
