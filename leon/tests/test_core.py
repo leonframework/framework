@@ -1,17 +1,17 @@
 # coding=utf-8
 
 import os
-from webhandler.py_2vs3_utils import string_au_ou_ou
+from leon.py_2vs3_utils import string_au_ou_ou
 from unittest import TestCase
 from webtest import TestApp
 
-from webhandler import WebHandler
+import leon
 
 
-class TestWebHandler(TestCase):
+class TestCore(TestCase):
     def setUp(self):
         self.result = None
-        self.web_handler = WebHandler()
+        self.web_handler = leon.create()
         self.app = TestApp(self.web_handler.app)
 
     def get(self, url):
@@ -36,7 +36,7 @@ class TestWebHandler(TestCase):
                 'deployment_mode': 'development'
             }
         }
-        wh = WebHandler(conf)
+        wh = leon.create(conf)
         self.assertTrue(wh.is_in_development_mode())
 
     # -------------------------------------------------------------------------
@@ -184,7 +184,7 @@ class TestWebHandler(TestCase):
         self.assertEqual(self.result, ["1"])
 
     def test_argument_conversion_list_of_ints(self):
-        from webhandler import ListOf
+        from leon import ListOf
 
         def handler(var1=ListOf(int)):
             self.result = var1

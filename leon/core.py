@@ -10,7 +10,7 @@ import cherrypy
 from cherrypy import HTTPError
 from cherrypy.lib.static import serve_file
 from mako.lookup import TemplateLookup
-from webhandler.py_2vs3_utils import escape
+from leon.py_2vs3_utils import escape
 
 
 default_log_handler = logging.StreamHandler(sys.stdout)
