@@ -1,0 +1,180 @@
+/*
+ * Copyright (c) 2011 WeigleWilczek and others.
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+package io.leon.web.comet
+
+import org.atmosphere.cpr.{AtmosphereResource, DefaultBroadcaster, Meteor}
+import org.slf4j.LoggerFactory
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.ArrayList
+import scala.collection.JavaConverters._
+
+class ClientConnection(val clientId: String,
+                       var meteor: Option[Meteor]) extends ClientSubscriptionInformation {
+
+  private val logger = LoggerFactory.getLogger(getClass.getName)
+
+  // message queue
+  private val queue = new ArrayList[(Int, String)]
+
+  // topicID->true
+  private val topicSubscriptions = new ConcurrentHashMap[String, Boolean]
+
+  // topicName#filterName -> filterValue
+  private val topicActiveFilters = new ConcurrentHashMap[String, String]
+
+  private val nextMessageId = new AtomicInteger(0)
+
+  private val messageSendIndex = new AtomicInteger(0)
+
+  var connectTime = System.currentTimeMillis()
+
+  def isWebSocket = meteor map { _.transport() == AtmosphereResource.TRANSPORT.WEBSOCKET } getOrElse false
+
+  def setNewMeteor(lastMessageReceived: Int, newMeteor: Meteor): Unit = synchronized {
+    logger.debug("ClientConnection received a new meteor instance. Last message received: " + lastMessageReceived)
+    resumeAndRemoveUplink()
+    meteor = Some(newMeteor)
+    connectTime = System.currentTimeMillis()
+
+    // First connect or empty queue. Nothing to do here.
+    if (lastMessageReceived != -1) {
+      while (queue.size() > 0 && queue.get(0)._1 != lastMessageReceived) {
+        queue.remove(0)
+      }
+      if (queue.size() > 0) {
+        queue.remove(0)
+      }
+    }
+    messageSendIndex.set(0)
+    flushQueue()
+  }
+
+  def resumeAndRemoveUplink() = synchronized {
+    try {
+      meteor map {
+        m =>
+          logger.debug("Removing uplink for ClientConnection")
+          m.resume()
+          m.destroy()
+      }
+    } catch {
+      case e: Exception => // ignore
+    }
+    meteor = None
+  }
+
+  /**
+   * Add the message to the queue and flush the queue.
+   */
+  def enqueue(topicName: String, data: String) = synchronized {
+    val id = nextMessageId.getAndIncrement
+    val message = """{
+      "messageId": %s,
+      "topicName": "%s",
+      "data": %s
+    }
+    """.format(id, topicName, data).replace('\n', ' ')
+    queue.add(id -> message)
+    flushQueue()
+  }
+
+  /**
+   * Send all messages waiting in the queue.
+   */
+  private def flushQueue(): Unit = synchronized {
+    if (meteor.isEmpty) {
+      return
+    }
+    while (queue.size() > messageSendIndex.get()) {
+      val success = sendPackage(queue.get(messageSendIndex.getAndIncrement))
+      if (!success) {
+        logger.debug("Error while flushing queue. Aborting and waiting for a new client connection.")
+        meteor = None
+        return
+      }
+    }
+  }
+
+  private def sendPackage(msg: (Int, String)): Boolean = synchronized {
+    val data = msg._2
+    try {
+      meteor map {
+        meteor =>
+          val res = meteor.getAtmosphereResource
+
+          val b = new DefaultBroadcaster(clientId, res.getAtmosphereConfig)
+          b.addAtmosphereResource(res)
+          b.broadcast(data.length + "|" + data)
+
+          true
+      } getOrElse false
+    } catch {
+      case e: Throwable => {
+        logger.debug("Could not send comet message: ID [%s], Error message [%s]".format(msg._1, e.getMessage))
+        false
+      }
+    }
+  }
+
+  def updateTopicFilter(topicName: String, filterName: String, filterValue: String) = synchronized {
+    logger.debug("Updating topic filter for client [%s], topic [%s], filter name [%s], filter value [%s].".format(
+      clientId, topicName, filterName, filterValue))
+
+    // register topic subscription
+    topicSubscriptions.put(topicName, true)
+
+    if (filterName != null) {
+      // update the filter
+      val key = topicName + "#" + filterName
+      topicActiveFilters.put(key, filterValue)
+    }
+
+    if (logger.isTraceEnabled) {
+      logger.trace("\n" + getDebugStateString)
+    }
+  }
+
+
+  def getClientId = synchronized {
+    clientId
+  }
+
+  def hasConnection = synchronized  {
+    meteor.isDefined
+  }
+
+  def getAllSubscribedTopics: java.util.Set[String] = synchronized {
+    topicSubscriptions.keySet()
+  }
+
+  def hasSubscribedTopic(topicName: String): Boolean = synchronized {
+    topicSubscriptions.containsKey(topicName)
+  }
+
+  def hasFilterValue(topicName: String, filterName: String, requiredFilterValue: String): Boolean = synchronized {
+    val key = topicName + "#" + filterName
+    topicActiveFilters.get(key) == requiredFilterValue
+  }
+
+  def getDebugStateString: String = synchronized {
+    val sb = new StringBuilder
+    sb.append("Client: " + clientId + ", subscriptions:" + "\n")
+    sb.append("  Topics:" + "\n")
+    for (topic <- topicSubscriptions.asScala.keys) {
+      sb.append("    * topic: '" + topic + "'\n")
+    }
+    sb.append("  Filters:" + "\n")
+    for (filter <- topicActiveFilters.asScala.keys) {
+      sb.append("    * filter name: '" + filter + "' value: '" + topicActiveFilters.get(filter) + "'\n")
+    }
+    sb.toString()
+  }
+
+}
