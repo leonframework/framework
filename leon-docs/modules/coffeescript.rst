@@ -1,4 +1,0 @@
-CoffeeScript
-============
-
-TODO
