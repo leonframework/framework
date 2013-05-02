@@ -1,48 +1,16 @@
-# SBT
-target
-lib_managed
-src_managed
-#boot
-test/project/plugins/project
-local_glassfish.properties
-.history
-
-# TestNG
-test-output
-
-# Maven
-target
-
-# Mac
-.DS_Store
-
-# Eclipse
-.classpath
-.launch
-.metadata
-.project
-.scala_dependencies
-.settings
-.target
-
-# IntelliJ
+.virtualenv
+.webenv
 .idea
-*.iml
-*.ipr
-*.iws
-out
+*.pyc
+__pycache__
+.coverage
 .cache
-
-# TextMate
-*.tmproj
-
-# Pax Runner
-runner
-
-# Sphinx
-_build
-
-# Various file system browser
-.directory
-
-
+.tox
+opendata/webui/app/components
+opendata/webui/.sass-cache
+opendata/webui/.tmp
+opendata/webui/dist
+opendata/webui/node_modules
+*.egg-info
+build
+dist
