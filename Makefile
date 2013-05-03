@@ -9,11 +9,16 @@ clean:
 	rm -rf dist
 	rm -rf *.egg-info
 
-setup:
+virtualenv:
 	virtualenv --no-site-packages --distribute -p python3 --prompt=ENV .virtualenv
 
 dependencies:
 	.virtualenv/bin/python setup.py develop
 
+setup: virtualenv dependencies
+
 upload:
 	dev/upload.sh
+
+start_demo1:
+	.virtualenv/bin/python demos/demo1_simple_requests/start.py

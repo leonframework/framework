@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Demo 1 - Simple Request</title>
+    <script type="text/javascript">
+        var request1 = function() {
+            var req = new XMLHttpRequest();
+            req.open('GET', '/request1', true);
+            req.onreadystatechange = function () {
+                if (req.readyState == 4) {
+                    alert(req.responseText);
+                }
+            };
+            req.send();
+        };
+        var request2 = function() {
+            var req = new XMLHttpRequest();
+            req.open('GET', '/request2', true);
+            req.onreadystatechange = function () {
+                if (req.readyState == 4) {
+                    alert(req.responseText);
+                }
+            };
+            req.send();
+        };
+    </script>
+</head>
+<body>
+    <a href="#" onclick="request1()">Request 1</a>
+    <a href="#" onclick="request2()">Request 2</a>
+</body>
+</html>
