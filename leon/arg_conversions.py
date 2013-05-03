@@ -3,7 +3,7 @@
 NOT_OPTIONAL_MARKER = object()
 
 
-class ListOf:
+class list_of:
     def __init__(self, member_type):
         self.member_type = member_type
 
@@ -37,7 +37,7 @@ def convert_to_type(value, default_value_or_type):
         return list(value)
 
     # ListOf
-    if isinstance(default_value_or_type, ListOf):
+    if isinstance(default_value_or_type, list_of):
         value = value if isinstance(value, list) else [value]
         return default_value_or_type.convert_list(value)
 

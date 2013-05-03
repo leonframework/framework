@@ -156,77 +156,6 @@ class TestCore(TestCase):
         self.assertEqual(res.testbody, "value1#value2")
 
     # -------------------------------------------------------------------------
-    # route handling with argument conversions
-    # -------------------------------------------------------------------------
-
-    def test_argument_conversion_int_type(self):
-        def handler(var1=int):
-            self.result = var1
-
-        self.web_handler.add_route('/handler/:var1', handler)
-        self.get("/handler/1")
-        self.assertEqual(self.result, 1)
-
-    def test_argument_conversion_int_default(self):
-        def handler(var1=2):
-            self.result = var1
-
-        self.web_handler.add_route('/handler/:var1', handler)
-        self.get("/handler/1")
-        self.assertEqual(self.result, 1)
-
-    def test_argument_conversion_list(self):
-        def handler(var1=list):
-            self.result = var1
-
-        self.web_handler.add_route('/handler/:var1', handler)
-        self.get("/handler/1")
-        self.assertEqual(self.result, ["1"])
-
-    def test_argument_conversion_list_of_ints(self):
-        from leon import ListOf
-
-        def handler(var1=ListOf(int)):
-            self.result = var1
-
-        self.web_handler.add_route('/handler/:var1', handler)
-        self.get("/handler/1")
-        self.assertEqual(self.result, [1])
-
-    def test_argument_conversion_bool(self):
-        def handler(var1=bool):
-            self.result = var1
-
-        self.web_handler.add_route('/handler/:var1', handler)
-
-        self.get("/handler/true")
-        self.assertTrue(self.result)
-        self.get("/handler/on")
-        self.assertTrue(self.result)
-        self.get("/handler/yes")
-        self.assertTrue(self.result)
-        self.get("/handler/1")
-        self.assertTrue(self.result)
-        self.get("/handler/false")
-        self.assertFalse(self.result)
-        self.get("/handler/off")
-        self.assertFalse(self.result)
-        self.get("/handler/no")
-        self.assertFalse(self.result)
-        self.get("/handler/0")
-        self.assertFalse(self.result)
-
-    def test_argument_conversion_bool_wrong_value(self):
-        def handler(var1=bool):
-            return var1
-
-        def call():
-            self.get("/handler/X")
-
-        self.web_handler.add_route('/handler/:var1', handler)
-        self.assertRaises(Exception, call)
-
-    # -------------------------------------------------------------------------
     # Mako tests
     # -------------------------------------------------------------------------
 
@@ -241,13 +170,3 @@ class TestCore(TestCase):
         self.web_handler.set_static_dir(os.path.abspath(os.path.join(os.path.dirname(__file__), "files")))
         res = self.get('/mako/file_umlaute.html')
         self.assertIn(string_au_ou_ou, res.testbody)
-
-    # -------------------------------------------------------------------------
-    # Watchdog reloads
-    # -------------------------------------------------------------------------
-
-    def test_timestamp_service(self):
-        pass
-
-    def test_script_tag_insertion(self):
-        pass

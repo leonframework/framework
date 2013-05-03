@@ -2,7 +2,7 @@
 
 import cherrypy
 from leon.web_handler import WebHandler as _WebHandler
-from leon.arg_conversions import ListOf
+from leon.arg_conversions import list_of
 
 
 def create(config=None):

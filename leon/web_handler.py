@@ -104,12 +104,8 @@ class WebHandler(object):
 
         if self.is_in_development_mode():
             self.log.info("Starting in development mode.")
-            self._start_watchdog()
         else:
             self.log.info("Starting in production mode.")
-
-    def _start_watchdog(self):
-        pass
 
     def _encode_result(self, result):
         if type(result) in (set, list, dict):
@@ -139,6 +135,42 @@ class WebHandler(object):
                 return template.render()
 
         return serve_file(self._static_dir + path)
+
+    def _handle_request(self, params):
+        request_path = cherrypy.request.path_info
+        resource = request_path.split('/')[-1]
+        self.log.debug('Request: %s', request_path)
+
+        # Serving static resource
+        if '.' in resource or request_path.endswith('/'):
+            self.log.debug('Serving static resources "%s".', request_path)
+            return self._load_static_file(request_path)
+
+        # Serving with handler
+        if hasattr(cherrypy, 'session'):
+            params['session'] = cherrypy.session
+        params['request'] = cherrypy.request
+
+        # find all matching handler
+        handler_callables = []
+        for handler in self._handlers:
+            handler_callable = handler.create_callable_for_request(request_path, params)
+            if handler_callable:
+                handler_callables.append(handler_callable)
+
+        # error, if not unique
+        if len(handler_callables) > 1:
+            raise HTTPError(message='More than one handler found to handle the URL "%s". Handlers: "%s"' %
+                                    (request_path, handler_callables))
+
+        # one handler found
+        elif len(handler_callables) == 1:
+            handler_callable = handler_callables[0]
+            response = handler_callable()
+            return self._encode_result(response)
+
+        # no handler found
+        raise HTTPError(message='No handler was found.')
 
     def is_in_development_mode(self):
         server_config = self.app.config.get('server', {})
@@ -171,38 +203,10 @@ class WebHandler(object):
 
     # noinspection PyUnusedLocal
     def default(self, *args, **kwargs):
-        """ This method gets called by CherryPy.
-        :param args:
-        :param kwargs:
-        """
-        request_path = cherrypy.request.path_info
-        resource = request_path.split('/')[-1]
-        self.log.debug('Request: %s', request_path)
-
-        # Serving static resource
-        if '.' in resource or request_path.endswith('/'):
-            self.log.debug('Serving static resources "%s".', request_path)
-            return self._load_static_file(request_path)
-
-        # Serving with handler
-        kwargs['session'] = cherrypy.session
-        kwargs['request'] = cherrypy.request
-
-        handler_callables = []
-        for handler in self._handlers:
-            handler_callable = handler.create_callable_for_request(request_path, kwargs)
-            if handler_callable:
-                handler_callables.append(handler_callable)
-
-        if len(handler_callables) > 1:
-            raise HTTPError(message='More than one handler found to handle the URL "%s". Handlers: "%s"' %
-                            (request_path, handler_callables))
-
-        elif len(handler_callables) == 1:
-            handler_callable = handler_callables[0]
-            response = handler_callable()
-            return self._encode_result(response)
-
-        raise HTTPError(message='No handler was found.')
+        try:
+            return self._handle_request(kwargs)
+        except Exception as e:
+            self.log.exception(e)
+            raise e
 
     default.exposed = True
