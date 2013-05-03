@@ -1,8 +1,8 @@
 # coding=utf-8
 
 import cherrypy
-from leon.core import WebHandler as _WebHandler
-from leon.core import ListOf
+from leon.web_handler import WebHandler as _WebHandler
+from leon.arg_conversions import ListOf
 
 
 def create(config=None):
@@ -15,7 +15,7 @@ def create(config=None):
     return _WebHandler(config)
 
 
-def run(app):
+def start_server(app):
     """
     :param app: The Leon application to start
     :type app: WebHandler

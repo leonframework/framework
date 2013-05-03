@@ -11,6 +11,7 @@ from cherrypy import HTTPError
 from cherrypy.lib.static import serve_file
 from mako.lookup import TemplateLookup
 from leon.py_2vs3_utils import escape
+from leon.arg_conversions import NOT_OPTIONAL_MARKER, convert_to_type
 
 
 default_log_handler = logging.StreamHandler(sys.stdout)
@@ -18,58 +19,6 @@ default_log_handler.setLevel(logging.DEBUG)
 default_log_handler.setFormatter(logging.Formatter(
     '[%(relativeCreated)-5d %(levelname)-8s %(name)s:%(lineno)d] %(message)s'))
 
-
-###############################################################################
-# argument conversion
-###############################################################################
-
-_NOT_OPTIONAL = object()
-
-
-class ListOf:
-    def __init__(self, member_type):
-        self.member_type = member_type
-
-    def convert_list(self, alist):
-        return [_convert_to_type(i, self.member_type) for i in alist]
-
-
-def _convert_to_type(value, default_value_or_type):
-    if type(default_value_or_type) is type:
-        target_type = default_value_or_type
-    else:
-        target_type = type(default_value_or_type)
-
-    # int
-    if target_type is int:
-        return int(value)
-
-    # bool
-    if target_type is bool:
-        val = value.lower().strip()
-        if val in ('true', 'on', 'yes', '1'):
-            return True
-        elif val in ('false', 'off', 'no', '0'):
-            return False
-        else:
-            raise Exception('The string "%s" can not be converted to a bool value. '
-                            'Supported values are: true/false, on/off, 1/0, yes/no' % value)
-
-    # list
-    if target_type is list and type(value) != list:
-        return list(value)
-
-    # typed list
-    if isinstance(default_value_or_type, ListOf):
-        value = value if isinstance(value, list) else [value]
-        return default_value_or_type.convert_list(value)
-
-    return value
-
-
-###############################################################################
-# request handler for methods
-###############################################################################
 
 class FnHandler:
     def __init__(self, fn, url):
@@ -88,14 +37,14 @@ class FnHandler:
 
         self.has_kwargs = True if kwargs else False
         defaults = [] if defaults is None else defaults
-        defaults = [_NOT_OPTIONAL] * (len(argument_names) - len(defaults)) + list(defaults)
+        defaults = [NOT_OPTIONAL_MARKER] * (len(argument_names) - len(defaults)) + list(defaults)
         self.argnames_with_defaults = list(zip(argument_names, defaults))
 
     def _get_argument_value(self, argument_name, default_value_or_type, request_params):
         if argument_name in request_params:
-            return _convert_to_type(request_params[argument_name], default_value_or_type)
+            return convert_to_type(request_params[argument_name], default_value_or_type)
 
-        if default_value_or_type is not _NOT_OPTIONAL and type(default_value_or_type) != type:
+        if default_value_or_type is not NOT_OPTIONAL_MARKER and type(default_value_or_type) != type:
             return default_value_or_type
 
         raise HTTPError(message='Could not find a value for parameter "%s"' % argument_name)
@@ -124,10 +73,6 @@ class FnHandler:
         else:
             return None
 
-
-###############################################################################
-# core
-###############################################################################
 
 class WebHandler(object):
     def __init__(self, config=None):
