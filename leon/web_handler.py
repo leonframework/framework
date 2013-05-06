@@ -1,30 +1,20 @@
 # coding=utf-8
 
-import sys
 import os
 import re
 import inspect
-import logging
 import json
 import cherrypy
 from cherrypy import HTTPError
 from cherrypy.lib.static import serve_file
 from mako.lookup import TemplateLookup
+from leon import log
 from leon.py_2vs3_utils import escape
 from leon.arg_conversions import NOT_OPTIONAL_MARKER, convert_to_type
 
 
-default_log_handler = logging.StreamHandler(sys.stdout)
-default_log_handler.setLevel(logging.DEBUG)
-default_log_handler.setFormatter(logging.Formatter(
-    '[%(relativeCreated)-5d %(levelname)-8s %(name)s:%(lineno)d] %(message)s'))
-
-
 class FnHandler:
     def __init__(self, fn, url):
-        self.log = logging.Logger(self.__class__.__name__)
-        self.log.addHandler(default_log_handler)
-
         route_syntax_as_re = re.sub(r'/:(\w+)', r'/(?P<\1>\w+)', url + '([/?]|$)')
         self.url = url
         self.url_re = re.compile(route_syntax_as_re)
@@ -54,7 +44,7 @@ class FnHandler:
         for (name, default) in self.argnames_with_defaults:
             values.append(self._get_argument_value(name, default, params))
 
-        self.log.info('Calling handler "%s" with params %s', self.fn, params)
+        log.info('Calling handler "%s" with params %s', self.fn, params)
         if self.has_kwargs:
             return self.fn(*values, **params)
         else:
@@ -80,12 +70,8 @@ class WebHandler(object):
         self._handlers = []
         self.app = None
         self.template_lookup = None
+        self._file_change_watcher = None
         self._static_dir = ''
-
-        self.log = logging.Logger(self.__class__.__name__)
-        self.log.addHandler(default_log_handler)
-        #cherrypy.log.access_log.addHandler(default_log_handler)
-        #cherrypy.log.error_log.addHandler(default_log_handler)
 
         cherrypy.config.update({'environment': 'embedded'})
         app = cherrypy.tree.mount(self)
@@ -103,9 +89,9 @@ class WebHandler(object):
         app.merge(self.config)
 
         if self.is_in_development_mode():
-            self.log.info("Starting in development mode.")
+            log.info("Starting in development mode.")
         else:
-            self.log.info("Starting in production mode.")
+            log.info("Starting in production mode.")
 
     def _encode_result(self, result):
         if type(result) in (set, list, dict):
@@ -139,11 +125,11 @@ class WebHandler(object):
     def _handle_request(self, params):
         request_path = cherrypy.request.path_info
         resource = request_path.split('/')[-1]
-        self.log.debug('Request: %s', request_path)
+        log.debug('Request: %s', request_path)
 
         # Serving static resource
         if '.' in resource or request_path.endswith('/'):
-            self.log.debug('Serving static resources "%s".', request_path)
+            log.debug('Serving static resources "%s".', request_path)
             return self._load_static_file(request_path)
 
         # Serving with handler
@@ -189,16 +175,20 @@ class WebHandler(object):
         if not path.endswith(os.path.sep):
             path += os.path.sep
 
-        self.log.info('Using "%s" for static files and Mako templates', path)
+        log.info('Using "%s" for static files and Mako templates', path)
 
         self._static_dir = path
         self.template_lookup = TemplateLookup(directories=[path], input_encoding='utf-8')
+
+        #if self.is_in_development_mode():
+        #    self._file_change_watcher = FileChangeWatcher()
+        #    self._file_change_watcher.start()
 
     def set_static_dir_relative_to_file(self, filename, dirname):
         self.set_static_dir(os.path.abspath(os.path.join(os.path.dirname(filename), dirname)))
 
     def add_route(self, url, handler_fn):
-        self.log.info('Registering handler "%s" for URL "%s"', handler_fn, url)
+        log.info('Registering handler "%s" for URL "%s"', handler_fn, url)
         self._handlers.append(FnHandler(handler_fn, url))
 
     # noinspection PyUnusedLocal
@@ -206,7 +196,7 @@ class WebHandler(object):
         try:
             return self._handle_request(kwargs)
         except Exception as e:
-            self.log.exception(e)
+            log.exception(e)
             raise e
 
     default.exposed = True

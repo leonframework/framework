@@ -8,7 +8,7 @@ from webtest import TestApp
 import leon
 
 
-class TestCore(TestCase):
+class TestWebHandler(TestCase):
     def setUp(self):
         self.result = None
         self.web_handler = leon.create()

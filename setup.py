@@ -6,7 +6,6 @@ requires = [
     # normal dependencies
     'cherrypy==3.2.4',
     'mako==0.8.0',
-    'watchdog==0.5.4',
 
     # test dependencies
     'pytest==2.3.4',
