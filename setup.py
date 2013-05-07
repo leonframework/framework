@@ -8,9 +8,6 @@ requires = [
     'mako==0.8.0',
 
     # test dependencies
-    'pytest==2.3.4',
-    'pytest-pep8==1.0.4',
-    'pytest-xdist==1.8',
     'WebTest==2.0.3']
 
 setup(name='leon',

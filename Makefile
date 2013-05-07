@@ -11,6 +11,11 @@ clean:
 
 virtualenv:
 	virtualenv --no-site-packages --distribute -p python3 --prompt=ENV .virtualenv
+	.virtualenv/bin/pip install Sphinx
+	.virtualenv/bin/pip install sphinx-pypi-upload
+	.virtualenv/bin/pip install pytest
+	.virtualenv/bin/pip install pytest-pep8
+	.virtualenv/bin/pip install pytest-xdist
 
 dependencies:
 	.virtualenv/bin/python setup.py develop
