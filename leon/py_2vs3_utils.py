@@ -9,7 +9,7 @@ string_au_ou_ou = 'äöü'
 
 
 # HTML escape
-if sys.version_info >= (3, 0):
+if sys.version_info >= (3, 2):
     import html
     escape = html.escape
 else:
