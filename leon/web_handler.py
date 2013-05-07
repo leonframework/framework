@@ -74,9 +74,14 @@ class WebHandler(object):
         self._static_dir = ''
 
         cherrypy.config.update({'environment': 'embedded'})
+        cherrypy.server.socket_host = '0.0.0.0'
+
         app = cherrypy.tree.mount(self)
         self.app = app
         conf = {
+            #'global': {
+            #    'server.socket_host': '0.0.0.0',
+            #},
             '/': {
                 'tools.sessions.on': True,
                 'tools.sessions.timeout': 60
