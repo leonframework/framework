@@ -2,6 +2,7 @@
 
 import sys
 import logging
+import json
 log = logging.getLogger('leon')
 
 import cherrypy
@@ -33,11 +34,12 @@ def init_logging_system(app):
     #cherrypy.log.error_log.addHandler(default_log_handler)
 
 
-def create(config=None, init_logging=True):
+def create(config=None, init_logging=True, encoder=json.dumps):
     """
     :param config: Optional configuration dict
     :type config: dict
     :param init_logging:
+    :param encoder: Optional encoder
     :return: The Leon application
     :rtype: WebHandler
     """
@@ -54,4 +56,4 @@ def start_server(app):
     :param app: The Leon application to start
     :type app: WebHandler
     """
-    cherrypy.quickstart(app)
+    cherrypy.quickstart(app, '/', app.app.config)

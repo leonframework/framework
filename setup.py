@@ -14,7 +14,7 @@ requires = [
     'WebTest==2.0.3']
 
 setup(name='leon',
-      version='0.4.0',
+      version='0.4.1',
       description='Simple Web Framework for RPC/REST-oriented Web Applications',
       url='http://leon.io',
       author='Roman Roelofsen',
