@@ -1,6 +1,7 @@
 # coding=utf-8
 
 import os
+import sys
 import re
 import inspect
 import json
@@ -44,7 +45,7 @@ class FnHandler:
         for (name, default) in self.argnames_with_defaults:
             values.append(self._get_argument_value(name, default, params))
 
-        log.info('Calling handler "%s" with params %s', self.fn, params)
+        log.debug('Calling handler "%s" with params %s', self.fn, params)
         if self.has_kwargs:
             return self.fn(*values, **params)
         else:
@@ -74,29 +75,20 @@ class WebHandler(object):
         self._static_dir = ''
 
         cherrypy.config.update({'environment': 'embedded'})
-        cherrypy.server.socket_host = '0.0.0.0'
 
         app = cherrypy.tree.mount(self)
         self.app = app
         conf = {
-            #'global': {
-            #    'server.socket_host': '0.0.0.0',
-            #},
             '/': {
                 'tools.sessions.on': True,
                 'tools.sessions.timeout': 60
             },
-            'server': {
+            'leon': {
                 'deployment_mode': 'production'
             }
         }
         app.merge(conf)
         app.merge(self.config)
-
-        if self.is_in_development_mode():
-            log.info("Starting in development mode.")
-        else:
-            log.info("Starting in production mode.")
 
     def _encode_result(self, result):
         if type(result) in (set, list, dict):
@@ -134,7 +126,7 @@ class WebHandler(object):
 
         # Serving static resource
         if '.' in resource or request_path.endswith('/'):
-            log.debug('Serving static resources "%s".', request_path)
+            log.debug('Serving static resource "%s".', request_path)
             return self._load_static_file(request_path)
 
         # Serving with handler
@@ -164,7 +156,10 @@ class WebHandler(object):
         raise HTTPError(message='No handler was found.')
 
     def is_in_development_mode(self):
-        server_config = self.app.config.get('server', {})
+        if '--development' in sys.argv:
+            return True
+
+        server_config = self.app.config.get('leon', {})
         deployment_mode = server_config.get('deployment_mode', 'production')
         return deployment_mode == 'development'
 
@@ -198,10 +193,5 @@ class WebHandler(object):
 
     # noinspection PyUnusedLocal
     def default(self, *args, **kwargs):
-        try:
-            return self._handle_request(kwargs)
-        except Exception as e:
-            log.exception(e)
-            raise e
-
+        return self._handle_request(kwargs)
     default.exposed = True

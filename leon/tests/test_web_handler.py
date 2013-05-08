@@ -32,7 +32,7 @@ class TestWebHandler(TestCase):
 
     def test_deployment_mode_set_to_development(self):
         conf = {
-            'server': {
+            'leon': {
                 'deployment_mode': 'development'
             }
         }
@@ -44,7 +44,7 @@ class TestWebHandler(TestCase):
     # -------------------------------------------------------------------------
 
     def test_static_file(self):
-        self.web_handler.set_static_dir(os.path.abspath(os.path.join(os.path.dirname(__file__), "files")))
+        self.web_handler.set_static_dir_relative_to_file(__file__, 'files')
         res = self.get("/static.txt")
         self.assertIn('static file content', res.testbody)
 
@@ -54,20 +54,20 @@ class TestWebHandler(TestCase):
         self.assertIn('static file content', res.testbody)
 
     def test_static_file_404(self):
-        self.web_handler.set_static_dir(os.path.abspath(os.path.join(os.path.dirname(__file__), "files")))
+        self.web_handler.set_static_dir_relative_to_file(__file__, 'files')
         self.assertRaises(Exception, lambda: self.get("/does_not_exist.txt"))
 
     def test_deny_parent_dir_access(self):
-        self.web_handler.set_static_dir(os.path.abspath(os.path.join(os.path.dirname(__file__), "files")))
+        self.web_handler.set_static_dir_relative_to_file(__file__, 'files')
         self.assertRaises(Exception, lambda: self.get("/../static.txt"))
 
     def test_static_empty_path_to_index_html(self):
-        self.web_handler.set_static_dir(os.path.abspath(os.path.join(os.path.dirname(__file__), "files")))
+        self.web_handler.set_static_dir_relative_to_file(__file__, 'files')
         res = self.get("")
         self.assertIn('index.html', res.testbody)
 
     def test_static_add_index_html_on_folder_access(self):
-        self.web_handler.set_static_dir(os.path.abspath(os.path.join(os.path.dirname(__file__), "files")))
+        self.web_handler.set_static_dir_relative_to_file(__file__, 'files')
         res = self.get("/folder1/")
         self.assertIn('index.html in folder1', res.testbody)
 
@@ -160,13 +160,13 @@ class TestWebHandler(TestCase):
     # -------------------------------------------------------------------------
 
     def test_mako_rendering(self):
-        self.web_handler.set_static_dir(os.path.abspath(os.path.join(os.path.dirname(__file__), "files")))
+        self.web_handler.set_static_dir_relative_to_file(__file__, 'files')
         res = self.get('/mako/file1.html')
         self.assertIn('aaa', res.testbody)
         self.assertIn('bbb', res.testbody)
         self.assertIn('ccc', res.testbody)
 
     def test_mako_rendering_with_umlaute_in_file(self):
-        self.web_handler.set_static_dir(os.path.abspath(os.path.join(os.path.dirname(__file__), "files")))
+        self.web_handler.set_static_dir_relative_to_file(__file__, 'files')
         res = self.get('/mako/file_umlaute.html')
         self.assertIn(string_au_ou_ou, res.testbody)

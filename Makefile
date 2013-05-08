@@ -31,4 +31,4 @@ upload:
 	dev/upload.sh
 
 start_demo1:
-	.virtualenv/bin/python demos/demo1_simple_requests/start.py
+	.virtualenv/bin/python demos/demo1_simple_requests/start.py --development
