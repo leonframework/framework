@@ -66,9 +66,10 @@ class FnHandler:
 
 
 class WebHandler(object):
-    def __init__(self, config=None):
+    def __init__(self, config=None, encoder=json.dumps):
         self.config = config if config else {}
         self._handlers = []
+        self.encoder = encoder
         self.app = None
         self.template_lookup = None
         self._file_change_watcher = None
@@ -92,7 +93,7 @@ class WebHandler(object):
 
     def _encode_result(self, result):
         if type(result) in (set, list, dict):
-            return json.dumps(result)
+            return self.encoder(result)
         else:
             return escape(str(result))
 
