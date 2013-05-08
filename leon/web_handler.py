@@ -120,7 +120,14 @@ class WebHandler(object):
 
         return serve_file(self._static_dir + path)
 
+    def _remove_accept_charset_header(self):
+        # TODO Reevalute solution for Chrome bug
+        if 'Accept-Charset' in cherrypy.request.headers:
+            del cherrypy.request.headers['Accept-Charset']
+
     def _handle_request(self, params):
+        self._remove_accept_charset_header()
+
         request_path = cherrypy.request.path_info
         resource = request_path.split('/')[-1]
         log.debug('Request: %s', request_path)
