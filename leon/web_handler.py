@@ -66,14 +66,14 @@ class FnHandler:
 
 
 class WebHandler(object):
-    def __init__(self, config=None, encoder=json.dumps):
+    def __init__(self, config=None):
         self.config = config if config else {}
         self._handlers = []
-        self.encoder = encoder
         self.app = None
         self.template_lookup = None
         self._file_change_watcher = None
         self._static_dir = ''
+        self.json_encoder = json.dumps
 
         cherrypy.config.update({'environment': 'embedded'})
 
@@ -93,7 +93,7 @@ class WebHandler(object):
 
     def _encode_result(self, result):
         if type(result) in (set, list, dict):
-            return self.encoder(result)
+            return self.json_encoder(result)
         else:
             return escape(str(result))
 

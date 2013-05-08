@@ -1,6 +1,5 @@
 # coding=utf-8
 
-import os
 from leon.py_2vs3_utils import string_au_ou_ou
 from unittest import TestCase
 from webtest import TestApp
