@@ -39,6 +39,16 @@ class TestWebHandler(TestCase):
         self.assertTrue(wh.is_in_development_mode())
 
     # -------------------------------------------------------------------------
+    # custom JSON encoder
+    # -------------------------------------------------------------------------
+
+    def test_custom_json_encoder(self):
+        self.web_handler.json_encoder = lambda data: '__' + data[0] + '__'
+        self.web_handler.add_route('/handler', lambda: ['ok'])
+        res = self.get("/handler")
+        self.assertEqual(res.testbody, '__ok__')
+
+    # -------------------------------------------------------------------------
     # static access tests
     # -------------------------------------------------------------------------
 
